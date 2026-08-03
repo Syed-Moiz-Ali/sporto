@@ -1,0 +1,11 @@
+import '../repos/iauth_repository.dart';
+
+class SendOtpUseCase {
+  final IAuthRepository repository;
+
+  SendOtpUseCase(this.repository);
+
+  Future<void> call(String mobileNumber) {
+    return repository.sendOtp(mobileNumber);
+  }
+}

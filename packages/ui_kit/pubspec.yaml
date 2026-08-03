@@ -1,0 +1,19 @@
+name: ui_kit
+description: SPORTO Glassmorphism Design System & UI Kit Package
+version: 1.0.0
+publish_to: none
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+  flutter: ">=3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  shared_domain:
+    path: ../shared_domain
+  google_fonts: ^6.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter

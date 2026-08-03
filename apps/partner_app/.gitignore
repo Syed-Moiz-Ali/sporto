@@ -1,0 +1,27 @@
+.dart_tool/
+.packages
+.pub/
+build/
+ephemeral/
+*.g.dart
+*.freezed.dart
+*.iml
+.idea/
+.vscode/
+
+# Android
+android/app/debug/
+android/app/profile/
+android/app/release/
+android/key.jks
+android/app/key.jks
+*.apk
+*.aab
+
+# iOS
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Runner.xcworkspace/
+*.ipa

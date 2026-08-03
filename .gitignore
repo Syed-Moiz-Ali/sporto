@@ -1,0 +1,63 @@
+# Secrets & Local Docs
+link.txt
+error.txt
+approach.txt
+SPORTO_REQUIREMENTS_SPECIFICATION.txt
+login/
+signup/
+
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.buildlog/
+.history
+.svn/
+migrate_working_dir/
+
+# IDE / User-specific
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.project
+.classpath
+
+# Flutter / Dart specific
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+ephemeral/
+node_modules/
+
+# Melos
+.melos_tool/
+
+# Generated files
+*.g.dart
+*.freezed.dart
+
+# Android specific
+android/app/debug/
+android/app/profile/
+android/app/release/
+android/key.jks
+android/app/key.jks
+*.apk
+*.aab
+
+# iOS specific
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Runner.xcworkspace/
+*.ipa

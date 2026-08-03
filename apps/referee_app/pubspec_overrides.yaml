@@ -1,0 +1,10 @@
+# melos_managed_dependency_overrides: core,referee_data,shared_domain,ui_kit
+dependency_overrides:
+  core:
+    path: ..\\..\\packages\\core
+  referee_data:
+    path: ..\\..\\packages\\referee_data
+  shared_domain:
+    path: ..\\..\\packages\\shared_domain
+  ui_kit:
+    path: ..\\..\\packages\\ui_kit

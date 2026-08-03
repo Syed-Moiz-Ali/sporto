@@ -1,0 +1,168 @@
+================================================================================
+                    SPORTO ENTERPRISE MOBILE PLATFORM
+        MASTER CLEAN ARCHITECTURE & FULL EVENT-DRIVEN BLOC PLAN
+================================================================================
+
+FIGMA & STYLING SPECIFICATION:
+  - Figma Link: https://www.figma.com/design/NLsnI6g2twuWkpoirhG6Ee/%F0%9F%8F%8F-SPORTO--Copy-
+  - Aesthetic Theme: Ultra-Premium Glassmorphism (Frosted Dark Glass, Luminous Emerald Glows, Dynamic Micro-Animations)
+
+STRICT ARCHITECTURAL REQUIREMENTS:
+  1. Full Event-Driven BLoC Pattern (Strictly `Bloc<Event, State>` - NO Cubits!):
+     - Every user interaction or system trigger is an explicit Event class dispatched via `bloc.add(Event())`.
+     - State transitions are strictly controlled via `on<Event>((event, emit) async => ...)` handlers.
+  2. Clean Architecture (Domain, Data, Presentation):
+     - Domain: Pure Dart. Entities, Repository Interfaces, Use Cases. Zero framework/UI lock-in.
+     - Data: Hive Local Data Sources, Remote REST API Client, Repository Implementations.
+     - Presentation: BLoCs, Glassmorphism Design System, Screens.
+  3. Multi-Sport Engine Strategy Architecture (Cricket engine first, extensible to Football, Basketball, etc.).
+  4. Local-First Hive Storage & Background Sync Queue.
+  5. Melos Monorepo Structure: 5 Decoupled Packages + 2 Mobile Applications.
+
+================================================================================
+1. STRICT CLEAN ARCHITECTURE LAYERS
+================================================================================
+
+A. DOMAIN LAYER (packages/shared_domain - Pure Dart):
+   - Entities: `BaseMatchEntity`, `CricketMatchEntity`, `TournamentEntity`, `TeamEntity`, `PlayerEntity`, `BallScoreEntity`, `TossResultEntity`.
+   - Enums: `SportType`, `SyncStatus`, `MatchStatus`, `TossChoice`, `WicketType`.
+   - Repository Interfaces:
+       * `ITournamentRepository` (getTournaments, createTournament, syncPendingTournaments)
+       * `IMatchRepository` (getMatches, getMatchById, verifyMatch, conductToss, recordBallScore, syncPendingMatches)
+       * `ISyncRepository` (watchConnectivity, processSyncQueue)
+   - Strategy Interface: `ISportScoreEngine<T extends BaseMatchEntity, E extends BaseSportEvent>`
+   - Use Cases:
+       * `GetTournamentsUseCase`
+       * `CreateTournamentUseCase`
+       * `GetMatchesUseCase`
+       * `VerifyMatchUseCase`
+       * `ConductTossUseCase`
+       * `RecordBallScoreUseCase`
+       * `SyncPendingDataUseCase`
+
+B. DATA LAYER (packages/partner_data, packages/referee_data, packages/core):
+   - Local Data Sources: Hive Boxes (`sporto_tournaments_box`, `sporto_matches_box`, `sporto_pending_sync_box`).
+   - Repository Implementations: `TournamentRepositoryImpl`, `MatchRepositoryImpl`, `SyncRepositoryImpl`.
+   - Local-First Flow:
+       Read: Stream Hive data first -> Fetch remote API -> Update Hive box -> Hive stream reactively updates UI.
+       Write: Save to Hive box immediately (optimistic update) -> Add payload to SyncQueue -> Background worker pushes to API when online.
+
+C. PRESENTATION LAYER (apps/partner_app, apps/referee_app, packages/ui_kit):
+   - Glassmorphism Design System: `GlassContainer`, `GlassCard`, `GlassNavBar`, `GlassButton`, `SyncIndicatorBadge`, `GlassModal`.
+   - Full Event-Driven BLoCs (strictly `Bloc<Event, State>`):
+
+================================================================================
+2. FULL EVENT-DRIVEN BLOC SPECIFICATIONS (NO CUBITS)
+================================================================================
+
+All state management across apps and core strictly uses full BLoC classes:
+
+A. `ConnectivityBloc` (packages/core):
+   - Events:
+     * `StartConnectivityWatcherEvent`
+     * `ConnectivityStatusChangedEvent(bool isConnected)`
+     * `TriggerSyncQueueEvent`
+   - States:
+     * `ConnectivityInitialState`
+     * `ConnectivityStatusState(bool isConnected, SyncStatus syncStatus, int pendingItemsCount)`
+   - Handler:
+     `on<ConnectivityStatusChangedEvent>((event, emit) async => ...)`
+
+B. `TournamentBloc` (apps/partner_app):
+   - Events:
+     * `LoadTournamentsEvent`
+     * `FilterTournamentsBySportEvent(SportType sportType)`
+     * `AddTournamentEvent(TournamentEntity tournament)`
+   - States:
+     * `TournamentInitialState`
+     * `TournamentLoadingState`
+     * `TournamentLoadedState(List<TournamentEntity> tournaments, SportType selectedSport)`
+     * `TournamentOperationSuccessState(String message)`
+     * `TournamentErrorState(String errorMessage)`
+   - Handlers:
+     `on<LoadTournamentsEvent>(_onLoadTournaments);`
+     `on<AddTournamentEvent>(_onAddTournament);`
+
+C. `MatchScoringBloc` (apps/referee_app):
+   - Events:
+     * `LoadMatchDetailEvent(String matchId)`
+     * `VerifyMatchRosterEvent(String matchId, bool rosterA, bool rosterB, bool boundary, bool balls)`
+     * `ConductTossEvent(String matchId, String winnerTeamId, TossChoice choice)`
+     * `RecordBallEvent(String matchId, BallScoreEntity ballScore)`
+     * `CompleteMatchEvent(String matchId)`
+   - States:
+     * `MatchScoringInitialState`
+     * `MatchScoringLoadingState`
+     * `MatchScoringLoadedState(CricketMatchEntity match)`
+     * `MatchCompletedState(CricketMatchEntity match, String winnerName)`
+     * `MatchScoringErrorState(String errorMessage)`
+   - Handlers:
+     `on<RecordBallEvent>(_onRecordBall);`
+     `on<ConductTossEvent>(_onConductToss);`
+
+================================================================================
+3. GLASSMORPHISM DESIGN SYSTEM & UI KIT (packages/ui_kit)
+================================================================================
+
+- Base Background: #0B0D10
+- Frosted Dark Glass Surface: rgba(27, 30, 36, 0.65) with BackdropFilter blur (15-25px)
+- Glass Card Container: rgba(37, 41, 50, 0.55) with BackdropFilter blur (12px)
+- Luminous Green Border: rgba(0, 200, 83, 0.35)
+- Primary Emerald Green: #00C853 (Neon Luminous Accent)
+- Typography: Space Grotesk (Headers & Scores), Inter (Body & Captions)
+
+Glass Components:
+  - `GlassContainer` / `GlassCard`
+  - Floating translucent `GlassNavBar`
+  - `GlassButton` with glowing touch states
+  - `GlassModal` dialogs (Wicket modal, Toss modal, Verification modal)
+  - `SyncIndicatorBadge`
+
+================================================================================
+4. MONOREPO PACKAGE STRUCTURE (Melos)
+================================================================================
+
+sporto_workspace/
+├── melos.yaml
+├── pubspec.yaml
+├── plan.txt
+├── packages/
+│   ├── core/                  # ConnectivityBloc, Hive Storage, SyncQueue Box, Dio Client
+│   ├── ui_kit/                # Glassmorphism System (GlassCard, GlassNavBar, SportoTheme)
+│   ├── shared_domain/         # Domain Layer (Entities, Use Cases, Repositories Interfaces, ISportScoreEngine)
+│   ├── partner_data/          # Partner Local Hive Boxes & API Synchronization Logic
+│   └── referee_data/          # Referee Local Hive Boxes & Multi-Sport Data Logic
+└── apps/
+    ├── partner_app/           # SPORTO Partner App (TournamentBloc, BookingBloc, Glass UI)
+    └── referee_app/           # SPORTO Referee App (MatchScoringBloc, Verification, Glass UI)
+
+================================================================================
+5. IMPLEMENTATION ROADMAP
+================================================================================
+
+PHASE 1: Monorepo Foundation & Package Initialization
+  - Setup Melos monorepo configuration, `melos.yaml`, root `pubspec.yaml`, and 5 package skeleton files.
+
+PHASE 2: Core Infrastructure & Glassmorphism UI Kit
+  - Build `packages/core`: `ConnectivityBloc` (Full BLoC pattern), Hive initialization, `SyncQueue` box.
+  - Build `packages/ui_kit`: `GlassContainer`, `GlassCard`, `GlassNavBar`, `GlassButton`, `SyncIndicatorBadge`, `SportoTheme`.
+
+PHASE 3: Shared Domain & Data Repositories
+  - Build `packages/shared_domain`: Define Freezed + Hive entities (`CricketMatchEntity`, `TournamentEntity`), Repository Interfaces, Use Cases, `ISportScoreEngine`, `SportEngineFactory`.
+  - Build `packages/partner_data` & `packages/referee_data`: Hive data sources and repository implementations. Run `build_runner`.
+
+PHASE 4: Partner App (`apps/partner_app`) Development
+  - Build `TournamentBloc` (`Bloc<TournamentEvent, TournamentState>`).
+  - Build 4-tab Glass Navigation, Multi-Sport Tournament Creation Wizard, Live Grounds Monitor, Earnings.
+
+PHASE 5: Referee App (`apps/referee_app`) Development
+  - Build `MatchScoringBloc` (`Bloc<MatchScoringEvent, MatchScoringState>`).
+  - Build Referee Portal (#UM-9921), Pre-Match Roster Verification, 3D Coin Toss Simulator, Live Scorekeeper Engine, Result view.
+
+PHASE 6: Offline Sync Integration & End-to-End Verification
+  - Connect `ConnectivityBloc` to auto-trigger background sync upon internet restoration.
+  - Run build checks across all packages and test user workflows.
+
+================================================================================
+                             END OF PLAN
+================================================================================

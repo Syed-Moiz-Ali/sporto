@@ -1,0 +1,9 @@
+.dart_tool/
+.packages
+.pub/
+build/
+*.g.dart
+*.freezed.dart
+*.iml
+.idea/
+.vscode/

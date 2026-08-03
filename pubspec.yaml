@@ -1,0 +1,11 @@
+name: sporto_workspace
+description: SPORTO Enterprise Mobile Platform Monorepo Workspace
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  melos: ^6.0.0

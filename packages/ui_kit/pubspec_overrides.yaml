@@ -1,0 +1,4 @@
+# melos_managed_dependency_overrides: shared_domain
+dependency_overrides:
+  shared_domain:
+    path: ..\\shared_domain
