@@ -67,6 +67,9 @@ class RefereeApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
+        BlocProvider<ThemeBloc>(
+          create: (_) => ThemeBloc()..add(InitThemeEvent()),
+        ),
         BlocProvider<ConnectivityBloc>(
           create: (_) => ConnectivityBloc()..add(StartConnectivityWatcherEvent()),
         ),
@@ -88,11 +91,17 @@ class RefereeApp extends StatelessWidget {
           ),
         ),
       ],
-      child: MaterialApp(
-        title: 'SPORTO Referee',
-        theme: SportoTheme.darkTheme,
-        debugShowCheckedModeBanner: false,
-        home: const AuthFlowWrapper(),
+      child: BlocBuilder<ThemeBloc, ThemeState>(
+        builder: (context, themeState) {
+          return MaterialApp(
+            title: 'SPORTO Referee',
+            theme: SportoTheme.lightTheme, // Default Light Theme
+            darkTheme: SportoTheme.darkTheme,
+            themeMode: themeState.themeMode,
+            debugShowCheckedModeBanner: false,
+            home: const AuthFlowWrapper(),
+          );
+        },
       ),
     );
   }

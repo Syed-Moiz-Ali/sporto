@@ -1,28 +1,29 @@
 # 🏆 SPORTO Enterprise Mobile Platform
 
 > **Production-Grade Monorepo for Multi-Sport Match Scoring, Tournament Management, & Official Referee Portals**  
-> Built with **Flutter**, **Clean Architecture**, **Strict Event-Driven BLoC**, **Local-First Hive Storage**, and a **Glassmorphism Design System (`#F4B41A` Amber Gold)**.
+> Built with **Flutter**, **Clean Architecture**, **Strict Event-Driven BLoC**, **ThemeBloc (Default Light Theme + Dark Theme)**, **Local-First Hive Storage**, and a **Glassmorphism Design System (`#F4B41A` Amber Gold)**.
 
 ---
 
 ## 📌 Architecture & Design Highlights
 
-1. **Melos Monorepo Architecture**:
+1. **Theme Engine (`ThemeBloc` & `SportoTheme`)**:
+   - **Default Theme**: **`SportoTheme.lightTheme`** (Clean, crisp light surfaces with `#F4B41A` Amber Gold accents and `#0F172A` slate typography).
+   - **Dark Theme**: **`SportoTheme.darkTheme`** (Obsidian dark glass surfaces).
+   - **State Management**: **`ThemeBloc`** (`InitThemeEvent`, `ToggleThemeEvent`, `SetThemeModeEvent`) with persistent preference saved in Hive Storage across app launches.
+   - **Theme Toggle**: Interactive Sun/Moon theme switcher in the header app bar of both applications.
+
+2. **Melos Monorepo Architecture**:
    - 5 decoupled internal packages (`core`, `ui_kit`, `shared_domain`, `partner_data`, `referee_data`).
    - 2 native mobile applications (`apps/partner_app` for Organizers/Turf Owners, `apps/referee_app` for Official Umpires/Scorekeepers).
 
-2. **Extensible Multi-Sport Strategy Pattern**:
+3. **Extensible Multi-Sport Strategy Pattern**:
    - `ISportScoreEngine<T, E>` interface allowing seamless runtime addition of Cricket, Football, Basketball, Badminton, etc.
    - Dynamic resolution via `SportEngineFactory.getEngine(SportType.cricket)`.
 
-3. **Mobile Number OTP & Automated Onboarding**:
+4. **Mobile Number OTP & Automated Onboarding**:
    - `PhoneLoginScreen`: Mobile Number input card with country code dropdown (`+91`, `+1`, etc.) + 4-digit PIN verification modal.
    - `AutomatedOnboardingWizard`: Automated 4-step user onboarding flow (Personal Information, Location & Notification Permissions, Favorite Sports Selection Grid, Feature Showcase Carousel).
-
-4. **Figma Glassmorphism Design System (`packages/ui_kit`)**:
-   - Consumes Flutter Material 3 `Theme.of(context).colorScheme` dynamically.
-   - **Primary Brand Color**: **`#F4B41A` (Vibrant Amber Gold)** extracted directly from Figma hero nodes.
-   - Frosted translucent glass containers (`BackdropFilter` with blur `15px-25px`), glowing amber strokes (`rgba(244, 180, 26, 0.35)`), obsidian background (`#0E0C08`), and dark slate surface panels (`#1C2026`).
 
 5. **Local-First Offline Sync Engine (`packages/core`)**:
    - Zero-delay optimistic UI updates backed by local **Hive Boxes**.
@@ -39,10 +40,9 @@ E:\syed_moiz_ali\personal\sporto\
 ├── pubspec.yaml                          # Root workspace specification
 ├── README.md                             # Platform documentation
 ├── .gitignore                            # Root gitignore rules
-├── login/ & signup/                      # Figma design asset exports
 ├── packages/
-│   ├── core/                             # AuthBloc, ConnectivityBloc, HiveService, SyncQueueItem
-│   ├── ui_kit/                           # Theme.of(context).colorScheme Glassmorphism System & Screens
+│   ├── core/                             # ThemeBloc, AuthBloc, ConnectivityBloc, HiveService, SyncQueueItem
+│   ├── ui_kit/                           # Light/Dark Glassmorphism System & Screens
 │   ├── shared_domain/                    # Entities, Repositories Interfaces, Multi-Sport Engine Strategy
 │   ├── partner_data/                     # Tournament Hive Data Sources & Repositories Impl
 │   └── referee_data/                     # Match Hive Data Sources & Repositories Impl

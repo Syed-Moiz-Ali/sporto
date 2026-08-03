@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import '../widgets/glass_container.dart';
-import '../widgets/glass_button.dart';
+import 'package:flutter/services.dart';
 
 class PhoneLoginScreen extends StatefulWidget {
   final String appRole; // 'partner' or 'referee'
@@ -58,55 +57,110 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
 
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor:
+          theme.scaffoldBackgroundColor, // Uses SportoColors.background
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
+        scrolledUnderElevation: 0,
         leading: _isOtpSent
             ? IconButton(
-                icon: Icon(Icons.arrow_back, color: colorScheme.onSurface),
+                icon: Icon(Icons.arrow_back_ios_new_rounded,
+                    color: colorScheme.onSurface, size: 20),
                 onPressed: () => setState(() => _isOtpSent = false),
+                splashColor: Colors.transparent,
+                highlightColor: Colors.transparent,
               )
             : null,
       ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+          padding: const EdgeInsets.fromLTRB(32.0, 16.0, 32.0, 32.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                _isOtpSent ? 'Verify Your Number' : 'Enter Mobile Number',
-                style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: colorScheme.onSurface,
-                    ),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                _isOtpSent
-                    ? 'Enter 4-digit OTP sent to $_selectedCountryCode${_phoneController.text}'
-                    : 'Log in or sign up to access your ${widget.appRole.toUpperCase()} portal',
-                style: TextStyle(
-                    color: colorScheme.onSurfaceVariant, fontSize: 13),
-              ),
-              const SizedBox(height: 30),
-              Expanded(
-                child: SingleChildScrollView(
-                  child: _isOtpSent
-                      ? _buildOtpView(colorScheme)
-                      : _buildPhoneInputView(colorScheme),
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 400),
+                switchInCurve: Curves.easeOutExpo,
+                switchOutCurve: Curves.easeInExpo,
+                child: SizedBox(
+                  key: ValueKey<bool>(_isOtpSent),
+                  width: double.infinity,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        _isOtpSent ? 'Verify' : 'Login',
+                        // Uses Space Grotesk, White
+                        style: textTheme.displayLarge?.copyWith(
+                          letterSpacing: -1.0,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        _isOtpSent
+                            ? 'Code sent to $_selectedCountryCode ${_phoneController.text}'
+                            : 'Enter your mobile number to access the ${widget.appRole} portal.',
+                        // Uses Inter, textSecondary
+                        style: textTheme.bodyLarge?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
+                          height: 1.5,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-              GlassButton(
-                label: _isOtpSent ? 'Verify OTP' : 'Continue',
-                isPrimary: true,
-                onPressed: _isOtpSent ? _verifyOtp : _sendOtp,
+              const SizedBox(height: 56),
+              Expanded(
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 400),
+                  switchInCurve: Curves.easeOutCubic,
+                  switchOutCurve: Curves.easeInCubic,
+                  child: _isOtpSent
+                      ? _buildOtpView(colorScheme, textTheme)
+                      : _buildPhoneInputView(colorScheme, textTheme),
+                ),
               ),
-              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                height: 60,
+                child: FilledButton(
+                  style: FilledButton.styleFrom(
+                    backgroundColor: colorScheme.primary, // Sporto primaryGold
+                    foregroundColor: colorScheme
+                        .onPrimary, // Black text for high contrast on gold
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    elevation: 0,
+                  ),
+                  onPressed: _isOtpSent ? _verifyOtp : _sendOtp,
+                  child: Text(
+                    _isOtpSent ? 'Verify & Proceed' : 'Continue',
+                    style: textTheme.titleLarge?.copyWith(
+                      color: colorScheme.onPrimary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+              if (!_isOtpSent)
+                Center(
+                  child: Text(
+                    'By continuing, you agree to the Terms & Privacy Policy.',
+                    // Uses Inter, textMuted
+                    style: textTheme.labelSmall?.copyWith(
+                      color: colorScheme.onSurfaceVariant.withOpacity(0.7),
+                    ),
+                  ),
+                ),
             ],
           ),
         ),
@@ -114,120 +168,112 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
     );
   }
 
-  Widget _buildPhoneInputView(ColorScheme colorScheme) {
+  Widget _buildPhoneInputView(ColorScheme colorScheme, TextTheme textTheme) {
     return Column(
+      key: const ValueKey('PhoneInput'),
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        GlassContainer(
-          padding: const EdgeInsets.all(20),
-          hasGlow: true,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Mobile Number',
-                  style: TextStyle(
-                      color: colorScheme.onSurfaceVariant,
-                      fontSize: 13,
-                      fontWeight: FontWeight.bold)),
-              const SizedBox(height: 10),
-              Row(
-                children: [
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: colorScheme.surfaceContainer,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: colorScheme.outline),
-                    ),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<String>(
-                        value: _selectedCountryCode,
-                        dropdownColor: colorScheme.surface,
-                        items: const [
-                          DropdownMenuItem(
-                              value: '+91', child: Text('🇮🇳 +91')),
-                          DropdownMenuItem(value: '+1', child: Text('🇺🇸 +1')),
-                          DropdownMenuItem(
-                              value: '+44', child: Text('🇬🇧 +44')),
-                          DropdownMenuItem(
-                              value: '+971', child: Text('🇦🇪 +971')),
-                        ],
-                        onChanged: (val) =>
-                            setState(() => _selectedCountryCode = val!),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: TextField(
-                      controller: _phoneController,
-                      keyboardType: TextInputType.phone,
-                      style: TextStyle(
-                          fontSize: 16,
-                          color: colorScheme.onSurface,
-                          fontWeight: FontWeight.bold),
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: colorScheme.surfaceContainer,
-                        hintText: '9876543210',
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12)),
-                      ),
-                    ),
-                  ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            DropdownButtonHideUnderline(
+              child: DropdownButton<String>(
+                value: _selectedCountryCode,
+                icon: const SizedBox.shrink(),
+                dropdownColor:
+                    colorScheme.surfaceContainer, // Sporto cardSurface
+                borderRadius: BorderRadius.circular(16),
+                style: textTheme.displaySmall?.copyWith(
+                  color: colorScheme.onSurfaceVariant, // textSecondary
+                  letterSpacing: -0.5,
+                ),
+                items: const [
+                  DropdownMenuItem(value: '+91', child: Text('+91')),
+                  DropdownMenuItem(value: '+1', child: Text('+1')),
+                  DropdownMenuItem(value: '+44', child: Text('+44')),
+                  DropdownMenuItem(value: '+971', child: Text('+971')),
                 ],
+                onChanged: (val) => setState(() => _selectedCountryCode = val!),
               ),
-            ],
-          ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: TextField(
+                controller: _phoneController,
+                keyboardType: TextInputType.phone,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                cursorColor: colorScheme.primary, // Sporto primaryGold
+                cursorHeight: 32,
+                style: textTheme.displaySmall?.copyWith(
+                  color: colorScheme.onSurface, // White
+                  letterSpacing: 2.0,
+                ),
+                decoration: InputDecoration(
+                  hintText: '00000 00000',
+                  hintStyle: textTheme.displaySmall?.copyWith(
+                    color: colorScheme.outline, // Sporto cardBorder for hint
+                    letterSpacing: 2.0,
+                  ),
+                  border: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: 20),
-        Center(
-          child: Text(
-            'By continuing, you agree to SPORTO Terms of Service & Privacy Policy.',
-            textAlign: TextAlign.center,
-            style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 11),
+        const SizedBox(height: 12),
+        // Minimalist animated underline indicating focus
+        Container(
+          height: 2,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: colorScheme.outline, // Sporto cardBorder
+            borderRadius: BorderRadius.circular(2),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildOtpView(ColorScheme colorScheme) {
+  Widget _buildOtpView(ColorScheme colorScheme, TextTheme textTheme) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
+      key: const ValueKey('OtpInput'),
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 20),
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: List.generate(4, (index) {
             return SizedBox(
-              width: 60,
-              height: 64,
+              width: 64,
               child: TextField(
                 controller: _otpControllers[index],
                 focusNode: _focusNodes[index],
                 keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 textAlign: TextAlign.center,
                 maxLength: 1,
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: colorScheme.primary,
+                cursorColor: colorScheme.primary, // primaryGold
+                style: textTheme.displayMedium?.copyWith(
+                  color: colorScheme.onSurface,
                 ),
                 decoration: InputDecoration(
                   counterText: '',
-                  filled: true,
-                  fillColor: colorScheme.surfaceContainer,
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    borderSide:
-                        BorderSide(color: colorScheme.primary, width: 2),
+                  border: UnderlineInputBorder(
+                    borderSide: BorderSide(
+                        color: colorScheme.outline, width: 2), // cardBorder
                   ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    borderSide: BorderSide(color: colorScheme.outline),
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(
+                        color: colorScheme.outline, width: 2), // cardBorder
                   ),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(
+                        color: colorScheme.primary,
+                        width: 3), // primaryGold focus
+                  ),
+                  contentPadding: const EdgeInsets.only(bottom: 8),
                 ),
                 onChanged: (val) {
                   if (val.isNotEmpty && index < 3) {
@@ -240,13 +286,21 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
             );
           }),
         ),
-        const SizedBox(height: 24),
-        Text(
-          'Resend code in 00:$_resendCountdown',
-          style: TextStyle(
-              color: colorScheme.onSurfaceVariant,
-              fontSize: 13,
-              fontWeight: FontWeight.w600),
+        const SizedBox(height: 48),
+        GestureDetector(
+          onTap: _resendCountdown == 0
+              ? () => setState(() => _resendCountdown = 30)
+              : null,
+          child: Text(
+            _resendCountdown == 0
+                ? 'Resend Code'
+                : 'Resend in 00:$_resendCountdown',
+            style: textTheme.titleLarge?.copyWith(
+              color: _resendCountdown == 0
+                  ? colorScheme.primary // primaryGold when active
+                  : colorScheme.onSurfaceVariant, // textSecondary when disabled
+            ),
+          ),
         ),
       ],
     );

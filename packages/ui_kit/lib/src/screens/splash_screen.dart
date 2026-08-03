@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../widgets/glass_container.dart';
 
 class SplashScreen extends StatefulWidget {
   final VoidCallback onFinish;
@@ -11,70 +10,112 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  double _opacity = 0.0;
+  double _scale = 0.90;
+
   @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(seconds: 2), () {
+
+    // Trigger the fluid 2026 entry animation immediately after build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        setState(() {
+          _opacity = 1.0;
+          _scale = 1.0;
+        });
+      }
+    });
+
+    // Hold the splash screen for the duration, then proceed
+    Future.delayed(const Duration(milliseconds: 2500), () {
       if (mounted) widget.onFinish();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
 
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: Stack(
         children: [
           Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                GlassContainer(
-                  width: 100,
-                  height: 100,
-                  borderRadius: 50,
-                  hasGlow: true,
-                  backgroundColor: colorScheme.primary.withValues(alpha: 0.15),
-                  borderColor: colorScheme.primary,
-                  child: Center(
-                    child: Icon(Icons.sports_cricket, color: colorScheme.primary, size: 50),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Text(
-                  'SPORTO',
-                  style: Theme.of(context).textTheme.displayMedium?.copyWith(
+            child: AnimatedOpacity(
+              duration: const Duration(milliseconds: 1400),
+              curve: Curves.easeOutExpo,
+              opacity: _opacity,
+              child: AnimatedScale(
+                duration: const Duration(milliseconds: 1400),
+                curve: Curves.easeOutExpo,
+                scale: _scale,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Bare, high-contrast brand icon
+                    Icon(
+                      Icons.sports_cricket_rounded,
+                      color: colorScheme.primary,
+                      size: 72,
+                    ),
+                    const SizedBox(height: 24),
+                    // Typographic logo
+                    Text(
+                      'SPORTO',
+                      style: textTheme.displayLarge?.copyWith(
                         color: colorScheme.onSurface,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 2.0,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 4.0,
                       ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Enterprise Mobile Platform',
+                      style: textTheme.titleMedium?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                        fontWeight: FontWeight.w500,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  'Enterprise Mobile Platform',
-                  style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 14),
-                ),
-              ],
+              ),
             ),
           ),
+
+          // Minimalist, faded footer
           Positioned(
-            bottom: 30,
+            bottom: 40,
             left: 0,
             right: 0,
-            child: Column(
-              children: [
-                Text(
-                  'Powered by Sporto Engine',
-                  style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 12),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Version 1.0.0',
-                  style: TextStyle(color: colorScheme.onSurfaceVariant.withValues(alpha: 0.6), fontSize: 10),
-                ),
-              ],
+            child: AnimatedOpacity(
+              duration: const Duration(milliseconds: 1400),
+              curve: Curves.easeOutExpo,
+              opacity: _opacity,
+              child: Column(
+                children: [
+                  Text(
+                    'Powered by Sporto Engine',
+                    style: textTheme.labelMedium?.copyWith(
+                      color: colorScheme.onSurfaceVariant.withOpacity(0.7),
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 1.0,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'VERSION 1.0.0',
+                    style: textTheme.labelSmall?.copyWith(
+                      color: colorScheme.onSurfaceVariant.withOpacity(0.4),
+                      letterSpacing: 2.0,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],

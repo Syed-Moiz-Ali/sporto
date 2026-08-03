@@ -5,3 +5,4 @@ export 'src/storage/hive_service.dart';
 export 'src/network/connectivity_bloc.dart';
 export 'src/network/auth_repository_impl.dart';
 export 'src/network/auth_bloc.dart';
+export 'src/theme/theme_bloc.dart';

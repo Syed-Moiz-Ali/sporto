@@ -59,9 +59,11 @@ class PartnerApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
+        BlocProvider<ThemeBloc>(
+          create: (_) => ThemeBloc()..add(InitThemeEvent()),
+        ),
         BlocProvider<ConnectivityBloc>(
-          create: (_) =>
-              ConnectivityBloc()..add(StartConnectivityWatcherEvent()),
+          create: (_) => ConnectivityBloc()..add(StartConnectivityWatcherEvent()),
         ),
         BlocProvider<AuthBloc>(
           create: (_) => AuthBloc(
@@ -79,11 +81,17 @@ class PartnerApp extends StatelessWidget {
           ),
         ),
       ],
-      child: MaterialApp(
-        title: 'SPORTO Partner',
-        theme: SportoTheme.darkTheme,
-        debugShowCheckedModeBanner: false,
-        home: const AuthFlowWrapper(),
+      child: BlocBuilder<ThemeBloc, ThemeState>(
+        builder: (context, themeState) {
+          return MaterialApp(
+            title: 'SPORTO Partner',
+            theme: SportoTheme.lightTheme, // Default Light Theme
+            darkTheme: SportoTheme.darkTheme,
+            themeMode: themeState.themeMode,
+            debugShowCheckedModeBanner: false,
+            home: const AuthFlowWrapper(),
+          );
+        },
       ),
     );
   }
@@ -102,17 +110,14 @@ class _AuthFlowWrapperState extends State<AuthFlowWrapper> {
   @override
   Widget build(BuildContext context) {
     if (!_splashFinished) {
-      return SplashScreen(
-          onFinish: () => setState(() => _splashFinished = true));
+      return SplashScreen(onFinish: () => setState(() => _splashFinished = true));
     }
 
     return BlocConsumer<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state is AuthErrorState) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-                content: Text(state.message),
-                backgroundColor: Theme.of(context).colorScheme.error),
+            SnackBar(content: Text(state.message), backgroundColor: Theme.of(context).colorScheme.error),
           );
         }
       },
@@ -125,9 +130,7 @@ class _AuthFlowWrapperState extends State<AuthFlowWrapper> {
           return AutomatedOnboardingWizard(
             user: state.user,
             onComplete: (updatedUser) {
-              context
-                  .read<AuthBloc>()
-                  .add(CompleteProfileRequestedEvent(updatedUser));
+              context.read<AuthBloc>().add(CompleteProfileRequestedEvent(updatedUser));
             },
           );
         }

@@ -32,8 +32,14 @@ class GlassContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final effectiveBgColor = backgroundColor ?? colorScheme.surface.withValues(alpha: 0.65);
-    final effectiveBorderColor = borderColor ?? colorScheme.outlineVariant;
+    final isLight = Theme.of(context).brightness == Brightness.light;
+
+    final defaultBg = isLight
+        ? colorScheme.surface.withValues(alpha: 0.85)
+        : colorScheme.surface.withValues(alpha: 0.65);
+
+    final effectiveBgColor = backgroundColor ?? defaultBg;
+    final effectiveBorderColor = borderColor ?? colorScheme.outline;
 
     return Container(
       width: width,
@@ -44,9 +50,9 @@ class GlassContainer extends StatelessWidget {
         boxShadow: hasGlow
             ? [
                 BoxShadow(
-                  color: colorScheme.primary.withValues(alpha: 0.2),
-                  blurRadius: 20,
-                  spreadRadius: 2,
+                  color: colorScheme.primary.withValues(alpha: isLight ? 0.25 : 0.2),
+                  blurRadius: isLight ? 16 : 20,
+                  spreadRadius: isLight ? 1 : 2,
                 ),
               ]
             : null,

@@ -49,18 +49,37 @@ class _RefereeHomeScreenState extends State<RefereeHomeScreen> {
                     ),
                   ],
                 ),
-                BlocBuilder<ConnectivityBloc, ConnectivityState>(
-                  builder: (context, state) {
-                    final isConn = state is ConnectivityStatusState ? state.isConnected : true;
-                    final pending = state is ConnectivityStatusState ? state.pendingItemsCount : 0;
-                    final isSyncing = state is ConnectivityStatusState ? state.isSyncing : false;
+                Row(
+                  children: [
+                    BlocBuilder<ThemeBloc, ThemeState>(
+                      builder: (context, themeState) {
+                        final isDark = themeState.themeMode == ThemeMode.dark;
+                        return IconButton(
+                          icon: Icon(
+                            isDark ? Icons.light_mode : Icons.dark_mode,
+                            color: colorScheme.primary,
+                          ),
+                          onPressed: () {
+                            context.read<ThemeBloc>().add(ToggleThemeEvent());
+                          },
+                        );
+                      },
+                    ),
+                    const SizedBox(width: 6),
+                    BlocBuilder<ConnectivityBloc, ConnectivityState>(
+                      builder: (context, state) {
+                        final isConn = state is ConnectivityStatusState ? state.isConnected : true;
+                        final pending = state is ConnectivityStatusState ? state.pendingItemsCount : 0;
+                        final isSyncing = state is ConnectivityStatusState ? state.isSyncing : false;
 
-                    return SyncIndicatorBadge(
-                      isConnected: isConn,
-                      isSyncing: isSyncing,
-                      pendingItemsCount: pending,
-                    );
-                  },
+                        return SyncIndicatorBadge(
+                          isConnected: isConn,
+                          isSyncing: isSyncing,
+                          pendingItemsCount: pending,
+                        );
+                      },
+                    ),
+                  ],
                 ),
               ],
             ),
