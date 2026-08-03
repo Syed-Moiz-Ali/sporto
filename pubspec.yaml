@@ -9,3 +9,7 @@ dependencies:
 
 dev_dependencies:
   melos: ^6.0.0
+
+flutter:
+  uses-material-design: true
+
