@@ -1,10 +1,56 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:core/core.dart';
+import 'package:go_router/go_router.dart';
 import 'package:ui_kit/ui_kit.dart';
-import 'package:shared_domain/shared_domain.dart';
-import '../bloc/tournament_bloc.dart';
-import 'create_tournament_wizard_modal.dart';
+import '../../../../app/router/app_router.dart';
+import '../../application/tournament_bloc.dart';
+import '../widgets/live_tournament_card.dart';
+
+// ============================================================
+// SHARED REFERENCE STYLING (Dark Glass Cards)
+// ============================================================
+Color _cardFill(ColorScheme cs) => const Color(0xFF15171C).withOpacity(0.6);
+Color _cardBorder(ColorScheme cs) =>
+    const Color(0x0FFFFFFF); // white 6% hairline
+const double _cardRadius = 16;
+const double _cardBlur = 14;
+
+Widget _refCard({
+  required BuildContext context,
+  required Widget child,
+  EdgeInsetsGeometry padding = const EdgeInsets.all(16),
+}) {
+  final cs = Theme.of(context).colorScheme;
+  return GlassContainer(
+    borderRadius: _cardRadius,
+    blur: _cardBlur,
+    borderWidth: 1,
+    borderColor: _cardBorder(cs),
+    backgroundColor: _cardFill(cs),
+    padding: padding,
+    child: child,
+  );
+}
+
+// Ambient background for partner dashboard
+Widget _partnerAmbientBg(ColorScheme cs) {
+  final base = Scaffold().backgroundColor ?? Colors.black;
+  return IgnorePointer(
+    child: Stack(children: [
+      Container(color: base),
+      Container(
+        decoration: BoxDecoration(
+          gradient: RadialGradient(
+            center: const Alignment(0.9, -0.85),
+            radius: 0.9,
+            colors: [cs.primary.withOpacity(0.12), Colors.transparent],
+          ),
+        ),
+      ),
+    ]),
+  );
+}
 
 class PartnerMainScreen extends StatefulWidget {
   const PartnerMainScreen({super.key});
@@ -15,7 +61,6 @@ class PartnerMainScreen extends StatefulWidget {
 
 class _PartnerMainScreenState extends State<PartnerMainScreen> {
   int _currentIndex = 0;
-  SportType? _selectedSportFilter;
 
   @override
   void initState() {
@@ -29,375 +74,560 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(70),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      body: Stack(
+        children: [
+          _partnerAmbientBg(colorScheme),
+          SafeArea(
+            bottom: false,
+            child: Column(
               children: [
-                Row(
-                  children: [
-                    Icon(Icons.emoji_events, color: colorScheme.primary, size: 28),
-                    const SizedBox(width: 8),
-                    Text(
-                      'SPORTO Partner',
-                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: colorScheme.onSurface,
+                // ---- Header ----
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Shrvn's Sporto",
+                            style: GoogleFonts.spaceGrotesk(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w700,
+                              color: colorScheme.onSurface,
+                            ),
                           ),
-                    ),
-                  ],
+                          Text(
+                            'Good Morning',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: colorScheme.tertiary, // gold subtitle
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          IconButton(
+                            icon: Icon(Icons.notifications_none_rounded,
+                                color: colorScheme.onSurface, size: 24),
+                            onPressed: () {},
+                          ),
+                          const SizedBox(width: 4),
+                          GlassContainer(
+                            borderRadius: 12,
+                            blur: 10,
+                            borderWidth: 1,
+                            borderColor: _cardBorder(colorScheme),
+                            backgroundColor: _cardFill(colorScheme),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 8),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(' 500',
+                                    style: TextStyle(
+                                        color: colorScheme.onSurface,
+                                        fontWeight: FontWeight.w700)),
+                                const SizedBox(width: 6),
+                                Container(
+                                  width: 24,
+                                  height: 24,
+                                  decoration: BoxDecoration(
+                                    color: colorScheme.tertiary,
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: Icon(Icons.add_rounded,
+                                      color: Colors.black, size: 16),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-                Row(
-                  children: [
-                    BlocBuilder<ThemeBloc, ThemeState>(
-                      builder: (context, themeState) {
-                        final isDark = themeState.themeMode == ThemeMode.dark;
-                        return IconButton(
-                          icon: Icon(
-                            isDark ? Icons.light_mode : Icons.dark_mode,
-                            color: colorScheme.primary,
-                          ),
-                          onPressed: () {
-                            context.read<ThemeBloc>().add(ToggleThemeEvent());
-                          },
-                        );
-                      },
-                    ),
-                    const SizedBox(width: 6),
-                    BlocBuilder<ConnectivityBloc, ConnectivityState>(
-                      builder: (context, state) {
-                        final isConn = state is ConnectivityStatusState ? state.isConnected : true;
-                        final pending = state is ConnectivityStatusState ? state.pendingItemsCount : 0;
-                        final isSyncing = state is ConnectivityStatusState ? state.isSyncing : false;
 
-                        return SyncIndicatorBadge(
-                          isConnected: isConn,
-                          isSyncing: isSyncing,
-                          pendingItemsCount: pending,
-                        );
+                // ---- Body content ----
+                Expanded(
+                  child: SingleChildScrollView(
+                    physics: const ClampingScrollPhysics(),
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildOverviewSection(colorScheme),
+                        const SizedBox(height: 24),
+                        _buildQuickActions(colorScheme),
+                        const SizedBox(height: 24),
+                        _buildAnnouncementsBanner(colorScheme),
+                        const SizedBox(height: 24),
+                        _buildLiveTournaments(colorScheme),
+                        const SizedBox(height: 24),
+                        _buildTodaysSchedule(colorScheme),
+                      ],
+                    ),
+                  ),
+                ),
+
+                // ---- Bottom Gradient CTA Bar (Using PrimaryButton) ----
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 60,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: PrimaryButton(
+                      label: 'Create New Tournament',
+                      widthFactor: 1.0, // Full width within padding
+                      height: 56,
+                      radius: 16,
+                      onPressed: () {
+                        context.push(AppRouter.createTournamentRoute);
                       },
                     ),
-                  ],
+                  ),
+                ),
+
+                // ---- Bottom Navigation ----
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: _PartnerBottomNav(
+                    currentIndex: _currentIndex,
+                    onTap: (idx) => setState(() => _currentIndex = idx),
+                  ),
                 ),
               ],
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  // ============================================================
+  // TODAY'S OVERVIEW (2x2 grid)
+  // ============================================================
+  Widget _buildOverviewSection(ColorScheme cs) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text("Today's Overview",
+            style: TextStyle(
+                color: cs.onSurfaceVariant,
+                fontSize: 13,
+                fontWeight: FontWeight.w500)),
+        const SizedBox(height: 12),
+        GridView.count(
+          crossAxisCount: 2,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          mainAxisSpacing: 12,
+          crossAxisSpacing: 12,
+          childAspectRatio: 2.2,
+          children: [
+            _OverviewCard(label: 'Revenue', value: '₹12,850', highlight: true),
+            _OverviewCard(label: 'Live Tournaments', value: '2'),
+            _OverviewCard(label: 'Registered Players', value: '50'),
+            _OverviewCard(label: 'Active Tournaments', value: '10'),
+          ],
         ),
-      ),
-      body: _buildCurrentTab(colorScheme),
-      bottomNavigationBar: GlassNavBar(
-        currentIndex: _currentIndex,
-        onTap: (idx) => setState(() => _currentIndex = idx),
-        items: const [
-          GlassNavItem(icon: Icons.emoji_events, label: 'Tournaments'),
-          GlassNavItem(icon: Icons.sensors, label: 'Live'),
-          GlassNavItem(icon: Icons.grass, label: 'Grounds'),
-          GlassNavItem(icon: Icons.account_balance_wallet, label: 'Earnings'),
-        ],
-      ),
-      floatingActionButton: _currentIndex == 0
-          ? FloatingActionButton.extended(
-              backgroundColor: colorScheme.primary,
-              foregroundColor: colorScheme.onPrimary,
-              icon: const Icon(Icons.add),
-              label: const Text('New Tournament', style: TextStyle(fontWeight: FontWeight.bold)),
-              onPressed: () {
-                GlassModal.show(
-                  context: context,
-                  title: 'Create Tournament Wizard',
-                  child: const CreateTournamentWizardModal(),
-                );
-              },
-            )
-          : null,
+      ],
     );
   }
 
-  Widget _buildCurrentTab(ColorScheme colorScheme) {
-    switch (_currentIndex) {
-      case 0:
-        return _buildTournamentsTab(colorScheme);
-      case 1:
-        return _buildLiveTab(colorScheme);
-      case 2:
-        return _buildGroundsTab(colorScheme);
-      case 3:
-        return _buildEarningsTab(colorScheme);
-      default:
-        return const SizedBox.shrink();
-    }
+  Widget _OverviewCard(
+      {required String label, required String value, bool highlight = false}) {
+    return Builder(builder: (context) {
+      final cs = Theme.of(context).colorScheme;
+      return _refCard(
+        context: context,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(value,
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w700,
+                  color: highlight ? cs.tertiary : cs.onSurface,
+                )),
+            const SizedBox(height: 4),
+            Text(label,
+                style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
+          ],
+        ),
+      );
+    });
   }
 
-  Widget _buildTournamentsTab(ColorScheme colorScheme) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Tournaments Overview',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: colorScheme.onSurface),
+  // ============================================================
+  // QUICK ACTIONS (4 icon buttons)
+  // ============================================================
+  Widget _buildQuickActions(ColorScheme cs) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Quick Actions',
+            style: TextStyle(
+                color: cs.onSurfaceVariant,
+                fontSize: 13,
+                fontWeight: FontWeight.w500)),
+        const SizedBox(height: 12),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            _QuickActionBtn(
+                icon: Icons.add_circle_outline_rounded,
+                label: 'Create\nTournament',
+                onTap: () => context.push(AppRouter.createTournamentRoute)),
+            _QuickActionBtn(
+                icon: Icons.location_on_outlined, label: 'Manage\nVenue'),
+            _QuickActionBtn(
+                icon: Icons.people_outline_rounded, label: 'Registrations'),
+            _QuickActionBtn(
+                icon: Icons.calendar_today_outlined,
+                label: 'Schedule\nMatches'),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _QuickActionBtn(
+      {required IconData icon,
+      required String label,
+      VoidCallback? onTap}) {
+    return Builder(builder: (context) {
+      final cs = Theme.of(context).colorScheme;
+      return GestureDetector(
+        onTap: onTap,
+        behavior: HitTestBehavior.opaque,
+        child: Column(
+          children: [
+            GlassContainer(
+              width: 64,
+              height: 64,
+              borderRadius: 16,
+              blur: 14,
+              borderWidth: 1,
+              borderColor: _cardBorder(cs),
+              backgroundColor: _cardFill(cs),
+              padding: EdgeInsets.zero,
+              child: Center(
+                child: Icon(icon, color: cs.tertiary, size: 26),
               ),
-              DropdownButton<SportType?>(
-                value: _selectedSportFilter,
-                hint: Text('All Sports', style: TextStyle(color: colorScheme.primary)),
-                dropdownColor: colorScheme.surface,
-                items: [
-                  const DropdownMenuItem<SportType?>(
-                    value: null,
-                    child: Text('All Sports'),
-                  ),
-                  ...SportType.values.map((s) => DropdownMenuItem<SportType?>(
-                        value: s,
-                        child: Text(s.name.toUpperCase()),
-                      )),
-                ],
-                onChanged: (val) {
-                  setState(() => _selectedSportFilter = val);
-                  context.read<TournamentBloc>().add(LoadTournamentsEvent(filterSport: val));
-                },
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Expanded(
-            child: BlocConsumer<TournamentBloc, TournamentState>(
-              listener: (context, state) {
-                if (state is TournamentSuccessState) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(state.message), backgroundColor: colorScheme.primary),
-                  );
-                }
-              },
-              builder: (context, state) {
-                if (state is TournamentLoadingState) {
-                  return Center(child: CircularProgressIndicator(color: colorScheme.primary));
-                } else if (state is TournamentLoadedState) {
-                  if (state.tournaments.isEmpty) {
-                    return const Center(
-                      child: Text('No tournaments found. Tap + to create one!'),
-                    );
-                  }
-                  return ListView.builder(
-                    itemCount: state.tournaments.length,
-                    itemBuilder: (context, index) {
-                      final t = state.tournaments[index];
-                      return GlassContainer(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        padding: const EdgeInsets.all(16),
-                        borderRadius: 20,
-                        backgroundColor: colorScheme.surfaceContainer,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    t.name,
-                                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: colorScheme.onSurface),
-                                  ),
-                                ),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                  decoration: BoxDecoration(
-                                    color: colorScheme.primary.withValues(alpha: 0.2),
-                                    borderRadius: BorderRadius.circular(12),
-                                    border: Border.all(color: colorScheme.primary),
-                                  ),
-                                  child: Text(
-                                    t.status,
-                                    style: TextStyle(color: colorScheme.primary, fontSize: 11, fontWeight: FontWeight.bold),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            Text('${t.sportType.name.toUpperCase()} • ${t.category} • ${t.totalTeams} Teams',
-                                style: TextStyle(color: colorScheme.onSurfaceVariant)),
-                            const SizedBox(height: 12),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text('Entry: \$${t.entryFee.toInt()}', style: TextStyle(color: colorScheme.onSurfaceVariant)),
-                                Text('Prize Pool: \$${t.prizePool.toInt()}',
-                                    style: TextStyle(color: colorScheme.primary, fontWeight: FontWeight.bold)),
-                              ],
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  );
-                }
-                return const Center(child: Text('Initialize Tournaments...'));
-              },
             ),
-          ),
+            const SizedBox(height: 8),
+            Text(label,
+                textAlign: TextAlign.center,
+                style:
+                    TextStyle(color: cs.onSurface, fontSize: 11, height: 1.3)),
+          ],
+        ),
+      );
+    });
+  }
+
+  // ============================================================
+  // ANNOUNCEMENTS BANNER
+  // ============================================================
+  Widget _buildAnnouncementsBanner(ColorScheme cs) {
+    return GlassContainer(
+      borderRadius: 14,
+      blur: 14,
+      borderWidth: 1,
+      borderColor: _cardBorder(cs),
+      backgroundColor: _cardFill(cs),
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.campaign_rounded, color: cs.onSurfaceVariant, size: 18),
+          const SizedBox(width: 8),
+          Text('Announcements',
+              style: TextStyle(
+                  color: cs.onSurface,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500)),
         ],
       ),
     );
   }
 
-  Widget _buildLiveTab(ColorScheme colorScheme) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Live Match Monitor Across Grounds',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: colorScheme.onSurface)),
-          const SizedBox(height: 12),
-          Expanded(
-            child: ListView(
+  // ============================================================
+  // LIVE TOURNAMENT CARDS
+  // ============================================================
+  Widget _buildLiveTournaments(ColorScheme cs) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+                width: 8,
+                height: 8,
+                decoration: BoxDecoration(
+                    shape: BoxShape.circle, color: Colors.redAccent)),
+            const SizedBox(width: 8),
+            Text('Live Tournament',
+                style: TextStyle(
+                    color: cs.onSurfaceVariant,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500)),
+          ],
+        ),
+        const SizedBox(height: 12),
+        LiveTournamentCard(
+          name: 'Hyderabad Super Cup',
+          stage: 'Quarter Final',
+          sport: 'Cricket',
+          teams: '128 Teams',
+          liveNow: true,
+          onViewTournament: () => context
+              .push(AppRouter.tournamentDetailRoute('t-hyderabad-super-cup')),
+        ),
+        const SizedBox(height: 12),
+        LiveTournamentCard(
+          name: 'Royal Smashers',
+          stage: 'Final',
+          sport: 'Cricket',
+          teams: '18 Teams',
+          liveNow: true,
+          onViewTournament: () =>
+              context.push(AppRouter.tournamentDetailRoute('t-royal-smashers')),
+        ),
+      ],
+    );
+  }
+
+  // ============================================================
+  // TODAY'S SCHEDULE
+  // ============================================================
+  Widget _buildTodaysSchedule(ColorScheme cs) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text("Today's Schedule (4)",
+                style: TextStyle(
+                    color: cs.onSurfaceVariant,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500)),
+            GestureDetector(
+              onTap: () {},
+              child: Row(
+                children: [
+                  Text('View All',
+                      style: TextStyle(
+                          color: cs.tertiary,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600)),
+                  const SizedBox(width: 4),
+                  Icon(Icons.chevron_right_rounded,
+                      color: cs.tertiary, size: 16),
+                ],
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        _ScheduleCard(time: '10:00 AM, 26 July 2026', startIn: '25 mins'),
+        const SizedBox(height: 12),
+        _ScheduleCard(time: '10:00 AM, 26 July 2026', startIn: '25 mins'),
+      ],
+    );
+  }
+
+  Widget _ScheduleCard({required String time, required String startIn}) {
+    return Builder(builder: (context) {
+      final cs = Theme.of(context).colorScheme;
+      return _refCard(
+        context: context,
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(time,
+                style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
+            const SizedBox(height: 10),
+            Row(
               children: [
-                GlassContainer(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  padding: const EdgeInsets.all(16),
-                  backgroundColor: colorScheme.surfaceContainer,
-                  borderColor: colorScheme.error,
-                  hasGlow: true,
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: cs.secondary.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  alignment: Alignment.center,
+                  child: Text('HS',
+                      style: TextStyle(
+                          color: cs.secondary,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700)),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(Icons.fiber_manual_record, color: colorScheme.error, size: 12),
-                              const SizedBox(width: 6),
-                              Text('LIVE NOW • Ground 1', style: TextStyle(color: colorScheme.error, fontWeight: FontWeight.bold)),
-                            ],
-                          ),
-                          Text('Overs 14.2/20', style: TextStyle(color: colorScheme.onSurfaceVariant)),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text('🏏 Royal Strikers', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                          Text('142/3', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: colorScheme.primary)),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('⚡ Thunderbolts', style: TextStyle(fontSize: 16, color: colorScheme.onSurfaceVariant)),
-                          Text('Yet to Bat', style: TextStyle(color: colorScheme.onSurfaceVariant)),
-                        ],
+                      Text('Hyderabad Super Cup',
+                          style: TextStyle(
+                              color: cs.onSurface,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600)),
+                      const SizedBox(height: 4),
+                      RichText(
+                        text: TextSpan(
+                          style: TextStyle(fontSize: 13),
+                          children: [
+                            TextSpan(
+                                text: 'Cricket • ',
+                                style: TextStyle(color: cs.tertiary)),
+                            TextSpan(
+                                text: '18 Teams',
+                                style: TextStyle(color: cs.secondary)),
+                          ],
+                        ),
                       ),
                     ],
                   ),
                 ),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: cs.secondary, width: 1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text('Quarter Final',
+                      style: TextStyle(
+                          color: cs.secondary,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600)),
+                ),
               ],
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildGroundsTab(ColorScheme colorScheme) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Turf & Ground Slot Listings',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: colorScheme.onSurface)),
-          const SizedBox(height: 12),
-          Expanded(
-            child: ListView(
+            const SizedBox(height: 14),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                GlassContainer(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                RichText(
+                  text: TextSpan(
+                    style: TextStyle(fontSize: 12),
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text('National Stadium Pitch 1', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                          Text('Full Pitch • Night Floodlights', style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 12)),
-                        ],
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text('\$45/hr', style: TextStyle(color: colorScheme.primary, fontWeight: FontWeight.bold, fontSize: 16)),
-                          Text('Available', style: TextStyle(color: colorScheme.secondary, fontSize: 11)),
-                        ],
-                      ),
+                      TextSpan(
+                          text: 'Start in ',
+                          style: TextStyle(color: cs.onSurfaceVariant)),
+                      TextSpan(
+                          text: startIn,
+                          style: TextStyle(
+                              color: cs.tertiary, fontWeight: FontWeight.w600)),
                     ],
                   ),
                 ),
-                GlassContainer(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  padding: const EdgeInsets.all(16),
+                GestureDetector(
+                  onTap: () {},
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text('Sporto Arena Turf A', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                          Text('Box Cricket Turf • High Impact Net', style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 12)),
-                        ],
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text('\$30/hr', style: TextStyle(color: colorScheme.primary, fontWeight: FontWeight.bold, fontSize: 16)),
-                          Text('Booked', style: TextStyle(color: colorScheme.error, fontSize: 11)),
-                        ],
-                      ),
+                      Text('View Tournament',
+                          style: TextStyle(
+                              color: cs.onSurfaceVariant, fontSize: 12)),
+                      const SizedBox(width: 4),
+                      Icon(Icons.arrow_forward_ios_rounded,
+                          color: cs.onSurfaceVariant, size: 12),
                     ],
                   ),
                 ),
               ],
             ),
-          ),
-        ],
-      ),
-    );
+          ],
+        ),
+      );
+    });
   }
+}
 
-  Widget _buildEarningsTab(ColorScheme colorScheme) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Financial Revenue Summary',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: colorScheme.onSurface)),
-          const SizedBox(height: 12),
-          GlassContainer(
-            padding: const EdgeInsets.all(20),
-            hasGlow: true,
+// ============================================================
+// CUSTOM BOTTOM NAVIGATION (Glass + Active Glow)
+// ============================================================
+class _PartnerBottomNav extends StatelessWidget {
+  final int currentIndex;
+  final Function(int) onTap;
+
+  const _PartnerBottomNav({required this.currentIndex, required this.onTap});
+
+  static const List<_NavItem> _items = [
+    _NavItem(Icons.home_rounded, 'Home'),
+    _NavItem(Icons.calendar_month_rounded, 'Matches'),
+    _NavItem(Icons.sports_cricket_rounded, 'Scoring'),
+    _NavItem(Icons.person_outline_rounded, 'Profile'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      height: 60,
+      decoration: BoxDecoration(
+        color: const Color(0xFF0E0C08).withOpacity(0.95),
+        border: Border(top: BorderSide(color: _cardBorder(cs))),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: List.generate(_items.length, (i) {
+          final item = _items[i];
+          final isActive = i == currentIndex;
+          return GestureDetector(
+            onTap: () => onTap(i),
+            behavior: HitTestBehavior.opaque,
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text('Total Tournament Collections', style: TextStyle(color: colorScheme.onSurfaceVariant)),
+                Icon(item.icon,
+                    color: isActive ? cs.tertiary : cs.onSurfaceVariant,
+                    size: 24),
                 const SizedBox(height: 4),
-                Text('\$7,500.00', style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: colorScheme.primary)),
-                const SizedBox(height: 8),
-                Text('Active Tournaments Revenue: \$5,000 | Ground Bookings: \$2,500',
-                    style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant)),
+                Text(item.label,
+                    style: TextStyle(
+                      color: isActive ? cs.tertiary : cs.onSurfaceVariant,
+                      fontSize: 11,
+                      fontWeight:
+                          isActive ? FontWeight.w600 : FontWeight.normal,
+                    )),
+                if (isActive)
+                  Container(
+                    margin: const EdgeInsets.only(top: 2),
+                    width: 20,
+                    height: 3,
+                    decoration: BoxDecoration(
+                      color: cs.tertiary,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  )
+                else
+                  const SizedBox(height: 5),
               ],
             ),
-          ),
-        ],
+          );
+        }),
       ),
     );
   }
+}
+
+class _NavItem {
+  final IconData icon;
+  final String label;
+  const _NavItem(this.icon, this.label);
 }

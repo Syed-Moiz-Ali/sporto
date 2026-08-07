@@ -13,6 +13,7 @@ dependencies:
   shared_domain:
     path: ../shared_domain
   google_fonts: ^6.1.0
+  confetti: ^0.8.0
 
 dev_dependencies:
   flutter_test:

@@ -71,7 +71,8 @@ class RefereeApp extends StatelessWidget {
           create: (_) => ThemeBloc()..add(InitThemeEvent()),
         ),
         BlocProvider<ConnectivityBloc>(
-          create: (_) => ConnectivityBloc()..add(StartConnectivityWatcherEvent()),
+          create: (_) =>
+              ConnectivityBloc()..add(StartConnectivityWatcherEvent()),
         ),
         BlocProvider<AuthBloc>(
           create: (_) => AuthBloc(
@@ -95,7 +96,7 @@ class RefereeApp extends StatelessWidget {
         builder: (context, themeState) {
           return MaterialApp(
             title: 'SPORTO Referee',
-            theme: SportoTheme.lightTheme, // Default Light Theme
+            theme: SportoTheme.darkTheme, // Default Light Theme
             darkTheme: SportoTheme.darkTheme,
             themeMode: themeState.themeMode,
             debugShowCheckedModeBanner: false,
@@ -120,14 +121,17 @@ class _AuthFlowWrapperState extends State<AuthFlowWrapper> {
   @override
   Widget build(BuildContext context) {
     if (!_splashFinished) {
-      return SplashScreen(onFinish: () => setState(() => _splashFinished = true));
+      return SplashScreen(
+          onFinish: () => setState(() => _splashFinished = true));
     }
 
     return BlocConsumer<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state is AuthErrorState) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.message), backgroundColor: Theme.of(context).colorScheme.error),
+            SnackBar(
+                content: Text(state.message),
+                backgroundColor: Theme.of(context).colorScheme.error),
           );
         }
       },
@@ -140,7 +144,9 @@ class _AuthFlowWrapperState extends State<AuthFlowWrapper> {
           return AutomatedOnboardingWizard(
             user: state.user,
             onComplete: (updatedUser) {
-              context.read<AuthBloc>().add(CompleteProfileRequestedEvent(updatedUser));
+              context
+                  .read<AuthBloc>()
+                  .add(CompleteProfileRequestedEvent(updatedUser));
             },
           );
         }

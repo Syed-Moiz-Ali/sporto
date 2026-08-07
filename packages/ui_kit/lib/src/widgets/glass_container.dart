@@ -1,3 +1,6 @@
+// ============================================================
+// glass_container.dart
+// ============================================================
 import 'dart:ui';
 import 'package:flutter/material.dart';
 
@@ -50,7 +53,8 @@ class GlassContainer extends StatelessWidget {
         boxShadow: hasGlow
             ? [
                 BoxShadow(
-                  color: colorScheme.primary.withValues(alpha: isLight ? 0.25 : 0.2),
+                  color: colorScheme.primary
+                      .withValues(alpha: isLight ? 0.25 : 0.2),
                   blurRadius: isLight ? 16 : 20,
                   spreadRadius: isLight ? 1 : 2,
                 ),

@@ -6,6 +6,7 @@ export 'src/widgets/glass_button.dart';
 export 'src/widgets/sync_indicator_badge.dart';
 export 'src/widgets/glass_nav_bar.dart';
 export 'src/widgets/glass_modal.dart';
+export 'src/widgets/primary_button.dart';
 
 // Screens (Mobile OTP & Onboarding)
 export 'src/screens/splash_screen.dart';

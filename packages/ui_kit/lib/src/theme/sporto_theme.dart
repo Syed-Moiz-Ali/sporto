@@ -1,188 +1,138 @@
+// ============================================================
+// sporto_theme.dart
+// ============================================================
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
-class SportoColors {
-  SportoColors._();
-
-  // Primary Brand Colors from Figma
-  static const Color primaryGold = Color(0xFFF4B41A); // Vibrant Amber Gold
-  static const Color primaryGreen = Color(0xFF27A166); // Emerald Green Accent
-  static const Color accentYellow = Color(0xFFF4B41A);
-
-  // Dark Theme Background & Surfaces
-  static const Color darkBackground = Color(0xFF0E0C08);  // Obsidian Dark
-  static const Color darkSurface = Color(0xFF1C2026);     // Deep Slate Surface
-  static const Color darkCardSurface = Color(0xFF1B2335); // Deep Navy Card
-  static const Color darkCardContainer = Color(0xFF283040);
-  static const Color darkCardBorder = Color(0xFF363E51);
-
-  // Light Theme Background & Surfaces
-  static const Color lightBackground = Color(0xFFF8F9FA); // Pure Crisp Light
-  static const Color lightSurface = Color(0xFFFFFFFF);    // Clean White Surface
-  static const Color lightCardSurface = Color(0xFFF1F5F9); // Light Slate Card
-  static const Color lightCardContainer = Color(0xFFE2E8F0);
-  static const Color lightCardBorder = Color(0xFFCBD5E1);
-
-  // Glassmorphism Colors
-  static const Color glassSurfaceDark = Color(0xA61C2026);
-  static const Color glassSurfaceLight = Color(0xCCFFFFFF);
-  static const Color glassBorderDark = Color(0x1FFFFFFF);
-  static const Color glassBorderLight = Color(0x1F000000);
-  static const Color glassBorderGold = Color(0x59F4B41A);
-
-  // Secondary Accents & Indicators
-  static const Color accentGreen = Color(0xFF27A166);
-  static const Color liveRed = Color(0xFFE1263F);
-  static const Color offlineOrange = Color(0xFFFF9100);
-
-  // Text Colors Dark
-  static const Color darkTextPrimary = Color(0xFFFFFFFF);
-  static const Color darkTextSecondary = Color(0xFFA0A0A0);
-  static const Color darkTextMuted = Color(0xFF666666);
-
-  // Text Colors Light
-  static const Color lightTextPrimary = Color(0xFF0F172A);
-  static const Color lightTextSecondary = Color(0xFF475569);
-  static const Color lightTextMuted = Color(0xFF94A3B8);
-}
 
 class SportoTheme {
   SportoTheme._();
 
-  // Default Light Theme
-  static ThemeData get lightTheme {
-    final baseTextTheme = ThemeData.light().textTheme;
+  // Raw brand values (used ONLY to seed the ColorScheme below —
+  // widgets must read them via Theme.of(context).colorScheme).
+  static const Color _primaryOrange = Color(0xFFEE7005);
+  static const Color _ctaGold = Color(0xFFE2A22C);
+  static const Color _accentGreen = Color(0xFF27A166);
+  static const Color _infoBlue = Color(0xFF4BA3F0);
+  static const Color _liveRed = Color(0xFFE1263F);
 
+  static const Color _darkBackground = Color(0xFF0B0A08);
+  static const Color _darkSurface = Color(0xFF1C2026);
+  static const Color _darkCard = Color(0xFF1B2335);
+  static const Color _darkCardHigh = Color(0xFF283040);
+  static const Color _darkTextPrimary = Color(0xFFFFFFFF);
+  static const Color _darkTextSecondary = Color(0xFFA0A0A0);
+  static const Color _darkTextMuted = Color(0xFF666666);
+
+  static const Color _lightBackground = Color(0xFFF8F9FA);
+  static const Color _lightSurface = Color(0xFFFFFFFF);
+  static const Color _lightCard = Color(0xFFF1F5F9);
+  static const Color _lightCardHigh = Color(0xFFE2E8F0);
+  static const Color _lightTextPrimary = Color(0xFF0F172A);
+  static const Color _lightTextSecondary = Color(0xFF475569);
+  static const Color _lightTextMuted = Color(0xFF94A3B8);
+
+  static ThemeData get lightTheme {
+    final base = ThemeData.light().textTheme;
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
-      scaffoldBackgroundColor: SportoColors.lightBackground,
-      colorScheme: const ColorScheme.light(
-        primary: SportoColors.primaryGold,
-        onPrimary: Colors.black,
-        secondary: SportoColors.accentGreen,
+      scaffoldBackgroundColor: _lightBackground,
+      colorScheme: ColorScheme.light(
+        primary: _primaryOrange,
+        onPrimary: Colors.white,
+        secondary: _accentGreen,
         onSecondary: Colors.white,
-        tertiary: SportoColors.accentYellow,
-        surface: SportoColors.lightSurface,
-        onSurface: SportoColors.lightTextPrimary,
-        surfaceContainer: SportoColors.lightCardSurface,
-        surfaceContainerHigh: SportoColors.lightCardContainer,
-        onSurfaceVariant: SportoColors.lightTextSecondary,
-        outline: SportoColors.lightCardBorder,
-        outlineVariant: SportoColors.glassBorderLight,
-        error: SportoColors.liveRed,
+        tertiary: _ctaGold, // CTA gradient tail
+        onTertiary: _infoBlue, // repurposed as info/subtitle blue
+        surface: _lightSurface,
+        onSurface: _lightTextPrimary,
+        surfaceContainer: _lightCard.withOpacity(0.85),
+        surfaceContainerHigh: _lightCardHigh,
+        onSurfaceVariant: _lightTextSecondary,
+        outline: const Color(0x33000000),
+        outlineVariant: const Color(0x1F000000),
+        error: _liveRed,
         onError: Colors.white,
       ),
-      textTheme: GoogleFonts.interTextTheme(baseTextTheme).copyWith(
+      textTheme: GoogleFonts.interTextTheme(base).copyWith(
         displayLarge: GoogleFonts.spaceGrotesk(
-          fontSize: 32,
-          fontWeight: FontWeight.bold,
-          color: SportoColors.lightTextPrimary,
-        ),
+            fontSize: 32,
+            fontWeight: FontWeight.bold,
+            color: _lightTextPrimary),
         displayMedium: GoogleFonts.spaceGrotesk(
-          fontSize: 26,
-          fontWeight: FontWeight.bold,
-          color: SportoColors.lightTextPrimary,
-        ),
+            fontSize: 26,
+            fontWeight: FontWeight.bold,
+            color: _lightTextPrimary),
         displaySmall: GoogleFonts.spaceGrotesk(
-          fontSize: 22,
-          fontWeight: FontWeight.bold,
-          color: SportoColors.lightTextPrimary,
-        ),
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: _lightTextPrimary),
         headlineMedium: GoogleFonts.spaceGrotesk(
-          fontSize: 18,
-          fontWeight: FontWeight.w600,
-          color: SportoColors.lightTextPrimary,
-        ),
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: _lightTextPrimary),
         titleLarge: GoogleFonts.spaceGrotesk(
-          fontSize: 16,
-          fontWeight: FontWeight.w600,
-          color: SportoColors.lightTextPrimary,
-        ),
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: _lightTextPrimary),
         bodyLarge: GoogleFonts.inter(
-          fontSize: 15,
-          fontWeight: FontWeight.normal,
-          color: SportoColors.lightTextPrimary,
-        ),
+            fontSize: 15,
+            fontWeight: FontWeight.normal,
+            color: _lightTextPrimary),
         bodyMedium: GoogleFonts.inter(
-          fontSize: 13,
-          fontWeight: FontWeight.normal,
-          color: SportoColors.lightTextSecondary,
-        ),
+            fontSize: 13,
+            fontWeight: FontWeight.normal,
+            color: _lightTextSecondary),
         labelSmall: GoogleFonts.inter(
-          fontSize: 11,
-          fontWeight: FontWeight.w500,
-          color: SportoColors.lightTextMuted,
-        ),
+            fontSize: 11, fontWeight: FontWeight.w500, color: _lightTextMuted),
       ),
     );
   }
 
-  // Dark Theme
   static ThemeData get darkTheme {
-    final baseTextTheme = ThemeData.dark().textTheme;
-
+    final base = ThemeData.dark().textTheme;
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
-      scaffoldBackgroundColor: SportoColors.darkBackground,
-      colorScheme: const ColorScheme.dark(
-        primary: SportoColors.primaryGold,
-        onPrimary: Colors.black,
-        secondary: SportoColors.accentGreen,
+      scaffoldBackgroundColor: _darkBackground,
+      colorScheme: ColorScheme.dark(
+        primary: _primaryOrange,
+        onPrimary: Colors.white,
+        secondary: _accentGreen,
         onSecondary: Colors.white,
-        tertiary: SportoColors.accentYellow,
-        surface: SportoColors.darkSurface,
-        onSurface: SportoColors.darkTextPrimary,
-        surfaceContainer: SportoColors.darkCardSurface,
-        surfaceContainerHigh: SportoColors.darkCardContainer,
-        onSurfaceVariant: SportoColors.darkTextSecondary,
-        outline: SportoColors.darkCardBorder,
-        outlineVariant: SportoColors.glassBorderDark,
-        error: SportoColors.liveRed,
+        tertiary: _ctaGold, // CTA gradient tail
+        onTertiary: _infoBlue, // repurposed as info/subtitle blue
+        surface: _darkSurface,
+        onSurface: _darkTextPrimary,
+        surfaceContainer: _darkCard.withOpacity(0.4),
+        surfaceContainerHigh: _darkCardHigh.withOpacity(0.5),
+        onSurfaceVariant: _darkTextSecondary,
+        outline: const Color(0x33FFFFFF),
+        outlineVariant: const Color(0x1FFFFFFF),
+        error: _liveRed,
         onError: Colors.white,
       ),
-      textTheme: GoogleFonts.interTextTheme(baseTextTheme).copyWith(
+      textTheme: GoogleFonts.interTextTheme(base).copyWith(
         displayLarge: GoogleFonts.spaceGrotesk(
-          fontSize: 32,
-          fontWeight: FontWeight.bold,
-          color: SportoColors.darkTextPrimary,
-        ),
+            fontSize: 32, fontWeight: FontWeight.bold, color: _darkTextPrimary),
         displayMedium: GoogleFonts.spaceGrotesk(
-          fontSize: 26,
-          fontWeight: FontWeight.bold,
-          color: SportoColors.darkTextPrimary,
-        ),
+            fontSize: 26, fontWeight: FontWeight.bold, color: _darkTextPrimary),
         displaySmall: GoogleFonts.spaceGrotesk(
-          fontSize: 22,
-          fontWeight: FontWeight.bold,
-          color: SportoColors.darkTextPrimary,
-        ),
+            fontSize: 22, fontWeight: FontWeight.bold, color: _darkTextPrimary),
         headlineMedium: GoogleFonts.spaceGrotesk(
-          fontSize: 18,
-          fontWeight: FontWeight.w600,
-          color: SportoColors.darkTextPrimary,
-        ),
+            fontSize: 18, fontWeight: FontWeight.w600, color: _darkTextPrimary),
         titleLarge: GoogleFonts.spaceGrotesk(
-          fontSize: 16,
-          fontWeight: FontWeight.w600,
-          color: SportoColors.darkTextPrimary,
-        ),
+            fontSize: 16, fontWeight: FontWeight.w600, color: _darkTextPrimary),
         bodyLarge: GoogleFonts.inter(
-          fontSize: 15,
-          fontWeight: FontWeight.normal,
-          color: SportoColors.darkTextPrimary,
-        ),
+            fontSize: 15,
+            fontWeight: FontWeight.normal,
+            color: _darkTextPrimary),
         bodyMedium: GoogleFonts.inter(
-          fontSize: 13,
-          fontWeight: FontWeight.normal,
-          color: SportoColors.darkTextSecondary,
-        ),
+            fontSize: 13,
+            fontWeight: FontWeight.normal,
+            color: _darkTextSecondary),
         labelSmall: GoogleFonts.inter(
-          fontSize: 11,
-          fontWeight: FontWeight.w500,
-          color: SportoColors.darkTextMuted,
-        ),
+            fontSize: 11, fontWeight: FontWeight.w500, color: _darkTextMuted),
       ),
     );
   }
