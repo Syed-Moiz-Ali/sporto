@@ -5,85 +5,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_domain/shared_domain.dart';
 import 'package:ui_kit/ui_kit.dart';
 
-// ============================================================
-// SHARED REFERENCE STYLING HELPERS
-// Exact dark card style used across all 3 screens
-// ============================================================
-Color _cardFill(ColorScheme cs) => const Color(0xFF15171C).withOpacity(0.55);
-Color _cardBorder(ColorScheme cs) => const Color(0x0FFFFFFF); // white 6%
-const double _cardRadius = 16;
-const double _cardBlur = 14;
 
-Widget _refCard({
-  required BuildContext context,
-  required Widget child,
-  EdgeInsetsGeometry padding =
-      const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-}) {
-  final cs = Theme.of(context).colorScheme;
-  return GlassContainer(
-    borderRadius: _cardRadius,
-    blur: _cardBlur,
-    borderWidth: 1,
-    borderColor: _cardBorder(cs),
-    backgroundColor: _cardFill(cs),
-    padding: padding,
-    child: child,
-    width: double.infinity,
-  );
-}
 
-// Green ring check (not filled disc)
-class _RingCheck extends StatelessWidget {
-  final bool done;
-  const _RingCheck({required this.done});
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Container(
-      width: 22,
-      height: 22,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        border: Border.all(
-          color: done ? cs.secondary : const Color(0xFF4A5160),
-          width: 1.6,
-        ),
-      ),
-      alignment: Alignment.center,
-      child: done
-          ? Icon(Icons.check_rounded, color: cs.secondary, size: 14)
-          : null,
-    );
-  }
-}
-
-// Square checkbox for confirm row
-class _SquareCheck extends StatelessWidget {
-  final bool checked;
-  const _SquareCheck({required this.checked});
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 180),
-      width: 22,
-      height: 22,
-      decoration: BoxDecoration(
-        color: checked ? cs.secondary : Colors.transparent,
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(
-          color: checked ? cs.secondary : const Color(0xFF4A5160),
-          width: 1.5,
-        ),
-      ),
-      alignment: Alignment.center,
-      child: checked
-          ? const Icon(Icons.check_rounded, color: Colors.white, size: 14)
-          : null,
-    );
-  }
-}
 
 // Review card widget
 class _ReviewCard extends StatelessWidget {
@@ -100,8 +23,8 @@ class _ReviewCard extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.only(bottom: 12),
-      child: _refCard(
-        context: context,
+      child: SportoCard(width: double.infinity, 
+        
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -133,66 +56,6 @@ class _ReviewCard extends StatelessWidget {
   }
 }
 
-// Secondary dark button
-class _SecondaryButton extends StatelessWidget {
-  final String label;
-  final VoidCallback onPressed;
-  const _SecondaryButton({required this.label, required this.onPressed});
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
-    final width = MediaQuery.of(context).size.width * 0.7;
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onPressed,
-        borderRadius: BorderRadius.circular(16),
-        child: Container(
-          width: width,
-          height: 52,
-          decoration: BoxDecoration(
-            color: const Color(0xFF2A3346),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: _cardBorder(cs)),
-          ),
-          alignment: Alignment.center,
-          child: Text(
-            label,
-            style: tt.titleLarge?.copyWith(
-              color: cs.onSurface,
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 0.3,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// Ambient background helper
-Widget _buildAmbientBackground(ColorScheme cs) {
-  final base = Scaffold().backgroundColor ?? Colors.black;
-  return IgnorePointer(
-    child: Stack(
-      children: [
-        Container(color: base),
-        Container(
-          decoration: BoxDecoration(
-            gradient: RadialGradient(
-              center: const Alignment(0.9, -0.85),
-              radius: 0.9,
-              colors: [cs.primary.withOpacity(0.14), Colors.transparent],
-            ),
-          ),
-        ),
-      ],
-    ),
-  );
-}
 
 // ============================================================
 // MAIN WIDGET
@@ -201,14 +64,14 @@ class AutomatedOnboardingWizard extends StatefulWidget {
   final UserEntity user;
   final Function(UserEntity updatedUser) onComplete;
   final VoidCallback? onTrackApplication;
-  final VoidCallback? onBackToLogin;
+  final VoidCallback? onGoHome;
 
   const AutomatedOnboardingWizard({
     super.key,
     required this.user,
     required this.onComplete,
     this.onTrackApplication,
-    this.onBackToLogin,
+    this.onGoHome,
   });
 
   @override
@@ -348,7 +211,7 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
       backgroundColor: theme.scaffoldBackgroundColor,
       body: Stack(
         children: [
-          _buildAmbientBackground(cs),
+          const SportoAmbientBackground(),
           SafeArea(
             bottom: false,
             child: Column(
@@ -364,7 +227,7 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
                           if (_currentStep > 1) {
                             setState(() => _currentStep--);
                           } else {
-                            Navigator.of(context).pop();
+                            widget.onGoHome?.call();
                           }
                         },
                         behavior: HitTestBehavior.opaque,
@@ -374,7 +237,7 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
                           borderRadius: 12,
                           blur: 12,
                           borderWidth: 1,
-                          borderColor: _cardBorder(cs),
+                          borderColor: SportoCard.defaultBorder,
                           backgroundColor: cs.onSurface.withOpacity(0.10),
                           padding: EdgeInsets.zero,
                           child: Center(
@@ -552,9 +415,9 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
           blur: 14,
           borderWidth: 1,
           borderColor:
-              isSelected ? cs.tertiary.withOpacity(0.6) : _cardBorder(cs),
+              isSelected ? cs.tertiary.withOpacity(0.6) : SportoCard.defaultBorder,
           backgroundColor:
-              isSelected ? cs.tertiary.withOpacity(0.2) : _cardFill(cs),
+              isSelected ? cs.tertiary.withOpacity(0.2) : SportoCard.defaultFill.withOpacity(0.6),
           padding: EdgeInsets.zero,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -760,7 +623,7 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
       borderRadius: 14,
       blur: 16,
       borderWidth: 1,
-      borderColor: _cardBorder(cs),
+      borderColor: SportoCard.defaultBorder,
       backgroundColor: cs.surfaceContainerHigh,
       padding: EdgeInsets.zero,
       child: Center(
@@ -809,7 +672,7 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
                     borderRadius: 10,
                     blur: 12,
                     borderWidth: 1,
-                    borderColor: _cardBorder(cs),
+                    borderColor: SportoCard.defaultBorder,
                     backgroundColor: cs.onSurface.withOpacity(0.10),
                     padding: EdgeInsets.zero,
                     child: Center(
@@ -856,11 +719,11 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
         // Documents row: green RING check
         Padding(
           padding: const EdgeInsets.only(bottom: 12),
-          child: _refCard(
-            context: context,
+          child: SportoCard(width: double.infinity, 
+            
             child: Row(
               children: [
-                _RingCheck(done: docsUploaded),
+                SportoCheckCircle(done: docsUploaded),
                 const SizedBox(width: 14),
                 Text(
                   docsUploaded ? 'Documents Uploaded' : 'No Documents Uploaded',
@@ -881,11 +744,11 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
         GestureDetector(
           onTap: () => setState(() => _confirmAccuracy = !_confirmAccuracy),
           behavior: HitTestBehavior.opaque,
-          child: _refCard(
-            context: context,
+          child: SportoCard(width: double.infinity, 
+            
             child: Row(
               children: [
-                _SquareCheck(checked: _confirmAccuracy),
+                SportoCheckBox(checked: _confirmAccuracy),
                 const SizedBox(width: 14),
                 Expanded(
                   child: Text(
@@ -951,49 +814,14 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 18),
-      child: GlassContainer(
-        borderRadius: 12,
-        blur: 16,
-        borderWidth: 1,
-        borderColor: _cardBorder(cs),
-        backgroundColor: _cardFill(cs),
-        padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(label,
-                style: tt.bodyMedium
-                    ?.copyWith(color: cs.onSurfaceVariant, fontSize: 12)),
-            const SizedBox(height: 4),
-            TextField(
-              controller: controller,
-              keyboardType: keyboardType,
-              inputFormatters: inputFormatters,
-              textAlignVertical: TextAlignVertical.top,
-              cursorColor: cs.tertiary,
-              style: tt.bodyLarge?.copyWith(
-                color: cs.onSurface,
-                fontSize: 15,
-                fontWeight: FontWeight.w500,
-                height: 1.2,
-              ),
-              decoration: InputDecoration(
-                isCollapsed: true,
-                hintText: hint,
-                hintStyle: tt.bodyLarge?.copyWith(
-                  color: cs.onSurfaceVariant.withOpacity(0.55),
-                  fontSize: 15,
-                  height: 1.2,
-                ),
-                border: InputBorder.none,
-                focusedBorder: InputBorder.none,
-                enabledBorder: InputBorder.none,
-                contentPadding: EdgeInsets.zero,
-              ),
-            ),
-          ],
-        ),
+      child: SportoTextField(
+        label: label,
+        hint: hint,
+        controller: controller,
+        labelInside: true,
+        backgroundColor: SportoCard.defaultFill.withOpacity(0.55),
+        keyboardType: keyboardType,
+        inputFormatters: inputFormatters,
       ),
     );
   }
@@ -1010,12 +838,12 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
       child: GestureDetector(
         onTap: onTap,
         behavior: HitTestBehavior.opaque,
-        child: _refCard(
-          context: context,
+        child: SportoCard(width: double.infinity, 
+          
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           child: Row(
             children: [
-              _SquareCheck(checked: isSelected),
+              SportoCheckBox(checked: isSelected),
               const SizedBox(width: 14),
               Text(
                 label,
@@ -1041,7 +869,7 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Stack(
         children: [
-          // _buildAmbientBackground(cs),
+          // const SportoAmbientBackground(),
           Align(
             alignment: const Alignment(0, -0.42),
             child: ConfettiWidget(
@@ -1066,8 +894,8 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
                 children: [
                   // Big card: 🎉 + heading + subtext
                   Expanded(
-                    child: _refCard(
-                      context: context,
+                    child: SportoCard(width: double.infinity, 
+                      
                       padding: const EdgeInsets.symmetric(horizontal: 24),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -1098,8 +926,8 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
                   ),
                   const SizedBox(height: 16),
                   // Status note card
-                  _refCard(
-                    context: context,
+                  SportoCard(width: double.infinity, 
+                    
                     child: Column(
                       children: [
                         Text(
@@ -1141,15 +969,13 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
                     },
                   ),
                   const SizedBox(height: 14),
-                  _SecondaryButton(
-                    label: 'Back to Login',
+                  SecondaryButton(widthFactor: 0.7, height: 52, 
+                    label: 'Home',
                     onPressed: () {
-                      if (_pendingUser != null)
+                      // Deliver the completed profile so the app can show
+                      // the authenticated home screen.
+                      if (_pendingUser != null) {
                         widget.onComplete(_pendingUser!);
-                      if (widget.onBackToLogin != null) {
-                        widget.onBackToLogin!();
-                      } else {
-                        Navigator.of(context).popUntil((r) => r.isFirst);
                       }
                     },
                   ),
@@ -1193,7 +1019,7 @@ class ApplicationStatusScreen extends StatelessWidget {
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Stack(
         children: [
-          _StatusAmbientBackground(),
+          const SportoAmbientBackground(),
           SafeArea(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1213,7 +1039,7 @@ class ApplicationStatusScreen extends StatelessWidget {
                           borderRadius: 12,
                           blur: 12,
                           borderWidth: 1,
-                          borderColor: _cardBorder(cs),
+                          borderColor: SportoCard.defaultBorder,
                           backgroundColor: cs.onSurface.withOpacity(0.10),
                           padding: EdgeInsets.zero,
                           child: Center(
@@ -1257,13 +1083,13 @@ class ApplicationStatusScreen extends StatelessWidget {
                         // Stage rows
                         ..._stages.map((s) => Padding(
                               padding: const EdgeInsets.only(bottom: 12),
-                              child: _refCard(
-                                context: context,
+                              child: SportoCard(width: double.infinity, 
+                                
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 16, vertical: 14),
                                 child: Row(
                                   children: [
-                                    _RingCheck(done: s.value),
+                                    SportoCheckCircle(done: s.value),
                                     const SizedBox(width: 14),
                                     Text(
                                       s.key,
@@ -1281,8 +1107,8 @@ class ApplicationStatusScreen extends StatelessWidget {
                             )),
                         const SizedBox(height: 4),
                         // Review progress card
-                        _refCard(
-                          context: context,
+                        SportoCard(width: double.infinity, 
+                          
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -1306,8 +1132,8 @@ class ApplicationStatusScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 16),
                         // Note card
-                        _refCard(
-                          context: context,
+                        SportoCard(width: double.infinity, 
+                          
                           child: Column(
                             children: [
                               Text(
@@ -1351,24 +1177,3 @@ class ApplicationStatusScreen extends StatelessWidget {
   }
 }
 
-class _StatusAmbientBackground extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final base = Theme.of(context).scaffoldBackgroundColor;
-    return IgnorePointer(
-      child: Stack(children: [
-        Container(color: base),
-        Container(
-          decoration: BoxDecoration(
-            gradient: RadialGradient(
-              center: const Alignment(0.9, -0.85),
-              radius: 0.9,
-              colors: [cs.primary.withOpacity(0.14), Colors.transparent],
-            ),
-          ),
-        ),
-      ]),
-    );
-  }
-}

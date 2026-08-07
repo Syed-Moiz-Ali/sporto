@@ -16,6 +16,7 @@ class SportoCard extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry padding;
   final EdgeInsetsGeometry? margin;
+  final double? width;
   final double radius;
   final double blur;
   final double borderWidth;
@@ -28,6 +29,7 @@ class SportoCard extends StatelessWidget {
     required this.child,
     this.padding = const EdgeInsets.all(16),
     this.margin,
+    this.width,
     this.radius = defaultRadius,
     this.blur = defaultBlur,
     this.borderWidth = 1,
@@ -39,6 +41,7 @@ class SportoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final card = GlassContainer(
+      width: width,
       margin: margin,
       borderRadius: radius,
       blur: blur,

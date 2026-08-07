@@ -16,6 +16,13 @@ class PhoneLoginScreen extends StatefulWidget {
   final VoidCallback? onLoginTap;
   final VoidCallback? onHelpTap;
 
+  /// When provided the screen opens directly in OTP mode (e.g. after the
+  /// app re-renders it following an [OtpSentState]).
+  final String? initialMobileNumber;
+
+  /// Shows a spinner inside the Continue/Verify button while `true`.
+  final bool isSubmitting;
+
   const PhoneLoginScreen({
     super.key,
     required this.appRole,
@@ -23,6 +30,8 @@ class PhoneLoginScreen extends StatefulWidget {
     required this.onVerifyOtp,
     this.onLoginTap,
     this.onHelpTap,
+    this.initialMobileNumber,
+    this.isSubmitting = false,
   });
 
   @override
@@ -41,6 +50,33 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
   Timer? _resendTimer;
 
   @override
+  void initState() {
+    super.initState();
+    final initialNumber = widget.initialMobileNumber;
+    if (initialNumber != null && initialNumber.isNotEmpty) {
+      _phoneController.text = initialNumber.replaceFirst(_countryCode, '');
+      _isOtpSent = true;
+      _startCountdown();
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant PhoneLoginScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final newNumber = widget.initialMobileNumber;
+    if (newNumber != null && newNumber != oldWidget.initialMobileNumber) {
+      _phoneController.text = newNumber.replaceFirst(_countryCode, '');
+      if (!_isOtpSent) {
+        setState(() {
+          _isOtpSent = true;
+          _resendCountdown = 30;
+        });
+      }
+      _startCountdown();
+    }
+  }
+
+  @override
   void dispose() {
     _phoneController.dispose();
     for (var c in _otpControllers) {
@@ -56,11 +92,6 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
   void _sendOtp() {
     final fullNumber = '$_countryCode${_phoneController.text.trim()}';
     widget.onSendOtp(fullNumber);
-    setState(() {
-      _isOtpSent = true;
-      _resendCountdown = 30;
-    });
-    _startCountdown();
   }
 
   void _startCountdown() {
@@ -98,7 +129,7 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
       backgroundColor: theme.scaffoldBackgroundColor,
       body: Stack(
         children: [
-          _buildAmbientBackground(cs),
+          const SportoAmbientBackground(),
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 350),
             switchInCurve: Curves.easeOutCubic,
@@ -115,45 +146,6 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
   }
 
   // ------------------------------------------------------------
-  // Ambient backdrop — theme-driven, no hardcoded colors
-  // ------------------------------------------------------------
-  Widget _buildAmbientBackground(ColorScheme cs) {
-    final base = Theme.of(context).scaffoldBackgroundColor;
-    return IgnorePointer(
-      child: Stack(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [base.withOpacity(0.0), base, base],
-              ),
-            ),
-          ),
-          Container(
-            decoration: BoxDecoration(
-              gradient: RadialGradient(
-                center: const Alignment(0.9, -0.8),
-                radius: 0.9,
-                colors: [cs.primary.withOpacity(0.18), Colors.transparent],
-              ),
-            ),
-          ),
-          Container(
-            decoration: BoxDecoration(
-              gradient: RadialGradient(
-                center: const Alignment(-0.9, 0.9),
-                radius: 1.0,
-                colors: [cs.onTertiary.withOpacity(0.06), Colors.transparent],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   // ------------------------------------------------------------
   // LOGIN STATE — orange chevron header + welcome form
   // ------------------------------------------------------------
@@ -269,7 +261,8 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
                 Center(
                   child: PrimaryButton(
                     label: 'Continue',
-                    onPressed: _sendOtp,
+                    loading: widget.isSubmitting,
+onPressed: _sendOtp,
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -496,7 +489,8 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
           Center(
             child: PrimaryButton(
               label: 'Verify OTP',
-              onPressed: _verifyOtp,
+              loading: widget.isSubmitting,
+onPressed: _verifyOtp,
             ),
           ),
         ],

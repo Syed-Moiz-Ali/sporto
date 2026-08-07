@@ -117,6 +117,9 @@ class AuthFlowWrapper extends StatefulWidget {
 
 class _AuthFlowWrapperState extends State<AuthFlowWrapper> {
   bool _splashFinished = false;
+  // Last non-loading auth state - keeps the current screen visible
+  // (with an in-button spinner) while auth operations are in flight.
+  AuthState? _lastScreenState;
 
   @override
   Widget build(BuildContext context) {
@@ -136,23 +139,37 @@ class _AuthFlowWrapperState extends State<AuthFlowWrapper> {
         }
       },
       builder: (context, state) {
-        if (state is AuthenticatedState) {
+        if (state is! AuthLoadingState) {
+          _lastScreenState = state;
+        }
+
+        final screenState =
+            state is AuthLoadingState ? (_lastScreenState ?? state) : state;
+        final isSubmitting = state is AuthLoadingState;
+
+        if (screenState is AuthenticatedState) {
           return const RefereeHomeScreen();
         }
 
-        if (state is NeedsOnboardingState) {
+        if (screenState is NeedsOnboardingState) {
           return AutomatedOnboardingWizard(
-            user: state.user,
+            user: screenState.user,
             onComplete: (updatedUser) {
               context
                   .read<AuthBloc>()
                   .add(CompleteProfileRequestedEvent(updatedUser));
+            },
+            onGoHome: () {
+              context.read<AuthBloc>().add(LogoutRequestedEvent());
             },
           );
         }
 
         return PhoneLoginScreen(
           appRole: 'referee',
+          initialMobileNumber:
+              screenState is OtpSentState ? screenState.mobileNumber : null,
+          isSubmitting: isSubmitting,
           onSendOtp: (mobileNumber) {
             context.read<AuthBloc>().add(SendOtpRequestedEvent(mobileNumber));
           },

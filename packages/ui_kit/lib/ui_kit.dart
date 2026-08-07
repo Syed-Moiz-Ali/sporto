@@ -21,6 +21,8 @@ export 'src/widgets/sporto_stat_card.dart';
 export 'src/widgets/sporto_summary_row.dart';
 export 'src/widgets/sporto_counter_row.dart';
 export 'src/widgets/sporto_bullet_point.dart';
+export 'src/widgets/sporto_check_circle.dart';
+export 'src/widgets/sporto_check_box.dart';
 export 'src/widgets/sporto_bottom_nav.dart';
 export 'src/widgets/sporto_quick_action.dart';
 

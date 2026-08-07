@@ -4,6 +4,10 @@ class PrimaryButton extends StatelessWidget {
   final String label;
   final VoidCallback? onPressed;
   final bool disabled;
+
+  /// Shows a spinner inside the button (label hidden) while `true`.
+  final bool loading;
+
   final double widthFactor;
   final double? width;
   final double height;
@@ -14,6 +18,7 @@ class PrimaryButton extends StatelessWidget {
     required this.label,
     this.onPressed,
     this.disabled = false,
+    this.loading = false,
     this.widthFactor = 0.7,
     this.width,
     this.height = 52,
@@ -24,7 +29,7 @@ class PrimaryButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    final effectiveOnPressed = disabled ? null : onPressed;
+    final effectiveOnPressed = (disabled || loading) ? null : onPressed;
     final width = this.width ?? MediaQuery.of(context).size.width * widthFactor;
 
     return Material(
@@ -60,15 +65,24 @@ class PrimaryButton extends StatelessWidget {
                     ],
             ),
             alignment: Alignment.center,
-            child: Text(
-              label,
-              style: tt.titleLarge?.copyWith(
-                color: cs.onPrimary,
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 0.3,
-              ),
-            ),
+            child: loading
+                ? SizedBox(
+                    width: 22,
+                    height: 22,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.5,
+                      color: cs.onPrimary,
+                    ),
+                  )
+                : Text(
+                    label,
+                    style: tt.titleLarge?.copyWith(
+                      color: cs.onPrimary,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.3,
+                    ),
+                  ),
           ),
         ),
       ),

@@ -28,145 +28,144 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: Stack(
-        children: [
-          const SportoAmbientBackground(),
-          SafeArea(
-            bottom: false,
-            child: Column(
-              children: [
-                // ---- Header ----
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Shrvn's Sporto",
-                            style: GoogleFonts.spaceGrotesk(
-                              fontSize: 22,
-                              fontWeight: FontWeight.w700,
-                              color: colorScheme.onSurface,
-                            ),
-                          ),
-                          Text(
-                            'Good Morning',
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: colorScheme.tertiary, // gold subtitle
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          IconButton(
-                            icon: Icon(Icons.notifications_none_rounded,
-                                color: colorScheme.onSurface, size: 24),
-                            onPressed: () {},
-                          ),
-                          const SizedBox(width: 4),
-                          SportoCard(
-                            radius: 12,
-                            blur: 10,
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 8),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(' 500',
-                                    style: TextStyle(
-                                        color: colorScheme.onSurface,
-                                        fontWeight: FontWeight.w700)),
-                                const SizedBox(width: 6),
-                                Container(
-                                  width: 24,
-                                  height: 24,
-                                  decoration: BoxDecoration(
-                                    color: colorScheme.tertiary,
-                                    borderRadius: BorderRadius.circular(6),
-                                  ),
-                                  alignment: Alignment.center,
-                                  child: Icon(Icons.add_rounded,
-                                      color: Colors.black, size: 16),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-
-                // ---- Body content ----
-                Expanded(
-                  child: SingleChildScrollView(
-                    physics: const ClampingScrollPhysics(),
-                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        body: Stack(
+          children: [
+            const SportoAmbientBackground(),
+            SafeArea(
+              bottom: false,
+              child: Column(
+                children: [
+                  // ---- Header ----
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        _buildOverviewSection(colorScheme),
-                        const SizedBox(height: 24),
-                        _buildQuickActions(colorScheme),
-                        const SizedBox(height: 24),
-                        _buildAnnouncementsBanner(colorScheme),
-                        const SizedBox(height: 24),
-                        _buildLiveTournaments(colorScheme),
-                        const SizedBox(height: 24),
-                        _buildTodaysSchedule(colorScheme),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Shrvn's Sporto",
+                              style: GoogleFonts.spaceGrotesk(
+                                fontSize: 22,
+                                fontWeight: FontWeight.w700,
+                                color: colorScheme.onSurface,
+                              ),
+                            ),
+                            Text(
+                              'Good Morning',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: colorScheme.tertiary, // gold subtitle
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            IconButton(
+                              icon: Icon(Icons.notifications_none_rounded,
+                                  color: colorScheme.onSurface, size: 24),
+                              onPressed: () {},
+                            ),
+                            const SizedBox(width: 4),
+                            SportoCard(
+                              radius: 12,
+                              blur: 10,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 8),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(' 500',
+                                      style: TextStyle(
+                                          color: colorScheme.onSurface,
+                                          fontWeight: FontWeight.w700)),
+                                  const SizedBox(width: 6),
+                                  Container(
+                                    width: 24,
+                                    height: 24,
+                                    decoration: BoxDecoration(
+                                      color: colorScheme.tertiary,
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    alignment: Alignment.center,
+                                    child: Icon(Icons.add_rounded,
+                                        color: Colors.black, size: 16),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                   ),
-                ),
 
-                // ---- Bottom Gradient CTA Bar (Using PrimaryButton) ----
-                Positioned(
-                  left: 0,
-                  right: 0,
-                  bottom: 60,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: PrimaryButton(
-                      label: 'Create New Tournament',
-                      widthFactor: 1.0, // Full width within padding
-                      height: 56,
-                      radius: 16,
-                      onPressed: () {
-                        context.push(AppRouter.createTournamentRoute);
-                      },
+                  // ---- Body content ----
+                  Expanded(
+                    child: SingleChildScrollView(
+                      physics: const ClampingScrollPhysics(),
+                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildOverviewSection(colorScheme),
+                          const SizedBox(height: 24),
+                          _buildQuickActions(colorScheme),
+                          const SizedBox(height: 24),
+                          _buildAnnouncementsBanner(colorScheme),
+                          const SizedBox(height: 24),
+                          _buildLiveTournaments(colorScheme),
+                          const SizedBox(height: 24),
+                          _buildTodaysSchedule(colorScheme),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-
-                // ---- Bottom Navigation ----
-                Positioned(
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  child: SportoBottomNav(
-                    currentIndex: _currentIndex,
-                    onTap: (idx) => setState(() => _currentIndex = idx),
-                    items: const [
-                      SportoNavItem(Icons.home_rounded, 'Home'),
-                      SportoNavItem(Icons.calendar_month_rounded, 'Matches'),
-                      SportoNavItem(Icons.sports_cricket_rounded, 'Scoring'),
-                      SportoNavItem(Icons.person_outline_rounded, 'Profile'),
-                    ],
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
-      ),
-    );
+
+            // ---- Bottom Gradient CTA Bar (Using PrimaryButton) ----
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 60,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: PrimaryButton(
+                  label: 'Create New Tournament',
+                  widthFactor: 1.0, // Full width within padding
+                  height: 56,
+                  radius: 16,
+                  onPressed: () {
+                    context.push(AppRouter.createTournamentRoute);
+                  },
+                ),
+              ),
+            ),
+
+            // ---- Bottom Navigation ----
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: SportoBottomNav(
+                currentIndex: _currentIndex,
+                onTap: (idx) => setState(() => _currentIndex = idx),
+                items: const [
+                  SportoNavItem(Icons.home_rounded, 'Home'),
+                  SportoNavItem(Icons.calendar_month_rounded, 'Matches'),
+                  SportoNavItem(Icons.sports_cricket_rounded, 'Scoring'),
+                  SportoNavItem(Icons.person_outline_rounded, 'Profile'),
+                ],
+              ),
+            ),
+          ],
+        ));
   }
 
   // ============================================================
@@ -426,9 +425,7 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
                   ),
                 ),
                 SportoBadge(
-                    text: 'Quarter Final',
-                    color: cs.secondary,
-                    outlined: true),
+                    text: 'Quarter Final', color: cs.secondary, outlined: true),
               ],
             ),
             const SizedBox(height: 14),

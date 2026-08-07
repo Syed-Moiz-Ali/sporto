@@ -22,10 +22,30 @@ class HiveService {
   }
 
   static List<SyncQueueItem> getPendingSyncItems() {
-    return pendingSyncBox.values.map((v) {
-      final jsonMap = Map<String, dynamic>.from(v as Map);
-      return SyncQueueItem.fromJson(jsonMap);
-    }).toList();
+    final items = <SyncQueueItem>[];
+    final corruptKeys = <dynamic>[];
+
+    for (final entry in pendingSyncBox.toMap().entries) {
+      try {
+        final value = entry.value;
+        if (value is! Map) {
+          corruptKeys.add(entry.key);
+          continue;
+        }
+        items.add(
+            SyncQueueItem.fromJson(Map<String, dynamic>.from(value)));
+      } catch (_) {
+        // Unparseable / stale entries can't ever sync — drop them so they
+        // don't crash startup (ConnectivityBloc reads this queue eagerly).
+        corruptKeys.add(entry.key);
+      }
+    }
+
+    if (corruptKeys.isNotEmpty) {
+      pendingSyncBox.deleteAll(corruptKeys);
+    }
+
+    return items;
   }
 
   static Future<void> clearSyncItem(String actionId) async {

@@ -11,6 +11,7 @@ class SecondaryButton extends StatelessWidget {
   final double height;
   final double radius;
   final double? width;
+  final double? widthFactor;
 
   const SecondaryButton({
     super.key,
@@ -18,19 +19,25 @@ class SecondaryButton extends StatelessWidget {
     this.onPressed,
     this.height = 56,
     this.radius = 16,
-    this.width = double.infinity,
+    this.width,
+    this.widthFactor,
   });
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final effectiveWidth = width ??
+        (widthFactor != null
+            ? MediaQuery.of(context).size.width * widthFactor!
+            : double.infinity);
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: onPressed,
         borderRadius: BorderRadius.circular(radius),
         child: Container(
-          width: width,
+          width: effectiveWidth,
           height: height,
           decoration: BoxDecoration(
             color: SportoTextField.inputFill,

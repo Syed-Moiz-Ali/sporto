@@ -23,6 +23,7 @@ class LiveTournamentCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return SportoCard(
+      onTap: onViewTournament,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -63,7 +64,8 @@ class LiveTournamentCard extends StatelessWidget {
                               text: '$sport • ',
                               style: TextStyle(color: cs.tertiary)),
                           TextSpan(
-                              text: teams, style: TextStyle(color: cs.secondary)),
+                              text: teams,
+                              style: TextStyle(color: cs.secondary)),
                         ],
                       ),
                     ),
