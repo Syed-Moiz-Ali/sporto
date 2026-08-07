@@ -22,13 +22,7 @@ class LiveTournamentCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return GlassContainer(
-      borderRadius: 16,
-      blur: 14,
-      borderWidth: 1,
-      borderColor: const Color(0x0FFFFFFF),
-      backgroundColor: const Color(0xFF15171C).withOpacity(0.6),
-      padding: const EdgeInsets.all(16),
+    return SportoCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -76,18 +70,7 @@ class LiveTournamentCard extends StatelessWidget {
                   ],
                 ),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  border: Border.all(color: cs.secondary, width: 1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(stage,
-                    style: TextStyle(
-                        color: cs.secondary,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600)),
-              ),
+              SportoBadge(text: stage, color: cs.secondary, outlined: true),
             ],
           ),
           const SizedBox(height: 14),

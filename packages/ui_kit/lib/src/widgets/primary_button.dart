@@ -5,6 +5,7 @@ class PrimaryButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final bool disabled;
   final double widthFactor;
+  final double? width;
   final double height;
   final double radius;
 
@@ -14,6 +15,7 @@ class PrimaryButton extends StatelessWidget {
     this.onPressed,
     this.disabled = false,
     this.widthFactor = 0.7,
+    this.width,
     this.height = 52,
     this.radius = 16,
   });
@@ -23,7 +25,7 @@ class PrimaryButton extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
     final effectiveOnPressed = disabled ? null : onPressed;
-    final width = MediaQuery.of(context).size.width * widthFactor;
+    final width = this.width ?? MediaQuery.of(context).size.width * widthFactor;
 
     return Material(
       color: Colors.transparent,

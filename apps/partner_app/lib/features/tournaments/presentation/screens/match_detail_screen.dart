@@ -1,96 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
-// ============================================================
-// SHARED STYLING & HELPERS
-// ============================================================
-Color _cardFill(ColorScheme cs) => const Color(0xFF15171C).withOpacity(0.6);
-Color _cardBorder(ColorScheme cs) => const Color(0x0FFFFFFF);
-const double _cardRadius = 16;
-
-Widget _refCard({
-  required BuildContext context,
-  required Widget child,
-  EdgeInsetsGeometry padding = const EdgeInsets.all(16),
-}) {
-  final cs = Theme.of(context).colorScheme;
-  return Container(
-    decoration: BoxDecoration(
-      color: _cardFill(cs),
-      borderRadius: BorderRadius.circular(_cardRadius),
-      border: Border.all(color: _cardBorder(cs)),
-    ),
-    padding: padding,
-    child: child,
-  );
-}
-
-// Custom Tab Chip
-Widget _tabChip({
-  required BuildContext context,
-  required String label,
-  IconData? icon,
-  bool isActive = false,
-  required VoidCallback onTap,
-}) {
-  final cs = Theme.of(context).colorScheme;
-  return GestureDetector(
-    onTap: onTap,
-    child: Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-      decoration: BoxDecoration(
-        color: isActive ? cs.secondary : _cardFill(cs),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: isActive ? Colors.transparent : _cardBorder(cs),
-        ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (icon != null) ...[
-            Icon(icon,
-                size: 16, color: isActive ? Colors.white : cs.onSurfaceVariant),
-            const SizedBox(width: 6),
-          ],
-          Text(
-            label,
-            style: TextStyle(
-              color: isActive ? Colors.white : cs.onSurfaceVariant,
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
-    ),
-  );
-}
-
-// Status Badge
-Widget _statusBadge({
-  required BuildContext context,
-  required String text,
-  required Color color,
-  bool outlined = false,
-}) {
-  return Container(
-    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-    decoration: BoxDecoration(
-      color: outlined ? Colors.transparent : color.withOpacity(0.15),
-      borderRadius: BorderRadius.circular(6),
-      border: outlined ? Border.all(color: color, width: 1) : null,
-    ),
-    child: Text(
-      text,
-      style: TextStyle(
-        color: color,
-        fontSize: 11,
-        fontWeight: FontWeight.w600,
-      ),
-    ),
-  );
-}
+import 'package:ui_kit/ui_kit.dart';
 
 // ============================================================
 // MAIN TOURNAMENT DETAIL SCREEN
@@ -167,11 +77,10 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
                     _tabs.length,
                     (i) => Padding(
                           padding: const EdgeInsets.only(right: 8),
-                          child: _tabChip(
-                            context: context,
+                          child: SportoTabChip(
                             label: _tabs[i],
                             icon: _tabIcons[i],
-                            isActive: _selectedTabIndex == i,
+                            active: _selectedTabIndex == i,
                             onTap: () => setState(() => _selectedTabIndex = i),
                           ),
                         )),
@@ -204,8 +113,7 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
   }
 
   Widget _buildSummaryCard(ColorScheme cs, TextTheme tt) {
-    return _refCard(
-      context: context,
+    return SportoCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -267,9 +175,9 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
     return Container(
       height: 48,
       decoration: BoxDecoration(
-        color: _cardFill(cs),
+        color: SportoCard.defaultFill.withOpacity(0.6),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: _cardBorder(cs)),
+        border: Border.all(color: SportoCard.defaultBorder),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
@@ -322,10 +230,10 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
           crossAxisSpacing: 8,
           childAspectRatio: 1.1,
           children: [
-            _StatBox(label: "Today's\nMatches", value: '18'),
-            _StatBox(label: 'Live Now', value: '12', highlight: true),
-            _StatBox(label: 'Completed', value: '5'),
-            _StatBox(label: 'Delayed', value: '1'),
+            SportoStatCard(label: "Today's\nMatches", value: '18'),
+            SportoStatCard(label: 'Live Now', value: '12', highlight: true),
+            SportoStatCard(label: 'Completed', value: '5'),
+            SportoStatCard(label: 'Delayed', value: '1'),
           ]),
       const SizedBox(height: 24),
       Text('Live Matches',
@@ -334,8 +242,7 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
               fontSize: 13,
               fontWeight: FontWeight.w500)),
       const SizedBox(height: 12),
-      _refCard(
-          context: context,
+      SportoCard(
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
@@ -393,10 +300,12 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
           crossAxisSpacing: 8,
           childAspectRatio: 1.1,
           children: [
-            _StatBox(label: 'Registered', value: '128'),
-            _StatBox(label: 'Approved', value: '126', highlight: true),
-            _StatBox(label: 'Pending', value: '2', color: Colors.orange),
-            _StatBox(label: 'Rejected', value: '0', color: Colors.redAccent),
+            SportoStatCard(label: 'Registered', value: '128'),
+            SportoStatCard(label: 'Approved', value: '126', highlight: true),
+            SportoStatCard(
+                label: 'Pending', value: '2', color: Colors.orange),
+            SportoStatCard(
+                label: 'Rejected', value: '0', color: Colors.redAccent),
           ]),
       const SizedBox(height: 24),
       Text('Finance Summary',
@@ -413,59 +322,17 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
           crossAxisSpacing: 8,
           childAspectRatio: 2.5,
           children: [
-            _FinanceBox(label: 'Revenue', value: '₹51,200'),
-            _FinanceBox(label: 'Expenses', value: '21,000'),
-            _FinanceBox(label: 'Prize Pool', value: '60,000'),
-            _FinanceBox(label: 'Net', value: '-₹29,800', negative: true),
+            SportoSummaryRow(label: 'Revenue', value: '₹51,200', boldValue: true),
+            SportoSummaryRow(label: 'Expenses', value: '21,000', boldValue: true),
+            SportoSummaryRow(
+                label: 'Prize Pool', value: '60,000', boldValue: true),
+            SportoSummaryRow(
+                label: 'Net',
+                value: '-₹29,800',
+                boldValue: true,
+                valueColor: Colors.redAccent),
           ]),
     ]);
-  }
-
-  Widget _StatBox(
-      {required String label,
-      required String value,
-      bool highlight = false,
-      Color? color}) {
-    return Builder(builder: (context) {
-      final cs = Theme.of(context).colorScheme;
-      return _refCard(
-          context: context,
-          padding: const EdgeInsets.all(12),
-          child: Center(
-            child:
-                Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-              Text(value,
-                  style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700,
-                      color:
-                          highlight ? cs.secondary : (color ?? cs.onSurface))),
-              const SizedBox(height: 4),
-              Text(label,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 10, color: cs.onSurfaceVariant)),
-            ]),
-          ));
-    });
-  }
-
-  Widget _FinanceBox(
-      {required String label, required String value, bool negative = false}) {
-    return Builder(builder: (context) {
-      final cs = Theme.of(context).colorScheme;
-      return _refCard(
-          context: context,
-          padding: const EdgeInsets.all(12),
-          child:
-              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            Text(label,
-                style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
-            Text(value,
-                style: TextStyle(
-                    color: negative ? Colors.redAccent : cs.onSurface,
-                    fontWeight: FontWeight.w700)),
-          ]));
-    });
   }
 
   // ============================================================
@@ -476,15 +343,15 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
       SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(children: [
-            _FilterChip(label: 'All', active: true),
+            SportoFilterChip(label: 'All', active: true),
             const SizedBox(width: 8),
-            _FilterChip(label: 'Approved'),
+            SportoFilterChip(label: 'Approved'),
             const SizedBox(width: 8),
-            _FilterChip(label: 'Pending'),
+            SportoFilterChip(label: 'Pending'),
             const SizedBox(width: 8),
-            _FilterChip(label: 'Payment Pending'),
+            SportoFilterChip(label: 'Payment Pending'),
             const SizedBox(width: 8),
-            _FilterChip(label: 'Rejected'),
+            SportoFilterChip(label: 'Rejected'),
           ])),
       const SizedBox(height: 16),
       _TeamCard(
@@ -507,23 +374,6 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
     ]);
   }
 
-  Widget _FilterChip({required String label, bool active = false}) {
-    return Builder(builder: (context) {
-      final cs = Theme.of(context).colorScheme;
-      return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              border:
-                  Border.all(color: active ? cs.secondary : _cardBorder(cs))),
-          child: Text(label,
-              style: TextStyle(
-                  color: active ? cs.secondary : cs.onSurfaceVariant,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500)));
-    });
-  }
-
   Widget _TeamCard(
       {required String name,
       required String initials,
@@ -534,8 +384,7 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
       required bool approved}) {
     return Builder(builder: (context) {
       final cs = Theme.of(context).colorScheme;
-      return _refCard(
-          context: context,
+      return SportoCard(
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
@@ -579,14 +428,13 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
             ]),
             const SizedBox(height: 12),
             Row(children: [
-              _statusBadge(
-                  context: context,
+              SportoBadge(
                   text: paid ? 'Paid' : 'Unpaid',
                   color: paid ? cs.secondary : Colors.redAccent,
                   outlined: true),
               const SizedBox(width: 8),
-              _statusBadge(
-                  context: context, text: 'Approved', color: cs.secondary),
+              SportoBadge(
+                  text: 'Approved', color: cs.secondary),
               const Spacer(),
               TextButton(
                   onPressed: () {},
@@ -608,15 +456,15 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
       SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(children: [
-            _FilterChip(label: 'All', active: true),
+            SportoFilterChip(label: 'All', active: true),
             const SizedBox(width: 8),
-            _FilterChip(label: 'Assigned'),
+            SportoFilterChip(label: 'Assigned'),
             const SizedBox(width: 8),
-            _FilterChip(label: 'Available'),
+            SportoFilterChip(label: 'Available'),
             const SizedBox(width: 8),
-            _FilterChip(label: 'Live Match'),
+            SportoFilterChip(label: 'Live Match'),
             const SizedBox(width: 8),
-            _FilterChip(label: 'Unavailable'),
+            SportoFilterChip(label: 'Unavailable'),
           ])),
       const SizedBox(height: 16),
       _RefereeCard(
@@ -655,8 +503,7 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
                   ? Colors.orange
                   : cs.onTertiary;
 
-      return _refCard(
-          context: context,
+      return SportoCard(
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
@@ -756,15 +603,15 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
       SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(children: [
-            _FilterChip(label: 'All', active: true),
+            SportoFilterChip(label: 'All', active: true),
             const SizedBox(width: 8),
-            _FilterChip(label: 'Live'),
+            SportoFilterChip(label: 'Live'),
             const SizedBox(width: 8),
-            _FilterChip(label: 'Preparing'),
+            SportoFilterChip(label: 'Preparing'),
             const SizedBox(width: 8),
-            _FilterChip(label: 'Available'),
+            SportoFilterChip(label: 'Available'),
             const SizedBox(width: 8),
-            _FilterChip(label: 'Maintenance'),
+            SportoFilterChip(label: 'Maintenance'),
           ])),
       const SizedBox(height: 16),
 
@@ -839,8 +686,7 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
   }) {
     return Builder(builder: (context) {
       final cs = Theme.of(context).colorScheme;
-      return _refCard(
-          context: context,
+      return SportoCard(
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             // Header: Name + Status
@@ -978,15 +824,15 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
       SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(children: [
-            _FilterChip(label: 'Today', active: true),
+            SportoFilterChip(label: 'Today', active: true),
             const SizedBox(width: 8),
-            _FilterChip(label: 'Tomorrow'),
+            SportoFilterChip(label: 'Tomorrow'),
             const SizedBox(width: 8),
-            _FilterChip(label: 'Round'),
+            SportoFilterChip(label: 'Round'),
             const SizedBox(width: 8),
-            _FilterChip(label: 'Ground'),
+            SportoFilterChip(label: 'Ground'),
             const SizedBox(width: 8),
-            _FilterChip(label: 'Live'),
+            SportoFilterChip(label: 'Live'),
           ])),
       const SizedBox(height: 20),
       Text('09:00 AM',
@@ -1045,8 +891,7 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
   }) {
     return Builder(builder: (context) {
       final cs = Theme.of(context).colorScheme;
-      return _refCard(
-          context: context,
+      return SportoCard(
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [

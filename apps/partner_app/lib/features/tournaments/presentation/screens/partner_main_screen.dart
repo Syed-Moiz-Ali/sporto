@@ -7,51 +7,6 @@ import '../../../../app/router/app_router.dart';
 import '../../application/tournament_bloc.dart';
 import '../widgets/live_tournament_card.dart';
 
-// ============================================================
-// SHARED REFERENCE STYLING (Dark Glass Cards)
-// ============================================================
-Color _cardFill(ColorScheme cs) => const Color(0xFF15171C).withOpacity(0.6);
-Color _cardBorder(ColorScheme cs) =>
-    const Color(0x0FFFFFFF); // white 6% hairline
-const double _cardRadius = 16;
-const double _cardBlur = 14;
-
-Widget _refCard({
-  required BuildContext context,
-  required Widget child,
-  EdgeInsetsGeometry padding = const EdgeInsets.all(16),
-}) {
-  final cs = Theme.of(context).colorScheme;
-  return GlassContainer(
-    borderRadius: _cardRadius,
-    blur: _cardBlur,
-    borderWidth: 1,
-    borderColor: _cardBorder(cs),
-    backgroundColor: _cardFill(cs),
-    padding: padding,
-    child: child,
-  );
-}
-
-// Ambient background for partner dashboard
-Widget _partnerAmbientBg(ColorScheme cs) {
-  final base = Scaffold().backgroundColor ?? Colors.black;
-  return IgnorePointer(
-    child: Stack(children: [
-      Container(color: base),
-      Container(
-        decoration: BoxDecoration(
-          gradient: RadialGradient(
-            center: const Alignment(0.9, -0.85),
-            radius: 0.9,
-            colors: [cs.primary.withOpacity(0.12), Colors.transparent],
-          ),
-        ),
-      ),
-    ]),
-  );
-}
-
 class PartnerMainScreen extends StatefulWidget {
   const PartnerMainScreen({super.key});
 
@@ -76,7 +31,7 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Stack(
         children: [
-          _partnerAmbientBg(colorScheme),
+          const SportoAmbientBackground(),
           SafeArea(
             bottom: false,
             child: Column(
@@ -116,12 +71,9 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
                             onPressed: () {},
                           ),
                           const SizedBox(width: 4),
-                          GlassContainer(
-                            borderRadius: 12,
+                          SportoCard(
+                            radius: 12,
                             blur: 10,
-                            borderWidth: 1,
-                            borderColor: _cardBorder(colorScheme),
-                            backgroundColor: _cardFill(colorScheme),
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 12, vertical: 8),
                             child: Row(
@@ -198,9 +150,15 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
                   left: 0,
                   right: 0,
                   bottom: 0,
-                  child: _PartnerBottomNav(
+                  child: SportoBottomNav(
                     currentIndex: _currentIndex,
                     onTap: (idx) => setState(() => _currentIndex = idx),
+                    items: const [
+                      SportoNavItem(Icons.home_rounded, 'Home'),
+                      SportoNavItem(Icons.calendar_month_rounded, 'Matches'),
+                      SportoNavItem(Icons.sports_cricket_rounded, 'Scoring'),
+                      SportoNavItem(Icons.person_outline_rounded, 'Profile'),
+                    ],
                   ),
                 ),
               ],
@@ -232,40 +190,44 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
           crossAxisSpacing: 12,
           childAspectRatio: 2.2,
           children: [
-            _OverviewCard(label: 'Revenue', value: '₹12,850', highlight: true),
-            _OverviewCard(label: 'Live Tournaments', value: '2'),
-            _OverviewCard(label: 'Registered Players', value: '50'),
-            _OverviewCard(label: 'Active Tournaments', value: '10'),
+            SportoStatCard(
+              label: 'Revenue',
+              value: '₹12,850',
+              highlight: true,
+              highlightColor: cs.tertiary,
+              fontSize: 22,
+              labelSize: 12,
+              alignment: CrossAxisAlignment.start,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            ),
+            SportoStatCard(
+              label: 'Live Tournaments',
+              value: '2',
+              fontSize: 22,
+              labelSize: 12,
+              alignment: CrossAxisAlignment.start,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            ),
+            SportoStatCard(
+              label: 'Registered Players',
+              value: '50',
+              fontSize: 22,
+              labelSize: 12,
+              alignment: CrossAxisAlignment.start,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            ),
+            SportoStatCard(
+              label: 'Active Tournaments',
+              value: '10',
+              fontSize: 22,
+              labelSize: 12,
+              alignment: CrossAxisAlignment.start,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            ),
           ],
         ),
       ],
     );
-  }
-
-  Widget _OverviewCard(
-      {required String label, required String value, bool highlight = false}) {
-    return Builder(builder: (context) {
-      final cs = Theme.of(context).colorScheme;
-      return _refCard(
-        context: context,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(value,
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w700,
-                  color: highlight ? cs.tertiary : cs.onSurface,
-                )),
-            const SizedBox(height: 4),
-            Text(label,
-                style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
-          ],
-        ),
-      );
-    });
   }
 
   // ============================================================
@@ -284,15 +246,16 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            _QuickActionBtn(
-                icon: Icons.add_circle_outline_rounded,
-                label: 'Create\nTournament',
-                onTap: () => context.push(AppRouter.createTournamentRoute)),
-            _QuickActionBtn(
+            SportoQuickAction(
+              icon: Icons.add_circle_outline_rounded,
+              label: 'Create\nTournament',
+              onTap: () => context.push(AppRouter.createTournamentRoute),
+            ),
+            const SportoQuickAction(
                 icon: Icons.location_on_outlined, label: 'Manage\nVenue'),
-            _QuickActionBtn(
+            const SportoQuickAction(
                 icon: Icons.people_outline_rounded, label: 'Registrations'),
-            _QuickActionBtn(
+            const SportoQuickAction(
                 icon: Icons.calendar_today_outlined,
                 label: 'Schedule\nMatches'),
           ],
@@ -301,51 +264,12 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
     );
   }
 
-  Widget _QuickActionBtn(
-      {required IconData icon,
-      required String label,
-      VoidCallback? onTap}) {
-    return Builder(builder: (context) {
-      final cs = Theme.of(context).colorScheme;
-      return GestureDetector(
-        onTap: onTap,
-        behavior: HitTestBehavior.opaque,
-        child: Column(
-          children: [
-            GlassContainer(
-              width: 64,
-              height: 64,
-              borderRadius: 16,
-              blur: 14,
-              borderWidth: 1,
-              borderColor: _cardBorder(cs),
-              backgroundColor: _cardFill(cs),
-              padding: EdgeInsets.zero,
-              child: Center(
-                child: Icon(icon, color: cs.tertiary, size: 26),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(label,
-                textAlign: TextAlign.center,
-                style:
-                    TextStyle(color: cs.onSurface, fontSize: 11, height: 1.3)),
-          ],
-        ),
-      );
-    });
-  }
-
   // ============================================================
   // ANNOUNCEMENTS BANNER
   // ============================================================
   Widget _buildAnnouncementsBanner(ColorScheme cs) {
-    return GlassContainer(
-      borderRadius: 14,
-      blur: 14,
-      borderWidth: 1,
-      borderColor: _cardBorder(cs),
-      backgroundColor: _cardFill(cs),
+    return SportoCard(
+      radius: 14,
       padding: const EdgeInsets.symmetric(vertical: 12),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -451,9 +375,7 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
   Widget _ScheduleCard({required String time, required String startIn}) {
     return Builder(builder: (context) {
       final cs = Theme.of(context).colorScheme;
-      return _refCard(
-        context: context,
-        padding: const EdgeInsets.all(16),
+      return SportoCard(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -503,19 +425,10 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
                     ],
                   ),
                 ),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: cs.secondary, width: 1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text('Quarter Final',
-                      style: TextStyle(
-                          color: cs.secondary,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600)),
-                ),
+                SportoBadge(
+                    text: 'Quarter Final',
+                    color: cs.secondary,
+                    outlined: true),
               ],
             ),
             const SizedBox(height: 14),
@@ -556,78 +469,4 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
       );
     });
   }
-}
-
-// ============================================================
-// CUSTOM BOTTOM NAVIGATION (Glass + Active Glow)
-// ============================================================
-class _PartnerBottomNav extends StatelessWidget {
-  final int currentIndex;
-  final Function(int) onTap;
-
-  const _PartnerBottomNav({required this.currentIndex, required this.onTap});
-
-  static const List<_NavItem> _items = [
-    _NavItem(Icons.home_rounded, 'Home'),
-    _NavItem(Icons.calendar_month_rounded, 'Matches'),
-    _NavItem(Icons.sports_cricket_rounded, 'Scoring'),
-    _NavItem(Icons.person_outline_rounded, 'Profile'),
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Container(
-      height: 60,
-      decoration: BoxDecoration(
-        color: const Color(0xFF0E0C08).withOpacity(0.95),
-        border: Border(top: BorderSide(color: _cardBorder(cs))),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: List.generate(_items.length, (i) {
-          final item = _items[i];
-          final isActive = i == currentIndex;
-          return GestureDetector(
-            onTap: () => onTap(i),
-            behavior: HitTestBehavior.opaque,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(item.icon,
-                    color: isActive ? cs.tertiary : cs.onSurfaceVariant,
-                    size: 24),
-                const SizedBox(height: 4),
-                Text(item.label,
-                    style: TextStyle(
-                      color: isActive ? cs.tertiary : cs.onSurfaceVariant,
-                      fontSize: 11,
-                      fontWeight:
-                          isActive ? FontWeight.w600 : FontWeight.normal,
-                    )),
-                if (isActive)
-                  Container(
-                    margin: const EdgeInsets.only(top: 2),
-                    width: 20,
-                    height: 3,
-                    decoration: BoxDecoration(
-                      color: cs.tertiary,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  )
-                else
-                  const SizedBox(height: 5),
-              ],
-            ),
-          );
-        }),
-      ),
-    );
-  }
-}
-
-class _NavItem {
-  final IconData icon;
-  final String label;
-  const _NavItem(this.icon, this.label);
 }

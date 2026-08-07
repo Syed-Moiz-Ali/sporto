@@ -1,207 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
-// ============================================================
-// SHARED STYLING & HELPERS
-// ============================================================
-Color _cardFill(ColorScheme cs) => const Color(0xFF15171C).withOpacity(0.6);
-Color _inputFill(ColorScheme cs) => const Color(0xFF1E2128);
-Color _cardBorder(ColorScheme cs) => const Color(0x0FFFFFFF);
-const double _cardRadius = 16;
-
-Widget _refCard({
-  required BuildContext context,
-  required Widget child,
-  EdgeInsetsGeometry padding = const EdgeInsets.all(16),
-  Color? backgroundColor,
-}) {
-  final cs = Theme.of(context).colorScheme;
-  return Container(
-    decoration: BoxDecoration(
-      color: backgroundColor ?? _cardFill(cs),
-      borderRadius: BorderRadius.circular(_cardRadius),
-      border: Border.all(color: _cardBorder(cs)),
-    ),
-    padding: padding,
-    child: child,
-  );
-}
-
-Widget _glassInput({
-  required BuildContext context,
-  String? label,
-  String? hint,
-  Widget? suffixIcon,
-  bool readOnly = false,
-  VoidCallback? onTap,
-  TextEditingController? controller,
-}) {
-  final cs = Theme.of(context).colorScheme;
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      if (label != null) ...[
-        Text(label, style: TextStyle(color: cs.onSurface, fontSize: 14, fontWeight: FontWeight.w500)),
-        const SizedBox(height: 8),
-      ],
-      GestureDetector(
-        onTap: readOnly ? onTap : null,
-        child: Container(
-          height: 52,
-          decoration: BoxDecoration(
-            color: _inputFill(cs),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: _cardBorder(cs)),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          alignment: Alignment.centerLeft,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: controller != null
-                    ? TextField(
-                        controller: controller,
-                        readOnly: readOnly,
-                        style: TextStyle(color: cs.onSurface, fontSize: 14),
-                        decoration: InputDecoration(
-                          hintText: hint,
-                          hintStyle: TextStyle(color: cs.onSurfaceVariant.withOpacity(0.6), fontSize: 14),
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.zero,
-                        ),
-                      )
-                    : Text(hint ?? '', style: TextStyle(color: cs.onSurfaceVariant.withOpacity(0.6), fontSize: 14)),
-              ),
-              if (suffixIcon != null) suffixIcon,
-            ],
-          ),
-        ),
-      ),
-    ],
-  );
-}
-
-Widget _sectionTitle(BuildContext context, String title, {String? subtitle}) {
-  final cs = Theme.of(context).colorScheme;
-  return Padding(
-    padding: const EdgeInsets.only(bottom: 16, top: 8),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(title, style: TextStyle(color: cs.secondary, fontSize: 18, fontWeight: FontWeight.w700)),
-        if (subtitle != null) Text(subtitle, style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)),
-      ],
-    ),
-  );
-}
-
-// Custom Orange Gradient Button (Primary)
-Widget _primaryButton({
-  required BuildContext context,
-  required String label,
-  required VoidCallback onPressed,
-  bool isFullWidth = true,
-}) {
-  final cs = Theme.of(context).colorScheme;
-  return Material(
-    color: Colors.transparent,
-    child: InkWell(
-      onTap: onPressed,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        width: isFullWidth ? double.infinity : null,
-        height: 56,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(colors: [cs.primary, cs.tertiary]),
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [BoxShadow(color: cs.primary.withOpacity(0.3), blurRadius: 20, offset: const Offset(0, 8))],
-        ),
-        alignment: Alignment.center,
-        child: Text(label, style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700)),
-      ),
-    ),
-  );
-}
-
-// Secondary Dark Button
-Widget _secondaryButton({
-  required BuildContext context,
-  required String label,
-  required VoidCallback onPressed,
-}) {
-  final cs = Theme.of(context).colorScheme;
-  return Material(
-    color: Colors.transparent,
-    child: InkWell(
-      onTap: onPressed,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        height: 56,
-        decoration: BoxDecoration(
-          color: _inputFill(cs),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: _cardBorder(cs)),
-        ),
-        alignment: Alignment.center,
-        child: Text(label, style: TextStyle(color: cs.onSurface, fontSize: 16, fontWeight: FontWeight.w600)),
-      ),
-    ),
-  );
-}
-
-// Pill Chip Helper
-Widget _PillChip({required String label, required bool active, bool hasCheck = false, required VoidCallback onTap}) {
-  return Builder(builder: (context) {
-    final cs = Theme.of(context).colorScheme;
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        decoration: BoxDecoration(
-          color: active ? cs.secondary.withOpacity(0.15) : _inputFill(cs),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: active ? cs.secondary.withOpacity(0.5) : _cardBorder(cs)),
-        ),
-        child: Row(mainAxisSize: MainAxisSize.min, children: [
-          Text(label, style: TextStyle(color: active ? cs.secondary : cs.onSurfaceVariant, fontSize: 13, fontWeight: FontWeight.w500)),
-          if (hasCheck && active) ...[const SizedBox(width: 6), Icon(Icons.check_rounded, color: cs.secondary, size: 16)],
-        ]),
-      ),
-    );
-  });
-}
-
-// Stepper Button Helper
-Widget _StepperBtn({required IconData icon, required VoidCallback onPressed}) {
-  return Builder(builder: (context) {
-    final cs = Theme.of(context).colorScheme;
-    return Material(color: Colors.transparent, child: InkWell(onTap: onPressed, borderRadius: BorderRadius.circular(12), child: Container(width: 48, height: 48, decoration: BoxDecoration(color: _inputFill(cs), borderRadius: BorderRadius.circular(12), border: Border.all(color: _cardBorder(cs))), alignment: Alignment.center, child: Icon(icon, color: cs.onSurface))));
-  });
-}
-
-// Summary Row Helper
-Widget _SummaryRow({required String label, required String value, bool highlight = false}) {
-  return Builder(builder: (context) {
-    final cs = Theme.of(context).colorScheme;
-    return Padding(padding: const EdgeInsets.only(bottom: 8), child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-      Text(label, style: TextStyle(color: highlight ? cs.tertiary : cs.onSurfaceVariant, fontSize: 13, fontWeight: highlight ? FontWeight.w700 : FontWeight.normal)),
-      Text(value, style: TextStyle(color: highlight ? cs.tertiary : cs.onSurface, fontSize: 13, fontWeight: highlight ? FontWeight.w700 : FontWeight.normal)),
-    ]));
-  });
-}
-
-// Bullet Point Helper
-Widget _BulletPoint(String text) {
-  return Builder(builder: (context) {
-    final cs = Theme.of(context).colorScheme;
-    return Row(mainAxisSize: MainAxisSize.min, children: [
-      Container(width: 4, height: 4, decoration: BoxDecoration(shape: BoxShape.circle, color: cs.onSurfaceVariant)),
-      const SizedBox(width: 8),
-      Text(text, style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)),
-    ]);
-  });
-}
+import 'package:ui_kit/ui_kit.dart';
 
 // ============================================================
 // MAIN WIZARD SCREEN
@@ -330,13 +129,13 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
               Text('Community Tournament', style: TextStyle(color: cs.tertiary, fontSize: 18, fontWeight: FontWeight.w700)),
               const SizedBox(height: 16),
               Wrap(spacing: 24, runSpacing: 12, children: [
-                _BulletPoint('Independent'),
-                _BulletPoint('Up to 64 Teams'),
-                _BulletPoint('You Manage Revenue'),
-                _BulletPoint('Create Instantly'),
+                SportoBulletPoint(text: 'Independent'),
+                SportoBulletPoint(text: 'Up to 64 Teams'),
+                SportoBulletPoint(text: 'You Manage Revenue'),
+                SportoBulletPoint(text: 'Create Instantly'),
               ]),
               const SizedBox(height: 24),
-              SizedBox(width: double.infinity, child: _primaryButton(context: context, label: 'Create Tournament', onPressed: () => setState(() => _currentStep = 1))),
+              SizedBox(width: double.infinity, child: PrimaryButton(width: double.infinity, height: 56, label: 'Create Tournament', onPressed: () => setState(() => _currentStep = 1))),
             ],
           ),
         ),
@@ -356,10 +155,10 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
               Text('Mega Championship', style: TextStyle(color: cs.secondary, fontSize: 18, fontWeight: FontWeight.w700)),
               const SizedBox(height: 16),
               Wrap(spacing: 24, runSpacing: 12, children: [
-                _BulletPoint('Official Event'),
-                _BulletPoint('Featured by Sporto'),
-                _BulletPoint('Multi Venue'),
-                _BulletPoint('Approval Required'),
+                SportoBulletPoint(text: 'Official Event'),
+                SportoBulletPoint(text: 'Featured by Sporto'),
+                SportoBulletPoint(text: 'Multi Venue'),
+                SportoBulletPoint(text: 'Approval Required'),
               ]),
               const SizedBox(height: 24),
               SizedBox(
@@ -387,38 +186,38 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
         Text('Tell players about your tournament.', style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)),
         const SizedBox(height: 24),
 
-        _glassInput(context: context, label: 'Tournament Name', hint: 'e.g. hyderabad super over cup'),
+        SportoTextField(label: 'Tournament Name', hint: 'e.g. hyderabad super over cup'),
         const SizedBox(height: 20),
-        _glassInput(context: context, label: 'Title Sponsor (Optional)', hint: 'e.g. CoolBreeze Beverages'),
+        SportoTextField(label: 'Title Sponsor (Optional)', hint: 'e.g. CoolBreeze Beverages'),
         const SizedBox(height: 20),
-        _glassInput(context: context, label: 'Tournament Start', hint: 'Select date', suffixIcon: Icon(Icons.calendar_today_outlined, color: cs.onSurfaceVariant, size: 18)),
+        SportoTextField(label: 'Tournament Start', hint: 'Select date', suffixIcon: Icon(Icons.calendar_today_outlined, color: cs.onSurfaceVariant, size: 18)),
         const SizedBox(height: 20),
 
         Text('Registration Deadline', style: TextStyle(color: cs.onSurface, fontSize: 14, fontWeight: FontWeight.w500)),
         const SizedBox(height: 8),
         Row(children: [
-          Expanded(child: _glassInput(context: context, hint: 'Select date', suffixIcon: Icon(Icons.calendar_today_outlined, color: cs.onSurfaceVariant, size: 18))),
+          Expanded(child: SportoTextField(hint: 'Select date', suffixIcon: Icon(Icons.calendar_today_outlined, color: cs.onSurfaceVariant, size: 18))),
           const SizedBox(width: 12),
-          Expanded(child: _glassInput(context: context, hint: 'Select time', suffixIcon: Icon(Icons.access_time_outlined, color: cs.onSurfaceVariant, size: 18))),
+          Expanded(child: SportoTextField(hint: 'Select time', suffixIcon: Icon(Icons.access_time_outlined, color: cs.onSurfaceVariant, size: 18))),
         ]),
         const SizedBox(height: 24),
 
-        _sectionTitle(context, 'Match Configuration'),
-        _refCard(context: context, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        SportoSectionTitle(title: 'Match Configuration'),
+        SportoCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
-            Expanded(child: _glassInput(context: context, label: 'Match Duration (mins)', hint: 'Select date')),
+            Expanded(child: SportoTextField(label: 'Match Duration (mins)', hint: 'Select date')),
             const SizedBox(width: 12),
-            Expanded(child: _glassInput(context: context, label: 'Start Time', hint: 'Select time')),
+            Expanded(child: SportoTextField(label: 'Start Time', hint: 'Select time')),
           ]),
           const SizedBox(height: 16),
-          _glassInput(context: context, label: 'Break Between Matches (mins)', hint: 'Select time'),
+          SportoTextField(label: 'Break Between Matches (mins)', hint: 'Select time'),
           const SizedBox(height: 16),
           Text('Lunch Break', style: TextStyle(color: cs.onSurface, fontSize: 14, fontWeight: FontWeight.w500)),
           const SizedBox(height: 8),
           Row(children: [
-            Expanded(child: _glassInput(context: context, label: 'From', hint: 'Select time')),
+            Expanded(child: SportoTextField(label: 'From', hint: 'Select time')),
             const SizedBox(width: 12),
-            Expanded(child: _glassInput(context: context, label: 'To', hint: 'Select time')),
+            Expanded(child: SportoTextField(label: 'To', hint: 'Select time')),
           ]),
         ])),
         const SizedBox(height: 24),
@@ -427,11 +226,11 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
         Text('Number of Teams', style: TextStyle(color: cs.onSurface, fontSize: 14, fontWeight: FontWeight.w500)),
         const SizedBox(height: 12),
         Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-          _StepperBtn(icon: Icons.remove, onPressed: () => setState(() { if (_numberOfTeams > 2) _numberOfTeams ~/= 2; })),
+          SportoStepperButton(icon: Icons.remove, onPressed: () => setState(() { if (_numberOfTeams > 2) _numberOfTeams ~/= 2; })),
           const SizedBox(width: 16),
-          Container(padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12), decoration: BoxDecoration(color: _inputFill(cs), borderRadius: BorderRadius.circular(12), border: Border.all(color: _cardBorder(cs))), child: Text('$_numberOfTeams Teams', style: TextStyle(color: cs.onSurface, fontSize: 16, fontWeight: FontWeight.w700))),
+          Container(padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12), decoration: BoxDecoration(color: SportoTextField.inputFill, borderRadius: BorderRadius.circular(12), border: Border.all(color: SportoTextField.inputBorder)), child: Text('$_numberOfTeams Teams', style: TextStyle(color: cs.onSurface, fontSize: 16, fontWeight: FontWeight.w700))),
           const SizedBox(width: 16),
-          _StepperBtn(icon: Icons.add, onPressed: () => setState(() => _numberOfTeams *= 2)),
+          SportoStepperButton(icon: Icons.add, onPressed: () => setState(() => _numberOfTeams *= 2)),
         ]),
         const SizedBox(height: 20),
 
@@ -446,7 +245,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
           ]),
         ),
         const SizedBox(height: 32),
-        _primaryButton(context: context, label: 'Continue', onPressed: () => setState(() => _currentStep = 2)),
+        PrimaryButton(width: double.infinity, height: 56, label: 'Continue', onPressed: () => setState(() => _currentStep = 2)),
       ],
     );
   }
@@ -477,7 +276,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
         const SizedBox(height: 24),
 
         // Tournament Format
-        _sectionTitle(context, 'Tournament Format'),
+        SportoSectionTitle(title: 'Tournament Format'),
         Row(children: [
           Expanded(child: _FormatCard(label: 'Knockout', points: ['Single elimination.', 'Fastest tournament.', 'Winner advances.'], active: _selectedFormat == 'Knockout', onTap: () => setState(() => _selectedFormat = 'Knockout'))),
           const SizedBox(width: 12),
@@ -486,30 +285,30 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
         const SizedBox(height: 24),
 
         // Match Settings
-        _sectionTitle(context, 'Match Settings'),
+        SportoSectionTitle(title: 'Match Settings'),
         Text('Ball type', style: TextStyle(color: cs.onSurface, fontSize: 14, fontWeight: FontWeight.w500)),
         const SizedBox(height: 12),
         Wrap(spacing: 8, runSpacing: 8, children: [
-          _PillChip(label: 'Tennis Ball', active: _selectedBallType == 'Tennis Ball', hasCheck: true, onTap: () => setState(() => _selectedBallType = 'Tennis Ball')),
-          _PillChip(label: 'Leather Ball', active: _selectedBallType == 'Leather Ball', onTap: () => setState(() => _selectedBallType = 'Leather Ball')),
-          _PillChip(label: 'Rubber Ball', active: _selectedBallType == 'Rubber Ball', onTap: () => setState(() => _selectedBallType = 'Rubber Ball')),
-          _PillChip(label: 'Wind Ball', active: _selectedBallType == 'Wind Ball', onTap: () => setState(() => _selectedBallType = 'Wind Ball')),
+          SportoFilterChip(type: SportoFilterChipType.pill, inactiveFill: true, label: 'Tennis Ball', active: _selectedBallType == 'Tennis Ball', hasCheck: true, onTap: () => setState(() => _selectedBallType = 'Tennis Ball')),
+          SportoFilterChip(type: SportoFilterChipType.pill, inactiveFill: true, label: 'Leather Ball', active: _selectedBallType == 'Leather Ball', onTap: () => setState(() => _selectedBallType = 'Leather Ball')),
+          SportoFilterChip(type: SportoFilterChipType.pill, inactiveFill: true, label: 'Rubber Ball', active: _selectedBallType == 'Rubber Ball', onTap: () => setState(() => _selectedBallType = 'Rubber Ball')),
+          SportoFilterChip(type: SportoFilterChipType.pill, inactiveFill: true, label: 'Wind Ball', active: _selectedBallType == 'Wind Ball', onTap: () => setState(() => _selectedBallType = 'Wind Ball')),
         ]),
         const SizedBox(height: 24),
 
         // Mini Overs Per Innings
-        _CounterRow(label: 'Mini Overs Per Innings', value: '$_miniOvers Overs', onMinus: () => setState(() { if (_miniOvers > 1) _miniOvers--; }), onPlus: () => setState(() => _miniOvers++)),
+        SportoCounterRow(label: 'Mini Overs Per Innings', value: '$_miniOvers Overs', onMinus: () => setState(() { if (_miniOvers > 1) _miniOvers--; }), onPlus: () => setState(() => _miniOvers++)),
         const SizedBox(height: 16),
 
         // Balls Per Over
-        _CounterRow(label: 'Balls Per Over', value: '$_ballsPerOver Balls', onMinus: () => setState(() { if (_ballsPerOver > 1) _ballsPerOver--; }), onPlus: () => setState(() => _ballsPerOver++)),
+        SportoCounterRow(label: 'Balls Per Over', value: '$_ballsPerOver Balls', onMinus: () => setState(() { if (_ballsPerOver > 1) _ballsPerOver--; }), onPlus: () => setState(() => _ballsPerOver++)),
         const SizedBox(height: 16),
 
         // Players Per Team
-        _CounterRow(label: 'Players Per Team', value: '$_playersPerTeam Players', onMinus: () => setState(() { if (_playersPerTeam > 1) _playersPerTeam--; }), onPlus: () => setState(() => _playersPerTeam++)),
+        SportoCounterRow(label: 'Players Per Team', value: '$_playersPerTeam Players', onMinus: () => setState(() { if (_playersPerTeam > 1) _playersPerTeam--; }), onPlus: () => setState(() => _playersPerTeam++)),
         const SizedBox(height: 32),
 
-        _primaryButton(context: context, label: 'Continue', onPressed: () => setState(() => _currentStep = 3)),
+        PrimaryButton(width: double.infinity, height: 56, label: 'Continue', onPressed: () => setState(() => _currentStep = 3)),
       ],
     );
   }
@@ -521,9 +320,9 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
         onTap: onTap,
         child: Container(
           decoration: BoxDecoration(
-            color: active ? cs.secondary.withOpacity(0.1) : _cardFill(cs),
+            color: active ? cs.secondary.withOpacity(0.1) : SportoCard.defaultFill.withOpacity(0.6),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: active ? cs.secondary.withOpacity(0.5) : _cardBorder(cs)),
+            border: Border.all(color: active ? cs.secondary.withOpacity(0.5) : SportoTextField.inputBorder),
           ),
           padding: const EdgeInsets.all(16),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -536,22 +335,6 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
     });
   }
 
-  Widget _CounterRow({required String label, required String value, required VoidCallback onMinus, required VoidCallback onPlus}) {
-    return Builder(builder: (context) {
-      final cs = Theme.of(context).colorScheme;
-      return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(label, style: TextStyle(color: cs.onSurface, fontSize: 14, fontWeight: FontWeight.w500)),
-        const SizedBox(height: 12),
-        Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-          _StepperBtn(icon: Icons.remove, onPressed: onMinus),
-          const SizedBox(width: 16),
-          Container(padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12), decoration: BoxDecoration(color: _inputFill(cs), borderRadius: BorderRadius.circular(12), border: Border.all(color: _cardBorder(cs))), child: Text(value, style: TextStyle(color: cs.onSurface, fontSize: 16, fontWeight: FontWeight.w700))),
-          const SizedBox(width: 16),
-          _StepperBtn(icon: Icons.add, onPressed: onPlus),
-        ]),
-      ]);
-    });
-  }
 
   // ============================================================
   // STEP 4: VENUE SETUP & SCHEDULE
@@ -560,7 +343,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _sectionTitle(context, 'Venue Setup & Schedule', subtitle: 'Where will the tournament be played?'),
+        SportoSectionTitle(title: 'Venue Setup & Schedule', subtitle: 'Where will the tournament be played?'),
         const SizedBox(height: 16),
 
         // Tournament Bracket Card
@@ -586,7 +369,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
         const SizedBox(height: 16),
 
         // Venue List
-        ..._venues.map((v) => Padding(padding: const EdgeInsets.only(bottom: 12), child: _refCard(context: context, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        ..._venues.map((v) => Padding(padding: const EdgeInsets.only(bottom: 12), child: SportoCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(v['name'], style: TextStyle(color: cs.onTertiary, fontSize: 16, fontWeight: FontWeight.w700)),
           const SizedBox(height: 8),
           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
@@ -620,7 +403,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
           ),
         ),
         const SizedBox(height: 32),
-        _primaryButton(context: context, label: 'Continue', onPressed: () => setState(() => _currentStep = 4)),
+        PrimaryButton(width: double.infinity, height: 56, label: 'Continue', onPressed: () => setState(() => _currentStep = 4)),
       ],
     );
   }
@@ -650,32 +433,32 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                 IconButton(icon: Icon(Icons.close_rounded, color: cs.onSurface), onPressed: () => Navigator.pop(ctx)),
               ]),
               const SizedBox(height: 24),
-              _glassInput(context: context, label: 'Venue Name', hint: 'e.g. hyderabad ground', controller: _venueNameCtrl),
+              SportoTextField(label: 'Venue Name', hint: 'e.g. hyderabad ground', controller: _venueNameCtrl),
               const SizedBox(height: 20),
-              _glassInput(context: context, label: 'Location', hint: 'e.g. Kondapur, hyderabad', controller: _locationCtrl),
+              SportoTextField(label: 'Location', hint: 'e.g. Kondapur, hyderabad', controller: _locationCtrl),
               const SizedBox(height: 20),
-              _glassInput(context: context, label: 'Daily Match Capacity', hint: 'e.g. 20', controller: _capacityCtrl),
+              SportoTextField(label: 'Daily Match Capacity', hint: 'e.g. 20', controller: _capacityCtrl),
               const SizedBox(height: 20),
               Text('Ground Type', style: TextStyle(color: cs.onSurface, fontSize: 14, fontWeight: FontWeight.w500)),
               const SizedBox(height: 12),
               Row(children: [
-                _PillChip(label: 'Indoor', active: true, hasCheck: true, onTap: () {}),
+                SportoFilterChip(type: SportoFilterChipType.pill, inactiveFill: true, label: 'Indoor', active: true, hasCheck: true, onTap: () {}),
                 const SizedBox(width: 12),
-                _PillChip(label: 'Outdoor', active: false, onTap: () {}),
+                SportoFilterChip(type: SportoFilterChipType.pill, inactiveFill: true, label: 'Outdoor', active: false, onTap: () {}),
               ]),
               const SizedBox(height: 20),
               Row(children: [
-                Expanded(child: _glassInput(context: context, label: 'Date', hint: 'Select date')),
+                Expanded(child: SportoTextField(label: 'Date', hint: 'Select date')),
                 const SizedBox(width: 12),
-                Expanded(child: _glassInput(context: context, label: 'Start Time', hint: 'Select time')),
+                Expanded(child: SportoTextField(label: 'Start Time', hint: 'Select time')),
               ]),
               const SizedBox(height: 32),
               Row(children: [
-                Expanded(child: _secondaryButton(context: context, label: 'Save', onPressed: () => Navigator.pop(ctx))),
+                Expanded(child: SecondaryButton(label: 'Save', onPressed: () => Navigator.pop(ctx))),
                 const SizedBox(width: 12),
                 Expanded(
                   flex: 2,
-                  child: _primaryButton(context: context, label: 'Save & Add Next', onPressed: () => Navigator.pop(ctx)),
+                  child: PrimaryButton(width: double.infinity, height: 56, label: 'Save & Add Next', onPressed: () => Navigator.pop(ctx)),
                 ),
               ],
             ),
@@ -692,7 +475,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _sectionTitle(context, 'Budget & Registration', subtitle: 'Set entry fees, prize money and registration details.'),
+        SportoSectionTitle(title: 'Budget & Registration', subtitle: 'Set entry fees, prize money and registration details.'),
 
         // Registration Type
         Row(children: [
@@ -701,81 +484,81 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
         ]),
         if (_isPaid) ...[
           const SizedBox(height: 8),
-          _glassInput(context: context, label: 'Entry Fee Per Team', hint: 'e.g. ₹400', controller: _entryFeeCtrl),
+          SportoTextField(label: 'Entry Fee Per Team', hint: 'e.g. ₹400', controller: _entryFeeCtrl),
         ],
         const SizedBox(height: 24),
 
         // Prize Pool Section
-        _sectionTitle(context, 'Prize Pool'),
-        _refCard(context: context, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        SportoSectionTitle(title: 'Prize Pool'),
+        SportoCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text('Teams', style: TextStyle(color: cs.secondary, fontSize: 14, fontWeight: FontWeight.w700)),
           const SizedBox(height: 12),
-          _glassInput(context: context, label: 'Total Prize Money', hint: 'e.g. ₹20,000', controller: _prizePoolCtrl),
+          SportoTextField(label: 'Total Prize Money', hint: 'e.g. ₹20,000', controller: _prizePoolCtrl),
           const SizedBox(height: 16),
-          Row(children: [Expanded(child: _glassInput(context: context, label: 'Winner Prize', hint: 'e.g. ₹15,000')), const SizedBox(width: 12), Expanded(child: _glassInput(context: context, label: 'Runner-up Prize', hint: 'e.g. ₹5,000'))]),
+          Row(children: [Expanded(child: SportoTextField(label: 'Winner Prize', hint: 'e.g. ₹15,000')), const SizedBox(width: 12), Expanded(child: SportoTextField(label: 'Runner-up Prize', hint: 'e.g. ₹5,000'))]),
           const SizedBox(height: 16),
-          Row(children: [Expanded(child: _glassInput(context: context, label: 'Semi-finalists', hint: 'e.g. ₹15,000')), const SizedBox(width: 12), Expanded(child: _glassInput(context: context, label: 'Quarter-finalists', hint: 'e.g. ₹5,000'))]),
+          Row(children: [Expanded(child: SportoTextField(label: 'Semi-finalists', hint: 'e.g. ₹15,000')), const SizedBox(width: 12), Expanded(child: SportoTextField(label: 'Quarter-finalists', hint: 'e.g. ₹5,000'))]),
         ])),
         const SizedBox(height: 16),
 
         // Player Awards
-        _refCard(context: context, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        SportoCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text('Player', style: TextStyle(color: cs.secondary, fontSize: 14, fontWeight: FontWeight.w700)),
           const SizedBox(height: 12),
-          _glassInput(context: context, label: 'Batsman - Most Runs', hint: 'e.g. ₹20,000'),
+          SportoTextField(label: 'Batsman - Most Runs', hint: 'e.g. ₹20,000'),
           const SizedBox(height: 16),
-          Row(children: [Expanded(child: _glassInput(context: context, label: 'Batsman - More 4\'s', hint: 'e.g. ₹20,000')), const SizedBox(width: 12), Expanded(child: _glassInput(context: context, label: 'Batsman - More 6\'s', hint: 'e.g. ₹20,000'))]),
+          Row(children: [Expanded(child: SportoTextField(label: 'Batsman - More 4\'s', hint: 'e.g. ₹20,000')), const SizedBox(width: 12), Expanded(child: SportoTextField(label: 'Batsman - More 6\'s', hint: 'e.g. ₹20,000'))]),
           const SizedBox(height: 16),
-          _glassInput(context: context, label: 'Batsman - Highest Strike Rate', hint: 'e.g. ₹20,000'),
+          SportoTextField(label: 'Batsman - Highest Strike Rate', hint: 'e.g. ₹20,000'),
         ])),
         const SizedBox(height: 16),
 
         // Bowler Awards
-        _refCard(context: context, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        SportoCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text('Bowler', style: TextStyle(color: cs.secondary, fontSize: 14, fontWeight: FontWeight.w700)),
           const SizedBox(height: 12),
-          _glassInput(context: context, label: 'Bowler - Most Wickets', hint: 'e.g. ₹20,000'),
+          SportoTextField(label: 'Bowler - Most Wickets', hint: 'e.g. ₹20,000'),
           const SizedBox(height: 16),
-          _glassInput(context: context, label: 'Bowler Best Economy', hint: 'e.g. ₹20,000'),
+          SportoTextField(label: 'Bowler Best Economy', hint: 'e.g. ₹20,000'),
           const SizedBox(height: 16),
-          Row(children: [Expanded(child: _glassInput(context: context, label: 'Winner Prize', hint: 'e.g. ₹15,000')), const SizedBox(width: 12), Expanded(child: _glassInput(context: context, label: 'Runner-up Prize', hint: 'e.g. ₹5,000'))]),
+          Row(children: [Expanded(child: SportoTextField(label: 'Winner Prize', hint: 'e.g. ₹15,000')), const SizedBox(width: 12), Expanded(child: SportoTextField(label: 'Runner-up Prize', hint: 'e.g. ₹5,000'))]),
         ])),
         const SizedBox(height: 16),
 
         // Audience Leaderboard
-        _refCard(context: context, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        SportoCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text('Audience Leaderboard', style: TextStyle(color: cs.secondary, fontSize: 14, fontWeight: FontWeight.w700)),
           const SizedBox(height: 12),
-          _glassInput(context: context, label: 'Prize 1', hint: 'e.g. ₹20,000'),
+          SportoTextField(label: 'Prize 1', hint: 'e.g. ₹20,000'),
           const SizedBox(height: 12),
           Align(alignment: Alignment.centerRight, child: TextButton.icon(onPressed: () {}, icon: Icon(Icons.add, color: cs.onTertiary), label: Text('Add more', style: TextStyle(color: cs.onTertiary)))),
         ])),
         const SizedBox(height: 16),
 
         // Sponsor
-        _refCard(context: context, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        SportoCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text('Sponsor', style: TextStyle(color: cs.onTertiary, fontSize: 14, fontWeight: FontWeight.w700)),
           const SizedBox(height: 12),
-          Row(children: [Expanded(child: _glassInput(context: context, label: 'Sponsor Contribution', hint: 'e.g. ₹20,000')), const SizedBox(width: 8), IconButton(icon: Icon(Icons.close, color: cs.onSurfaceVariant), onPressed: () {})]),
+          Row(children: [Expanded(child: SportoTextField(label: 'Sponsor Contribution', hint: 'e.g. ₹20,000')), const SizedBox(width: 8), IconButton(icon: Icon(Icons.close, color: cs.onSurfaceVariant), onPressed: () {})]),
           const SizedBox(height: 12),
-          Row(children: [Expanded(child: _glassInput(context: context, label: 'Co-Sponsor', hint: 'e.g. ₹15,000')), const SizedBox(width: 8), IconButton(icon: Icon(Icons.close, color: cs.onSurfaceVariant), onPressed: () {})]),
+          Row(children: [Expanded(child: SportoTextField(label: 'Co-Sponsor', hint: 'e.g. ₹15,000')), const SizedBox(width: 8), IconButton(icon: Icon(Icons.close, color: cs.onSurfaceVariant), onPressed: () {})]),
           const SizedBox(height: 12),
           Align(alignment: Alignment.centerRight, child: TextButton.icon(onPressed: () {}, icon: Icon(Icons.add, color: cs.onTertiary), label: Text('Add More', style: TextStyle(color: cs.onTertiary)))),
         ])),
         const SizedBox(height: 16),
 
         // Your Earnings Summary
-        _refCard(context: context, backgroundColor: cs.secondary.withOpacity(0.05), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        SportoCard(backgroundColor: cs.secondary.withOpacity(0.05), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text('Your Earnings', style: TextStyle(color: cs.secondary, fontSize: 14, fontWeight: FontWeight.w700)),
           const SizedBox(height: 12),
-          _SummaryRow(label: 'Estimated Collection', value: '₹12,800'),
-          _SummaryRow(label: 'Prize Money', value: '-₹15,000'),
-          _SummaryRow(label: 'Platform Fee', value: '₹1,280'),
+          SportoSummaryRow(label: 'Estimated Collection', value: '₹12,800'),
+          SportoSummaryRow(label: 'Prize Money', value: '-₹15,000'),
+          SportoSummaryRow(label: 'Platform Fee', value: '₹1,280'),
           const Divider(height: 24, color: Color(0x0FFFFFFF)),
-          _SummaryRow(label: 'Net Earnings', value: '₹11,520', highlight: true),
+          SportoSummaryRow(label: 'Net Earnings', value: '₹11,520', highlight: true),
         ])),
         const SizedBox(height: 32),
-        _primaryButton(context: context, label: 'Continue', onPressed: () => setState(() => _currentStep = 5)),
+        PrimaryButton(width: double.infinity, height: 56, label: 'Continue', onPressed: () => setState(() => _currentStep = 5)),
       ],
     );
   }
@@ -787,7 +570,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _sectionTitle(context, 'Review Your Tournament', subtitle: 'Review all details before submitting for approval.'),
+        SportoSectionTitle(title: 'Review Your Tournament', subtitle: 'Review all details before submitting for approval.'),
         const SizedBox(height: 16),
 
         // Header Card
@@ -808,7 +591,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
         const SizedBox(height: 16),
 
         // Tournament Details Card
-        _refCard(context: context, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        SportoCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text('Tournament Details', style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)), TextButton(onPressed: () => setState(() => _currentStep = 1), child: Text('Edit →', style: TextStyle(color: cs.onTertiary, fontSize: 12)))]),
           const SizedBox(height: 12),
           Text('Knockout Format', style: TextStyle(color: cs.onSurface, fontSize: 14, fontWeight: FontWeight.w600)),
@@ -816,32 +599,32 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
           const SizedBox(height: 12),
           const Divider(height: 1, color: Color(0x0FFFFFFF)),
           const SizedBox(height: 12),
-          _SummaryRow(label: 'Maximum Teams', value: '32'),
-          _SummaryRow(label: 'Registration Fee', value: '₹400'),
+          SportoSummaryRow(label: 'Maximum Teams', value: '32'),
+          SportoSummaryRow(label: 'Registration Fee', value: '₹400'),
         ])),
         const SizedBox(height: 16),
 
         // Venue & Schedule Card
-        _refCard(context: context, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        SportoCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text('Venue & Schedule (1 Venue)', style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)), TextButton(onPressed: () => setState(() => _currentStep = 3), child: Text('Edit →', style: TextStyle(color: cs.onTertiary, fontSize: 12)))]),
           const SizedBox(height: 12),
-          _SummaryRow(label: 'Location', value: 'Miyapur, Hyderabad'),
-          _SummaryRow(label: 'Daily Match Capacity', value: '6'),
-          _SummaryRow(label: 'Max Duration', value: '30 mins'),
-          _SummaryRow(label: 'Tournament Date', value: '03 Aug 2026'),
-          _SummaryRow(label: 'Start Time', value: '09:00 AM'),
+          SportoSummaryRow(label: 'Location', value: 'Miyapur, Hyderabad'),
+          SportoSummaryRow(label: 'Daily Match Capacity', value: '6'),
+          SportoSummaryRow(label: 'Max Duration', value: '30 mins'),
+          SportoSummaryRow(label: 'Tournament Date', value: '03 Aug 2026'),
+          SportoSummaryRow(label: 'Start Time', value: '09:00 AM'),
         ])),
         const SizedBox(height: 16),
 
         // Financial Summary Card
-        _refCard(context: context, backgroundColor: cs.secondary.withOpacity(0.05), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        SportoCard(backgroundColor: cs.secondary.withOpacity(0.05), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text('Financial Summary', style: TextStyle(color: cs.secondary, fontSize: 14, fontWeight: FontWeight.w700)),
           const SizedBox(height: 12),
-          _SummaryRow(label: 'Estimated Collection', value: '₹12,800'),
-          _SummaryRow(label: 'Prize Money', value: '-₹15,000'),
-          _SummaryRow(label: 'Platform Fee', value: '₹1,280'),
+          SportoSummaryRow(label: 'Estimated Collection', value: '₹12,800'),
+          SportoSummaryRow(label: 'Prize Money', value: '-₹15,000'),
+          SportoSummaryRow(label: 'Platform Fee', value: '₹1,280'),
           const Divider(height: 24, color: Color(0x0FFFFFFF)),
-          _SummaryRow(label: 'Net Earnings', value: '₹11,520', highlight: true),
+          SportoSummaryRow(label: 'Net Earnings', value: '₹11,520', highlight: true),
         ])),
         const SizedBox(height: 24),
 
@@ -858,9 +641,9 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
 
         // Action Buttons
         Row(children: [
-          Expanded(child: _secondaryButton(context: context, label: 'Back', onPressed: () => setState(() => _currentStep = 4))),
+          Expanded(child: SecondaryButton(label: 'Back', onPressed: () => setState(() => _currentStep = 4))),
           const SizedBox(width: 12),
-          Expanded(flex: 2, child: _primaryButton(context: context, label: 'Submit for Approval', onPressed: () {})),
+          Expanded(flex: 2, child: PrimaryButton(width: double.infinity, height: 56, label: 'Submit for Approval', onPressed: () {})),
         ]),
       ],
     );
