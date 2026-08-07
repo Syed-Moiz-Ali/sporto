@@ -1,8 +1,8 @@
 import 'package:core/core.dart';
-import 'package:partner_data/partner_data.dart';
+import 'package:referee_data/referee_data.dart';
 import 'package:shared_domain/shared_domain.dart';
 
-import '../../features/tournaments/application/tournament_bloc.dart';
+import '../../features/matches/application/match_scoring_bloc.dart';
 
 /// Composition root: wires data layer (repositories) to the presentation
 /// layer (blocs). Kept out of widgets so the UI stays free of construction
@@ -19,7 +19,7 @@ class DependencyInjector {
 
   late final AuthBloc authBloc = _buildAuthBloc();
 
-  late final TournamentBloc tournamentBloc = _buildTournamentBloc();
+  late final MatchScoringBloc matchScoringBloc = _buildMatchScoringBloc();
 
   AuthBloc _buildAuthBloc() {
     final authRepository = AuthRepositoryImpl();
@@ -32,11 +32,13 @@ class DependencyInjector {
     )..add(CheckAuthStatusEvent());
   }
 
-  TournamentBloc _buildTournamentBloc() {
-    final tournamentRepository = TournamentRepositoryImpl();
-    return TournamentBloc(
-      getTournamentsUseCase: GetTournamentsUseCase(tournamentRepository),
-      createTournamentUseCase: CreateTournamentUseCase(tournamentRepository),
+  MatchScoringBloc _buildMatchScoringBloc() {
+    final matchRepository = MatchRepositoryImpl();
+    return MatchScoringBloc(
+      getMatchesUseCase: GetMatchesUseCase(matchRepository),
+      verifyMatchUseCase: VerifyMatchUseCase(matchRepository),
+      conductTossUseCase: ConductTossUseCase(matchRepository),
+      recordBallScoreUseCase: RecordBallScoreUseCase(matchRepository),
     );
   }
 }

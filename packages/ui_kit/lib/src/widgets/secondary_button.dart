@@ -8,6 +8,7 @@ import 'sporto_text_field.dart';
 class SecondaryButton extends StatelessWidget {
   final String label;
   final VoidCallback? onPressed;
+  final IconData? icon;
   final double height;
   final double radius;
   final double? width;
@@ -17,6 +18,7 @@ class SecondaryButton extends StatelessWidget {
     super.key,
     required this.label,
     this.onPressed,
+    this.icon,
     this.height = 56,
     this.radius = 16,
     this.width,
@@ -45,11 +47,21 @@ class SecondaryButton extends StatelessWidget {
             border: Border.all(color: SportoTextField.inputBorder),
           ),
           alignment: Alignment.center,
-          child: Text(label,
-              style: TextStyle(
-                  color: cs.onSurface,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600)),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (icon != null) ...[
+                Icon(icon, color: cs.onSurfaceVariant, size: 20),
+                const SizedBox(width: 8),
+              ],
+              Text(label,
+                  style: TextStyle(
+                      color: cs.onSurface,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600)),
+            ],
+          ),
         ),
       ),
     );

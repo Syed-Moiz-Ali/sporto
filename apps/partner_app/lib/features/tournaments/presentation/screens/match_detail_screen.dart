@@ -245,46 +245,44 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
       SportoCard(
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              Text('Delhi Warriors',
-                  style: TextStyle(
-                      color: cs.tertiary, fontWeight: FontWeight.w600)),
-              Text('Vs', style: TextStyle(color: cs.onSurfaceVariant)),
-              Text('Hyd Highlanders',
-                  style: TextStyle(color: cs.onSurfaceVariant)),
-            ]),
-            const SizedBox(height: 12),
-            Center(
-                child: Column(children: [
-              Text('80/2',
-                  style: TextStyle(
-                      color: cs.tertiary,
-                      fontSize: 32,
-                      fontWeight: FontWeight.w700)),
-              Text('4.3 Overs',
-                  style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)),
-            ])),
-            const SizedBox(height: 12),
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              Text('Required Run Rate: 8.5',
-                  style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
-              Text('Current RR: 9.1',
-                  style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
-            ]),
-            const Divider(height: 24, color: Color(0x0FFFFFFF)),
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text('Venue A - Ground A',
-                    style: TextStyle(color: cs.onSurface, fontSize: 13)),
-                Text('09:15 AM',
-                    style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
-              ]),
-              TextButton(
-                  onPressed: () {},
-                  child:
-                      Text('Manage →', style: TextStyle(color: cs.secondary))),
-            ]),
-          ])),
+        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+          Text('Delhi Warriors',
+              style:
+                  TextStyle(color: cs.tertiary, fontWeight: FontWeight.w600)),
+          Text('Vs', style: TextStyle(color: cs.onSurfaceVariant)),
+          Text('Hyd Highlanders', style: TextStyle(color: cs.onSurfaceVariant)),
+        ]),
+        const SizedBox(height: 12),
+        Center(
+            child: Column(children: [
+          Text('80/2',
+              style: TextStyle(
+                  color: cs.tertiary,
+                  fontSize: 32,
+                  fontWeight: FontWeight.w700)),
+          Text('4.3 Overs',
+              style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)),
+        ])),
+        const SizedBox(height: 12),
+        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+          Text('Required Run Rate: 8.5',
+              style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
+          Text('Current RR: 9.1',
+              style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
+        ]),
+        const SportoDivider(height: 24),
+        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+          Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text('Venue A - Ground A',
+                style: TextStyle(color: cs.onSurface, fontSize: 13)),
+            Text('09:15 AM',
+                style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
+          ]),
+          TextButton(
+              onPressed: () {},
+              child: Text('Manage →', style: TextStyle(color: cs.secondary))),
+        ]),
+      ])),
       const SizedBox(height: 24),
       Text('Registration Summary',
           style: TextStyle(
@@ -302,8 +300,7 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
           children: [
             SportoStatCard(label: 'Registered', value: '128'),
             SportoStatCard(label: 'Approved', value: '126', highlight: true),
-            SportoStatCard(
-                label: 'Pending', value: '2', color: Colors.orange),
+            SportoStatCard(label: 'Pending', value: '2', color: Colors.orange),
             SportoStatCard(
                 label: 'Rejected', value: '0', color: Colors.redAccent),
           ]),
@@ -322,8 +319,10 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
           crossAxisSpacing: 8,
           childAspectRatio: 2.5,
           children: [
-            SportoSummaryRow(label: 'Revenue', value: '₹51,200', boldValue: true),
-            SportoSummaryRow(label: 'Expenses', value: '21,000', boldValue: true),
+            SportoSummaryRow(
+                label: 'Revenue', value: '₹51,200', boldValue: true),
+            SportoSummaryRow(
+                label: 'Expenses', value: '21,000', boldValue: true),
             SportoSummaryRow(
                 label: 'Prize Pool', value: '60,000', boldValue: true),
             SportoSummaryRow(
@@ -387,64 +386,59 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
       return SportoCard(
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Row(children: [
-              Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                      color: cs.surfaceContainerHigh,
-                      borderRadius: BorderRadius.circular(10)),
-                  alignment: Alignment.center,
-                  child: Text(initials,
-                      style: TextStyle(
-                          color: cs.onSurface, fontWeight: FontWeight.w700))),
-              const SizedBox(width: 12),
-              Expanded(
-                  child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                    Text(name,
-                        style: TextStyle(
-                            color: cs.onSurface,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 16)),
-                    RichText(
-                        text:
-                            TextSpan(style: TextStyle(fontSize: 12), children: [
-                      TextSpan(
-                          text: 'Captain: ',
-                          style: TextStyle(color: cs.onSurfaceVariant)),
-                      TextSpan(
-                          text: captain, style: TextStyle(color: cs.secondary))
-                    ])),
-                    Text('$players • $joined',
-                        style: TextStyle(
-                            color: cs.onSurfaceVariant, fontSize: 11)),
-                  ])),
-              IconButton(
-                  icon:
-                      Icon(Icons.more_vert_rounded, color: cs.onSurfaceVariant),
-                  onPressed: () {}),
-            ]),
-            const SizedBox(height: 12),
-            Row(children: [
-              SportoBadge(
-                  text: paid ? 'Paid' : 'Unpaid',
-                  color: paid ? cs.secondary : Colors.redAccent,
-                  outlined: true),
-              const SizedBox(width: 8),
-              SportoBadge(
-                  text: 'Approved', color: cs.secondary),
-              const Spacer(),
-              TextButton(
-                  onPressed: () {},
-                  child: Text('View Details',
-                      style: TextStyle(
-                          color: cs.onSurface,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600))),
-            ]),
-          ]));
+        Row(children: [
+          Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                  color: cs.surfaceContainerHigh,
+                  borderRadius: BorderRadius.circular(10)),
+              alignment: Alignment.center,
+              child: Text(initials,
+                  style: TextStyle(
+                      color: cs.onSurface, fontWeight: FontWeight.w700))),
+          const SizedBox(width: 12),
+          Expanded(
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                Text(name,
+                    style: TextStyle(
+                        color: cs.onSurface,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 16)),
+                RichText(
+                    text: TextSpan(style: TextStyle(fontSize: 12), children: [
+                  TextSpan(
+                      text: 'Captain: ',
+                      style: TextStyle(color: cs.onSurfaceVariant)),
+                  TextSpan(text: captain, style: TextStyle(color: cs.secondary))
+                ])),
+                Text('$players • $joined',
+                    style: TextStyle(color: cs.onSurfaceVariant, fontSize: 11)),
+              ])),
+          IconButton(
+              icon: Icon(Icons.more_vert_rounded, color: cs.onSurfaceVariant),
+              onPressed: () {}),
+        ]),
+        const SizedBox(height: 12),
+        Row(children: [
+          SportoBadge(
+              text: paid ? 'Paid' : 'Unpaid',
+              color: paid ? cs.secondary : Colors.redAccent,
+              outlined: true),
+          const SizedBox(width: 8),
+          SportoBadge(text: 'Approved', color: cs.secondary),
+          const Spacer(),
+          TextButton(
+              onPressed: () {},
+              child: Text('View Details',
+                  style: TextStyle(
+                      color: cs.onSurface,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600))),
+        ]),
+      ]));
     });
   }
 
@@ -506,91 +500,86 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
       return SportoCard(
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Row(children: [
-              Expanded(
-                  child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                    Text(name,
-                        style: TextStyle(
-                            color: cs.onSurface,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 16)),
-                    Text('Level: $level referee',
-                        style: TextStyle(
-                            color: cs.onSurfaceVariant, fontSize: 12)),
-                  ])),
-              IconButton(
-                  icon:
-                      Icon(Icons.more_vert_rounded, color: cs.onSurfaceVariant),
-                  onPressed: () {}),
-            ]),
-            if (match != null) ...[
-              const SizedBox(height: 12),
-              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                Text(match.split(' Vs ')[0],
+        Row(children: [
+          Expanded(
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                Text(name,
                     style: TextStyle(
-                        color: cs.tertiary, fontWeight: FontWeight.w600)),
-                Text('Vs', style: TextStyle(color: cs.onSurfaceVariant)),
-                Text(match.split(' Vs ')[1],
-                    style: TextStyle(color: cs.onSurfaceVariant)),
+                        color: cs.onSurface,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 16)),
+                Text('Level: $level referee',
+                    style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
+              ])),
+          IconButton(
+              icon: Icon(Icons.more_vert_rounded, color: cs.onSurfaceVariant),
+              onPressed: () {}),
+        ]),
+        if (match != null) ...[
+          const SizedBox(height: 12),
+          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+            Text(match.split(' Vs ')[0],
+                style:
+                    TextStyle(color: cs.tertiary, fontWeight: FontWeight.w600)),
+            Text('Vs', style: TextStyle(color: cs.onSurfaceVariant)),
+            Text(match.split(' Vs ')[1],
+                style: TextStyle(color: cs.onSurfaceVariant)),
+          ]),
+        ],
+        const SizedBox(height: 12),
+        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+          Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            if (ground != null)
+              Row(children: [
+                Icon(Icons.location_on_outlined, size: 14, color: cs.secondary),
+                const SizedBox(width: 4),
+                Text(ground,
+                    style: TextStyle(color: cs.secondary, fontSize: 12))
               ]),
-            ],
-            const SizedBox(height: 12),
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                if (ground != null)
-                  Row(children: [
-                    Icon(Icons.location_on_outlined,
-                        size: 14, color: cs.secondary),
-                    const SizedBox(width: 4),
-                    Text(ground,
-                        style: TextStyle(color: cs.secondary, fontSize: 12))
-                  ]),
-                if (round != null)
-                  Row(children: [
-                    Icon(Icons.edit_note_outlined,
-                        size: 14, color: cs.onSurfaceVariant),
-                    const SizedBox(width: 4),
-                    Text(round,
-                        style:
-                            TextStyle(color: cs.onSurfaceVariant, fontSize: 12))
-                  ]),
-                if (lastMatch != null)
-                  Row(children: [
-                    Container(
-                        width: 6,
-                        height: 6,
-                        decoration: BoxDecoration(
-                            shape: BoxShape.circle, color: statusColor)),
-                    const SizedBox(width: 6),
-                    Text(lastMatch,
-                        style:
-                            TextStyle(color: cs.onSurfaceVariant, fontSize: 12))
-                  ]),
+            if (round != null)
+              Row(children: [
+                Icon(Icons.edit_note_outlined,
+                    size: 14, color: cs.onSurfaceVariant),
+                const SizedBox(width: 4),
+                Text(round,
+                    style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12))
               ]),
-              if (isAssignable)
+            if (lastMatch != null)
+              Row(children: [
                 Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    width: 6,
+                    height: 6,
                     decoration: BoxDecoration(
-                        color: cs.tertiary,
-                        borderRadius: BorderRadius.circular(20)),
-                    child: Text('Assign',
-                        style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 12)))
-              else if (match != null)
-                TextButton(
-                    onPressed: () {},
-                    child: Text('View Details',
-                        style: TextStyle(
-                            color: cs.onSurface,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600))),
-            ]),
-          ]));
+                        shape: BoxShape.circle, color: statusColor)),
+                const SizedBox(width: 6),
+                Text(lastMatch,
+                    style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12))
+              ]),
+          ]),
+          if (isAssignable)
+            Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                    color: cs.tertiary,
+                    borderRadius: BorderRadius.circular(20)),
+                child: Text('Assign',
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 12)))
+          else if (match != null)
+            TextButton(
+                onPressed: () {},
+                child: Text('View Details',
+                    style: TextStyle(
+                        color: cs.onSurface,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600))),
+        ]),
+      ]));
     });
   }
 
@@ -650,7 +639,7 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
         refereeColor: Colors.redAccent,
         nextMatch: '05:30 PM',
         actionLabel: 'Assign Referee',
-        actionColor: const Color(0xFFF4B41A), // Gold/Yellow
+        actionColor: cs.tertiary, // Gold/Yellow
       ),
       const SizedBox(height: 12),
 
@@ -689,130 +678,130 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
       return SportoCard(
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            // Header: Name + Status
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              Row(children: [
-                Icon(Icons.location_on_outlined,
-                    color: cs.onSurfaceVariant, size: 18),
-                const SizedBox(width: 6),
-                Text(name,
-                    style: TextStyle(
-                        color: cs.onSurface,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 16)),
-              ]),
-              Row(children: [
-                Container(
-                    width: 8,
-                    height: 8,
-                    decoration: BoxDecoration(
-                        shape: BoxShape.circle, color: statusColor)),
-                const SizedBox(width: 6),
-                Text(status,
-                    style: TextStyle(
-                        color: statusColor, fontWeight: FontWeight.w700)),
-              ]),
-            ]),
-            const SizedBox(height: 4),
-            Text(subName,
-                style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
+        // Header: Name + Status
+        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+          Row(children: [
+            Icon(Icons.location_on_outlined,
+                color: cs.onSurfaceVariant, size: 18),
+            const SizedBox(width: 6),
+            Text(name,
+                style: TextStyle(
+                    color: cs.onSurface,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 16)),
+          ]),
+          Row(children: [
+            Container(
+                width: 8,
+                height: 8,
+                decoration:
+                    BoxDecoration(shape: BoxShape.circle, color: statusColor)),
+            const SizedBox(width: 6),
+            Text(status,
+                style:
+                    TextStyle(color: statusColor, fontWeight: FontWeight.w700)),
+          ]),
+        ]),
+        const SizedBox(height: 4),
+        Text(subName,
+            style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
 
-            // Conditional Middle Content
-            if (match != null) ...[
-              const SizedBox(height: 12),
-              const Divider(height: 1, color: Color(0x0FFFFFFF)),
-              const SizedBox(height: 12),
-              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                Text(match.split(' Vs ')[0],
+        // Conditional Middle Content
+        if (match != null) ...[
+          const SizedBox(height: 12),
+          const SportoDivider(height: 1),
+          const SizedBox(height: 12),
+          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+            Text(match.split(' Vs ')[0],
+                style:
+                    TextStyle(color: cs.tertiary, fontWeight: FontWeight.w600)),
+            Text('Vs', style: TextStyle(color: cs.onSurfaceVariant)),
+            Text(match.split(' Vs ')[1],
+                style: TextStyle(color: cs.onSurfaceVariant)),
+          ]),
+          const SizedBox(height: 12),
+          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+            Text('Captain: $captain',
+                style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
+            Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                    color: actionColor.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(12)),
+                child: Text(actionLabel,
                     style: TextStyle(
-                        color: cs.tertiary, fontWeight: FontWeight.w600)),
-                Text('Vs', style: TextStyle(color: cs.onSurfaceVariant)),
-                Text(match.split(' Vs ')[1],
-                    style: TextStyle(color: cs.onSurfaceVariant)),
-              ]),
-              const SizedBox(height: 12),
-              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                Text('Captain: $captain',
-                    style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
-                Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                        color: actionColor.withOpacity(0.15),
-                        borderRadius: BorderRadius.circular(12)),
-                    child: Text(actionLabel,
-                        style: TextStyle(
-                            color: actionColor,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 12))),
-              ]),
-            ] else if (staffReady) ...[
-              const SizedBox(height: 12),
-              const Divider(height: 1, color: Color(0x0FFFFFFF)),
-              const SizedBox(height: 12),
-              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                Row(children: [
-                  Icon(Icons.check_circle_outline_rounded,
-                      color: cs.secondary, size: 16),
-                  const SizedBox(width: 6),
-                  Text('Staff Ready',
-                      style: TextStyle(color: cs.onSurface, fontSize: 12))
-                ]),
-                Text('Referee: $referee',
-                    style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
-              ]),
-              const SizedBox(height: 12),
-              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                RichText(
-                    text: TextSpan(style: TextStyle(fontSize: 12), children: [
-                  TextSpan(
-                      text: 'Starts In: ',
-                      style: TextStyle(color: cs.onSurfaceVariant)),
-                  TextSpan(
-                      text: startsIn,
-                      style: TextStyle(
-                          color: cs.secondary, fontWeight: FontWeight.w600))
-                ])),
-                Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                        color: actionColor.withOpacity(0.15),
-                        borderRadius: BorderRadius.circular(12)),
-                    child: Text(actionLabel,
-                        style: TextStyle(
-                            color: actionColor,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 12))),
-              ]),
-            ] else if (referee != null) ...[
-              const SizedBox(height: 12),
-              const Divider(height: 1, color: Color(0x0FFFFFFF)),
-              const SizedBox(height: 12),
-              Text('Referee: $referee',
+                        color: actionColor,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 12))),
+          ]),
+        ] else if (staffReady) ...[
+          const SizedBox(height: 12),
+          const SportoDivider(height: 1),
+          const SizedBox(height: 12),
+          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+            Row(children: [
+              Icon(Icons.check_circle_outline_rounded,
+                  color: cs.secondary, size: 16),
+              const SizedBox(width: 6),
+              Text('Staff Ready',
+                  style: TextStyle(color: cs.onSurface, fontSize: 12))
+            ]),
+            Text('Referee: $referee',
+                style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
+          ]),
+          const SizedBox(height: 12),
+          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+            RichText(
+                text: TextSpan(style: TextStyle(fontSize: 12), children: [
+              TextSpan(
+                  text: 'Starts In: ',
+                  style: TextStyle(color: cs.onSurfaceVariant)),
+              TextSpan(
+                  text: startsIn,
                   style: TextStyle(
-                      color: refereeColor ?? cs.onSurface, fontSize: 12)),
-              const SizedBox(height: 12),
-              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                Text(
-                    nextMatch != null
-                        ? 'Next Match: $nextMatch'
-                        : 'Available : $available',
-                    style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
-                Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                        color: actionColor.withOpacity(0.15),
-                        borderRadius: BorderRadius.circular(12)),
-                    child: Text(actionLabel,
-                        style: TextStyle(
-                            color: actionColor,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 12))),
-              ]),
-            ],
-          ]));
+                      color: cs.secondary, fontWeight: FontWeight.w600))
+            ])),
+            Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                    color: actionColor.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(12)),
+                child: Text(actionLabel,
+                    style: TextStyle(
+                        color: actionColor,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 12))),
+          ]),
+        ] else if (referee != null) ...[
+          const SizedBox(height: 12),
+          const SportoDivider(height: 1),
+          const SizedBox(height: 12),
+          Text('Referee: $referee',
+              style:
+                  TextStyle(color: refereeColor ?? cs.onSurface, fontSize: 12)),
+          const SizedBox(height: 12),
+          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+            Text(
+                nextMatch != null
+                    ? 'Next Match: $nextMatch'
+                    : 'Available : $available',
+                style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
+            Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                    color: actionColor.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(12)),
+                child: Text(actionLabel,
+                    style: TextStyle(
+                        color: actionColor,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 12))),
+          ]),
+        ],
+      ]));
     });
   }
 
@@ -894,87 +883,84 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
       return SportoCard(
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              if (isLive)
-                Row(children: [
-                  Container(
-                      width: 8,
-                      height: 8,
-                      decoration: const BoxDecoration(
-                          shape: BoxShape.circle, color: Colors.redAccent)),
-                  const SizedBox(width: 6),
-                  Text('LIVE',
-                      style: TextStyle(
-                          color: Colors.redAccent, fontWeight: FontWeight.w700))
-                ])
-              else
-                Row(children: [
-                  Icon(Icons.location_on_outlined,
-                      size: 14, color: cs.onSurfaceVariant),
-                  const SizedBox(width: 4),
-                  Text(ground, style: TextStyle(color: cs.onSurfaceVariant))
-                ]),
-
-              // Fixed: Logic to display score, startsIn, or time
-              if (score != null)
-                Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-                  Text(score,
-                      style: TextStyle(
-                          color: cs.onSurface,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 18)),
-                  Text(overs!,
-                      style:
-                          TextStyle(color: cs.onSurfaceVariant, fontSize: 12))
-                ])
-              else if (startsIn != null)
-                Text(startsIn,
-                    style: TextStyle(
-                        color: cs.secondary,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 12))
-              else if (round != null)
-                Text(round,
-                    style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12))
-              else
-                Text(time,
-                    style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
-            ]),
-            if (isLive) ...[
-              const SizedBox(height: 8),
-              Row(children: [
-                Icon(Icons.location_on_outlined, size: 14, color: cs.secondary),
-                const SizedBox(width: 4),
-                Text(ground,
-                    style: TextStyle(color: cs.secondary, fontSize: 12))
-              ]),
-            ],
-            const SizedBox(height: 12),
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              Text(match.split(' Vs ')[0],
-                  style: TextStyle(
-                      color: cs.tertiary, fontWeight: FontWeight.w600)),
-              Text('Vs', style: TextStyle(color: cs.onSurfaceVariant)),
-              Text(match.split(' Vs ')[1],
-                  style: TextStyle(color: cs.onSurfaceVariant)),
-            ]),
-            const SizedBox(height: 12),
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              Text('Captain: $captain',
-                  style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
+        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+          if (isLive)
+            Row(children: [
               Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                      color: (actionColor ?? cs.secondary).withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(12)),
-                  child: Text(action,
-                      style: TextStyle(
-                          color: actionColor ?? cs.secondary,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 12))),
+                  width: 8,
+                  height: 8,
+                  decoration: const BoxDecoration(
+                      shape: BoxShape.circle, color: Colors.redAccent)),
+              const SizedBox(width: 6),
+              Text('LIVE',
+                  style: TextStyle(
+                      color: Colors.redAccent, fontWeight: FontWeight.w700))
+            ])
+          else
+            Row(children: [
+              Icon(Icons.location_on_outlined,
+                  size: 14, color: cs.onSurfaceVariant),
+              const SizedBox(width: 4),
+              Text(ground, style: TextStyle(color: cs.onSurfaceVariant))
             ]),
-          ]));
+
+          // Fixed: Logic to display score, startsIn, or time
+          if (score != null)
+            Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
+              Text(score,
+                  style: TextStyle(
+                      color: cs.onSurface,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 18)),
+              Text(overs!,
+                  style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12))
+            ])
+          else if (startsIn != null)
+            Text(startsIn,
+                style: TextStyle(
+                    color: cs.secondary,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 12))
+          else if (round != null)
+            Text(round,
+                style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12))
+          else
+            Text(time,
+                style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
+        ]),
+        if (isLive) ...[
+          const SizedBox(height: 8),
+          Row(children: [
+            Icon(Icons.location_on_outlined, size: 14, color: cs.secondary),
+            const SizedBox(width: 4),
+            Text(ground, style: TextStyle(color: cs.secondary, fontSize: 12))
+          ]),
+        ],
+        const SizedBox(height: 12),
+        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+          Text(match.split(' Vs ')[0],
+              style:
+                  TextStyle(color: cs.tertiary, fontWeight: FontWeight.w600)),
+          Text('Vs', style: TextStyle(color: cs.onSurfaceVariant)),
+          Text(match.split(' Vs ')[1],
+              style: TextStyle(color: cs.onSurfaceVariant)),
+        ]),
+        const SizedBox(height: 12),
+        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+          Text('Captain: $captain',
+              style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
+          Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                  color: (actionColor ?? cs.secondary).withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(12)),
+              child: Text(action,
+                  style: TextStyle(
+                      color: actionColor ?? cs.secondary,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 12))),
+        ]),
+      ]));
     });
   }
 }

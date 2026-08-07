@@ -155,7 +155,15 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
               bottom: 0,
               child: SportoBottomNav(
                 currentIndex: _currentIndex,
-                onTap: (idx) => setState(() => _currentIndex = idx),
+                onTap: (idx) {
+                  setState(() => _currentIndex = idx);
+                  switch (idx) {
+                    case 1:
+                      context.push(AppRouter.matchHistoryRoute);
+                    case 3:
+                      context.push(AppRouter.profileRoute);
+                  }
+                },
                 items: const [
                   SportoNavItem(Icons.home_rounded, 'Home'),
                   SportoNavItem(Icons.calendar_month_rounded, 'Matches'),

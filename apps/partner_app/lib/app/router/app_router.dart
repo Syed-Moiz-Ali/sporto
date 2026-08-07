@@ -3,17 +3,23 @@ import 'package:go_router/go_router.dart';
 import '../../features/auth/presentation/views/auth_flow_view.dart';
 import '../../features/tournaments/presentation/screens/create_tournament_wizard_screen.dart';
 import '../../features/tournaments/presentation/screens/match_detail_screen.dart';
+import '../../features/tournaments/presentation/screens/match_history_screen.dart';
+import '../../features/tournaments/presentation/screens/profile_screen.dart';
 
 /// Central route table for the partner app.
 abstract final class AppRouter {
   static const String homePath = '/';
   static const String tournamentDetailPath = '/tournaments/:id';
   static const String createTournamentPath = '/create-tournament';
+  static const String matchHistoryPath = '/match-history';
+  static const String profilePath = '/profile';
 
   static String tournamentDetailRoute(String tournamentId) =>
       '/tournaments/$tournamentId';
 
   static const String createTournamentRoute = createTournamentPath;
+  static const String matchHistoryRoute = matchHistoryPath;
+  static const String profileRoute = profilePath;
 
   static final GoRouter router = GoRouter(
     initialLocation: homePath,
@@ -34,6 +40,16 @@ abstract final class AppRouter {
         path: createTournamentPath,
         name: 'createTournament',
         builder: (context, state) => const CreateTournamentWizardScreen(),
+      ),
+      GoRoute(
+        path: matchHistoryPath,
+        name: 'matchHistory',
+        builder: (context, state) => const MatchHistoryScreen(),
+      ),
+      GoRoute(
+        path: profilePath,
+        name: 'profile',
+        builder: (context, state) => const ProfileScreen(),
       ),
     ],
   );

@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:core/core.dart';
 import 'package:ui_kit/ui_kit.dart';
 
-import '../../../../features/tournaments/presentation/screens/partner_main_screen.dart';
+import '../../../../features/matches/presentation/screens/referee_shell_screen.dart';
 
 /// Handles splash + auth gate (login / onboarding / authenticated home).
 class AuthFlowView extends StatefulWidget {
@@ -47,7 +47,7 @@ class _AuthFlowViewState extends State<AuthFlowView> {
         final isSubmitting = state is AuthLoadingState;
 
         if (screenState is AuthenticatedState) {
-          return const PartnerMainScreen();
+          return const RefereeShellScreen();
         }
 
         if (screenState is NeedsOnboardingState) {
@@ -65,7 +65,7 @@ class _AuthFlowViewState extends State<AuthFlowView> {
         }
 
         return PhoneLoginScreen(
-          appRole: 'partner',
+          appRole: 'referee',
           initialMobileNumber:
               screenState is OtpSentState ? screenState.mobileNumber : null,
           isSubmitting: isSubmitting,
@@ -76,7 +76,7 @@ class _AuthFlowViewState extends State<AuthFlowView> {
             context.read<AuthBloc>().add(VerifyOtpRequestedEvent(
                   mobileNumber: mobileNumber,
                   otpCode: otpCode,
-                  role: 'partner',
+                  role: 'referee',
                 ));
           },
         );

@@ -25,6 +25,13 @@ export 'src/widgets/sporto_check_circle.dart';
 export 'src/widgets/sporto_check_box.dart';
 export 'src/widgets/sporto_bottom_nav.dart';
 export 'src/widgets/sporto_quick_action.dart';
+export 'src/widgets/sporto_segmented_control.dart';
+export 'src/widgets/sporto_divider.dart';
+export 'src/widgets/sporto_gradient_card.dart';
+export 'src/widgets/sporto_pill_button.dart';
+export 'src/widgets/sporto_match_card.dart';
+export 'src/widgets/sporto_team_verification_card.dart';
+export 'src/widgets/sporto_info_row.dart';
 
 // Screens (Mobile OTP & Onboarding)
 export 'src/screens/splash_screen.dart';
