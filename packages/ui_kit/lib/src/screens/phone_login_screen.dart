@@ -6,7 +6,6 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:ui_kit/ui_kit.dart';
 
 class PhoneLoginScreen extends StatefulWidget {
@@ -150,202 +149,223 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
   // LOGIN STATE — orange chevron header + welcome form
   // ------------------------------------------------------------
   Widget _buildLoginScreen(ColorScheme cs, TextTheme tt) {
-    final top = MediaQuery.of(context).padding.top;
-    final rectHeight = top + 150.0;
-    final tipY = top + 380.0;
+    final tokens = context.sporto;
+    final spacing = context.sportoLayout;
+    final size = MediaQuery.sizeOf(context);
+    final scale = context.sportoScale;
+    double scaled(double value) => value * scale;
 
     return SingleChildScrollView(
       key: const ValueKey('login'),
       physics: const ClampingScrollPhysics(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          SizedBox(
-            height: top + 390,
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Positioned.fill(
-                  child: CustomPaint(
-                    painter: _ChevronHeaderPainter(
-                      rectHeight: rectHeight,
-                      tipY: tipY,
-                      gradientColors: [cs.primary, cs.tertiary],
-                    ),
-                  ),
+      child: ConstrainedBox(
+        constraints:
+            BoxConstraints(minHeight: math.max(size.height, scaled(844))),
+        child: Stack(
+          children: [
+            SizedBox(
+              height: scaled(314),
+              child: CustomPaint(
+                painter: _ChevronHeaderPainter(
+                  rectHeight: scaled(122),
+                  tipY: scaled(317),
+                  gradientColors: tokens.primaryGradient.colors,
                 ),
-                Positioned(
-                  top: top + 34,
-                  left: 0,
-                  right: 0,
-                  child: Text(
-                    'SPORTO',
-                    textAlign: TextAlign.center,
-                    style: GoogleFonts.spaceGrotesk(
-                      fontSize: 62,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 1.5,
-                      color: Colors.white,
-                      shadows: const [
-                        Shadow(
-                          color: Color(0x40000000),
-                          offset: Offset(0, 3),
-                          blurRadius: 6,
+                child: Stack(
+                  children: [
+                    Positioned(
+                      top: scaled(88),
+                      left: 0,
+                      right: 0,
+                      child: Transform.scale(
+                        scaleX: 1.14,
+                        scaleY: .94,
+                        child: Text(
+                          'SPORTO',
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context)
+                              .primaryTextTheme
+                              .displayLarge
+                              ?.copyWith(
+                            color: cs.onPrimary,
+                            fontSize: scaled(68),
+                            shadows: [
+                              Shadow(
+                                color: const Color(0x40000000),
+                                offset: Offset(0, scaled(3)),
+                                blurRadius: scaled(6),
+                              ),
+                            ],
+                          ),
                         ),
-                      ],
+                      ),
                     ),
+                    Positioned(
+                      top: scaled(190),
+                      left: scaled(50),
+                      right: scaled(50),
+                      height: scaled(65),
+                      child: GlassContainer(
+                        borderRadius: scaled(30),
+                        blur: scaled(20),
+                        borderWidth: 0,
+                        backgroundColor: tokens.authBadge,
+                        padding: EdgeInsets.zero,
+                        child: Center(
+                          child: Text(
+                            widget.appRole == 'referee'
+                                ? 'Referee Console'
+                                : 'Partner Console',
+                            style: tt.titleLarge?.copyWith(
+                              color: cs.onPrimary,
+                              fontSize: scaled(20),
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Container(
+              key: const ValueKey('login-form-panel'),
+              margin: EdgeInsets.only(top: scaled(314)),
+              constraints: BoxConstraints(
+                minHeight: math.max(
+                  scaled(530),
+                  size.height - scaled(314),
+                ),
+              ),
+              padding: EdgeInsets.fromLTRB(
+                scaled(spacing.space20),
+                scaled(spacing.space24),
+                scaled(spacing.space20),
+                scaled(spacing.space20),
+              ),
+              decoration: BoxDecoration(
+                gradient: tokens.authPanelGradient,
+                borderRadius: BorderRadius.vertical(
+                  top: Radius.circular(
+                    scaled(spacing.radius20 + spacing.radius16),
                   ),
                 ),
-                Positioned(
-                  top: top + 170,
-                  left: 46,
-                  right: 46,
-                  height: 76,
-                  child: GlassContainer(
-                    borderRadius: 24,
-                    blur: 20,
-                    borderWidth: 1,
-                    borderColor: cs.outlineVariant,
-                    backgroundColor: Colors.black.withOpacity(0.55),
-                    padding: EdgeInsets.zero,
-                    child: Center(
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Welcome!',
+                    style: tt.displayMedium?.copyWith(
+                      color: cs.onSurface,
+                      fontSize: scaled(27),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  SizedBox(height: scaled(spacing.space4)),
+                  Text(
+                    'Sign up with your mobile number.',
+                    style: tt.bodyLarge?.copyWith(
+                      color: cs.secondary, // emerald green from theme
+                      fontSize: scaled(16),
+                    ),
+                  ),
+                  SizedBox(
+                    height: scaled(spacing.space24 + spacing.space16),
+                  ),
+                  _buildPhoneField(cs, tt),
+                  SizedBox(height: scaled(spacing.space16)),
+                  Text(
+                    "You'll receive an OTP on the number above.",
+                    style: tt.bodyMedium?.copyWith(
+                      color: cs.onSurfaceVariant,
+                      fontSize: scaled(14),
+                    ),
+                  ),
+                  SizedBox(
+                    height: scaled(spacing.space30 + spacing.space24),
+                  ),
+                  Center(
+                    child: PrimaryButton(
+                      width: scaled(270),
+                      height: scaled(48),
+                      radius: scaled(spacing.radius14),
+                      label: 'Continue',
+                      loading: widget.isSubmitting,
+                      onPressed: _sendOtp,
+                    ),
+                  ),
+                  SizedBox(
+                    height: scaled(spacing.space30 + spacing.space8),
+                  ),
+                  Center(child: _buildAccountPill(cs, tt)),
+                  SizedBox(
+                    height: scaled(spacing.space30 + spacing.space10),
+                  ),
+                  Center(
+                    child: GestureDetector(
+                      onTap: widget.onHelpTap,
+                      behavior: HitTestBehavior.opaque,
                       child: Text(
-                        widget.appRole == 'referee'
-                            ? 'Referee Console'
-                            : 'Partner Console',
-                        style: tt.titleLarge?.copyWith(
-                          color: Colors.white,
-                          fontSize: 17,
+                        'Need Help?',
+                        style: tt.bodyMedium?.copyWith(
+                          color: cs.secondary,
+                          fontSize: scaled(12),
                           fontWeight: FontWeight.w500,
-                          letterSpacing: 0.2,
                         ),
                       ),
                     ),
                   ),
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 36, 20, 28),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Welcome!',
-                  style: tt.displayMedium?.copyWith(
-                    color: cs.onSurface,
-                    fontSize: 26,
-                    fontWeight: FontWeight.bold,
+                  SizedBox(
+                    height: scaled(spacing.space30 + spacing.space10),
                   ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Sign up with your mobile number.',
-                  style: tt.bodyLarge?.copyWith(
-                    color: cs.secondary, // emerald green from theme
-                    fontSize: 15,
-                  ),
-                ),
-                const SizedBox(height: 24),
-                _buildPhoneField(cs, tt),
-                const SizedBox(height: 12),
-                Text(
-                  "You'll receive an OTP on the number above.",
-                  style: tt.bodyMedium?.copyWith(
-                    color: cs.onSurfaceVariant,
-                    fontSize: 13,
-                  ),
-                ),
-                const SizedBox(height: 40),
-                Center(
-                  child: PrimaryButton(
-                    label: 'Continue',
-                    loading: widget.isSubmitting,
-onPressed: _sendOtp,
-                  ),
-                ),
-                const SizedBox(height: 24),
-                Center(child: _buildAccountPill(cs, tt)),
-                const SizedBox(height: 26),
-                Center(
-                  child: GestureDetector(
-                    onTap: widget.onHelpTap,
-                    behavior: HitTestBehavior.opaque,
-                    child: Text(
-                      'Need Help?',
-                      style: tt.bodyMedium?.copyWith(
-                        color: cs.secondary,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                      ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: scaled(spacing.space10),
                     ),
+                    child: _buildTermsText(cs, tt),
                   ),
-                ),
-                const SizedBox(height: 26),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 36),
-                  child: _buildTermsText(cs, tt),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildPhoneField(ColorScheme cs, TextTheme tt) {
-    return GlassContainer(
-      height: 56,
-      borderRadius: 14,
-      blur: 16,
-      borderWidth: 1,
-      borderColor: cs.outlineVariant,
-      backgroundColor: cs.surfaceContainer,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
+    final tokens = context.sporto;
+    final spacing = context.sportoLayout;
+    final scale = context.sportoScale;
+
+    return SportoTextField(
+      controller: _phoneController,
+      hint: 'Mobile number',
+      keyboardType: TextInputType.phone,
+      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+      backgroundColor: tokens.field,
+      borderColor: tokens.authFieldBorder,
+      focusedBorderColor: tokens.fieldBorderFocused,
+      prefix: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          const _IndiaFlag(width: 24, height: 16),
-          const SizedBox(width: 8),
+          _IndiaFlag(width: 22 * scale, height: 15 * scale),
+          SizedBox(width: spacing.space4 * scale),
           Text(
             '+91',
-            style: tt.titleLarge?.copyWith(
-              color: cs.onSurface,
-              fontSize: 15,
+            style: tt.bodyLarge?.copyWith(
+              color: cs.onTertiary,
+              fontSize: 14 * scale,
               fontWeight: FontWeight.w500,
             ),
           ),
-          const SizedBox(width: 4),
-          Icon(Icons.keyboard_arrow_down_rounded, color: cs.tertiary, size: 20),
-          const SizedBox(width: 12),
-          Container(width: 1, height: 22, color: cs.outline),
-          const SizedBox(width: 12),
-          Expanded(
-            child: TextField(
-              controller: _phoneController,
-              keyboardType: TextInputType.phone,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              cursorColor: cs.tertiary,
-              style: tt.titleLarge?.copyWith(
-                color: cs.onSurface,
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                letterSpacing: 1.2,
-              ),
-              decoration: InputDecoration(
-                isCollapsed: true,
-                hintText: 'Mobile number',
-                hintStyle: tt.bodyLarge?.copyWith(
-                  color: cs.onSurfaceVariant.withOpacity(0.7),
-                  fontSize: 15,
-                ),
-                border: InputBorder.none,
-                focusedBorder: InputBorder.none,
-                enabledBorder: InputBorder.none,
-                contentPadding: EdgeInsets.zero,
-              ),
-            ),
+          SizedBox(width: spacing.space6 * scale),
+          Icon(
+            Icons.keyboard_arrow_down_rounded,
+            color: cs.tertiary,
+            size: 16 * scale,
           ),
         ],
       ),
@@ -353,14 +373,16 @@ onPressed: _sendOtp,
   }
 
   Widget _buildAccountPill(ColorScheme cs, TextTheme tt) {
+    final scale = context.sportoScale;
     return GlassContainer(
-      height: 50,
-      borderRadius: 14,
-      blur: 14,
-      borderWidth: 1,
+      width: 252 * scale,
+      height: 45 * scale,
+      borderRadius: 14 * scale,
+      blur: 14 * scale,
+      borderWidth: scale,
       borderColor: cs.outlineVariant,
       backgroundColor: cs.surfaceContainer,
-      padding: const EdgeInsets.symmetric(horizontal: 22),
+      padding: EdgeInsets.symmetric(horizontal: 14 * scale),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -368,7 +390,7 @@ onPressed: _sendOtp,
             'Already have an account? ',
             style: tt.bodyMedium?.copyWith(
               color: cs.onSurface,
-              fontSize: 14,
+              fontSize: 14 * scale,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -379,7 +401,7 @@ onPressed: _sendOtp,
               'Login',
               style: tt.bodyMedium?.copyWith(
                 color: cs.tertiary,
-                fontSize: 14,
+                fontSize: 14 * scale,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -390,13 +412,14 @@ onPressed: _sendOtp,
   }
 
   Widget _buildTermsText(ColorScheme cs, TextTheme tt) {
+    final scale = context.sportoScale;
     return RichText(
       textAlign: TextAlign.center,
       text: TextSpan(
         style: tt.labelSmall?.copyWith(
-          fontSize: 12,
+          fontSize: 12 * scale,
           height: 1.5,
-          color: cs.onSurfaceVariant.withOpacity(0.85),
+          color: cs.onSurfaceVariant.withValues(alpha: 0.85),
         ),
         children: [
           const TextSpan(text: 'By continuing, you agree to our '),
@@ -437,7 +460,7 @@ onPressed: _sendOtp,
               blur: 12,
               borderWidth: 1,
               borderColor: cs.outlineVariant,
-              backgroundColor: cs.onSurface.withOpacity(0.12),
+              backgroundColor: cs.onSurface.withValues(alpha: 0.12),
               padding: EdgeInsets.zero,
               child: Center(
                 child: Icon(Icons.arrow_back_ios_new_rounded,
@@ -448,7 +471,7 @@ onPressed: _sendOtp,
           const SizedBox(height: 28),
           Text(
             'Verify Your Number',
-            style: GoogleFonts.spaceGrotesk(
+            style: tt.displayMedium?.copyWith(
               fontSize: 28,
               fontWeight: FontWeight.w500,
               color: cs.onSurface,
@@ -459,7 +482,7 @@ onPressed: _sendOtp,
           Text(
             'Enter 6-digit OTP',
             style: tt.bodyLarge?.copyWith(
-              color: cs.onSurface.withOpacity(0.75),
+              color: cs.onSurface.withValues(alpha: 0.75),
               fontSize: 14,
             ),
           ),
@@ -490,7 +513,7 @@ onPressed: _sendOtp,
             child: PrimaryButton(
               label: 'Verify OTP',
               loading: widget.isSubmitting,
-onPressed: _verifyOtp,
+              onPressed: _verifyOtp,
             ),
           ),
         ],
@@ -658,14 +681,13 @@ class _IndiaFlagPainter extends CustomPainter {
 class _ChevronHeaderPainter extends CustomPainter {
   final double rectHeight;
   final double tipY;
-  final double tipRadius;
+  static const double tipRadius = 46;
   final List<Color> gradientColors;
 
   _ChevronHeaderPainter({
     required this.rectHeight,
     required this.tipY,
     required this.gradientColors,
-    this.tipRadius = 46.0,
   });
 
   @override
@@ -698,7 +720,7 @@ class _ChevronHeaderPainter extends CustomPainter {
       ..close();
 
     final glowPaint = Paint()
-      ..color = gradientColors.first.withOpacity(0.35)
+      ..color = gradientColors.first.withValues(alpha: 0.35)
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 18);
     canvas.drawPath(path, glowPaint);
 
@@ -715,6 +737,5 @@ class _ChevronHeaderPainter extends CustomPainter {
   bool shouldRepaint(covariant _ChevronHeaderPainter oldDelegate) =>
       oldDelegate.rectHeight != rectHeight ||
       oldDelegate.tipY != tipY ||
-      oldDelegate.tipRadius != tipRadius ||
       oldDelegate.gradientColors != gradientColors;
 }

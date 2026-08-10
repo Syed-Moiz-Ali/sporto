@@ -1,185 +1,158 @@
+import 'package:core/core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:core/core.dart';
 import 'package:ui_kit/ui_kit.dart';
+
 import '../../../../app/router/app_router.dart';
 
+/// Profile tab content. The Partner shell owns the background and bottom nav.
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final scale = context.sportoScale;
 
-    return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new_rounded, color: cs.onSurface),
-          onPressed: () => context.pop(),
-        ),
-        title: Text('Profile',
-            style: GoogleFonts.spaceGrotesk(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: cs.onSurface)),
+    return SingleChildScrollView(
+      physics: const ClampingScrollPhysics(),
+      padding: EdgeInsets.fromLTRB(
+        20 * scale,
+        26 * scale,
+        20 * scale,
+        84 * scale,
       ),
-      body: Stack(
+      child: Column(
         children: [
-          const SportoAmbientBackground(),
-          SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
-            child: Column(
+          SportoGradientCard(
+            radius: 20 * scale,
+            padding: EdgeInsets.all(14 * scale),
+            colors: const [Color(0xFF7A315D), Color(0xFF343B38)],
+            child: Row(
               children: [
-                // --- Profile Header Card ---
-                SportoGradientCard(
-                  radius: 24,
-                  colors: const [Color(0xFF4A3B5C), Color(0xFF2A4B40)],
-                  child: Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 32,
-                        backgroundImage: NetworkImage(
-                            'https://i.pravatar.cc/150?img=5'), // Placeholder avatar
-                      ),
-                      const SizedBox(width: 16),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Shrvn Prajapati',
-                              style: GoogleFonts.spaceGrotesk(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.white)),
-                          const SizedBox(height: 4),
-                          Text('+91 98765XXXXX',
-                              style: TextStyle(
-                                  color: Colors.white.withOpacity(0.7),
-                                  fontSize: 13)),
-                        ],
-                      ),
-                    ],
+                Container(
+                  width: 48 * scale,
+                  height: 48 * scale,
+                  padding: EdgeInsets.all(2 * scale),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: cs.tertiary, width: 1.5),
+                  ),
+                  child: CircleAvatar(
+                    foregroundImage:
+                        const NetworkImage('https://i.pravatar.cc/150?img=5'),
+                    onForegroundImageError: (_, __) {},
+                    backgroundColor: cs.surfaceContainerHigh,
+                    child: Icon(Icons.person_rounded,
+                        color: cs.onSurfaceVariant, size: 28 * scale),
                   ),
                 ),
-                const SizedBox(height: 16),
-
-                // --- Verification Badge ---
-                SportoCard(
-                  radius: 16,
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                  backgroundColor: cs.secondary.withOpacity(0.1),
-                  borderColor: cs.secondary.withOpacity(0.3),
-                  child: Row(
+                SizedBox(width: 14 * scale),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(Icons.verified_rounded,
-                          color: cs.secondary, size: 20),
-                      const SizedBox(width: 8),
-                      RichText(
-                          text: TextSpan(
-                              style: TextStyle(
-                                  fontSize: 14, fontWeight: FontWeight.w600),
-                              children: [
-                            TextSpan(
-                                text: 'Verified Partner ',
-                                style: TextStyle(color: cs.secondary)),
-                            TextSpan(
-                                text: '• Cricket',
-                                style: TextStyle(color: cs.onSurface)),
-                          ])),
+                      Text('Priya Agrawal',
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            fontSize: 16 * scale,
+                            fontWeight: FontWeight.w700,
+                            color: cs.onSurface,
+                          )),
+                      SizedBox(height: 3 * scale),
+                      Text('+91 98765XXXXX',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            fontSize: 11 * scale,
+                            color: cs.onSurfaceVariant,
+                          )),
                     ],
                   ),
-                ),
-                const SizedBox(height: 24),
-
-                // --- Stats Row ---
-                Row(
-                  children: [
-                    SportoStatCard(
-                      label: 'Revenue',
-                      value: '₹12.8k',
-                      highlight: true,
-                      highlightColor: cs.tertiary,
-                      fontSize: 22,
-                      labelSize: 12,
-                    ),
-                    const SizedBox(width: 12),
-                    SportoStatCard(
-                      label: 'Live',
-                      value: '2',
-                      highlight: true,
-                      highlightColor: cs.tertiary,
-                      fontSize: 22,
-                      labelSize: 12,
-                    ),
-                    const SizedBox(width: 12),
-                    SportoStatCard(
-                      label: 'Active',
-                      value: '10',
-                      highlight: true,
-                      highlightColor: cs.tertiary,
-                      fontSize: 22,
-                      labelSize: 12,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
-
-                // --- Menu Sections ---
-                _MenuSection(items: [
-                  _MenuItem(
-                      icon: Icons.bar_chart_outlined,
-                      label: 'Statistic',
-                      onTap: () {}),
-                  _MenuItem(
-                      icon: Icons.emoji_events_outlined,
-                      label: 'My Tournaments',
-                      onTap: () => context.push(AppRouter.matchHistoryRoute)),
-                ]),
-                const SizedBox(height: 16),
-
-                _MenuSection(items: [
-                  _MenuItem(
-                      icon: Icons.headset_mic_outlined,
-                      label: 'Add Customer Support',
-                      onTap: () {}),
-                ]),
-                const SizedBox(height: 16),
-
-                _MenuSection(items: [
-                  _MenuItem(
-                      icon: Icons.info_outline,
-                      label: 'About Us',
-                      isMuted: true),
-                  _MenuItem(
-                      icon: Icons.description_outlined,
-                      label: 'Terms & Condition',
-                      isMuted: true),
-                  _MenuItem(
-                      icon: Icons.policy_outlined,
-                      label: 'Privacy Policy',
-                      isMuted: true),
-                  _MenuItem(
-                      icon: Icons.support_agent_outlined,
-                      label: 'Customer Service',
-                      isMuted: true),
-                ]),
-                const SizedBox(height: 32),
-
-                // --- Logout Button ---
-                SecondaryButton(
-                  label: 'Logout',
-                  icon: Icons.logout_rounded,
-                  onPressed: () {
-                    context.read<AuthBloc>().add(LogoutRequestedEvent());
-                  },
                 ),
               ],
             ),
+          ),
+          SizedBox(height: 20 * scale),
+          SportoCard(
+            radius: 18 * scale,
+            padding: EdgeInsets.symmetric(
+                horizontal: 15 * scale, vertical: 10 * scale),
+            backgroundColor: cs.secondary.withValues(alpha: .10),
+            borderColor: cs.secondary.withValues(alpha: .20),
+            child: Row(
+              children: [
+                Icon(Icons.check_circle_outline_rounded,
+                    color: cs.secondary, size: 18 * scale),
+                SizedBox(width: 6 * scale),
+                Text('Certified Referee',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: cs.secondary,
+                      fontSize: 13 * scale,
+                      fontWeight: FontWeight.w600,
+                    )),
+                Text('  •  Cricket',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: cs.onSurface,
+                      fontSize: 13 * scale,
+                    )),
+              ],
+            ),
+          ),
+          SizedBox(height: 20 * scale),
+          Row(
+            children: [
+              _ProfileStat(value: '48', label: 'Matches', scale: scale),
+              SizedBox(width: 15 * scale),
+              _ProfileStat(value: '4.9', label: 'Rating', scale: scale),
+              SizedBox(width: 15 * scale),
+              _ProfileStat(value: '2', label: 'Disputes', scale: scale),
+            ],
+          ),
+          SizedBox(height: 20 * scale),
+          _MenuSection(
+            emphasized: true,
+            items: [
+              _MenuItem(
+                  icon: Icons.notifications_none_rounded, label: 'Statistic'),
+              _MenuItem(
+                icon: Icons.notifications_none_rounded,
+                label: 'My Tournaments',
+                onTap: () => context.push(AppRouter.matchHistoryRoute),
+              ),
+            ],
+          ),
+          SizedBox(height: 20 * scale),
+          _MenuSection(
+            emphasized: true,
+            items: const [
+              _MenuItem(
+                  icon: Icons.notifications_none_rounded,
+                  label: 'Add Customer Support'),
+            ],
+          ),
+          SizedBox(height: 20 * scale),
+          const _MenuSection(
+            items: [
+              _MenuItem(icon: Icons.error_outline_rounded, label: 'About Us'),
+              _MenuItem(
+                  icon: Icons.error_outline_rounded,
+                  label: 'Terms & Condition'),
+              _MenuItem(
+                  icon: Icons.error_outline_rounded, label: 'Privacy Policy'),
+              _MenuItem(
+                  icon: Icons.support_agent_outlined,
+                  label: 'Customer Service'),
+            ],
+          ),
+          SizedBox(height: 20 * scale),
+          SecondaryButton(
+            label: 'Logout',
+            icon: Icons.logout_rounded,
+            width: 160 * scale,
+            height: 59 * scale,
+            radius: 16 * scale,
+            onPressed: () =>
+                context.read<AuthBloc>().add(LogoutRequestedEvent()),
           ),
         ],
       ),
@@ -187,45 +160,102 @@ class ProfileScreen extends StatelessWidget {
   }
 }
 
+class _ProfileStat extends StatelessWidget {
+  final String value;
+  final String label;
+  final double scale;
+
+  const _ProfileStat({
+    required this.value,
+    required this.label,
+    required this.scale,
+  });
+
+  @override
+  Widget build(BuildContext context) => Expanded(
+        child: SizedBox(
+          height: 66 * scale,
+          child: SportoStatCard(
+            value: value,
+            label: label,
+            highlight: true,
+            highlightColor: Theme.of(context).colorScheme.tertiary,
+            fontSize: 18 * scale,
+            labelSize: 12 * scale,
+            backgroundColor: const Color(0xFF19243A),
+            borderColor:
+                Theme.of(context).colorScheme.onTertiary.withValues(alpha: .28),
+            radius: 16 * scale,
+            padding: EdgeInsets.symmetric(vertical: 6 * scale),
+          ),
+        ),
+      );
+}
+
 class _MenuSection extends StatelessWidget {
   final List<_MenuItem> items;
-  const _MenuSection({required this.items});
+  final bool emphasized;
+
+  const _MenuSection({required this.items, this.emphasized = false});
 
   @override
   Widget build(BuildContext context) {
-    return SportoCard(
-      radius: 20,
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Column(
-        children: items.asMap().entries.map((entry) {
-          final item = entry.value;
-          final isLast = entry.key == items.length - 1;
-          return Column(
-            children: [
-              ListTile(
-                leading: Icon(item.icon,
-                    color: item.isMuted
-                        ? Colors.grey[600]
-                        : Theme.of(context).colorScheme.onSurface,
-                    size: 22),
-                title: Text(item.label,
-                    style: TextStyle(
-                        color: item.isMuted
-                            ? Colors.grey[500]
-                            : Theme.of(context).colorScheme.onSurface,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500)),
-                trailing: Icon(Icons.chevron_right_rounded,
-                    color: Colors.grey[700], size: 20),
-                onTap: item.onTap,
-              ),
-              if (!isLast)
-                Padding(
-                    padding: const EdgeInsets.only(left: 56),
-                    child: Divider(height: 1, color: Colors.grey[800])),
-            ],
-          );
-        }).toList(),
+    final cs = Theme.of(context).colorScheme;
+    final scale = context.sportoScale;
+    return Material(
+      color: Colors.transparent,
+      child: SportoCard(
+        radius: 16 * scale,
+        padding: EdgeInsets.symmetric(vertical: 5 * scale),
+        backgroundColor:
+            emphasized ? const Color(0xFF19243A) : cs.surfaceContainerHigh,
+        borderColor: emphasized
+            ? cs.onTertiary.withValues(alpha: .26)
+            : Colors.transparent,
+        child: Column(
+          children: items
+              .map((item) => SizedBox(
+                    height: 44 * scale,
+                    child: ListTile(
+                      dense: true,
+                      minLeadingWidth: 22 * scale,
+                      horizontalTitleGap: 12 * scale,
+                      contentPadding:
+                          EdgeInsets.symmetric(horizontal: 20 * scale),
+                      leading: Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          Icon(item.icon,
+                              color: emphasized
+                                  ? cs.onSurface
+                                  : cs.onSurfaceVariant,
+                              size: 20 * scale),
+                          if (emphasized)
+                            Positioned(
+                              right: -1,
+                              top: 0,
+                              child: Container(
+                                width: 5 * scale,
+                                height: 5 * scale,
+                                decoration: BoxDecoration(
+                                    color: cs.primary, shape: BoxShape.circle),
+                              ),
+                            ),
+                        ],
+                      ),
+                      title: Text(item.label,
+                          style:
+                              Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                    fontSize: 14 * scale,
+                                    color: emphasized
+                                        ? cs.onSurface
+                                        : cs.onSurfaceVariant,
+                                  )),
+                      onTap: item.onTap,
+                    ),
+                  ))
+              .toList(),
+        ),
       ),
     );
   }
@@ -234,11 +264,7 @@ class _MenuSection extends StatelessWidget {
 class _MenuItem {
   final IconData icon;
   final String label;
-  final bool isMuted;
   final VoidCallback? onTap;
-  const _MenuItem(
-      {required this.icon,
-      required this.label,
-      this.isMuted = false,
-      this.onTap});
+
+  const _MenuItem({required this.icon, required this.label, this.onTap});
 }

@@ -1,12 +1,8 @@
 import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_domain/shared_domain.dart';
 import 'package:ui_kit/ui_kit.dart';
-
-
-
 
 // Review card widget
 class _ReviewCard extends StatelessWidget {
@@ -19,35 +15,39 @@ class _ReviewCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
+    final scale = context.sportoScale;
     final isHeader = label == null;
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.only(bottom: 12),
-      child: SportoCard(width: double.infinity, 
-        
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      padding: EdgeInsets.only(bottom: 6 * scale),
+      child: SportoCard(
+        width: double.infinity,
+        padding: EdgeInsets.symmetric(
+          horizontal: 16 * scale,
+          vertical: 14 * scale,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (label != null) ...[
               Text(label!,
-                  style: tt.bodyMedium
-                      ?.copyWith(color: cs.onSurfaceVariant, fontSize: 13)),
-              const SizedBox(height: 4),
+                  style: tt.bodyMedium?.copyWith(
+                      color: cs.onSurfaceVariant, fontSize: 13 * scale)),
+              SizedBox(height: 4 * scale),
             ],
             Text(
               value,
               style: tt.bodyLarge?.copyWith(
                 color: isHeader ? cs.onSurface : cs.onTertiary,
-                fontSize: 15,
+                fontSize: 15 * scale,
                 fontWeight: FontWeight.w600,
               ),
             ),
             if (sub != null) ...[
-              const SizedBox(height: 4),
+              SizedBox(height: 4 * scale),
               Text(sub!,
                   style: tt.bodyMedium
-                      ?.copyWith(color: cs.onTertiary, fontSize: 13)),
+                      ?.copyWith(color: cs.onTertiary, fontSize: 13 * scale)),
             ],
           ],
         ),
@@ -55,7 +55,6 @@ class _ReviewCard extends StatelessWidget {
     );
   }
 }
-
 
 // ============================================================
 // MAIN WIDGET
@@ -88,7 +87,7 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
   late TextEditingController _lastNameController;
   late TextEditingController _emailController;
   final _dobController = TextEditingController();
-  String _selectedGender = 'Male';
+  String? _selectedGender;
 
   // Step 2
   final _addressLineController = TextEditingController();
@@ -142,10 +141,15 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
   @override
   void initState() {
     super.initState();
-    _firstNameController = TextEditingController(text: 'Priya');
-    _lastNameController = TextEditingController(text: 'Agrawal');
+    final nameParts = widget.user.name.trim().split(RegExp(r'\s+'));
+    final hasName = widget.user.name.trim().isNotEmpty;
+    _firstNameController =
+        TextEditingController(text: hasName ? nameParts.first : '');
+    _lastNameController = TextEditingController(
+      text: hasName && nameParts.length > 1 ? nameParts.skip(1).join(' ') : '',
+    );
     _emailController = TextEditingController(
-      text: widget.user.email.isEmpty ? 'rahul@email.com' : widget.user.email,
+      text: widget.user.email,
     );
     _confettiController =
         ConfettiController(duration: const Duration(seconds: 3));
@@ -197,13 +201,14 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final tt = theme.textTheme;
+    final scale = context.sportoScale;
+    double scaled(double value) => value * scale;
 
     // SHORT-CIRCUIT: Show submitted screen when flag is true
     if (_applicationSubmitted) {
       return _buildSubmittedScreen(cs, tt);
     }
 
-    final top = MediaQuery.of(context).padding.top;
     final isLastStep = _currentStep == _totalSteps;
     final submitDisabled = isLastStep && !_confirmAccuracy;
 
@@ -211,7 +216,13 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
       backgroundColor: theme.scaffoldBackgroundColor,
       body: Stack(
         children: [
-          const SportoAmbientBackground(),
+          Positioned.fill(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: context.sporto.authBackgroundGradient,
+              ),
+            ),
+          ),
           SafeArea(
             bottom: false,
             child: Column(
@@ -219,7 +230,12 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
               children: [
                 // App bar
                 Padding(
-                  padding: EdgeInsets.fromLTRB(16, top > 0 ? 4 : 8, 16, 0),
+                  padding: EdgeInsets.fromLTRB(
+                    scaled(16),
+                    scaled(20),
+                    scaled(16),
+                    0,
+                  ),
                   child: Row(
                     children: [
                       GestureDetector(
@@ -232,26 +248,26 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
                         },
                         behavior: HitTestBehavior.opaque,
                         child: GlassContainer(
-                          width: 40,
-                          height: 40,
-                          borderRadius: 12,
-                          blur: 12,
-                          borderWidth: 1,
+                          width: scaled(40),
+                          height: scaled(40),
+                          borderRadius: scaled(12),
+                          blur: scaled(12),
+                          borderWidth: scale,
                           borderColor: SportoCard.defaultBorder,
-                          backgroundColor: cs.onSurface.withOpacity(0.10),
+                          backgroundColor: cs.onSurface.withValues(alpha: 0.10),
                           padding: EdgeInsets.zero,
                           child: Center(
                             child: Icon(Icons.arrow_back_ios_new_rounded,
-                                color: cs.onSurface, size: 18),
+                                color: cs.onSurface, size: scaled(18)),
                           ),
                         ),
                       ),
-                      const SizedBox(width: 14),
+                      SizedBox(width: scaled(14)),
                       Expanded(
                         child: Text(
                           'Apply as Referee',
-                          style: GoogleFonts.spaceGrotesk(
-                            fontSize: 18,
+                          style: tt.titleLarge?.copyWith(
+                            fontSize: scaled(18),
                             fontWeight: FontWeight.w700,
                             color: cs.onSurface,
                           ),
@@ -260,21 +276,21 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 18),
+                SizedBox(height: scaled(12)),
 
                 // Progress bar
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  padding: EdgeInsets.symmetric(horizontal: scaled(20)),
                   child: Row(
                     children: List.generate(_totalSteps, (index) {
                       final done = index < _currentStep;
                       return Expanded(
                         child: Container(
-                          height: 3,
+                          height: scaled(3),
                           margin: EdgeInsets.only(
-                              right: index == _totalSteps - 1 ? 0 : 6),
+                              right: index == _totalSteps - 1 ? 0 : scaled(6)),
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(3),
+                            borderRadius: BorderRadius.circular(scaled(3)),
                             gradient: done
                                 ? LinearGradient(
                                     colors: [cs.primary, cs.tertiary])
@@ -286,11 +302,18 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
                     }),
                   ),
                 ),
-                const SizedBox(height: 22),
+                SizedBox(height: scaled(22)),
 
                 // Step content
                 Expanded(
                   child: AnimatedSwitcher(
+                    layoutBuilder: (currentChild, previousChildren) => Stack(
+                      alignment: Alignment.topCenter,
+                      children: [
+                        ...previousChildren,
+                        if (currentChild != null) currentChild
+                      ],
+                    ),
                     duration: const Duration(milliseconds: 350),
                     switchInCurve: Curves.easeOutCubic,
                     switchOutCurve: Curves.easeInCubic,
@@ -299,27 +322,35 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
                     child: SingleChildScrollView(
                       key: ValueKey<int>(_currentStep),
                       physics: const ClampingScrollPhysics(),
-                      padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
-                      child: _buildCurrentStepContent(cs, tt),
-                    ),
-                  ),
-                ),
-
-                // CTA
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 8, 20, 28),
-                  child: Center(
-                    child: PrimaryButton(
-                      label: isLastStep ? 'Submit Application' : 'Continue',
-                      disabled: submitDisabled,
-                      onPressed: () {
-                        if (submitDisabled) return;
-                        if (_currentStep < _totalSteps) {
-                          setState(() => _currentStep++);
-                        } else {
-                          _finishOnboarding();
-                        }
-                      },
+                      padding: EdgeInsets.fromLTRB(
+                        scaled(20),
+                        scaled(4),
+                        scaled(20),
+                        scaled(24),
+                      ),
+                      child: Column(
+                        children: [
+                          _buildCurrentStepContent(cs, tt),
+                          SizedBox(height: scaled(40)),
+                          PrimaryButton(
+                            width: scaled(270),
+                            height: scaled(48),
+                            radius: scaled(14),
+                            label:
+                                isLastStep ? 'Submit Application' : 'Continue',
+                            disabled: submitDisabled,
+                            onPressed: () {
+                              if (submitDisabled) return;
+                              if (_currentStep < _totalSteps) {
+                                setState(() => _currentStep++);
+                              } else {
+                                _finishOnboarding();
+                              }
+                            },
+                          ),
+                          SizedBox(height: scaled(28)),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -355,6 +386,7 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
 
   // --- STEP 1: Personal Info ---
   Widget _buildStep1PersonalInfo(ColorScheme cs, TextTheme tt) {
+    final scale = context.sportoScale;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -384,17 +416,17 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
             hint: 'DD/MM/YYYY',
             cs: cs,
             tt: tt),
-        const SizedBox(height: 4),
+        SizedBox(height: 4 * scale),
         Text('Gender',
             style: tt.bodyMedium
-                ?.copyWith(color: cs.onSurfaceVariant, fontSize: 13)),
-        const SizedBox(height: 12),
+                ?.copyWith(color: cs.onSurfaceVariant, fontSize: 13 * scale)),
+        SizedBox(height: 12 * scale),
         Row(
           children: [
             _buildGenderPill('Male', Icons.male_rounded, cs, tt),
-            const SizedBox(width: 12),
+            SizedBox(width: 12 * scale),
             _buildGenderPill('Female', Icons.female_rounded, cs, tt),
-            const SizedBox(width: 12),
+            SizedBox(width: 12 * scale),
             _buildGenderPill('Others', null, cs, tt),
           ],
         ),
@@ -405,34 +437,37 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
   Widget _buildGenderPill(
       String gender, IconData? icon, ColorScheme cs, TextTheme tt) {
     final isSelected = _selectedGender == gender;
+    final scale = context.sportoScale;
     return Expanded(
       child: GestureDetector(
         onTap: () => setState(() => _selectedGender = gender),
         behavior: HitTestBehavior.opaque,
         child: GlassContainer(
-          height: 48,
-          borderRadius: 12,
-          blur: 14,
-          borderWidth: 1,
-          borderColor:
-              isSelected ? cs.tertiary.withOpacity(0.6) : SportoCard.defaultBorder,
-          backgroundColor:
-              isSelected ? cs.tertiary.withOpacity(0.2) : SportoCard.defaultFill.withOpacity(0.6),
+          height: 48 * scale,
+          borderRadius: 12 * scale,
+          blur: 14 * scale,
+          borderWidth: scale,
+          borderColor: isSelected
+              ? cs.tertiary.withValues(alpha: 0.6)
+              : SportoCard.defaultBorder,
+          backgroundColor: isSelected
+              ? cs.tertiary.withValues(alpha: 0.2)
+              : SportoCard.defaultFill.withValues(alpha: 0.6),
           padding: EdgeInsets.zero,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               if (icon != null) ...[
                 Icon(icon,
-                    size: 18,
+                    size: 18 * scale,
                     color: isSelected ? cs.tertiary : cs.onSurfaceVariant),
-                const SizedBox(width: 6),
+                SizedBox(width: 6 * scale),
               ],
               Text(
                 gender,
                 style: tt.bodyLarge?.copyWith(
                   color: isSelected ? cs.onSurface : cs.onSurfaceVariant,
-                  fontSize: 14,
+                  fontSize: 14 * scale,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -617,24 +652,29 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
     required ColorScheme cs,
     required TextTheme tt,
   }) {
+    final scale = context.sportoScale;
+    final compactProfile = label == 'Profile Photo';
+    final tileWidth = wide ? null : (compactProfile ? 100.0 : 150.0) * scale;
+    final tileHeight = (wide ? 48.0 : 100.0) * scale;
+
     Widget tile = GlassContainer(
-      width: wide ? null : 116,
-      height: wide ? 56 : 116,
-      borderRadius: 14,
-      blur: 16,
-      borderWidth: 1,
+      width: tileWidth,
+      height: tileHeight,
+      borderRadius: 14 * scale,
+      blur: 16 * scale,
+      borderWidth: scale,
       borderColor: SportoCard.defaultBorder,
-      backgroundColor: cs.surfaceContainerHigh,
+      backgroundColor: cs.onSurface.withValues(alpha: 0.12),
       padding: EdgeInsets.zero,
       child: Center(
         child: isUploaded
             ? Icon(Icons.check_rounded,
-                color: cs.secondary, size: wide ? 26 : 30)
+                color: cs.secondary, size: (wide ? 26 : 30) * scale)
             : Text(
                 'Upload',
                 style: tt.bodyLarge?.copyWith(
                   color: cs.onSurfaceVariant,
-                  fontSize: 15,
+                  fontSize: 15 * scale,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -648,36 +688,36 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
     );
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 20),
+      padding: EdgeInsets.only(bottom: 20 * scale),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(label,
               style: tt.bodyMedium
-                  ?.copyWith(color: cs.onSurfaceVariant, fontSize: 13)),
-          const SizedBox(height: 10),
+                  ?.copyWith(color: cs.onSurfaceVariant, fontSize: 13 * scale)),
+          SizedBox(height: 10 * scale),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               wide ? Expanded(child: tappableTile) : tappableTile,
-              const SizedBox(width: 12),
+              SizedBox(width: 12 * scale),
               GestureDetector(
                 onTap: isUploaded ? onClear : null,
                 behavior: HitTestBehavior.opaque,
                 child: Opacity(
                   opacity: isUploaded ? 1.0 : 0.55,
                   child: GlassContainer(
-                    width: 40,
-                    height: 40,
-                    borderRadius: 10,
-                    blur: 12,
-                    borderWidth: 1,
+                    width: 32 * scale,
+                    height: 32 * scale,
+                    borderRadius: 8 * scale,
+                    blur: 12 * scale,
+                    borderWidth: scale,
                     borderColor: SportoCard.defaultBorder,
-                    backgroundColor: cs.onSurface.withOpacity(0.10),
+                    backgroundColor: cs.onSurface.withValues(alpha: 0.10),
                     padding: EdgeInsets.zero,
                     child: Center(
                       child: Icon(Icons.close_rounded,
-                          color: cs.onSurfaceVariant, size: 18),
+                          color: cs.onSurfaceVariant, size: 18 * scale),
                     ),
                   ),
                 ),
@@ -719,8 +759,8 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
         // Documents row: green RING check
         Padding(
           padding: const EdgeInsets.only(bottom: 12),
-          child: SportoCard(width: double.infinity, 
-            
+          child: SportoCard(
+            width: double.infinity,
             child: Row(
               children: [
                 SportoCheckCircle(done: docsUploaded),
@@ -744,8 +784,8 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
         GestureDetector(
           onTap: () => setState(() => _confirmAccuracy = !_confirmAccuracy),
           behavior: HitTestBehavior.opaque,
-          child: SportoCard(width: double.infinity, 
-            
+          child: SportoCard(
+            width: double.infinity,
             child: Row(
               children: [
                 SportoCheckBox(checked: _confirmAccuracy),
@@ -773,27 +813,28 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
   // ============================================================
   Widget _buildSectionHeader(
       String title, String? subtitle, ColorScheme cs, TextTheme tt) {
+    final scale = context.sportoScale;
     return Padding(
-      padding: const EdgeInsets.only(bottom: 24),
+      padding: EdgeInsets.only(bottom: 18 * scale),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
-            style: GoogleFonts.spaceGrotesk(
-              fontSize: 24,
+            style: tt.displaySmall?.copyWith(
+              fontSize: 20 * scale,
               fontWeight: FontWeight.w600,
               color: cs.onSurface,
               letterSpacing: -0.3,
             ),
           ),
           if (subtitle != null) ...[
-            const SizedBox(height: 6),
+            SizedBox(height: 6 * scale),
             Text(
               subtitle,
               style: tt.bodyLarge?.copyWith(
                 color: cs.onTertiary,
-                fontSize: 14,
+                fontSize: 14 * scale,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -812,14 +853,13 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
     TextInputType keyboardType = TextInputType.text,
     List<TextInputFormatter>? inputFormatters,
   }) {
+    final scale = context.sportoScale;
     return Padding(
-      padding: const EdgeInsets.only(bottom: 18),
+      padding: EdgeInsets.only(bottom: 18 * scale),
       child: SportoTextField(
         label: label,
         hint: hint,
         controller: controller,
-        labelInside: true,
-        backgroundColor: SportoCard.defaultFill.withOpacity(0.55),
         keyboardType: keyboardType,
         inputFormatters: inputFormatters,
       ),
@@ -833,23 +873,27 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
     required ColorScheme cs,
     required TextTheme tt,
   }) {
+    final scale = context.sportoScale;
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: EdgeInsets.only(bottom: 6 * scale),
       child: GestureDetector(
         onTap: onTap,
         behavior: HitTestBehavior.opaque,
-        child: SportoCard(width: double.infinity, 
-          
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        child: SportoCard(
+          width: double.infinity,
+          padding: EdgeInsets.symmetric(
+            horizontal: 16 * scale,
+            vertical: 11 * scale,
+          ),
           child: Row(
             children: [
               SportoCheckBox(checked: isSelected),
-              const SizedBox(width: 14),
+              SizedBox(width: 14 * scale),
               Text(
                 label,
                 style: tt.bodyLarge?.copyWith(
                   color: isSelected ? cs.onSurface : cs.onSurfaceVariant,
-                  fontSize: 15,
+                  fontSize: 14 * scale,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -864,12 +908,18 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
   // SCREEN 1: APPLICATION SUBMITTED (Image 10)
   // ============================================================
   Widget _buildSubmittedScreen(ColorScheme cs, TextTheme tt) {
-    final top = MediaQuery.of(context).padding.top;
+    final scale = context.sportoScale;
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Stack(
         children: [
-          // const SportoAmbientBackground(),
+          Positioned.fill(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: context.sporto.authBackgroundGradient,
+              ),
+            ),
+          ),
           Align(
             alignment: const Alignment(0, -0.42),
             child: ConfettiWidget(
@@ -889,45 +939,50 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
           ),
           SafeArea(
             child: Padding(
-              padding: EdgeInsets.fromLTRB(20, top > 0 ? 8 : 16, 20, 28),
+              padding: EdgeInsets.fromLTRB(
+                10 * scale,
+                27 * scale,
+                10 * scale,
+                20 * scale,
+              ),
               child: Column(
                 children: [
                   // Big card: 🎉 + heading + subtext
                   Expanded(
-                    child: SportoCard(width: double.infinity, 
-                      
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: SportoCard(
+                      width: double.infinity,
+                      padding: EdgeInsets.symmetric(horizontal: 24 * scale),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Text('🎉', style: TextStyle(fontSize: 90)),
-                          const SizedBox(height: 30),
+                          Text('🎉', style: TextStyle(fontSize: 90 * scale)),
+                          SizedBox(height: 30 * scale),
                           Text(
                             'Application Submitted',
                             textAlign: TextAlign.center,
-                            style: GoogleFonts.spaceGrotesk(
-                              fontSize: 22,
+                            style: tt.displaySmall?.copyWith(
+                              fontSize: 20 * scale,
                               fontWeight: FontWeight.w600,
                               color: cs.onSurface,
                             ),
                           ),
-                          const SizedBox(height: 10),
+                          SizedBox(height: 10 * scale),
                           Text(
                             'Thank you for applying as a Sporto Referee.',
                             textAlign: TextAlign.center,
                             style: tt.bodyLarge?.copyWith(
                               color: cs.onSurfaceVariant,
-                              fontSize: 14,
+                              fontSize: 14 * scale,
                             ),
                           ),
                         ],
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 10 * scale),
                   // Status note card
-                  SportoCard(width: double.infinity, 
-                    
+                  SportoCard(
+                    width: double.infinity,
                     child: Column(
                       children: [
                         Text(
@@ -935,23 +990,23 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
                           textAlign: TextAlign.center,
                           style: tt.bodyLarge?.copyWith(
                             color: cs.secondary,
-                            fontSize: 14,
+                            fontSize: 14 * scale,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
-                        const SizedBox(height: 6),
+                        SizedBox(height: 6 * scale),
                         Text(
                           'Estimated Review 2–5 Working Days',
                           textAlign: TextAlign.center,
                           style: tt.bodyMedium?.copyWith(
                             color: cs.onSurfaceVariant,
-                            fontSize: 13,
+                            fontSize: 13 * scale,
                           ),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  SizedBox(height: 30 * scale),
                   PrimaryButton(
                     label: 'Track Application',
                     onPressed: () {
@@ -968,15 +1023,19 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
                       }
                     },
                   ),
-                  const SizedBox(height: 14),
-                  SecondaryButton(widthFactor: 0.7, height: 52, 
-                    label: 'Home',
+                  SizedBox(height: 14 * scale),
+                  SecondaryButton(
+                    width: 270 * scale,
+                    height: 48 * scale,
+                    radius: 14 * scale,
+                    label: 'Back to Login',
                     onPressed: () {
                       // Deliver the completed profile so the app can show
                       // the authenticated home screen.
                       if (_pendingUser != null) {
                         widget.onComplete(_pendingUser!);
                       }
+                      widget.onGoHome?.call();
                     },
                   ),
                 ],
@@ -1012,21 +1071,32 @@ class ApplicationStatusScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    final top = MediaQuery.of(context).padding.top;
+    final scale = context.sportoScale;
     final progress = _stages.where((e) => e.value).length / _stages.length;
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Stack(
         children: [
-          const SportoAmbientBackground(),
+          Positioned.fill(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: context.sporto.authBackgroundGradient,
+              ),
+            ),
+          ),
           SafeArea(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // App bar
                 Padding(
-                  padding: EdgeInsets.fromLTRB(16, top > 0 ? 4 : 8, 16, 0),
+                  padding: EdgeInsets.fromLTRB(
+                    20 * scale,
+                    20 * scale,
+                    20 * scale,
+                    0,
+                  ),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -1034,38 +1104,38 @@ class ApplicationStatusScreen extends StatelessWidget {
                         onTap: () => Navigator.of(context).pop(),
                         behavior: HitTestBehavior.opaque,
                         child: GlassContainer(
-                          width: 40,
-                          height: 40,
-                          borderRadius: 12,
-                          blur: 12,
-                          borderWidth: 1,
+                          width: 36 * scale,
+                          height: 36 * scale,
+                          borderRadius: 10 * scale,
+                          blur: 12 * scale,
+                          borderWidth: scale,
                           borderColor: SportoCard.defaultBorder,
-                          backgroundColor: cs.onSurface.withOpacity(0.10),
+                          backgroundColor: cs.onSurface.withValues(alpha: 0.10),
                           padding: EdgeInsets.zero,
                           child: Center(
                             child: Icon(Icons.arrow_back_ios_new_rounded,
-                                color: cs.onSurface, size: 18),
+                                color: cs.onSurface, size: 18 * scale),
                           ),
                         ),
                       ),
-                      const SizedBox(width: 14),
+                      SizedBox(width: 10 * scale),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             'Application Status',
-                            style: GoogleFonts.spaceGrotesk(
-                              fontSize: 18,
+                            style: tt.titleLarge?.copyWith(
+                              fontSize: 18 * scale,
                               fontWeight: FontWeight.w700,
                               color: cs.onSurface,
                             ),
                           ),
-                          const SizedBox(height: 2),
+                          SizedBox(height: 2 * scale),
                           Text(
                             '#$applicationRef',
                             style: tt.bodyMedium?.copyWith(
                               color: cs.onSurfaceVariant,
-                              fontSize: 12,
+                              fontSize: 12 * scale,
                             ),
                           ),
                         ],
@@ -1073,31 +1143,38 @@ class ApplicationStatusScreen extends StatelessWidget {
                     ],
                   ),
                 ),
-                const SizedBox(height: 22),
+                SizedBox(height: 25 * scale),
                 Expanded(
                   child: SingleChildScrollView(
                     physics: const ClampingScrollPhysics(),
-                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 28),
+                    padding: EdgeInsets.fromLTRB(
+                      10 * scale,
+                      0,
+                      10 * scale,
+                      28 * scale,
+                    ),
                     child: Column(
                       children: [
                         // Stage rows
                         ..._stages.map((s) => Padding(
-                              padding: const EdgeInsets.only(bottom: 12),
-                              child: SportoCard(width: double.infinity, 
-                                
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 16, vertical: 14),
+                              padding: EdgeInsets.only(bottom: 5 * scale),
+                              child: SportoCard(
+                                width: double.infinity,
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 16 * scale,
+                                  vertical: 11 * scale,
+                                ),
                                 child: Row(
                                   children: [
                                     SportoCheckCircle(done: s.value),
-                                    const SizedBox(width: 14),
+                                    SizedBox(width: 10 * scale),
                                     Text(
                                       s.key,
                                       style: tt.bodyLarge?.copyWith(
                                         color: s.value
                                             ? cs.onSurface
                                             : cs.onSurfaceVariant,
-                                        fontSize: 15,
+                                        fontSize: 14 * scale,
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),
@@ -1105,23 +1182,22 @@ class ApplicationStatusScreen extends StatelessWidget {
                                 ),
                               ),
                             )),
-                        const SizedBox(height: 4),
                         // Review progress card
-                        SportoCard(width: double.infinity, 
-                          
+                        SportoCard(
+                          width: double.infinity,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text('Review Progress',
                                   style: tt.bodyMedium?.copyWith(
                                       color: cs.onSurfaceVariant,
-                                      fontSize: 13)),
-                              const SizedBox(height: 12),
+                                      fontSize: 13 * scale)),
+                              SizedBox(height: 12 * scale),
                               ClipRRect(
-                                borderRadius: BorderRadius.circular(4),
+                                borderRadius: BorderRadius.circular(4 * scale),
                                 child: LinearProgressIndicator(
                                   value: progress,
-                                  minHeight: 6,
+                                  minHeight: 6 * scale,
                                   backgroundColor: const Color(0xFF2A3346),
                                   valueColor:
                                       AlwaysStoppedAnimation<Color>(cs.primary),
@@ -1130,10 +1206,10 @@ class ApplicationStatusScreen extends StatelessWidget {
                             ],
                           ),
                         ),
-                        const SizedBox(height: 16),
+                        SizedBox(height: 30 * scale),
                         // Note card
-                        SportoCard(width: double.infinity, 
-                          
+                        SportoCard(
+                          width: double.infinity,
                           child: Column(
                             children: [
                               Text(
@@ -1141,25 +1217,28 @@ class ApplicationStatusScreen extends StatelessWidget {
                                 textAlign: TextAlign.center,
                                 style: tt.bodyLarge?.copyWith(
                                   color: cs.secondary,
-                                  fontSize: 14,
+                                  fontSize: 14 * scale,
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
-                              const SizedBox(height: 6),
+                              SizedBox(height: 6 * scale),
                               Text(
                                 'Estimated Approval 2 Days Remaining',
                                 textAlign: TextAlign.center,
                                 style: tt.bodyMedium?.copyWith(
                                   color: cs.onSurfaceVariant,
-                                  fontSize: 13,
+                                  fontSize: 13 * scale,
                                 ),
                               ),
                             ],
                           ),
                         ),
-                        const SizedBox(height: 28),
+                        SizedBox(height: 30 * scale),
                         Center(
                           child: PrimaryButton(
+                            width: 270 * scale,
+                            height: 48 * scale,
+                            radius: 14 * scale,
                             label: 'Refresh Status',
                             onPressed: onRefresh ?? () {},
                           ),
@@ -1176,4 +1255,3 @@ class ApplicationStatusScreen extends StatelessWidget {
     );
   }
 }
-

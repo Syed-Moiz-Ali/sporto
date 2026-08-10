@@ -5,6 +5,7 @@ import '../../../features/matches/presentation/screens/conduct_toss_wizard.dart'
 import '../../../features/matches/presentation/screens/live_scoring_screen.dart';
 import '../../../features/matches/presentation/screens/matches_list_screen.dart';
 import '../../../features/matches/presentation/screens/match_verification_screen.dart';
+import '../../../features/matches/presentation/screens/referee_match_history_screen.dart';
 
 /// Central route table for the referee app.
 abstract final class AppRouter {
@@ -13,6 +14,7 @@ abstract final class AppRouter {
   static const String matchVerificationPath = '/match-verification';
   static const String conductTossPath = '/conduct-toss';
   static const String liveScoringPath = '/live-scoring';
+  static const String matchHistoryPath = '/match-history';
 
   static const String matchesRoute = matchesPath;
   static const String matchVerificationRoute = matchVerificationPath;
@@ -41,6 +43,10 @@ abstract final class AppRouter {
         path: conductTossPath,
         name: 'conductToss',
         builder: (context, state) => const ConductTossWizard(),
+      ),
+      GoRoute(
+        path: matchHistoryPath,
+        builder: (context, state) => const RefereeMatchHistoryScreen(),
       ),
       GoRoute(
         path: liveScoringPath,

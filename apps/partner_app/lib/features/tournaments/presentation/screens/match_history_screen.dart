@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:ui_kit/ui_kit.dart';
+import '../../../../app/router/app_router.dart';
 
 class MatchHistoryScreen extends StatefulWidget {
   const MatchHistoryScreen({super.key});
@@ -11,89 +11,101 @@ class MatchHistoryScreen extends StatefulWidget {
 }
 
 class _MatchHistoryScreenState extends State<MatchHistoryScreen> {
-  int _selectedTab = 0; // 0: This Week, 1: This Month, 2: All Matches
-  final List<String> _tabs = ['This Week', 'This Month', 'All Matches'];
+  int _selectedTab = 0;
+  static const _tabs = ['All', 'Upcoming', 'Live', 'Completed'];
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
-    return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new_rounded, color: cs.onSurface),
-          onPressed: () => context.pop(),
-        ),
-        title: Text('Match History',
-            style: GoogleFonts.spaceGrotesk(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: cs.onSurface)),
-      ),
-      body: Column(
-        children: [
-          // --- Tabs ---
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final scale = context.sportoScale;
+    return SportoScreenShell(
+      body: SafeArea(
+        bottom: false,
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-            child: SportoSegmentedControl(
-              items: _tabs,
-              selectedIndex: _selectedTab,
-              onChanged: (i) => setState(() => _selectedTab = i),
-            ),
+            padding: EdgeInsets.fromLTRB(
+                20 * scale, 20 * scale, 20 * scale, 8 * scale),
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text("Today's Matches",
+                  style: theme.textTheme.titleLarge
+                      ?.copyWith(fontSize: 18 * scale)),
+              Text('6 Matches Assigned',
+                  style: theme.textTheme.bodyMedium
+                      ?.copyWith(color: context.sporto.info)),
+            ]),
           ),
-
-          // Sort/Filter Bar (Only visible on 'All Matches')
-          if (_selectedTab == 2)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  RichText(
-                      text: TextSpan(style: TextStyle(fontSize: 13), children: [
-                    TextSpan(
-                        text: 'Sort By: ',
-                        style: TextStyle(color: cs.onSurfaceVariant)),
-                    TextSpan(
-                        text: 'Popularity',
-                        style: TextStyle(
-                            color: cs.onTertiary, fontWeight: FontWeight.w600)),
-                  ])),
-                  TextButton.icon(
-                    onPressed: () {},
-                    icon: Icon(Icons.filter_list_rounded,
-                        color: cs.onSurfaceVariant, size: 18),
-                    label: Text('Filter',
-                        style: TextStyle(
-                            color: cs.onSurfaceVariant, fontSize: 13)),
-                  ),
-                ],
-              ),
-            ),
-
-          // --- Match List ---
-          Expanded(
+          SizedBox(
+            height: 42 * scale,
             child: ListView.separated(
-              padding: const EdgeInsets.all(16),
-              itemCount: 4, // Demo count
-              separatorBuilder: (_, __) => const SizedBox(height: 16),
-              itemBuilder: (context, index) => const SportoMatchCard(
-                variant: SportoMatchCardVariant.completed,
-                tournamentName: 'Jaipur Super Over',
-                location: 'Hyderabad',
-                timeLabel: 'Yesterday, 06:30 PM',
-                teamA: 'Delhi Warriors',
-                scoreA: '90/2',
-                teamB: 'Hyd Highlanders',
-                scoreB: '85/3',
-                noteLabel: 'Delhi Warriors Won',
+              padding: EdgeInsets.symmetric(horizontal: 20 * scale),
+              scrollDirection: Axis.horizontal,
+              itemCount: _tabs.length,
+              separatorBuilder: (_, __) => SizedBox(width: 28 * scale),
+              itemBuilder: (_, index) => InkWell(
+                onTap: () => setState(() => _selectedTab = index),
+                child:
+                    Column(mainAxisAlignment: MainAxisAlignment.end, children: [
+                  Text(_tabs[index],
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                          fontSize: 13 * scale,
+                          color: index == _selectedTab
+                              ? cs.onSurface
+                              : cs.onSurfaceVariant)),
+                  SizedBox(height: 8 * scale),
+                  Container(
+                      width: 18 * scale,
+                      height: 2 * scale,
+                      color: index == _selectedTab
+                          ? cs.tertiary
+                          : Colors.transparent),
+                ]),
               ),
             ),
           ),
+          Divider(height: 1, color: context.sporto.border),
+          Expanded(
+            child: ListView(
+              padding: EdgeInsets.fromLTRB(
+                  20 * scale, 26 * scale, 20 * scale, 90 * scale),
+              children: [
+                const SportoCricketMatchCard(
+                    state: SportoCricketMatchState.live),
+                SizedBox(height: 21 * scale),
+                const SportoCricketMatchCard(
+                    state: SportoCricketMatchState.upcoming),
+                SizedBox(height: 11 * scale),
+                const SportoCricketMatchCard(
+                    state: SportoCricketMatchState.completed),
+                SizedBox(height: 13 * scale),
+                const SportoCricketMatchCard(
+                    state: SportoCricketMatchState.delayed),
+              ],
+            ),
+          ),
+        ]),
+      ),
+      bottomNavigationBar: SportoBottomNav(
+        currentIndex: 1,
+        items: [
+          const SportoNavItem(Icons.home_outlined, 'Home'),
+          const SportoNavItem(Icons.emoji_events_outlined, 'Tournaments'),
+          const SportoNavItem(Icons.calendar_month_outlined, 'Schedules'),
+          const SportoNavItem(Icons.person_outline, 'Profile'),
         ],
+        onTap: (index) {
+          switch (index) {
+            case 0:
+              context.go(AppRouter.homePath);
+            case 1:
+              return;
+            case 2:
+              context.go(AppRouter.scheduleRoute);
+            case 3:
+              context.go(AppRouter.profileRoute);
+          }
+        },
       ),
     );
   }

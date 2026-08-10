@@ -3,7 +3,7 @@
 // Dark glass button used for secondary actions.
 // ============================================================
 import 'package:flutter/material.dart';
-import 'sporto_text_field.dart';
+import '../theme/sporto_design_tokens.dart';
 
 class SecondaryButton extends StatelessWidget {
   final String label;
@@ -28,6 +28,7 @@ class SecondaryButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final tokens = context.sporto;
     final effectiveWidth = width ??
         (widthFactor != null
             ? MediaQuery.of(context).size.width * widthFactor!
@@ -42,9 +43,9 @@ class SecondaryButton extends StatelessWidget {
           width: effectiveWidth,
           height: height,
           decoration: BoxDecoration(
-            color: SportoTextField.inputFill,
+            color: tokens.field,
             borderRadius: BorderRadius.circular(radius),
-            border: Border.all(color: SportoTextField.inputBorder),
+            border: Border.all(color: tokens.fieldBorder),
           ),
           alignment: Alignment.center,
           child: Row(

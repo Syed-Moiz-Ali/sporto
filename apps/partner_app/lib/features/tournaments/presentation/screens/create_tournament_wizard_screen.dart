@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:ui_kit/ui_kit.dart';
 
 // ============================================================
 // MAIN WIZARD SCREEN
 // ============================================================
+enum _TournamentSport { cricket, badminton, football }
+
 class CreateTournamentWizardScreen extends StatefulWidget {
-  const CreateTournamentWizardScreen({super.key});
+  final int initialStep;
+
+  const CreateTournamentWizardScreen({
+    super.key,
+    this.initialStep = 0,
+  });
 
   @override
   State<CreateTournamentWizardScreen> createState() =>
@@ -14,7 +20,7 @@ class CreateTournamentWizardScreen extends StatefulWidget {
 }
 
 class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
-  int _currentStep = 0;
+  late int _currentStep;
   final int _totalSteps = 6;
 
   // Controllers
@@ -29,7 +35,8 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
   bool _isPaid = true;
   bool _confirmReview = false;
   int _numberOfTeams = 128;
-  String _selectedSport = 'Mini Cricket - Super Over Challenge';
+  late String _selectedSport;
+  _TournamentSport _selectedSportPreset = _TournamentSport.cricket;
   String _selectedFormat = 'Knockout';
   String _selectedBallType = 'Tennis Ball';
   int _miniOvers = 3;
@@ -39,6 +46,13 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
   List<Map<String, dynamic>> _venues = [
     {'name': 'Venue 1', "round": 'Round of 128', "matches": '64 Matches'},
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _currentStep = widget.initialStep.clamp(0, _totalSteps - 1);
+    _selectedSport = 'Mini Cricket - Super Over Challenge';
+  }
 
   @override
   void dispose() {
@@ -53,9 +67,10 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+    final scale = context.sportoScale;
 
-    return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+    return SportoScreenShell(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -64,20 +79,20 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text('Create Tournament',
-            style: GoogleFonts.spaceGrotesk(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
+            style: tt.titleLarge?.copyWith(
+                fontSize: 18 * scale,
+                fontWeight: FontWeight.w600,
                 color: cs.onSurface)),
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(4),
+          preferredSize: Size.fromHeight(4 * scale),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: EdgeInsets.symmetric(horizontal: 18 * scale),
             child: Row(
               children: List.generate(
                   _totalSteps,
                   (i) => Expanded(
                         child: Container(
-                          height: 3,
+                          height: 3 * scale,
                           margin: EdgeInsets.only(
                               right: i == _totalSteps - 1 ? 0 : 4),
                           decoration: BoxDecoration(
@@ -94,7 +109,8 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
       ),
       body: SingleChildScrollView(
         physics: const ClampingScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(16, 24, 16, 40),
+        padding:
+            EdgeInsets.fromLTRB(20 * scale, 24 * scale, 20 * scale, 40 * scale),
         child: AnimatedSwitcher(
           key: Key('step_$_currentStep'),
           duration: const Duration(milliseconds: 300),
@@ -109,9 +125,9 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
       case 0:
         return _buildStep1TypeSelection(cs);
       case 1:
-        return _buildStep2TournamentDetails(cs);
-      case 2:
         return _buildStep3Configuration(cs);
+      case 2:
+        return _buildStep2TournamentDetails(cs);
       case 3:
         return _buildStep4VenueSetup(cs);
       case 4:
@@ -133,37 +149,41 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
         Text('Choose Tournament Type',
             style: TextStyle(
                 color: cs.secondary,
-                fontSize: 20,
-                fontWeight: FontWeight.w700)),
+                fontSize: 18,
+                fontWeight: FontWeight.w500)),
         const SizedBox(height: 24),
 
         // Community Tournament Card
         SportoGradientCard(
           colors: const [Color(0xFF2A2035), Color(0xFF1A1520)],
           borderColor: cs.tertiary.withOpacity(0.3),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 18),
+          radius: 16,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text('Community Tournament',
                   style: TextStyle(
                       color: cs.tertiary,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700)),
-              const SizedBox(height: 16),
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600)),
+              const SizedBox(height: 10),
               Wrap(spacing: 24, runSpacing: 12, children: [
                 SportoBulletPoint(text: 'Independent'),
                 SportoBulletPoint(text: 'Up to 64 Teams'),
                 SportoBulletPoint(text: 'You Manage Revenue'),
                 SportoBulletPoint(text: 'Create Instantly'),
               ]),
-              const SizedBox(height: 24),
+              const SizedBox(height: 12),
               SizedBox(
                   width: double.infinity,
-                  child: PrimaryButton(
-                      width: double.infinity,
-                      height: 56,
+                  child: SportoPillButton(
                       label: 'Create Tournament',
-                      onPressed: () => setState(() => _currentStep = 1))),
+                      color: cs.primary,
+                      gradient: context.sporto.primaryGradient,
+                      filled: true,
+                      height: 48,
+                      onTap: () => setState(() => _currentStep = 1))),
             ],
           ),
         ),
@@ -173,40 +193,32 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
         SportoGradientCard(
           colors: const [Color(0xFF152520), Color(0xFF101A15)],
           borderColor: cs.secondary.withOpacity(0.3),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 18),
+          radius: 16,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text('Mega Championship',
                   style: TextStyle(
                       color: cs.secondary,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700)),
-              const SizedBox(height: 16),
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600)),
+              const SizedBox(height: 10),
               Wrap(spacing: 24, runSpacing: 12, children: [
                 SportoBulletPoint(text: 'Official Event'),
                 SportoBulletPoint(text: 'Featured by Sporto'),
                 SportoBulletPoint(text: 'Multi Venue'),
                 SportoBulletPoint(text: 'Approval Required'),
               ]),
-              const SizedBox(height: 24),
+              const SizedBox(height: 12),
               SizedBox(
                 width: double.infinity,
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                      onTap: () {},
-                      borderRadius: BorderRadius.circular(16),
-                      child: Container(
-                          height: 56,
-                          decoration: BoxDecoration(
-                              color: cs.secondary,
-                              borderRadius: BorderRadius.circular(16)),
-                          alignment: Alignment.center,
-                          child: Text('Request to Host',
-                              style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700)))),
+                child: SportoPillButton(
+                  label: 'Request to Host',
+                  color: cs.secondary,
+                  filled: true,
+                  height: 48,
+                  onTap: () {},
                 ),
               ),
             ],
@@ -226,8 +238,8 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
         Text('Tournament Details',
             style: TextStyle(
                 color: cs.secondary,
-                fontSize: 20,
-                fontWeight: FontWeight.w700)),
+                fontSize: 18,
+                fontWeight: FontWeight.w500)),
         Text('Tell players about your tournament.',
             style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)),
         const SizedBox(height: 24),
@@ -316,9 +328,9 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
           Container(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               decoration: BoxDecoration(
-                  color: SportoTextField.inputFill,
+                  color: context.sporto.field,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: SportoTextField.inputBorder)),
+                  border: Border.all(color: context.sporto.fieldBorder)),
               child: Text('$_numberOfTeams Teams',
                   style: TextStyle(
                       color: cs.onSurface,
@@ -357,7 +369,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
             width: double.infinity,
             height: 56,
             label: 'Continue',
-            onPressed: () => setState(() => _currentStep = 2)),
+            onPressed: () => setState(() => _currentStep = 3)),
       ],
     );
   }
@@ -372,39 +384,36 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
         Text('Create Community Tournament',
             style: TextStyle(
                 color: cs.secondary,
-                fontSize: 20,
-                fontWeight: FontWeight.w700)),
+                fontSize: 18,
+                fontWeight: FontWeight.w500)),
         const SizedBox(height: 24),
 
         // Choose Sport
         Text('Choose Sport',
             style: TextStyle(
                 color: cs.onSurface,
-                fontSize: 14,
-                fontWeight: FontWeight.w500)),
+                fontSize: 18,
+                fontWeight: FontWeight.w400)),
         const SizedBox(height: 12),
-        Container(
-          height: 52,
-          decoration: BoxDecoration(
-              color: cs.secondary.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: cs.secondary.withOpacity(0.5))),
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          alignment: Alignment.centerLeft,
-          child:
-              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            Text(_selectedSport,
-                style: TextStyle(
-                    color: cs.secondary,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600)),
-            Icon(Icons.check_circle_rounded, color: cs.secondary, size: 24),
-          ]),
+        SportoSelectableBox(
+          key: const Key('choose_sport'),
+          selected: true,
+          showCheck: true,
+          onTap: _showSportSelector,
+          height: 46,
+          padding: const EdgeInsets.symmetric(horizontal: 14),
+          child: Text(_selectedSport,
+              style: TextStyle(
+                  color: cs.secondary,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600)),
         ),
         const SizedBox(height: 24),
 
         // Tournament Format
-        SportoSectionTitle(title: 'Tournament Format'),
+        Text('Tournament Format',
+            style: TextStyle(color: cs.onSurface, fontSize: 18)),
+        const SizedBox(height: 18),
         Row(children: [
           Expanded(
               child: _FormatCard(
@@ -432,7 +441,10 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
         const SizedBox(height: 24),
 
         // Match Settings
-        SportoSectionTitle(title: 'Match Settings'),
+        Text('Match Settings',
+            style: TextStyle(color: cs.onSurface, fontSize: 18)),
+        const SizedBox(height: 20),
+        if (_selectedSportPreset == _TournamentSport.cricket) ...[
         Text('Ball type',
             style: TextStyle(
                 color: cs.onSurface,
@@ -451,27 +463,37 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
               type: SportoFilterChipType.pill,
               inactiveFill: true,
               label: 'Leather Ball',
+              hasCheck: true,
               active: _selectedBallType == 'Leather Ball',
               onTap: () => setState(() => _selectedBallType = 'Leather Ball')),
           SportoFilterChip(
               type: SportoFilterChipType.pill,
               inactiveFill: true,
               label: 'Rubber Ball',
+              hasCheck: true,
               active: _selectedBallType == 'Rubber Ball',
               onTap: () => setState(() => _selectedBallType = 'Rubber Ball')),
           SportoFilterChip(
               type: SportoFilterChipType.pill,
               inactiveFill: true,
               label: 'Wind Ball',
+              hasCheck: true,
               active: _selectedBallType == 'Wind Ball',
               onTap: () => setState(() => _selectedBallType = 'Wind Ball')),
         ]),
         const SizedBox(height: 24),
+        ],
 
         // Mini Overs Per Innings
         SportoCounterRow(
-            label: 'Mini Overs Per Innings',
-            value: '$_miniOvers Overs',
+            label: switch (_selectedSportPreset) {
+              _TournamentSport.cricket => 'Mini Overs Per Innings',
+              _TournamentSport.badminton => 'No. of Points per set',
+              _TournamentSport.football => 'No. of Goals per round',
+            },
+            value: _selectedSportPreset == _TournamentSport.cricket
+                ? '$_miniOvers Overs'
+                : '$_miniOvers',
             onMinus: () => setState(() {
                   if (_miniOvers > 1) _miniOvers--;
                 }),
@@ -480,8 +502,14 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
 
         // Balls Per Over
         SportoCounterRow(
-            label: 'Balls Per Over',
-            value: '$_ballsPerOver Balls',
+            label: switch (_selectedSportPreset) {
+              _TournamentSport.cricket => 'Balls Per Over',
+              _TournamentSport.badminton => 'No. of Sets',
+              _TournamentSport.football => 'No. of Rounds',
+            },
+            value: _selectedSportPreset == _TournamentSport.cricket
+                ? '$_ballsPerOver Balls'
+                : '$_ballsPerOver',
             onMinus: () => setState(() {
                   if (_ballsPerOver > 1) _ballsPerOver--;
                 }),
@@ -498,11 +526,14 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
             onPlus: () => setState(() => _playersPerTeam++)),
         const SizedBox(height: 32),
 
-        PrimaryButton(
-            width: double.infinity,
-            height: 56,
-            label: 'Continue',
-            onPressed: () => setState(() => _currentStep = 3)),
+        Align(
+          alignment: Alignment.center,
+          child: PrimaryButton(
+              width: 270 * context.sportoScale,
+              height: 48 * context.sportoScale,
+              label: 'Continue',
+              onPressed: () => setState(() => _currentStep = 2)),
+        ),
       ],
     );
   }
@@ -514,27 +545,16 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
       required VoidCallback onTap}) {
     return Builder(builder: (context) {
       final cs = Theme.of(context).colorScheme;
-      return GestureDetector(
+      return SportoSelectableBox(
+        selected: active,
         onTap: onTap,
-        child: Container(
-          decoration: BoxDecoration(
-            color: active
-                ? cs.secondary.withOpacity(0.1)
-                : SportoCard.defaultFill.withOpacity(0.6),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-                color: active
-                    ? cs.secondary.withOpacity(0.5)
-                    : SportoTextField.inputBorder),
-          ),
-          padding: const EdgeInsets.all(16),
-          child:
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        padding: const EdgeInsets.all(14),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(label,
                 style: TextStyle(
                     color: active ? cs.secondary : cs.onSurface,
                     fontSize: 14,
-                    fontWeight: FontWeight.w700)),
+                    fontWeight: FontWeight.w500)),
             const SizedBox(height: 8),
             ...points.map((p) => Padding(
                 padding: const EdgeInsets.only(bottom: 4),
@@ -550,9 +570,70 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                                   color: cs.onSurfaceVariant, fontSize: 11)))
                     ]))),
           ]),
-        ),
       );
     });
+  }
+
+  void _showSportSelector() {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) {
+        final theme = Theme.of(sheetContext);
+        final options = <(_TournamentSport, String)>[
+          (_TournamentSport.cricket, 'Mini Cricket - Super Over Challenge'),
+          (_TournamentSport.badminton, 'Badminton - Challenge'),
+          (_TournamentSport.football,
+              'Mini Football - Goal Shootout Challenge'),
+        ];
+        return Container(
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 28),
+          decoration: BoxDecoration(
+            color: sheetContext.sporto.cardElevated,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            border: Border(top: BorderSide(color: sheetContext.sporto.border)),
+          ),
+          child: SafeArea(
+            top: false,
+            child: Column(mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text('Choose Sport',
+                  style: theme.textTheme.titleLarge
+                      ?.copyWith(fontSize: 18, fontWeight: FontWeight.w700)),
+              const SizedBox(height: 16),
+              for (final option in options) ...[
+                SportoSelectableBox(
+                  key: Key('sport_${option.$1.name}'),
+                  selected: _selectedSportPreset == option.$1,
+                  showCheck: true,
+                  height: 56,
+                  onTap: () {
+                    setState(() {
+                      _selectedSportPreset = option.$1;
+                      _selectedSport = option.$2;
+                      _miniOvers = 3;
+                      _ballsPerOver = 3;
+                      _playersPerTeam = option.$1 == _TournamentSport.badminton
+                          ? 2
+                          : 5;
+                    });
+                    Navigator.pop(sheetContext);
+                  },
+                  child: Text(option.$2,
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: _selectedSportPreset == option.$1
+                            ? theme.colorScheme.secondary
+                            : theme.colorScheme.onSurface,
+                      )),
+                ),
+                const SizedBox(height: 10),
+              ],
+            ]),
+          ),
+        );
+      },
+    );
   }
 
   // ============================================================
@@ -638,11 +719,17 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                                       fontSize: 12)),
                             ]),
                         TextButton(
+                            key: const Key('add_venue_details'),
                             onPressed: () =>
                                 _showVenueModal(context, v['name']),
-                            child: Text('Add Venue Details >',
-                                style: TextStyle(
-                                    color: cs.onTertiary, fontSize: 12))),
+                            child: Row(mainAxisSize: MainAxisSize.min, children: [
+                              Text('Add Venue Details', style: TextStyle(
+                                  color: cs.tertiary, fontSize: 13,
+                                  fontWeight: FontWeight.w700)),
+                              const SizedBox(width: 5),
+                              Icon(Icons.arrow_forward_ios_rounded,
+                                  color: cs.tertiary, size: 13),
+                            ])),
                       ]),
                 ])))),
 
@@ -1057,7 +1144,11 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                     fontSize: 20,
                     fontWeight: FontWeight.w700)),
             RichText(
-                text: TextSpan(style: TextStyle(fontSize: 13), children: [
+                text: TextSpan(
+                    style: DefaultTextStyle.of(context)
+                        .style
+                        .copyWith(fontSize: 13),
+                    children: [
               TextSpan(
                   text: 'Presented by: ',
                   style: TextStyle(color: cs.onSurfaceVariant)),
@@ -1087,9 +1178,14 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
             Text('Tournament Details',
                 style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)),
             TextButton(
-                onPressed: () => setState(() => _currentStep = 1),
-                child: Text('Edit →',
-                    style: TextStyle(color: cs.onTertiary, fontSize: 12)))
+                onPressed: () => setState(() => _currentStep = 2),
+                child: Row(mainAxisSize: MainAxisSize.min, children: [
+                  Text('Edit', style: TextStyle(color: cs.tertiary,
+                      fontSize: 12, fontWeight: FontWeight.w700)),
+                  const SizedBox(width: 4),
+                  Icon(Icons.arrow_forward_ios_rounded,
+                      color: cs.tertiary, size: 11),
+                ]))
           ]),
           const SizedBox(height: 12),
           Text('Knockout Format',
@@ -1118,8 +1214,13 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                 style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)),
             TextButton(
                 onPressed: () => setState(() => _currentStep = 3),
-                child: Text('Edit →',
-                    style: TextStyle(color: cs.onTertiary, fontSize: 12)))
+                child: Row(mainAxisSize: MainAxisSize.min, children: [
+                  Text('Edit', style: TextStyle(color: cs.tertiary,
+                      fontSize: 12, fontWeight: FontWeight.w700)),
+                  const SizedBox(width: 4),
+                  Icon(Icons.arrow_forward_ios_rounded,
+                      color: cs.tertiary, size: 11),
+                ]))
           ]),
           const SizedBox(height: 12),
           SportoSummaryRow(label: 'Location', value: 'Miyapur, Hyderabad'),

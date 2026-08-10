@@ -3,6 +3,7 @@
 // Ambient radial-gradient backdrop used behind screens.
 // ============================================================
 import 'package:flutter/material.dart';
+import '../theme/sporto_design_tokens.dart';
 
 /// Full-bleed ambient background: solid scaffold color with a soft
 /// primary-colored radial glow in the top-right corner.
@@ -11,20 +12,13 @@ class SportoAmbientBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final base = Scaffold().backgroundColor ?? Colors.black;
+    final theme = Theme.of(context);
     return IgnorePointer(
       child: Stack(
         children: [
-          Container(color: base),
+          Container(color: theme.scaffoldBackgroundColor),
           Container(
-            decoration: BoxDecoration(
-              gradient: RadialGradient(
-                center: const Alignment(0.9, -0.85),
-                radius: 0.9,
-                colors: [cs.primary.withOpacity(0.12), Colors.transparent],
-              ),
-            ),
+            decoration: BoxDecoration(gradient: context.sporto.ambientGradient),
           ),
         ],
       ),

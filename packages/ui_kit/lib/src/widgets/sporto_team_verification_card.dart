@@ -1,20 +1,9 @@
-// ============================================================
-// sporto_team_verification_card.dart
-// Team presence verification card used before toss.
-// ============================================================
 import 'package:flutter/material.dart';
-import 'sporto_card.dart';
-import 'sporto_divider.dart';
+
+import '../theme/sporto_design_tokens.dart';
 import 'sporto_pill_button.dart';
 
 class SportoTeamVerificationCard extends StatelessWidget {
-  final String teamName;
-  final String subName;
-  final List<String> players;
-  final bool isPresent;
-  final VoidCallback onTogglePresent;
-  final VoidCallback? onMarkAbsent;
-
   const SportoTeamVerificationCard({
     super.key,
     required this.teamName,
@@ -25,97 +14,105 @@ class SportoTeamVerificationCard extends StatelessWidget {
     this.onMarkAbsent,
   });
 
+  final String teamName;
+  final String subName;
+  final List<String> players;
+  final bool isPresent;
+  final VoidCallback onTogglePresent;
+  final VoidCallback? onMarkAbsent;
+
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final radius = BorderRadius.circular(context.sportoLayout.radius14);
 
-    return SportoCard(
-      padding: EdgeInsets.zero,
-      child: Column(children: [
-        // Header
-        Padding(
-          padding: const EdgeInsets.all(16),
+    return Column(
+      children: [
+        Container(
+          height: 64,
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          decoration: BoxDecoration(color: context.sporto.card, borderRadius: radius),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(teamName,
-                      style: TextStyle(
-                          color: cs.onTertiary,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600)),
-                  Text(subName,
-                      style: TextStyle(
-                          color: cs.onSurface,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700)),
-                ],
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(teamName,
+                        style: theme.textTheme.titleLarge
+                            ?.copyWith(color: context.sporto.info)),
+                    Text(subName, style: theme.textTheme.titleLarge),
+                  ],
+                ),
               ),
-              Row(children: [
-                Icon(Icons.check_circle_rounded, color: cs.secondary, size: 18),
-                const SizedBox(width: 6),
-                Text('Team Ready',
-                    style: TextStyle(
-                        color: cs.secondary,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600)),
-              ]),
+              Icon(Icons.check_circle_rounded, color: cs.secondary, size: 18),
+              const SizedBox(width: 6),
+              Text('Team Ready',
+                  style: theme.textTheme.bodyLarge?.copyWith(color: cs.secondary)),
             ],
           ),
         ),
-
-        const SportoDivider(),
-
-        // Player list
-        Padding(
-          padding: const EdgeInsets.all(16),
+        const SizedBox(height: 2),
+        Container(
+          height: 159,
+          padding: const EdgeInsets.fromLTRB(10, 10, 10, 9),
+          decoration: BoxDecoration(color: context.sporto.card, borderRadius: radius),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: players
-                .map((p) => Padding(
-                    padding: const EdgeInsets.only(bottom: 6),
-                    child: Text(p,
-                        style: TextStyle(
-                            color: p.contains('Captain')
-                                ? cs.tertiary
-                                : cs.onSurfaceVariant,
-                            fontSize: 13))))
-                .toList(),
+            children: [
+              for (final player in players)
+                Text.rich(
+                  TextSpan(
+                    style: theme.textTheme.bodyLarge,
+                    children: _playerSpans(player, theme, cs),
+                  ),
+                ),
+              const Spacer(),
+              Divider(height: 1, color: cs.outline),
+              const SizedBox(height: 7),
+              Row(
+                children: [
+                  Expanded(
+                    child: SportoPillButton(
+                      label: isPresent ? '✓  Present' : 'Mark As Present',
+                      color: cs.secondary,
+                      filled: isPresent,
+                      height: 38,
+                      padding: EdgeInsets.zero,
+                      onTap: isPresent ? null : onTogglePresent,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: SportoPillButton(
+                      label: 'Mark As Absent',
+                      color: cs.outline,
+                      height: 38,
+                      padding: EdgeInsets.zero,
+                      onTap: onMarkAbsent,
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
-
-        const SportoDivider(),
-
-        // Action buttons
-        Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(children: [
-            Expanded(
-              child: SportoPillButton(
-                label: isPresent ? 'Present' : 'Mark As Present',
-                color: cs.secondary,
-                filled: isPresent,
-                icon: isPresent ? Icons.check_rounded : null,
-                height: 48,
-                padding: EdgeInsets.zero,
-                onTap: isPresent ? null : onTogglePresent,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: SportoPillButton(
-                label: 'Mark As Absent',
-                color: cs.onSurfaceVariant,
-                height: 48,
-                padding: EdgeInsets.zero,
-                onTap: onMarkAbsent,
-              ),
-            ),
-          ]),
-        ),
-      ]),
+      ],
     );
+  }
+
+  List<InlineSpan> _playerSpans(
+      String player, ThemeData theme, ColorScheme cs) {
+    const marker = ' (Captain)';
+    if (!player.endsWith(marker)) return [TextSpan(text: player)];
+    return [
+      TextSpan(text: player.substring(0, player.length - marker.length)),
+      TextSpan(
+        text: marker,
+        style: theme.textTheme.bodyLarge?.copyWith(color: cs.primary),
+      ),
+    ];
   }
 }

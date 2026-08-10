@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:ui_kit/ui_kit.dart';
 
-import 'live_scoring_screen.dart';
 import 'matches_list_screen.dart';
 import 'profile_screen.dart';
 import 'referee_home_screen.dart';
+import 'referee_scoring_tab_screen.dart';
 
 /// Authenticated shell: bottom navigation between Home / Matches /
 /// Scoring / Profile tabs.
@@ -33,7 +33,7 @@ class _RefereeShellScreenState extends State<RefereeShellScreen> {
                     onViewAll: () => setState(() => _currentIndex = 1),
                   ),
                   const MatchesListScreen(),
-                  const LiveScoringScreen(),
+                  const RefereeScoringTabScreen(),
                   const ProfileScreen(),
                 ],
               ),

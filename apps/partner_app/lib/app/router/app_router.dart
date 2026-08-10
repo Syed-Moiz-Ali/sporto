@@ -5,6 +5,7 @@ import '../../features/tournaments/presentation/screens/create_tournament_wizard
 import '../../features/tournaments/presentation/screens/match_detail_screen.dart';
 import '../../features/tournaments/presentation/screens/match_history_screen.dart';
 import '../../features/tournaments/presentation/screens/profile_screen.dart';
+import '../../features/tournaments/presentation/screens/schedule_screen.dart';
 
 /// Central route table for the partner app.
 abstract final class AppRouter {
@@ -13,6 +14,7 @@ abstract final class AppRouter {
   static const String createTournamentPath = '/create-tournament';
   static const String matchHistoryPath = '/match-history';
   static const String profilePath = '/profile';
+  static const String schedulePath = '/schedule';
 
   static String tournamentDetailRoute(String tournamentId) =>
       '/tournaments/$tournamentId';
@@ -20,6 +22,7 @@ abstract final class AppRouter {
   static const String createTournamentRoute = createTournamentPath;
   static const String matchHistoryRoute = matchHistoryPath;
   static const String profileRoute = profilePath;
+  static const String scheduleRoute = schedulePath;
 
   static final GoRouter router = GoRouter(
     initialLocation: homePath,
@@ -45,6 +48,11 @@ abstract final class AppRouter {
         path: matchHistoryPath,
         name: 'matchHistory',
         builder: (context, state) => const MatchHistoryScreen(),
+      ),
+      GoRoute(
+        path: schedulePath,
+        name: 'schedule',
+        builder: (context, state) => const ScheduleScreen(),
       ),
       GoRoute(
         path: profilePath,

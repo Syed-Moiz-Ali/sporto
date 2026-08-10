@@ -1,139 +1,231 @@
-// ============================================================
-// sporto_theme.dart
-// ============================================================
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+
+import 'sporto_design_tokens.dart';
 
 class SportoTheme {
   SportoTheme._();
 
-  // Raw brand values (used ONLY to seed the ColorScheme below —
-  // widgets must read them via Theme.of(context).colorScheme).
-  static const Color _primaryOrange = Color(0xFFEE7005);
-  static const Color _ctaGold = Color(0xFFE2A22C);
-  static const Color _accentGreen = Color(0xFF27A166);
-  static const Color _infoBlue = Color(0xFF4BA3F0);
-  static const Color _liveRed = Color(0xFFE1263F);
+  static const _primary = Color(0xFFED7B00);
+  static const _gold = Color(0xFFCF9E24);
+  static const _green = Color(0xFF2BB673);
+  static const _blue = Color(0xFF4FBAF0);
+  static const _red = Color(0xFFFE464B);
 
-  static const Color _darkBackground = Color(0xFF0B0A08);
-  static const Color _darkSurface = Color(0xFF1C2026);
-  static const Color _darkCard = Color(0xFF1B2335);
-  static const Color _darkCardHigh = Color(0xFF283040);
-  static const Color _darkTextPrimary = Color(0xFFFFFFFF);
-  static const Color _darkTextSecondary = Color(0xFFA0A0A0);
-  static const Color _darkTextMuted = Color(0xFF666666);
+  static ThemeData get lightTheme => _theme(
+        brightness: Brightness.light,
+        background: const Color(0xFFF8F9FA),
+        surface: const Color(0xFFFFFFFF),
+        onSurface: const Color(0xFF0F172A),
+        onSurfaceVariant: const Color(0xFF475569),
+      );
 
-  static const Color _lightBackground = Color(0xFFF8F9FA);
-  static const Color _lightSurface = Color(0xFFFFFFFF);
-  static const Color _lightCard = Color(0xFFF1F5F9);
-  static const Color _lightCardHigh = Color(0xFFE2E8F0);
-  static const Color _lightTextPrimary = Color(0xFF0F172A);
-  static const Color _lightTextSecondary = Color(0xFF475569);
-  static const Color _lightTextMuted = Color(0xFF94A3B8);
+  static ThemeData get darkTheme => _theme(
+        brightness: Brightness.dark,
+        background: SportoDesignTokens.dark.canvas,
+        surface: SportoDesignTokens.dark.card,
+        onSurface: const Color(0xFFF4F4F5),
+        onSurfaceVariant: const Color(0xFF92949A),
+      );
 
-  static ThemeData get lightTheme {
-    final base = ThemeData.light().textTheme;
+  static ThemeData _theme({
+    required Brightness brightness,
+    required Color background,
+    required Color surface,
+    required Color onSurface,
+    required Color onSurfaceVariant,
+  }) {
+    final scheme = ColorScheme(
+      brightness: brightness,
+      primary: _primary,
+      onPrimary: const Color(0xFFFFFFFF),
+      secondary: _green,
+      onSecondary: const Color(0xFFFFFFFF),
+      tertiary: _gold,
+      onTertiary: _blue,
+      error: _red,
+      onError: const Color(0xFFFFFFFF),
+      surface: surface,
+      onSurface: onSurface,
+      outline: SportoDesignTokens.dark.border,
+      outlineVariant: SportoDesignTokens.dark.border.withValues(alpha: .55),
+      surfaceContainer: SportoDesignTokens.dark.card,
+      surfaceContainerHigh: SportoDesignTokens.dark.cardElevated,
+      onSurfaceVariant: onSurfaceVariant,
+    );
+
     return ThemeData(
       useMaterial3: true,
-      brightness: Brightness.light,
-      scaffoldBackgroundColor: _lightBackground,
-      colorScheme: ColorScheme.light(
-        primary: _primaryOrange,
-        onPrimary: Colors.white,
-        secondary: _accentGreen,
-        onSecondary: Colors.white,
-        tertiary: _ctaGold, // CTA gradient tail
-        onTertiary: _infoBlue, // repurposed as info/subtitle blue
-        surface: _lightSurface,
-        onSurface: _lightTextPrimary,
-        surfaceContainer: _lightCard.withOpacity(0.85),
-        surfaceContainerHigh: _lightCardHigh,
-        onSurfaceVariant: _lightTextSecondary,
-        outline: const Color(0x33000000),
-        outlineVariant: const Color(0x1F000000),
-        error: _liveRed,
-        onError: Colors.white,
+      brightness: brightness,
+      scaffoldBackgroundColor: background,
+      colorScheme: scheme,
+      fontFamily: 'packages/ui_kit/Quicksand',
+      fontFamilyFallback: const [
+        'packages/ui_kit/Inter',
+        'packages/ui_kit/Mulish'
+      ],
+      extensions: const [SportoDesignTokens.dark, SportoLayoutTokens.figma],
+      appBarTheme: AppBarTheme(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        titleTextStyle: TextStyle(
+          fontFamily: 'packages/ui_kit/Quicksand',
+          color: onSurface,
+          fontSize: 18,
+          fontWeight: FontWeight.w700,
+        ),
       ),
-      textTheme: GoogleFonts.interTextTheme(base).copyWith(
-        displayLarge: GoogleFonts.spaceGrotesk(
-            fontSize: 32,
-            fontWeight: FontWeight.bold,
-            color: _lightTextPrimary),
-        displayMedium: GoogleFonts.spaceGrotesk(
-            fontSize: 26,
-            fontWeight: FontWeight.bold,
-            color: _lightTextPrimary),
-        displaySmall: GoogleFonts.spaceGrotesk(
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-            color: _lightTextPrimary),
-        headlineMedium: GoogleFonts.spaceGrotesk(
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-            color: _lightTextPrimary),
-        titleLarge: GoogleFonts.spaceGrotesk(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: _lightTextPrimary),
-        bodyLarge: GoogleFonts.inter(
-            fontSize: 15,
-            fontWeight: FontWeight.normal,
-            color: _lightTextPrimary),
-        bodyMedium: GoogleFonts.inter(
-            fontSize: 13,
-            fontWeight: FontWeight.normal,
-            color: _lightTextSecondary),
-        labelSmall: GoogleFonts.inter(
-            fontSize: 11, fontWeight: FontWeight.w500, color: _lightTextMuted),
+      textTheme: _textTheme(onSurface, onSurfaceVariant),
+      primaryTextTheme: TextTheme(
+        displayLarge: TextStyle(
+          fontFamily: 'packages/ui_kit/Space Grotesk',
+          color: onSurface,
+          fontSize: 68,
+          height: 1,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 1.5,
+        ),
+      ),
+      dividerTheme: DividerThemeData(color: scheme.outline, thickness: 1),
+      cardTheme: CardThemeData(
+        color: scheme.surfaceContainer,
+        elevation: 0,
+        margin: EdgeInsets.zero,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: scheme.outline),
+        ),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: SportoDesignTokens.dark.field,
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(15),
+          borderSide: BorderSide(
+            color: SportoDesignTokens.dark.fieldBorder,
+          ),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(15),
+          borderSide: BorderSide(
+            color: SportoDesignTokens.dark.fieldBorder,
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(15),
+          borderSide: BorderSide(
+            color: SportoDesignTokens.dark.fieldBorderFocused,
+            width: 1.5,
+          ),
+        ),
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          minimumSize: const Size(0, 48),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          textStyle: const TextStyle(
+            fontFamily: 'packages/ui_kit/Quicksand',
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ),
+      bottomSheetTheme: BottomSheetThemeData(
+        backgroundColor: scheme.surfaceContainer,
+        modalBackgroundColor: scheme.surfaceContainer,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
       ),
     );
   }
 
-  static ThemeData get darkTheme {
-    final base = ThemeData.dark().textTheme;
-    return ThemeData(
-      useMaterial3: true,
-      brightness: Brightness.dark,
-      scaffoldBackgroundColor: _darkBackground,
-      colorScheme: ColorScheme.dark(
-        primary: _primaryOrange,
-        onPrimary: Colors.white,
-        secondary: _accentGreen,
-        onSecondary: Colors.white,
-        tertiary: _ctaGold, // CTA gradient tail
-        onTertiary: _infoBlue, // repurposed as info/subtitle blue
-        surface: _darkSurface,
-        onSurface: _darkTextPrimary,
-        surfaceContainer: _darkCard.withOpacity(0.4),
-        surfaceContainerHigh: _darkCardHigh.withOpacity(0.5),
-        onSurfaceVariant: _darkTextSecondary,
-        outline: const Color(0x33FFFFFF),
-        outlineVariant: const Color(0x1FFFFFFF),
-        error: _liveRed,
-        onError: Colors.white,
-      ),
-      textTheme: GoogleFonts.interTextTheme(base).copyWith(
-        displayLarge: GoogleFonts.spaceGrotesk(
-            fontSize: 32, fontWeight: FontWeight.bold, color: _darkTextPrimary),
-        displayMedium: GoogleFonts.spaceGrotesk(
-            fontSize: 26, fontWeight: FontWeight.bold, color: _darkTextPrimary),
-        displaySmall: GoogleFonts.spaceGrotesk(
-            fontSize: 22, fontWeight: FontWeight.bold, color: _darkTextPrimary),
-        headlineMedium: GoogleFonts.spaceGrotesk(
-            fontSize: 18, fontWeight: FontWeight.w600, color: _darkTextPrimary),
-        titleLarge: GoogleFonts.spaceGrotesk(
-            fontSize: 16, fontWeight: FontWeight.w600, color: _darkTextPrimary),
-        bodyLarge: GoogleFonts.inter(
-            fontSize: 15,
-            fontWeight: FontWeight.normal,
-            color: _darkTextPrimary),
-        bodyMedium: GoogleFonts.inter(
-            fontSize: 13,
-            fontWeight: FontWeight.normal,
-            color: _darkTextSecondary),
-        labelSmall: GoogleFonts.inter(
-            fontSize: 11, fontWeight: FontWeight.w500, color: _darkTextMuted),
-      ),
-    );
-  }
+  static TextTheme _textTheme(Color primary, Color secondary) => TextTheme(
+        displayLarge: TextStyle(
+          fontFamily: 'packages/ui_kit/Quicksand',
+          fontSize: 32,
+          height: 1.15,
+          fontWeight: FontWeight.w700,
+          color: primary,
+        ),
+        displayMedium: TextStyle(
+          fontFamily: 'packages/ui_kit/Quicksand',
+          fontSize: 26,
+          height: 1.15,
+          fontWeight: FontWeight.w700,
+          color: primary,
+        ),
+        displaySmall: TextStyle(
+          fontFamily: 'packages/ui_kit/Quicksand',
+          fontSize: 22,
+          height: 1.15,
+          fontWeight: FontWeight.w700,
+          color: primary,
+        ),
+        headlineMedium: TextStyle(
+          fontFamily: 'packages/ui_kit/Quicksand',
+          fontSize: 18,
+          height: 1.2,
+          fontWeight: FontWeight.w700,
+          color: primary,
+        ),
+        titleLarge: TextStyle(
+          fontFamily: 'packages/ui_kit/Quicksand',
+          fontSize: 16,
+          height: 1.2,
+          fontWeight: FontWeight.w700,
+          color: primary,
+        ),
+        titleMedium: TextStyle(
+          fontFamily: 'packages/ui_kit/Quicksand',
+          fontSize: 14,
+          height: 1.25,
+          fontWeight: FontWeight.w700,
+          color: primary,
+        ),
+        bodyLarge: TextStyle(
+          fontFamily: 'packages/ui_kit/Quicksand',
+          fontSize: 14,
+          height: 1.3,
+          fontWeight: FontWeight.w600,
+          color: primary,
+        ),
+        bodyMedium: TextStyle(
+          fontFamily: 'packages/ui_kit/Quicksand',
+          fontSize: 12,
+          height: 1.25,
+          fontWeight: FontWeight.w600,
+          color: secondary,
+        ),
+        bodySmall: TextStyle(
+          fontFamily: 'packages/ui_kit/Quicksand',
+          fontSize: 11,
+          height: 1.25,
+          fontWeight: FontWeight.w600,
+          color: secondary,
+        ),
+        labelLarge: TextStyle(
+          fontFamily: 'packages/ui_kit/Quicksand',
+          fontSize: 14,
+          height: 1.2,
+          fontWeight: FontWeight.w700,
+          color: primary,
+        ),
+        labelMedium: TextStyle(
+          fontFamily: 'packages/ui_kit/Quicksand',
+          fontSize: 12,
+          height: 1.2,
+          fontWeight: FontWeight.w700,
+          color: secondary,
+        ),
+        labelSmall: TextStyle(
+          fontFamily: 'packages/ui_kit/Quicksand',
+          fontSize: 11,
+          height: 1.2,
+          fontWeight: FontWeight.w700,
+          color: secondary,
+        ),
+      );
 }

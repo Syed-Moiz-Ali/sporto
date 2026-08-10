@@ -53,14 +53,16 @@ class PrimaryButton extends StatelessWidget {
                   ? null
                   : [
                       BoxShadow(
-                        color: cs.primary.withOpacity(0.35),
-                        blurRadius: 22,
+                        color: cs.primary.withValues(alpha: 0.24),
+                        blurRadius: 20,
+                        spreadRadius: -2,
                         offset: const Offset(0, 8),
                       ),
                       BoxShadow(
-                        color: cs.tertiary.withOpacity(0.25),
-                        blurRadius: 30,
-                        offset: const Offset(0, 12),
+                        color: cs.tertiary.withValues(alpha: 0.16),
+                        blurRadius: 26,
+                        spreadRadius: -3,
+                        offset: const Offset(0, 10),
                       ),
                     ],
             ),

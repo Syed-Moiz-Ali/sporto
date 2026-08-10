@@ -3,7 +3,7 @@
 // Selectable chip used for filters & option picking.
 // ============================================================
 import 'package:flutter/material.dart';
-import 'sporto_text_field.dart';
+import '../theme/sporto_design_tokens.dart';
 
 enum SportoFilterChipType {
   /// Compact border-only chip used in filter rows.
@@ -38,12 +38,13 @@ class SportoFilterChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final tokens = context.sporto;
     final color = activeColor ?? cs.secondary;
 
     final isPill = type == SportoFilterChipType.pill;
-    final radius = isPill ? 20.0 : 12.0;
+    final radius = isPill ? 9.0 : 12.0;
     final padding = isPill
-        ? const EdgeInsets.symmetric(horizontal: 16, vertical: 10)
+        ? const EdgeInsets.symmetric(horizontal: 14, vertical: 10)
         : const EdgeInsets.symmetric(horizontal: 12, vertical: 6);
     final fontSize = isPill ? 13.0 : 12.0;
 
@@ -53,11 +54,13 @@ class SportoFilterChip extends StatelessWidget {
         padding: padding,
         decoration: BoxDecoration(
           color: active
-              ? (isPill ? color.withOpacity(0.15) : Colors.transparent)
-              : (inactiveFill ? SportoTextField.inputFill : Colors.transparent),
+              ? (isPill ? color.withValues(alpha: 0.055) : Colors.transparent)
+              : (inactiveFill ? tokens.field : Colors.transparent),
           borderRadius: BorderRadius.circular(radius),
           border: Border.all(
-            color: active ? color.withOpacity(0.5) : SportoTextField.inputBorder,
+            color: active
+                ? color.withValues(alpha: 0.26)
+                : tokens.border.withValues(alpha: .42),
           ),
         ),
         child: Row(

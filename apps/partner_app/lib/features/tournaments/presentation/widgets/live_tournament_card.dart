@@ -22,30 +22,32 @@ class LiveTournamentCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final scale = context.sportoScale;
     return SportoCard(
       onTap: onViewTournament,
+      padding: EdgeInsets.all(12 * scale),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
               Container(
-                width: 48,
-                height: 48,
+                width: 56 * scale,
+                height: 56 * scale,
                 decoration: BoxDecoration(
-                  color: cs.secondary.withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(12),
+                  color: cs.secondary.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(10 * scale),
                 ),
                 alignment: Alignment.center,
                 child: Text(
                   _initials(name),
                   style: TextStyle(
                       color: cs.secondary,
-                      fontSize: 18,
+                      fontSize: 24 * scale,
                       fontWeight: FontWeight.w700),
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 10 * scale),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -53,12 +55,12 @@ class LiveTournamentCard extends StatelessWidget {
                     Text(name,
                         style: TextStyle(
                             color: cs.onSurface,
-                            fontSize: 16,
+                            fontSize: 14 * scale,
                             fontWeight: FontWeight.w600)),
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4 * scale),
                     RichText(
                       text: TextSpan(
-                        style: TextStyle(fontSize: 13),
+                        style: TextStyle(fontSize: 11 * scale),
                         children: [
                           TextSpan(
                               text: '$sport • ',
@@ -75,7 +77,7 @@ class LiveTournamentCard extends StatelessWidget {
               SportoBadge(text: stage, color: cs.secondary, outlined: true),
             ],
           ),
-          const SizedBox(height: 14),
+          SizedBox(height: 10 * scale),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -83,16 +85,16 @@ class LiveTournamentCard extends StatelessWidget {
                 children: [
                   if (liveNow) ...[
                     Container(
-                        width: 6,
-                        height: 6,
+                        width: 6 * scale,
+                        height: 6 * scale,
                         decoration: const BoxDecoration(
                             shape: BoxShape.circle, color: Colors.redAccent)),
-                    const SizedBox(width: 6),
+                    SizedBox(width: 4 * scale),
                   ],
                   Text(liveNow ? 'Live Now' : '',
                       style: TextStyle(
                           color: cs.onSurface,
-                          fontSize: 12,
+                          fontSize: 11 * scale,
                           fontWeight: FontWeight.w500)),
                 ],
               ),
@@ -103,11 +105,11 @@ class LiveTournamentCard extends StatelessWidget {
                     Text('View Tournament',
                         style: TextStyle(
                             color: cs.tertiary,
-                            fontSize: 12,
+                            fontSize: 11 * scale,
                             fontWeight: FontWeight.w600)),
-                    const SizedBox(width: 4),
+                    SizedBox(width: 4 * scale),
                     Icon(Icons.arrow_forward_ios_rounded,
-                        color: cs.tertiary, size: 12),
+                        color: cs.tertiary, size: 12 * scale),
                   ],
                 ),
               ),

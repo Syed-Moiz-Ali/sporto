@@ -4,6 +4,7 @@
 // ============================================================
 import 'package:flutter/material.dart';
 import 'glass_container.dart';
+import '../theme/sporto_design_tokens.dart';
 
 /// The canonical glass card for SPORTO screens: dark tinted fill,
 /// hairline border and backdrop blur.
@@ -27,7 +28,7 @@ class SportoCard extends StatelessWidget {
   const SportoCard({
     super.key,
     required this.child,
-    this.padding = const EdgeInsets.all(16),
+    this.padding = const EdgeInsets.all(18),
     this.margin,
     this.width,
     this.radius = defaultRadius,
@@ -40,14 +41,16 @@ class SportoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tokens = context.sporto;
+    final layout = context.sportoLayout;
     final card = GlassContainer(
       width: width,
       margin: margin,
-      borderRadius: radius,
+      borderRadius: radius == defaultRadius ? layout.radius16 : radius,
       blur: blur,
       borderWidth: borderWidth,
-      borderColor: borderColor ?? defaultBorder,
-      backgroundColor: backgroundColor ?? defaultFill.withOpacity(0.6),
+      borderColor: borderColor == defaultBorder ? tokens.border : borderColor,
+      backgroundColor: backgroundColor ?? tokens.card,
       padding: padding,
       child: child,
     );

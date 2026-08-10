@@ -18,6 +18,9 @@ class SportoPillButton extends StatelessWidget {
 
   final double height;
   final EdgeInsetsGeometry padding;
+  final Gradient? gradient;
+  final double? fontSize;
+  final Color? foregroundColor;
 
   const SportoPillButton({
     super.key,
@@ -27,8 +30,11 @@ class SportoPillButton extends StatelessWidget {
     this.icon,
     this.filled = false,
     this.bordered = true,
-    this.height = 32,
-    this.padding = const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+    this.height = 40,
+    this.padding = const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    this.gradient,
+    this.fontSize,
+    this.foregroundColor,
   });
 
   @override
@@ -37,15 +43,18 @@ class SportoPillButton extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(14),
         child: Container(
           height: height,
           padding: padding,
           decoration: BoxDecoration(
-            color: filled ? color : color.withOpacity(0.15),
-            borderRadius: BorderRadius.circular(12),
+            color: gradient == null
+                ? (filled ? color : color.withValues(alpha: 0.15))
+                : null,
+            gradient: gradient,
+            borderRadius: BorderRadius.circular(14),
             border: !filled && bordered
-                ? Border.all(color: color.withOpacity(0.3))
+                ? Border.all(color: color.withValues(alpha: 0.3))
                 : null,
           ),
           alignment: Alignment.center,
@@ -53,17 +62,22 @@ class SportoPillButton extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               if (icon != null) ...[
-                Icon(icon, size: 14, color: filled ? Colors.white : color),
+                Icon(icon,
+                    size: 16,
+                    color: foregroundColor ?? (filled ? Colors.white : color)),
                 const SizedBox(width: 4),
               ],
-              Text(
+              Flexible(
+                  child: Text(
                 label,
-                style: TextStyle(
-                  color: filled ? Colors.white : color,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
+                maxLines: 1,
+                overflow: TextOverflow.visible,
+                style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                      fontSize: fontSize,
+                      color: foregroundColor ?? (filled ? Colors.white : color),
+                      fontWeight: FontWeight.w700,
+                    ),
+              )),
             ],
           ),
         ),

@@ -3,7 +3,7 @@
 // Label + stepper (+/-) control used in config forms.
 // ============================================================
 import 'package:flutter/material.dart';
-import 'sporto_text_field.dart';
+import '../theme/sporto_design_tokens.dart';
 
 class SportoStepperButton extends StatelessWidget {
   final IconData icon;
@@ -18,18 +18,19 @@ class SportoStepperButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final tokens = context.sporto;
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: onPressed,
         borderRadius: BorderRadius.circular(12),
         child: Container(
-          width: 48,
-          height: 48,
+          width: 40,
+          height: 40,
           decoration: BoxDecoration(
-            color: SportoTextField.inputFill,
+            color: tokens.field,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: SportoTextField.inputBorder),
+            border: Border.all(color: tokens.fieldBorder),
           ),
           alignment: Alignment.center,
           child: Icon(icon, color: cs.onSurface),
@@ -56,24 +57,29 @@ class SportoCounterRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final tokens = context.sporto;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label,
             style: TextStyle(
-                color: cs.onSurface, fontSize: 14, fontWeight: FontWeight.w500)),
+                color: cs.onSurface,
+                fontSize: 14,
+                fontWeight: FontWeight.w500)),
         const SizedBox(height: 12),
         Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
             SportoStepperButton(icon: Icons.remove, onPressed: onMinus),
-            const SizedBox(width: 16),
+            const SizedBox(width: 12),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              width: 140,
+              height: 40,
+              alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: SportoTextField.inputFill,
+                color: tokens.field,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: SportoTextField.inputBorder),
+                border: Border.all(color: tokens.fieldBorder),
               ),
               child: Text(value,
                   style: TextStyle(
@@ -81,7 +87,7 @@ class SportoCounterRow extends StatelessWidget {
                       fontSize: 16,
                       fontWeight: FontWeight.w700)),
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: 12),
             SportoStepperButton(icon: Icons.add, onPressed: onPlus),
           ],
         ),

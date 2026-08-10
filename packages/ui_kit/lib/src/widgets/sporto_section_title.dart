@@ -3,7 +3,6 @@
 // Section heading used inside form cards / step screens.
 // ============================================================
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class SportoSectionTitle extends StatelessWidget {
   final String title;
@@ -27,7 +26,8 @@ class SportoSectionTitle extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
 
     final titleStyle = large
-        ? GoogleFonts.spaceGrotesk(
+        ? TextStyle(
+            fontFamily: 'packages/ui_kit/Quicksand',
             fontSize: 24,
             fontWeight: FontWeight.w600,
             color: cs.onSurface,
@@ -36,7 +36,7 @@ class SportoSectionTitle extends StatelessWidget {
         : TextStyle(
             color: cs.secondary,
             fontSize: 18,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w500,
           );
 
     final subtitleStyle = large
@@ -45,7 +45,7 @@ class SportoSectionTitle extends StatelessWidget {
             fontSize: 14,
             fontWeight: FontWeight.w500,
           )
-        : TextStyle(color: cs.onSurfaceVariant, fontSize: 13);
+        : TextStyle(color: cs.onSurfaceVariant, fontSize: 12);
 
     return Padding(
       padding: padding,

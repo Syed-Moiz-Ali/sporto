@@ -19,6 +19,9 @@ class SportoStatCard extends StatelessWidget {
   final double labelSize;
   final EdgeInsetsGeometry padding;
   final CrossAxisAlignment alignment;
+  final Color? backgroundColor;
+  final Color? borderColor;
+  final double radius;
 
   const SportoStatCard({
     super.key,
@@ -30,8 +33,11 @@ class SportoStatCard extends StatelessWidget {
     this.dotColor,
     this.fontSize = 20,
     this.labelSize = 10,
-    this.padding = const EdgeInsets.all(12),
+    this.padding = const EdgeInsets.all(8),
     this.alignment = CrossAxisAlignment.center,
+    this.backgroundColor,
+    this.borderColor,
+    this.radius = SportoCard.defaultRadius,
   });
 
   @override
@@ -67,6 +73,9 @@ class SportoStatCard extends StatelessWidget {
 
     return SportoCard(
       padding: padding,
+      backgroundColor: backgroundColor,
+      borderColor: borderColor,
+      radius: radius,
       child: Column(
         crossAxisAlignment: alignment,
         mainAxisAlignment: MainAxisAlignment.center,

@@ -1,57 +1,76 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:ui_kit/ui_kit.dart';
+import 'team_details_screen.dart';
 
 // ============================================================
 // MAIN TOURNAMENT DETAIL SCREEN
 // ============================================================
 class TournamentDetailScreen extends StatefulWidget {
   final String? tournamentId;
+  final int initialTabIndex;
 
-  const TournamentDetailScreen({super.key, this.tournamentId});
+  const TournamentDetailScreen({
+    super.key,
+    this.tournamentId,
+    this.initialTabIndex = 0,
+  });
 
   @override
   State<TournamentDetailScreen> createState() => _TournamentDetailScreenState();
 }
 
 class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
-  // Updated tabs: Venues is now index 3, Schedule is index 4
-  int _selectedTabIndex = 0;
+  late int _selectedTabIndex;
   final List<String> _tabs = [
     'Overview',
     'Teams',
     'Referees',
+    'Schedule',
     'Venues',
-    'Schedule'
   ];
   final List<IconData> _tabIcons = [
     Icons.dashboard_outlined,
     Icons.sports_cricket_outlined,
     Icons.people_outline_rounded,
-    Icons.location_on_outlined, // Venues icon
     Icons.calendar_today_outlined,
+    Icons.location_on_outlined,
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedTabIndex = widget.initialTabIndex.clamp(0, _tabs.length - 1);
+  }
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
+    final scale = context.sportoScale;
 
-    return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+    return SportoScreenShell(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new_rounded, color: cs.onSurface),
-          onPressed: () => Navigator.pop(context),
+        leading: Padding(
+          padding: const EdgeInsets.all(8),
+          child: Material(
+            color: cs.surfaceContainerHigh,
+            borderRadius: BorderRadius.circular(11),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(11),
+              onTap: () => Navigator.maybePop(context),
+              child: Icon(Icons.arrow_back_ios_new_rounded,
+                  color: cs.onSurface, size: 19),
+            ),
+          ),
         ),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('Hyderabad Super Cup',
-                style: GoogleFonts.spaceGrotesk(
-                    fontSize: 18,
+                style: tt.titleLarge?.copyWith(
+                    fontSize: 18 * scale,
                     fontWeight: FontWeight.w700,
                     color: cs.onSurface)),
             Text('SPT-20481',
@@ -61,13 +80,18 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
       ),
       body: SingleChildScrollView(
         physics: const ClampingScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
+        padding: EdgeInsets.fromLTRB(20 * scale, 0, 20 * scale, 100 * scale),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Summary Card
             _buildSummaryCard(cs, tt),
-            const SizedBox(height: 20),
+            SizedBox(height: 28 * scale),
+
+            if (_selectedTabIndex == 0) ...[
+              _buildOverviewStats(cs),
+              SizedBox(height: 28 * scale),
+            ],
 
             // Tab Navigation (Horizontal Scroll)
             SingleChildScrollView(
@@ -76,7 +100,7 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
                 children: List.generate(
                     _tabs.length,
                     (i) => Padding(
-                          padding: const EdgeInsets.only(right: 8),
+                          padding: EdgeInsets.only(right: 8 * scale),
                           child: SportoTabChip(
                             label: _tabs[i],
                             icon: _tabIcons[i],
@@ -86,11 +110,13 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
                         )),
               ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 20 * scale),
 
             // Search Bar
-            _buildSearchBar(cs),
-            const SizedBox(height: 16),
+            if (_selectedTabIndex != 0) ...[
+              _buildSearchBar(cs),
+              SizedBox(height: 24 * scale),
+            ],
 
             // Sub-screen Content
             AnimatedSwitcher(
@@ -102,8 +128,14 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
       ),
       floatingActionButton: _selectedTabIndex == 0
           ? FloatingActionButton.extended(
-              backgroundColor: cs.primary,
+              backgroundColor: context.sporto.card,
               foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+                side: BorderSide(
+                    color: context.sporto.info.withValues(alpha: .55),
+                    width: 5),
+              ),
               icon: const Icon(Icons.campaign_rounded),
               label: const Text('Create Announcement'),
               onPressed: () {},
@@ -114,6 +146,9 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
 
   Widget _buildSummaryCard(ColorScheme cs, TextTheme tt) {
     return SportoCard(
+      padding: const EdgeInsets.all(12),
+      backgroundColor: cs.surfaceContainerHigh,
+      borderColor: cs.secondary.withValues(alpha: .16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -141,18 +176,27 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
               Text('Round of 128',
                   style: TextStyle(
                       color: cs.secondary, fontWeight: FontWeight.w600)),
-              RichText(
-                text: TextSpan(
-                  style: TextStyle(fontSize: 13),
-                  children: [
-                    TextSpan(
-                        text: '64 / 127 ',
-                        style: TextStyle(
-                            color: cs.secondary, fontWeight: FontWeight.bold)),
-                    TextSpan(
-                        text: 'Matches Completed',
-                        style: TextStyle(color: cs.onSurfaceVariant)),
-                  ],
+              Expanded(
+                child: RichText(
+                  textAlign: TextAlign.end,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  text: TextSpan(
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          fontFamily: 'Quicksand',
+                          fontSize: 12,
+                        ),
+                    children: [
+                      TextSpan(
+                          text: '64 / 127 ',
+                          style: TextStyle(
+                              color: cs.secondary,
+                              fontWeight: FontWeight.bold)),
+                      TextSpan(
+                          text: 'Matches Completed',
+                          style: TextStyle(color: cs.onSurfaceVariant)),
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -168,9 +212,9 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
         : _selectedTabIndex == 2
             ? 'Search referees...'
             : _selectedTabIndex == 3
-                ? 'Search Venue...'
+                ? 'Search Match...'
                 : _selectedTabIndex == 4
-                    ? 'Search Match...'
+                    ? 'Search Venue...'
                     : 'Search...';
     return Container(
       height: 48,
@@ -203,9 +247,9 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
       case 2:
         return _buildRefereesTab(cs, tt);
       case 3:
-        return _buildVenuesTab(cs, tt); // New Venues Tab
-      case 4:
         return _buildScheduleTab(cs, tt);
+      case 4:
+        return _buildVenuesTab(cs, tt);
       default:
         return const SizedBox.shrink();
     }
@@ -216,26 +260,6 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
   // ============================================================
   Widget _buildOverviewTab(ColorScheme cs, TextTheme tt) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Text("Today's Overview",
-          style: TextStyle(
-              color: cs.onSurfaceVariant,
-              fontSize: 13,
-              fontWeight: FontWeight.w500)),
-      const SizedBox(height: 12),
-      GridView.count(
-          crossAxisCount: 4,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          mainAxisSpacing: 8,
-          crossAxisSpacing: 8,
-          childAspectRatio: 1.1,
-          children: [
-            SportoStatCard(label: "Today's\nMatches", value: '18'),
-            SportoStatCard(label: 'Live Now', value: '12', highlight: true),
-            SportoStatCard(label: 'Completed', value: '5'),
-            SportoStatCard(label: 'Delayed', value: '1'),
-          ]),
-      const SizedBox(height: 24),
       Text('Live Matches',
           style: TextStyle(
               color: cs.onSurfaceVariant,
@@ -243,47 +267,69 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
               fontWeight: FontWeight.w500)),
       const SizedBox(height: 12),
       SportoCard(
+          backgroundColor: cs.surfaceContainerHigh,
+          borderColor: cs.secondary.withValues(alpha: .14),
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          Text('Delhi Warriors',
-              style:
-                  TextStyle(color: cs.tertiary, fontWeight: FontWeight.w600)),
-          Text('Vs', style: TextStyle(color: cs.onSurfaceVariant)),
-          Text('Hyd Highlanders', style: TextStyle(color: cs.onSurfaceVariant)),
-        ]),
-        const SizedBox(height: 12),
-        Center(
-            child: Column(children: [
-          Text('80/2',
-              style: TextStyle(
-                  color: cs.tertiary,
-                  fontSize: 32,
-                  fontWeight: FontWeight.w700)),
-          Text('4.3 Overs',
-              style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)),
-        ])),
-        const SizedBox(height: 12),
-        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          Text('Required Run Rate: 8.5',
-              style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
-          Text('Current RR: 9.1',
-              style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
-        ]),
-        const SportoDivider(height: 24),
-        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text('Venue A - Ground A',
-                style: TextStyle(color: cs.onSurface, fontSize: 13)),
-            Text('09:15 AM',
-                style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
-          ]),
-          TextButton(
-              onPressed: () {},
-              child: Text('Manage →', style: TextStyle(color: cs.secondary))),
-        ]),
-      ])),
+            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+              Text('Delhi Warriors',
+                  style: TextStyle(
+                      color: cs.tertiary, fontWeight: FontWeight.w600)),
+              Text('Vs', style: TextStyle(color: cs.onSurfaceVariant)),
+              Text('Hyd Highlanders',
+                  style: TextStyle(color: cs.onSurfaceVariant)),
+            ]),
+            const SizedBox(height: 12),
+            Center(
+                child: Column(children: [
+              Text('80/2',
+                  style: TextStyle(
+                      color: cs.tertiary,
+                      fontSize: 32,
+                      fontWeight: FontWeight.w700)),
+              Text('4.3 Overs',
+                  style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)),
+            ])),
+            const SizedBox(height: 12),
+            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+              Text('Required Run Rate: 8.5',
+                  style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
+              Text('Current RR: 9.1',
+                  style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
+            ]),
+            const SportoDivider(height: 24),
+            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text('Venue A - Ground A',
+                    style: TextStyle(color: cs.onSurface, fontSize: 13)),
+                Text('09:15 AM',
+                    style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
+              ]),
+              TextButton(
+                  onPressed: () {},
+                  child:
+                      Text('Manage →', style: TextStyle(color: cs.secondary))),
+            ]),
+          ])),
       const SizedBox(height: 24),
+      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+        Text('Upcoming Matches',
+            style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)),
+        Text('View All  ›',
+            style: TextStyle(color: context.sporto.info, fontSize: 12)),
+      ]),
+      const SizedBox(height: 10),
+      SportoCard(
+          backgroundColor: cs.surfaceContainerHigh,
+          borderColor: cs.secondary.withValues(alpha: .12),
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text('Venue 3 - Ground C', style: TextStyle(color: cs.onSurface)),
+            const SportoDivider(height: 18),
+            Text('Starts at 03:30 PM',
+                style: TextStyle(color: cs.onSurface, fontSize: 12)),
+          ])),
+      const SizedBox(height: 20),
       Text('Registration Summary',
           style: TextStyle(
               color: cs.onSurfaceVariant,
@@ -296,15 +342,53 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
           physics: const NeverScrollableScrollPhysics(),
           mainAxisSpacing: 8,
           crossAxisSpacing: 8,
-          childAspectRatio: 1.1,
+          childAspectRatio:
+              MediaQuery.sizeOf(context).width < 350 ? 1.35 : 1.68,
           children: [
-            SportoStatCard(label: 'Registered', value: '128'),
-            SportoStatCard(label: 'Approved', value: '126', highlight: true),
-            SportoStatCard(label: 'Pending', value: '2', color: Colors.orange),
             SportoStatCard(
-                label: 'Rejected', value: '0', color: Colors.redAccent),
+                label: 'Registered',
+                value: '128',
+                fontSize: 18,
+                labelSize: 9,
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                backgroundColor: cs.surfaceContainerHigh),
+            SportoStatCard(
+                label: 'Approved',
+                value: '126',
+                highlight: true,
+                fontSize: 18,
+                labelSize: 9,
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                backgroundColor: cs.surfaceContainerHigh),
+            SportoStatCard(
+                label: 'Pending',
+                value: '2',
+                color: Colors.orange,
+                fontSize: 18,
+                labelSize: 9,
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                backgroundColor: cs.surfaceContainerHigh),
+            SportoStatCard(
+                label: 'Rejected',
+                value: '0',
+                color: Colors.redAccent,
+                fontSize: 18,
+                labelSize: 9,
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                backgroundColor: cs.surfaceContainerHigh),
           ]),
       const SizedBox(height: 24),
+      Text('Venue Status',
+          style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)),
+      const SizedBox(height: 10),
+      _overviewVenueStatus(cs, 'Running', 'Ground A', cs.secondary),
+      const SizedBox(height: 10),
+      _overviewVenueStatus(cs, 'Running', 'Ground B', cs.secondary),
+      const SizedBox(height: 10),
+      _overviewVenueStatus(cs, 'Preparing', 'Ground C', Colors.orange),
+      const SizedBox(height: 10),
+      _overviewVenueStatus(cs, 'Maintenance', 'Ground D', context.sporto.live),
+      const SizedBox(height: 20),
       Text('Finance Summary',
           style: TextStyle(
               color: cs.onSurfaceVariant,
@@ -317,22 +401,221 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
           physics: const NeverScrollableScrollPhysics(),
           mainAxisSpacing: 8,
           crossAxisSpacing: 8,
-          childAspectRatio: 2.5,
+          childAspectRatio: 3.25,
           children: [
-            SportoSummaryRow(
-                label: 'Revenue', value: '₹51,200', boldValue: true),
-            SportoSummaryRow(
-                label: 'Expenses', value: '21,000', boldValue: true),
-            SportoSummaryRow(
-                label: 'Prize Pool', value: '60,000', boldValue: true),
-            SportoSummaryRow(
-                label: 'Net',
-                value: '-₹29,800',
-                boldValue: true,
-                valueColor: Colors.redAccent),
+            SportoCard(
+                padding: const EdgeInsets.all(10),
+                backgroundColor: cs.surfaceContainerHigh,
+                child: SportoSummaryRow(
+                    label: 'Revenue', value: '₹51,200', boldValue: true)),
+            SportoCard(
+                padding: const EdgeInsets.all(10),
+                backgroundColor: cs.surfaceContainerHigh,
+                child: SportoSummaryRow(
+                    label: 'Expenses', value: '₹21,000', boldValue: true)),
+            SportoCard(
+                padding: const EdgeInsets.all(10),
+                backgroundColor: cs.surfaceContainerHigh,
+                child: SportoSummaryRow(
+                    label: 'Prize Pool', value: '₹60,000', boldValue: true)),
+            SportoCard(
+                padding: const EdgeInsets.all(10),
+                backgroundColor: cs.surfaceContainerHigh,
+                child: SportoSummaryRow(
+                    label: 'Net',
+                    value: '-₹29,800',
+                    boldValue: true,
+                    valueColor: Colors.redAccent)),
           ]),
+      const SizedBox(height: 20),
+      _overviewProgress(cs),
+      const SizedBox(height: 20),
+      _overviewNotice(cs, '⚠ Action Required', 'Round of 64 cannot start.',
+          'Ground C has no referee assigned.', Colors.deepOrange,
+          actionLabel: 'Assign Referee'),
+      const SizedBox(height: 20),
+      _overviewNotice(cs, '⚑ Registration closes in 3 hours.',
+          '12 teams are still in payment pending.', '', context.sporto.live,
+          actionLabel: 'Send Reminder', centeredAction: true),
     ]);
   }
+
+  Widget _buildOverviewStats(ColorScheme cs) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text("Today's Overview",
+              style: TextStyle(
+                  color: cs.onSurfaceVariant,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600)),
+          const SizedBox(height: 12),
+          GridView.count(
+            crossAxisCount: 4,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            mainAxisSpacing: 8,
+            crossAxisSpacing: 8,
+            childAspectRatio:
+                MediaQuery.sizeOf(context).width < 350 ? 1.0 : 1.22,
+            children: [
+              SportoStatCard(
+                  label: "Today's\nMatches",
+                  value: '18',
+                  fontSize: 18,
+                  labelSize: 9,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                  backgroundColor: cs.surfaceContainerHigh),
+              SportoStatCard(
+                  label: 'Live Now',
+                  value: '12',
+                  highlight: true,
+                  fontSize: 18,
+                  labelSize: 9,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                  backgroundColor: cs.surfaceContainerHigh),
+              SportoStatCard(
+                  label: 'Completed',
+                  value: '5',
+                  fontSize: 18,
+                  labelSize: 9,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                  backgroundColor: cs.surfaceContainerHigh),
+              SportoStatCard(
+                  label: 'Delayed',
+                  value: '1',
+                  fontSize: 18,
+                  labelSize: 9,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                  backgroundColor: cs.surfaceContainerHigh),
+            ],
+          ),
+        ],
+      );
+
+  Widget _overviewVenueStatus(
+          ColorScheme cs, String status, String ground, Color color) =>
+      SizedBox(
+        height: 54,
+        child: SportoCard(
+            padding: const EdgeInsets.all(10),
+            backgroundColor: cs.surfaceContainerHigh,
+            child: Row(children: [
+              Container(
+                  width: 8,
+                  height: 8,
+                  decoration:
+                      BoxDecoration(color: color, shape: BoxShape.circle)),
+              const SizedBox(width: 8),
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text(status,
+                    style: TextStyle(color: cs.onSurface, fontSize: 12)),
+                Text(ground,
+                    style: TextStyle(color: cs.secondary, fontSize: 11)),
+              ]),
+            ])),
+      );
+
+  Widget _overviewProgress(ColorScheme cs) {
+    const rows = [
+      ('Registration Closed', '128 Teams'),
+      ('Round 128', '64 Teams'),
+      ('Round 64', '32 Teams'),
+      ('Round 32', '16 Teams'),
+      ('Quarter Finals', '🔒 Locked'),
+      ('Semi Finals', '🔒 Locked'),
+      ('Final', '🔒 Locked')
+    ];
+    return SportoCard(
+        backgroundColor: cs.surfaceContainerHigh,
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text('Tournament Progress',
+              style: TextStyle(color: cs.onSurfaceVariant)),
+          const SizedBox(height: 14),
+          for (final row in rows)
+            Padding(
+                padding: const EdgeInsets.only(bottom: 9),
+                child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(row.$1,
+                          style: TextStyle(color: cs.secondary, fontSize: 12)),
+                      Text(row.$2,
+                          style: TextStyle(
+                              color: cs.onSurfaceVariant, fontSize: 11)),
+                    ])),
+        ]));
+  }
+
+  Widget _overviewNotice(ColorScheme cs, String title, String message,
+          String detail, Color color,
+          {String? actionLabel, bool centeredAction = false}) =>
+      Container(
+          width: double.infinity,
+          padding: const EdgeInsets.fromLTRB(12, 11, 12, 10),
+          decoration: BoxDecoration(
+              color: color.withValues(alpha: .12),
+              border: Border.all(color: color.withValues(alpha: .34)),
+              borderRadius: BorderRadius.circular(16)),
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(title,
+                style: TextStyle(
+                    color: cs.onSurface,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600)),
+            Divider(height: 18, color: cs.outline),
+            if (centeredAction) ...[
+              Center(
+                child: Text(message,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: color, fontSize: 12)),
+              ),
+              const SizedBox(height: 8),
+              Center(child: _noticeAction(actionLabel!)),
+            ] else ...[
+              Text(message,
+                  style: TextStyle(
+                      color: color, fontSize: 13, fontWeight: FontWeight.w600)),
+              const SizedBox(height: 5),
+              Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Reason:',
+                          style: TextStyle(
+                              color: cs.onSurfaceVariant, fontSize: 10)),
+                      Text(detail,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(color: cs.onSurface, fontSize: 11)),
+                    ],
+                  ),
+                ),
+                if (actionLabel != null) ...[
+                  const SizedBox(width: 8),
+                  _noticeAction(actionLabel),
+                ],
+              ]),
+            ],
+          ]));
+
+  Widget _noticeAction(String label) => SizedBox(
+        width: label == 'Assign Referee' ? 108 : 110,
+        child: SportoPillButton(
+          label: label,
+          color: context.sporto.info,
+          fontSize: 11,
+          height: 31,
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          bordered: false,
+          onTap: () {},
+        ),
+      );
 
   // ============================================================
   // TAB 2: TEAMS
@@ -408,12 +691,17 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
                         fontWeight: FontWeight.w700,
                         fontSize: 16)),
                 RichText(
-                    text: TextSpan(style: TextStyle(fontSize: 12), children: [
-                  TextSpan(
-                      text: 'Captain: ',
-                      style: TextStyle(color: cs.onSurfaceVariant)),
-                  TextSpan(text: captain, style: TextStyle(color: cs.secondary))
-                ])),
+                    text: TextSpan(
+                        style: DefaultTextStyle.of(context)
+                            .style
+                            .copyWith(fontSize: 12),
+                        children: [
+                      TextSpan(
+                          text: 'Captain: ',
+                          style: TextStyle(color: cs.onSurfaceVariant)),
+                      TextSpan(
+                          text: captain, style: TextStyle(color: cs.secondary))
+                    ])),
                 Text('$players • $joined',
                     style: TextStyle(color: cs.onSurfaceVariant, fontSize: 11)),
               ])),
@@ -431,7 +719,10 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
           SportoBadge(text: 'Approved', color: cs.secondary),
           const Spacer(),
           TextButton(
-              onPressed: () {},
+              onPressed: () =>
+                  Navigator.of(context).push(MaterialPageRoute<void>(
+                    builder: (_) => const TeamDetailsScreen(),
+                  )),
               child: Text('View Details',
                   style: TextStyle(
                       color: cs.onSurface,
@@ -752,16 +1043,21 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
           ]),
           const SizedBox(height: 12),
           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            RichText(
-                text: TextSpan(style: TextStyle(fontSize: 12), children: [
-              TextSpan(
-                  text: 'Starts In: ',
-                  style: TextStyle(color: cs.onSurfaceVariant)),
-              TextSpan(
-                  text: startsIn,
-                  style: TextStyle(
-                      color: cs.secondary, fontWeight: FontWeight.w600))
-            ])),
+            Expanded(
+                child: RichText(
+                    text: TextSpan(
+                        style: DefaultTextStyle.of(context)
+                            .style
+                            .copyWith(fontSize: 12),
+                        children: [
+                  TextSpan(
+                      text: 'Starts In: ',
+                      style: TextStyle(color: cs.onSurfaceVariant)),
+                  TextSpan(
+                      text: startsIn,
+                      style: TextStyle(
+                          color: cs.secondary, fontWeight: FontWeight.w600))
+                ]))),
             Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 6),

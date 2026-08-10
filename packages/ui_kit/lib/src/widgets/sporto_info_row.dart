@@ -28,17 +28,25 @@ class SportoInfoRow extends StatelessWidget {
         children: [
           Text(label,
               style: TextStyle(color: cs.onSurfaceVariant, fontSize: 14)),
-          RichText(
-              text: TextSpan(
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-                  children: [
-                TextSpan(text: value, style: TextStyle(color: cs.onSurface)),
-                if (suffix != null)
-                  TextSpan(
-                      text: suffix,
-                      style: TextStyle(
-                          color: cs.tertiary, fontWeight: FontWeight.normal)),
-              ])),
+          const SizedBox(width: 12),
+          Expanded(
+            child: RichText(
+                textAlign: TextAlign.end,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                text: TextSpan(
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                    children: [
+                      TextSpan(
+                          text: value, style: TextStyle(color: cs.onSurface)),
+                      if (suffix != null)
+                        TextSpan(
+                            text: suffix,
+                            style: TextStyle(
+                                color: cs.tertiary,
+                                fontWeight: FontWeight.normal)),
+                    ])),
+          ),
         ],
       ),
     );

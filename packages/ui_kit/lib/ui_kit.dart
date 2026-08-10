@@ -1,6 +1,7 @@
 library ui_kit;
 
 export 'src/theme/sporto_theme.dart';
+export 'src/theme/sporto_design_tokens.dart';
 export 'src/widgets/glass_container.dart';
 export 'src/widgets/glass_button.dart';
 export 'src/widgets/sync_indicator_badge.dart';
@@ -12,7 +13,9 @@ export 'src/widgets/secondary_button.dart';
 // Sporto design-system widgets
 export 'src/widgets/sporto_card.dart';
 export 'src/widgets/sporto_ambient_background.dart';
+export 'src/widgets/sporto_screen_shell.dart';
 export 'src/widgets/sporto_text_field.dart';
+export 'src/widgets/sporto_selectable_box.dart';
 export 'src/widgets/sporto_section_title.dart';
 export 'src/widgets/sporto_badge.dart';
 export 'src/widgets/sporto_filter_chip.dart';
@@ -30,6 +33,7 @@ export 'src/widgets/sporto_divider.dart';
 export 'src/widgets/sporto_gradient_card.dart';
 export 'src/widgets/sporto_pill_button.dart';
 export 'src/widgets/sporto_match_card.dart';
+export 'src/widgets/sporto_cricket_match_card.dart';
 export 'src/widgets/sporto_team_verification_card.dart';
 export 'src/widgets/sporto_info_row.dart';
 

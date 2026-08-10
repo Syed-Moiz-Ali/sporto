@@ -3,47 +3,59 @@
 // Icon button with label below, used in quick-action rows.
 // ============================================================
 import 'package:flutter/material.dart';
+import '../theme/sporto_design_tokens.dart';
 import 'glass_container.dart';
-import 'sporto_card.dart';
 
 class SportoQuickAction extends StatelessWidget {
   final IconData icon;
   final String label;
   final VoidCallback? onTap;
+  final double? width;
 
   const SportoQuickAction({
     super.key,
     required this.icon,
     required this.label,
     this.onTap,
+    this.width,
   });
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final scale = context.sportoScale;
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
-      child: Column(
-        children: [
-          GlassContainer(
-            width: 64,
-            height: 64,
-            borderRadius: 16,
-            blur: 14,
-            borderWidth: 1,
-            borderColor: SportoCard.defaultBorder,
-            backgroundColor: SportoCard.defaultFill.withOpacity(0.6),
-            padding: EdgeInsets.zero,
-            child: Center(
-              child: Icon(icon, color: cs.tertiary, size: 26),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(label,
+      child: GlassContainer(
+        width: width ?? 78 * scale,
+        height: 78 * scale,
+        borderRadius: 14 * scale,
+        blur: 14 * scale,
+        borderWidth: scale,
+        borderColor: context.sporto.fieldBorder,
+        backgroundColor: context.sporto.card.withValues(alpha: .92),
+        padding: EdgeInsets.symmetric(
+          horizontal: 4 * scale,
+          vertical: 8 * scale,
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: cs.tertiary, size: 26 * scale),
+            SizedBox(height: 5 * scale),
+            Text(
+              label,
               textAlign: TextAlign.center,
-              style: TextStyle(color: cs.onSurface, fontSize: 11, height: 1.3)),
-        ],
+              maxLines: 2,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: cs.onSurface,
+                    fontSize: 11 * scale,
+                    height: 1.15,
+                  ),
+            ),
+          ],
+        ),
       ),
     );
   }

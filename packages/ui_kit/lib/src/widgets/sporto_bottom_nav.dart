@@ -3,7 +3,7 @@
 // Docked bottom navigation bar with active glow + underline.
 // ============================================================
 import 'package:flutter/material.dart';
-import 'sporto_card.dart';
+import '../theme/sporto_design_tokens.dart';
 
 class SportoNavItem {
   final IconData icon;
@@ -30,44 +30,59 @@ class SportoBottomNav extends StatelessWidget {
     return Container(
       height: 60,
       decoration: BoxDecoration(
-        color: const Color(0xFF0E0C08).withOpacity(0.95),
-        border: Border(top: BorderSide(color: SportoCard.defaultBorder)),
+        color: context.sporto.card.withValues(alpha: 0.98),
+        border: Border(top: BorderSide(color: context.sporto.border)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: List.generate(items.length, (i) {
           final item = items[i];
           final isActive = i == currentIndex;
-          return GestureDetector(
-            onTap: () => onTap(i),
-            behavior: HitTestBehavior.opaque,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(item.icon,
-                    color: isActive ? cs.tertiary : cs.onSurfaceVariant,
-                    size: 24),
-                const SizedBox(height: 4),
-                Text(item.label,
-                    style: TextStyle(
-                      color: isActive ? cs.tertiary : cs.onSurfaceVariant,
-                      fontSize: 11,
-                      fontWeight:
-                          isActive ? FontWeight.w600 : FontWeight.normal,
-                    )),
-                if (isActive)
-                  Container(
-                    margin: const EdgeInsets.only(top: 2),
-                    width: 20,
-                    height: 3,
-                    decoration: BoxDecoration(
-                      color: cs.tertiary,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  )
-                else
-                  const SizedBox(height: 5),
-              ],
+          return Expanded(
+            child: Semantics(
+              button: true,
+              selected: isActive,
+              label: item.label,
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () => onTap(i),
+                  splashColor: cs.tertiary.withValues(alpha: .10),
+                  highlightColor: cs.tertiary.withValues(alpha: .06),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(item.icon,
+                          color: isActive ? cs.tertiary : cs.onSurfaceVariant,
+                          size: 24),
+                      const SizedBox(height: 4),
+                      Text(item.label,
+                          style:
+                              Theme.of(context).textTheme.labelSmall?.copyWith(
+                                    color: isActive
+                                        ? cs.tertiary
+                                        : cs.onSurfaceVariant,
+                                    fontWeight: isActive
+                                        ? FontWeight.w600
+                                        : FontWeight.normal,
+                                  )),
+                      if (isActive)
+                        Container(
+                          margin: const EdgeInsets.only(top: 2),
+                          width: 20,
+                          height: 3,
+                          decoration: BoxDecoration(
+                            color: cs.tertiary,
+                            borderRadius: BorderRadius.circular(
+                                context.sportoLayout.space2),
+                          ),
+                        )
+                      else
+                        const SizedBox(height: 5),
+                    ],
+                  ),
+                ),
+              ),
             ),
           );
         }),

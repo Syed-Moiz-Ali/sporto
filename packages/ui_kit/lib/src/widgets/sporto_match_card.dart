@@ -8,6 +8,7 @@ import 'sporto_card.dart';
 import 'sporto_divider.dart';
 import 'sporto_gradient_card.dart';
 import 'sporto_pill_button.dart';
+import '../theme/sporto_design_tokens.dart';
 
 enum SportoMatchCardVariant { live, upcoming, completed, delayed }
 
@@ -115,6 +116,81 @@ class SportoMatchCard extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final nameColor = _isLive ? Colors.orange : cs.onSurface;
 
+    if (_isLive) {
+      final divider = Divider(height: 1, thickness: 1, color: cs.outline);
+      return SportoGradientCard(
+        colors: gradientColors ??
+            [context.sporto.liveCardStart, context.sporto.liveCardEnd],
+        borderColor: cs.primary.withOpacity(.4),
+        padding: const EdgeInsets.all(10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(children: [
+              if (stage != null) ...[
+                SportoBadge(text: stage!, color: cs.secondary),
+                const SizedBox(width: 6),
+              ],
+              SportoBadge(text: _statusLabel, color: Colors.redAccent),
+              const Spacer(),
+              if (overLabel != null)
+                SportoBadge(text: overLabel!, color: cs.onSurface),
+            ]),
+            const SizedBox(height: 8),
+            Text(
+              tournamentName,
+              style: Theme.of(context)
+                  .textTheme
+                  .titleMedium
+                  ?.copyWith(color: cs.primary),
+            ),
+            if (location != null)
+              Row(children: [
+                Icon(Icons.location_on_outlined,
+                    size: 14, color: cs.onSurfaceVariant),
+                const SizedBox(width: 4),
+                Text(location!, style: Theme.of(context).textTheme.bodySmall),
+              ]),
+            const SizedBox(height: 8),
+            _TeamScoreRow(
+              teamA: teamA,
+              teamB: teamB,
+              scoreA: scoreA,
+              scoreB: scoreB,
+            ),
+            const SizedBox(height: 9),
+            divider,
+            if (middle != null) ...[
+              const SizedBox(height: 9),
+              middle!,
+              const SizedBox(height: 9),
+              divider,
+            ],
+            const SizedBox(height: 9),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    infoLabel ?? overLabel ?? '',
+                    style: Theme.of(context).textTheme.bodyLarge,
+                  ),
+                ),
+                if (actionLabel != null)
+                  SportoPillButton(
+                    label: actionLabel!,
+                    color: actionColor ?? cs.error,
+                    filled: true,
+                    height: 30,
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    onTap: onAction,
+                  ),
+              ],
+            ),
+          ],
+        ),
+      );
+    }
+
     final content = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -122,29 +198,10 @@ class SportoMatchCard extends StatelessWidget {
         Row(
           children: [
             if (stage != null) ...[
-              SportoBadge(text: stage!, color: cs.secondary),
+              SportoBadge(
+                  text: stage!, color: cs.secondary, outlined: !_isLive),
               const SizedBox(width: 8),
             ],
-            if (_isLive)
-              Row(
-                children: [
-                  Container(
-                    width: 8,
-                    height: 8,
-                    decoration: const BoxDecoration(
-                        shape: BoxShape.circle, color: Colors.redAccent),
-                  ),
-                  const SizedBox(width: 4),
-                  Text('Live Now',
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600)),
-                ],
-              )
-            else
-              SportoBadge(
-                  text: _statusLabel, color: _statusColor ?? cs.onTertiary),
             const Spacer(),
             if (overLabel != null)
               Container(
@@ -159,17 +216,39 @@ class SportoMatchCard extends StatelessWidget {
                         fontSize: 12,
                         fontWeight: FontWeight.w600)),
               )
-            else if (timeLabel != null)
+            else if (timeLabel != null) ...[
               Text(timeLabel!,
-                  style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
+                  style: TextStyle(color: cs.onSurfaceVariant, fontSize: 11)),
+              const Spacer(),
+              SportoBadge(
+                  text: _statusLabel, color: _statusColor ?? cs.onTertiary),
+            ],
           ],
         ),
-        const SizedBox(height: 12),
+        if (variant == SportoMatchCardVariant.delayed && noteLabel != null) ...[
+          const SizedBox(height: 5),
+          Row(children: [
+            Container(
+                width: 7,
+                height: 7,
+                decoration: BoxDecoration(
+                    shape: BoxShape.circle, color: noteColor ?? cs.error)),
+            const SizedBox(width: 5),
+            Text(noteLabel!,
+                style: TextStyle(
+                    color: noteColor ?? cs.error,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700)),
+          ]),
+        ],
+        const SizedBox(height: 7),
 
         // Tournament name + location
         Text(tournamentName,
-            style: TextStyle(
-                color: nameColor, fontSize: 18, fontWeight: FontWeight.w700)),
+            style: Theme.of(context)
+                .textTheme
+                .titleLarge
+                ?.copyWith(color: nameColor)),
         if (location != null) ...[
           Row(
             children: [
@@ -181,7 +260,7 @@ class SportoMatchCard extends StatelessWidget {
             ],
           ),
         ],
-        const SizedBox(height: 16),
+        const SizedBox(height: 8),
 
         // Teams & scores
         Row(
@@ -236,19 +315,32 @@ class SportoMatchCard extends StatelessWidget {
         ],
         if (statusItems != null && statusItems!.isNotEmpty) ...[
           const SizedBox(height: 16),
-          Wrap(spacing: 8, runSpacing: 8, children: [
-            for (final item in statusItems!)
-              Row(mainAxisSize: MainAxisSize.min, children: [
-                Icon(item.icon, color: item.color, size: 14),
-                const SizedBox(width: 4),
-                Text(item.label,
-                    style: TextStyle(color: item.color, fontSize: 11)),
-              ]),
-          ]),
+          FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Row(children: [
+                for (var index = 0; index < statusItems!.length; index++) ...[
+                  if (index > 0) ...[
+                    const SizedBox(width: 7),
+                    Text('•',
+                        style: TextStyle(
+                            color: cs.onSurfaceVariant, fontSize: 10)),
+                    const SizedBox(width: 7),
+                  ],
+                  Row(mainAxisSize: MainAxisSize.min, children: [
+                    Icon(statusItems![index].icon,
+                        color: statusItems![index].color, size: 14),
+                    const SizedBox(width: 4),
+                    Text(statusItems![index].label,
+                        style: TextStyle(
+                            color: statusItems![index].color, fontSize: 11)),
+                  ]),
+                ],
+              ])),
         ],
-        const SizedBox(height: 12),
+        const SizedBox(height: 9),
         const SportoDivider(color: Color(0x33FFFFFF)),
-        const SizedBox(height: 12),
+        const SizedBox(height: 9),
 
         // Footer row
         Row(
@@ -280,16 +372,19 @@ class SportoMatchCard extends StatelessWidget {
                         fontWeight: FontWeight.w600)),
               ])
             else if (startsInLabel != null)
-              RichText(
-                  text: TextSpan(style: TextStyle(fontSize: 14), children: [
-                TextSpan(
-                    text: 'Starts in ',
-                    style: TextStyle(color: cs.onSurfaceVariant)),
-                TextSpan(
-                    text: startsInLabel,
-                    style: TextStyle(
-                        color: cs.secondary, fontWeight: FontWeight.w700))
-              ]))
+              Flexible(
+                  child: RichText(
+                      text: TextSpan(
+                          style: Theme.of(context).textTheme.bodyLarge,
+                          children: [
+                    TextSpan(
+                        text: 'Starts in ',
+                        style: TextStyle(color: cs.onSurfaceVariant)),
+                    TextSpan(
+                        text: startsInLabel,
+                        style: TextStyle(
+                            color: cs.secondary, fontWeight: FontWeight.w700))
+                  ])))
             else
               const SizedBox.shrink(),
             if (actionLabel != null)
@@ -297,6 +392,8 @@ class SportoMatchCard extends StatelessWidget {
                 label: actionLabel!,
                 color: actionColor ?? cs.secondary,
                 filled: _isLive || (actionColor == Colors.redAccent),
+                height: 30,
+                padding: const EdgeInsets.symmetric(horizontal: 10),
                 onTap: onAction,
               ),
           ],
@@ -313,6 +410,54 @@ class SportoMatchCard extends StatelessWidget {
       );
     }
 
-    return SportoCard(radius: 20, child: content);
+    return SportoCard(
+      radius: 16,
+      padding: const EdgeInsets.all(10),
+      backgroundColor: cs.surfaceContainerHigh,
+      borderColor: cs.outline.withValues(alpha: .55),
+      child: content,
+    );
+  }
+}
+
+class _TeamScoreRow extends StatelessWidget {
+  const _TeamScoreRow({
+    required this.teamA,
+    required this.teamB,
+    this.scoreA,
+    this.scoreB,
+  });
+
+  final String teamA;
+  final String teamB;
+  final String? scoreA;
+  final String? scoreB;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    Widget team(String name, String? score, CrossAxisAlignment alignment) =>
+        Expanded(
+          child: Column(
+            crossAxisAlignment: alignment,
+            children: [
+              Text(name, style: theme.textTheme.bodyMedium),
+              if (score != null)
+                Text(
+                  score,
+                  style: theme.textTheme.titleMedium
+                      ?.copyWith(color: theme.colorScheme.onSurface),
+                ),
+            ],
+          ),
+        );
+
+    return Row(
+      children: [
+        team(teamA, scoreA, CrossAxisAlignment.start),
+        Text('Vs', style: theme.textTheme.bodySmall),
+        team(teamB, scoreB, CrossAxisAlignment.end),
+      ],
+    );
   }
 }

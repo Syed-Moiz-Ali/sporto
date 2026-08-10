@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:ui_kit/ui_kit.dart';
 
 // Reusable Player Selection Card
@@ -74,15 +73,16 @@ class _PlayerSelectionCard extends StatelessWidget {
 // MAIN CONDUCT TOSS WIZARD (ALL 4 STEPS)
 // ============================================================
 class ConductTossWizard extends StatefulWidget {
-  const ConductTossWizard({super.key});
+  final int initialStep;
+
+  const ConductTossWizard({super.key, this.initialStep = 0});
 
   @override
   State<ConductTossWizard> createState() => _ConductTossWizardState();
 }
 
 class _ConductTossWizardState extends State<ConductTossWizard> {
-  int _currentStep =
-      0; // 0: Flip, 1: Result/Choose, 2: Select Openers, 3: Match Ready
+  late int _currentStep;
 
   // Toss State
   bool _isFlipping = false;
@@ -109,6 +109,19 @@ class _ConductTossWizardState extends State<ConductTossWizard> {
     'Vinayak L'
   ];
 
+  @override
+  void initState() {
+    super.initState();
+    _currentStep = widget.initialStep.clamp(0, 4);
+    if (_currentStep > 0) _tossWinner = 'Hyd Highlanders';
+    if (_currentStep > 2) _tossChoice = 'Bat First';
+    if (_currentStep > 3) {
+      _striker = _team1Players.first;
+      _nonStriker = _team1Players[1];
+      _openingBowler = _team2Players[1];
+    }
+  }
+
   void _flipCoin() {
     setState(() => _isFlipping = true);
     Future.delayed(const Duration(seconds: 2), () {
@@ -123,45 +136,66 @@ class _ConductTossWizardState extends State<ConductTossWizard> {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final spacing = context.sportoLayout;
 
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new_rounded, color: cs.onSurface),
-          onPressed: () => Navigator.pop(context),
+        toolbarHeight: 64,
+        titleSpacing: 0,
+        leadingWidth: 56,
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 20, top: 14, bottom: 14),
+          child: Material(
+            color: context.sporto.cardElevated,
+            borderRadius: BorderRadius.circular(10),
+            child: InkWell(
+              onTap: () => Navigator.maybePop(context),
+              borderRadius: BorderRadius.circular(10),
+              child: Icon(Icons.arrow_back_ios_new_rounded,
+                  color: cs.onSurface, size: 18),
+            ),
+          ),
         ),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Conduct Toss',
-                style: GoogleFonts.spaceGrotesk(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: cs.onSurface)),
+            Text(_screenTitle,
+                style: theme.textTheme.titleLarge?.copyWith(
+                  color: cs.onSurface,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                )),
             Text('Match #SPT-20481',
-                style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant)),
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: cs.onSurfaceVariant,
+                  fontSize: 12,
+                )),
           ],
         ),
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(4),
+          preferredSize: Size.fromHeight(spacing.space24),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: EdgeInsets.fromLTRB(
+                spacing.space20, 0, spacing.space20, spacing.space4),
             child: Row(
               children: List.generate(
-                  4,
+                  3,
                   (i) => Expanded(
                         child: Container(
                           height: 3,
-                          margin: EdgeInsets.only(right: i == 3 ? 0 : 4),
+                          margin: EdgeInsets.only(
+                              right: i == 2 ? 0 : spacing.space4),
                           decoration: BoxDecoration(
-                            color: i <= _currentStep
+                            color: i <= _progressStep
                                 ? cs.tertiary
                                 : cs.surfaceContainerHigh,
-                            borderRadius: BorderRadius.circular(2),
+                            borderRadius:
+                                BorderRadius.circular(spacing.radius4),
                           ),
                         ),
                       )),
@@ -171,7 +205,8 @@ class _ConductTossWizardState extends State<ConductTossWizard> {
       ),
       body: SingleChildScrollView(
         physics: const ClampingScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(16, 24, 16, 40),
+        padding: EdgeInsets.fromLTRB(
+            spacing.space20, spacing.space16, spacing.space20, spacing.space30),
         child: AnimatedSwitcher(
           duration: const Duration(milliseconds: 300),
           key: Key('step_$_currentStep'),
@@ -186,34 +221,54 @@ class _ConductTossWizardState extends State<ConductTossWizard> {
       case 0:
         return _buildStep1FlipCoin(cs);
       case 1:
-        return _buildStep2TossResult(cs);
+        return _buildCoinResult(cs);
       case 2:
-        return _buildStep3SelectOpeners(cs);
+        return _buildStep2TossResult(cs);
       case 3:
+        return _buildStep3SelectOpeners(cs);
+      case 4:
         return _buildStep4MatchReady(cs);
       default:
         return const SizedBox.shrink();
     }
   }
 
+  String get _screenTitle => switch (_currentStep) {
+        3 => 'Select Openers',
+        4 => 'Match Ready',
+        _ => 'Conduct Toss',
+      };
+
+  int get _progressStep => switch (_currentStep) {
+        0 || 1 => 0,
+        2 => 1,
+        _ => 2,
+      };
+
   // Shared Match Header for all steps
   Widget _matchHeader(ColorScheme cs) {
+    final theme = Theme.of(context);
+    final spacing = context.sportoLayout;
     return SportoCard(
-        padding: const EdgeInsets.symmetric(vertical: 16),
+        radius: spacing.radius10,
+        padding: EdgeInsets.symmetric(
+            horizontal: spacing.space16,
+            vertical: spacing.space12 + spacing.space2),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text('Delhi Warriors',
-                style: TextStyle(
+                style: theme.textTheme.bodyMedium?.copyWith(
                     color: cs.onSurface,
-                    fontSize: 14,
+                    fontSize: 13,
                     fontWeight: FontWeight.w600)),
             Text('Vs',
-                style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
+                style: theme.textTheme.bodySmall
+                    ?.copyWith(color: cs.onSurfaceVariant, fontSize: 12)),
             Text('Hyd Highlanders',
-                style: TextStyle(
+                style: theme.textTheme.bodyMedium?.copyWith(
                     color: cs.onSurface,
-                    fontSize: 14,
+                    fontSize: 13,
                     fontWeight: FontWeight.w600)),
           ],
         ));
@@ -223,34 +278,97 @@ class _ConductTossWizardState extends State<ConductTossWizard> {
   // STEP 1: FLIP COIN
   // ============================================================
   Widget _buildStep1FlipCoin(ColorScheme cs) {
+    final theme = Theme.of(context);
+    final spacing = context.sportoLayout;
     return Column(children: [
       _matchHeader(cs),
-      const SizedBox(height: 24),
+      SizedBox(height: spacing.space20),
       SportoCard(
-          padding: const EdgeInsets.all(32),
+          width: double.infinity,
+          radius: spacing.radius12,
+          backgroundColor: const Color(0xFF1B2027),
+          borderColor: Colors.transparent,
+          padding: EdgeInsets.fromLTRB(spacing.space20, spacing.space30,
+              spacing.space20, spacing.space30),
           child: Column(children: [
             AnimatedSwitcher(
               duration: const Duration(milliseconds: 500),
               child: _isFlipping
-                  ? Icon(Icons.sync,
-                      key: const ValueKey('spin'), color: cs.tertiary, size: 80)
-                  : Image.network(
-                      'https://cdn-icons-png.flaticon.com/512/2535/2535569.png',
+                  ? SizedBox.square(
+                      dimension: 150,
+                      key: const ValueKey('spin'),
+                      child: CircularProgressIndicator(
+                        color: cs.tertiary,
+                        strokeWidth: 3,
+                      ),
+                    )
+                  : Image.asset(
+                      'assets/images/toss_coin_heads.png',
                       key: const ValueKey('coin'),
-                      width: 120,
-                      height: 120,
-                      color: cs.tertiary),
+                      width: 150,
+                      height: 150,
+                      fit: BoxFit.contain,
+                    ),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: spacing.space24),
             Text('Flip coin to decide who chooses first',
-                style: TextStyle(color: cs.onSurfaceVariant, fontSize: 14)),
-            const SizedBox(height: 32),
+                style: theme.textTheme.bodyMedium?.copyWith(
+                    color: cs.onSurfaceVariant,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500)),
+            SizedBox(height: spacing.space30),
             PrimaryButton(
-                width: double.infinity,
-                height: 56,
+                width: 270,
+                height: 48,
+                radius: spacing.radius12,
                 label: 'Flip Coin',
                 onPressed: _flipCoin),
           ])),
+    ]);
+  }
+
+  Widget _buildCoinResult(ColorScheme cs) {
+    final theme = Theme.of(context);
+    return Column(children: [
+      _matchHeader(cs),
+      const SizedBox(height: 20),
+      SportoCard(
+        width: double.infinity,
+        backgroundColor: const Color(0xFF1B2027),
+        borderColor: Colors.transparent,
+        padding: const EdgeInsets.fromLTRB(20, 32, 20, 30),
+        child: Column(children: [
+          Image.asset('assets/images/toss_coin_tails.png',
+              width: 150, height: 150, fit: BoxFit.contain),
+          const SizedBox(height: 22),
+          Text('Coin landed on',
+              style: theme.textTheme.bodyLarge
+                  ?.copyWith(color: cs.onSurfaceVariant)),
+          const SizedBox(height: 14),
+          Text('TAILS',
+              style: theme.textTheme.displaySmall
+                  ?.copyWith(color: cs.tertiary, fontWeight: FontWeight.w700)),
+          const SizedBox(height: 18),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+            decoration: BoxDecoration(
+              color: cs.secondary.withValues(alpha: .10),
+              borderRadius: BorderRadius.circular(18),
+            ),
+            child: Text('Hyd Highlanders Won The Toss',
+                style: theme.textTheme.bodySmall?.copyWith(
+                    color: cs.secondary, fontWeight: FontWeight.w600)),
+          ),
+          const SizedBox(height: 28),
+          PrimaryButton(
+            width: 270,
+            height: 48,
+            radius: 12,
+            label: 'Continue',
+            onPressed: () => setState(() => _currentStep = 2),
+          ),
+        ]),
+      ),
     ]);
   }
 
@@ -264,20 +382,21 @@ class _ConductTossWizardState extends State<ConductTossWizard> {
 
       // Winner Card
       SportoCard(
+          width: double.infinity,
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text('Toss Winner',
-            style: TextStyle(
-                color: cs.secondary,
-                fontSize: 13,
-                fontWeight: FontWeight.w600)),
-        const SizedBox(height: 4),
-        Text(_tossWinner ?? '',
-            style: TextStyle(
-                color: cs.onSurface,
-                fontSize: 18,
-                fontWeight: FontWeight.w700)),
-      ])),
+            Text('Toss Winner',
+                style: TextStyle(
+                    color: cs.secondary,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600)),
+            const SizedBox(height: 4),
+            Text(_tossWinner ?? '',
+                style: TextStyle(
+                    color: cs.onSurface,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700)),
+          ])),
       const SizedBox(height: 24),
 
       // Choice Section
@@ -306,7 +425,7 @@ class _ConductTossWizardState extends State<ConductTossWizard> {
         height: 56,
         label: 'Confirm & Select Openers',
         disabled: _tossChoice == null,
-        onPressed: () => setState(() => _currentStep = 2),
+        onPressed: () => setState(() => _currentStep = 3),
       ),
     ]);
   }
@@ -434,7 +553,7 @@ class _ConductTossWizardState extends State<ConductTossWizard> {
         label: 'Start Scoring',
         disabled:
             _striker == null || _nonStriker == null || _openingBowler == null,
-        onPressed: () => setState(() => _currentStep = 3),
+        onPressed: () => setState(() => _currentStep = 4),
       ),
     ]);
   }
@@ -451,32 +570,35 @@ class _ConductTossWizardState extends State<ConductTossWizard> {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       // Innings Set Card
       SportoCard(
+          width: double.infinity,
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text('Innings Set',
-            style: TextStyle(
-                color: cs.secondary,
-                fontSize: 13,
-                fontWeight: FontWeight.w600)),
-        const SizedBox(height: 8),
-        RichText(
-            text: TextSpan(
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-                children: [
+            Text('Innings Set',
+                style: TextStyle(
+                    color: cs.secondary,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600)),
+            const SizedBox(height: 8),
+            RichText(
+                text: TextSpan(
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+                    children: [
+                  TextSpan(
+                      text: '$battingTeam ',
+                      style: TextStyle(color: cs.onSurface)),
+                  TextSpan(
+                      text: 'First Batting',
+                      style: TextStyle(color: cs.tertiary)),
+                ])),
+            const SizedBox(height: 4),
+            RichText(
+                text: TextSpan(style: TextStyle(fontSize: 14), children: [
               TextSpan(
-                  text: '$battingTeam ', style: TextStyle(color: cs.onSurface)),
-              TextSpan(
-                  text: 'First Batting', style: TextStyle(color: cs.tertiary)),
+                  text: 'Vs $bowlingTeam ',
+                  style: TextStyle(color: cs.onSurfaceVariant)),
+              TextSpan(text: 'Bowling', style: TextStyle(color: cs.onTertiary)),
             ])),
-        const SizedBox(height: 4),
-        RichText(
-            text: TextSpan(style: TextStyle(fontSize: 14), children: [
-          TextSpan(
-              text: 'Vs $bowlingTeam ',
-              style: TextStyle(color: cs.onSurfaceVariant)),
-          TextSpan(text: 'Bowling', style: TextStyle(color: cs.onTertiary)),
-        ])),
-      ])),
+          ])),
       const SizedBox(height: 24),
 
       // On the Field Section
@@ -486,6 +608,7 @@ class _ConductTossWizardState extends State<ConductTossWizard> {
       const SizedBox(height: 16),
 
       SportoCard(
+          width: double.infinity,
           padding: EdgeInsets.zero,
           child: Column(children: [
             SportoInfoRow(

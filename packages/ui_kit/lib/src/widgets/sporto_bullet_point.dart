@@ -22,8 +22,13 @@ class SportoBulletPoint extends StatelessWidget {
               shape: BoxShape.circle, color: cs.onSurfaceVariant),
         ),
         const SizedBox(width: 8),
-        Text(text,
-            style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)),
+        Flexible(
+          child: Text(
+            text,
+            softWrap: true,
+            style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13),
+          ),
+        ),
       ],
     );
   }
