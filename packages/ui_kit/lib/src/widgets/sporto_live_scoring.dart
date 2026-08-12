@@ -62,7 +62,7 @@ class SportoLiveScoringHeader extends StatelessWidget {
                   style: theme.textTheme.headlineMedium?.copyWith(
                     fontSize: 18 * scale,
                     height: 1,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
                 SizedBox(height: 4 * scale),
@@ -124,7 +124,7 @@ class SportoLiveBadge extends StatelessWidget {
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
                   color: SportoScoringTokens.red,
                   fontSize: 11 * scale,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w600,
                 ),
           ),
         ],
@@ -279,7 +279,7 @@ class SportoLiveMatchCard extends StatelessWidget {
               color: SportoScoringTokens.orange,
               fontSize: 15 * scale,
               height: 1,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w500,
             ),
           ),
           SizedBox(height: 5 * scale),
@@ -523,7 +523,7 @@ class SportoLiveScoreCard extends StatelessWidget {
               color: SportoScoringTokens.orange,
               fontSize: 31 * scale,
               height: 1,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w600,
             ),
           ),
           SizedBox(height: 10 * scale),
@@ -532,7 +532,7 @@ class SportoLiveScoreCard extends StatelessWidget {
             style: theme.textTheme.bodyLarge?.copyWith(
               color: colors.onSurface,
               fontSize: 14 * scale,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w500,
             ),
           ),
           if (balls != null) ...[
@@ -555,7 +555,7 @@ class SportoLiveScoreCard extends StatelessWidget {
                       text: bowler ?? '',
                       style: TextStyle(
                         color: colors.onSurface,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ],
@@ -623,7 +623,7 @@ class _BallCircle extends StatelessWidget {
         style: Theme.of(context).textTheme.labelMedium?.copyWith(
               color: darkText ? const Color(0xFF071018) : Colors.white,
               fontSize: 12 * scale,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w600,
             ),
       ),
     );
@@ -688,7 +688,7 @@ class SportoLiveBowlerSelector extends StatelessWidget {
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 color: SportoScoringTokens.green,
                 fontSize: 15 * scale,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w500,
               ),
         ),
         SizedBox(height: 14 * scale),
@@ -831,7 +831,7 @@ class SportoLiveScoringControls extends StatelessWidget {
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 color: SportoScoringTokens.orange,
                 fontSize: 15 * scale,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w500,
               ),
         ),
         SizedBox(height: 14 * scale),
@@ -960,7 +960,7 @@ class _ScoringButton extends StatelessWidget {
                           ? SportoScoringTokens.orange
                           : Theme.of(context).colorScheme.onSurface,
                   fontSize: 18 * scale,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w500,
                 ),
           ),
         ),
@@ -1399,7 +1399,7 @@ class SportoLiveInningsBreakCard extends StatelessWidget {
               color: SportoScoringTokens.orange,
               fontSize: 31 * scale,
               height: 1,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w600,
             ),
           ),
           SizedBox(height: 17 * scale),
@@ -1418,7 +1418,7 @@ class SportoLiveInningsBreakCard extends StatelessWidget {
             style: theme.textTheme.titleLarge?.copyWith(
               color: SportoScoringTokens.green,
               fontSize: 18 * scale,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],

@@ -85,7 +85,7 @@ class SportoCounterRow extends StatelessWidget {
                   style: TextStyle(
                       color: cs.onSurface,
                       fontSize: 16,
-                      fontWeight: FontWeight.w700)),
+                      fontWeight: FontWeight.w600)),
             ),
             const SizedBox(width: 12),
             SportoStepperButton(icon: Icons.add, onPressed: onPlus),

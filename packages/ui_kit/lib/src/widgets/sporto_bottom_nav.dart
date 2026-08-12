@@ -63,7 +63,7 @@ class SportoBottomNav extends StatelessWidget {
                                         ? cs.tertiary
                                         : cs.onSurfaceVariant,
                                     fontWeight: isActive
-                                        ? FontWeight.w600
+                                        ? FontWeight.w500
                                         : FontWeight.normal,
                                   )),
                       if (isActive)

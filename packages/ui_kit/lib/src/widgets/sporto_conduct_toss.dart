@@ -67,7 +67,7 @@ class SportoTossHeader extends StatelessWidget {
                       style: theme.textTheme.headlineMedium?.copyWith(
                         fontSize: 18 * scale,
                         height: 1,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                     SizedBox(
@@ -289,7 +289,7 @@ class SportoTossCoinCard extends StatelessWidget {
                 color: colors.tertiary,
                 fontSize: 26 * scale,
                 height: 1,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w600,
               ),
             ),
             SizedBox(height: 20 * scale),
@@ -312,7 +312,7 @@ class SportoTossCoinCard extends StatelessWidget {
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: context.sporto.assigned,
                     fontSize: 11 * scale,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
@@ -452,7 +452,7 @@ class SportoTossWinnerCard extends StatelessWidget {
             style: theme.textTheme.titleLarge?.copyWith(
               color: theme.colorScheme.onSurface,
               fontSize: 16 * scale,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],
@@ -519,7 +519,7 @@ class SportoTossChoicePanel extends StatelessWidget {
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   color: context.sporto.assigned,
                   fontSize: 15 * scale,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w500,
                 ),
           ),
           SizedBox(height: 14 * scale),
@@ -655,7 +655,7 @@ class _TossChoiceCard extends StatelessWidget {
                 style: theme.textTheme.bodyLarge?.copyWith(
                   color: theme.colorScheme.onSurface,
                   fontSize: 14 * scale,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ],
@@ -709,7 +709,7 @@ class SportoTossRoleStrip extends StatelessWidget {
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: context.sporto.assigned,
                     fontSize: 13 * scale,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
                 SizedBox(height: 8 * scale),
@@ -718,7 +718,7 @@ class SportoTossRoleStrip extends StatelessWidget {
                   style: theme.textTheme.titleMedium?.copyWith(
                     color: theme.colorScheme.onSurface,
                     fontSize: 15 * scale,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ],
@@ -741,7 +741,7 @@ class SportoTossRoleStrip extends StatelessWidget {
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: context.sporto.assigned,
                     fontSize: 13 * scale,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
                 SizedBox(height: 8 * scale),
@@ -750,7 +750,7 @@ class SportoTossRoleStrip extends StatelessWidget {
                   style: theme.textTheme.titleMedium?.copyWith(
                     color: theme.colorScheme.onSurface,
                     fontSize: 15 * scale,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ],
@@ -828,7 +828,7 @@ class SportoTossPlayerSelector extends StatelessWidget {
                   style: theme.textTheme.titleMedium?.copyWith(
                     color: context.sporto.info,
                     fontSize: 15 * scale,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
                 if (teamName != null) ...[
@@ -926,7 +926,7 @@ class _TossPlayerRow extends StatelessWidget {
                           text: ' (Captain)',
                           style: TextStyle(
                             color: theme.colorScheme.primary,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                     ],

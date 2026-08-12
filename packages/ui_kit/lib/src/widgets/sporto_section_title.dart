@@ -29,7 +29,7 @@ class SportoSectionTitle extends StatelessWidget {
         ? TextStyle(
             fontFamily: 'packages/ui_kit/Quicksand',
             fontSize: 24,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w500,
             color: cs.onSurface,
             letterSpacing: -0.3,
           )

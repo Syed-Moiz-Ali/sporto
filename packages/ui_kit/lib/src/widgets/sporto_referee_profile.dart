@@ -102,7 +102,7 @@ class SportoProfileHeaderCard extends StatelessWidget {
                             name.isNotEmpty ? name[0] : 'P',
                             style: theme.textTheme.titleLarge?.copyWith(
                               color: Colors.white,
-                              fontWeight: FontWeight.w700,
+                              fontWeight: FontWeight.w600,
                             ),
                           )
                         : null,
@@ -118,7 +118,7 @@ class SportoProfileHeaderCard extends StatelessWidget {
                       name,
                       style: theme.textTheme.titleLarge?.copyWith(
                         fontSize: 17 * scale,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w600,
                         color: Colors.white,
                         height: 1.1,
                       ),
@@ -144,10 +144,12 @@ class SportoProfileHeaderCard extends StatelessWidget {
 }
 
 class SportoCertifiedBadge extends StatelessWidget {
+  final String label;
   final String title;
 
   const SportoCertifiedBadge({
     super.key,
+    this.label = 'Certified Referee',
     required this.title,
   });
 
@@ -198,10 +200,10 @@ class SportoCertifiedBadge extends StatelessWidget {
               TextSpan(
                 children: [
                   TextSpan(
-                    text: 'Certified Referee',
+                    text: label,
                     style: theme.textTheme.bodyLarge?.copyWith(
                       color: const Color(0xFF8AFF8F),
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w500,
                       fontSize: 14 * scale,
                     ),
                   ),
@@ -289,7 +291,7 @@ class SportoProfileStatCard extends StatelessWidget {
             style: theme.textTheme.headlineSmall?.copyWith(
               color: const Color(0xFFFFB317),
               fontSize: 18 * scale,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w600,
               height: 1,
             ),
           ),
@@ -470,7 +472,7 @@ class SportoLogoutButton extends StatelessWidget {
                   style: theme.textTheme.titleMedium?.copyWith(
                     color: Colors.white,
                     fontSize: 15 * scale,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ],
@@ -593,7 +595,7 @@ class _BottomNavItem extends StatelessWidget {
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: color,
                   fontSize: 12 * scale,
-                  fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                  fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
                 ),
               ),
               SizedBox(height: 3 * scale),

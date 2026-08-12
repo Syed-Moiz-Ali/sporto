@@ -44,7 +44,7 @@ class LiveTournamentCard extends StatelessWidget {
                   style: TextStyle(
                       color: cs.secondary,
                       fontSize: 24 * scale,
-                      fontWeight: FontWeight.w700),
+                      fontWeight: FontWeight.w600),
                 ),
               ),
               SizedBox(width: 10 * scale),
@@ -56,7 +56,7 @@ class LiveTournamentCard extends StatelessWidget {
                         style: TextStyle(
                             color: cs.onSurface,
                             fontSize: 14 * scale,
-                            fontWeight: FontWeight.w600)),
+                            fontWeight: FontWeight.w500)),
                     SizedBox(height: 4 * scale),
                     RichText(
                       text: TextSpan(
@@ -106,7 +106,7 @@ class LiveTournamentCard extends StatelessWidget {
                         style: TextStyle(
                             color: cs.tertiary,
                             fontSize: 11 * scale,
-                            fontWeight: FontWeight.w600)),
+                            fontWeight: FontWeight.w500)),
                     SizedBox(width: 4 * scale),
                     Icon(Icons.arrow_forward_ios_rounded,
                         color: cs.tertiary, size: 12 * scale),

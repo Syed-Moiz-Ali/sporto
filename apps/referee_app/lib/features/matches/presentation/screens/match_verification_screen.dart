@@ -152,7 +152,7 @@ class _MatchVerificationScreenState extends State<MatchVerificationScreen> {
                       style: theme.textTheme.titleLarge?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
                         fontSize: 15 * scale,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
 
@@ -213,7 +213,7 @@ class _MatchVerificationScreenState extends State<MatchVerificationScreen> {
                       style: theme.textTheme.titleLarge?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
                         fontSize: 15 * scale,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
 

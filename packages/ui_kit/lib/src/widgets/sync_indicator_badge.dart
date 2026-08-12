@@ -57,7 +57,7 @@ class SyncIndicatorBadge extends StatelessWidget {
             style: TextStyle(
               color: statusColor,
               fontSize: 12,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],

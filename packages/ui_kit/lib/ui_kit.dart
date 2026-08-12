@@ -45,6 +45,7 @@ export 'src/widgets/sporto_cricket_final_result.dart';
 export 'src/widgets/sporto_conduct_toss.dart';
 export 'src/widgets/sporto_result_submitted.dart';
 export 'src/widgets/sporto_referee_profile.dart';
+export 'src/widgets/sporto_profile_tab.dart';
 
 // Screens (Mobile OTP & Onboarding)
 export 'src/screens/splash_screen.dart';

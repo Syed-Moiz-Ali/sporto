@@ -8,7 +8,12 @@ import '../widgets/live_tournament_card.dart';
 import 'profile_screen.dart';
 
 class PartnerMainScreen extends StatefulWidget {
-  const PartnerMainScreen({super.key});
+  final int initialIndex;
+
+  const PartnerMainScreen({
+    super.key,
+    this.initialIndex = 0,
+  });
 
   @override
   State<PartnerMainScreen> createState() => _PartnerMainScreenState();
@@ -20,7 +25,16 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
   @override
   void initState() {
     super.initState();
+    _currentIndex = widget.initialIndex.clamp(0, 3);
     context.read<TournamentBloc>().add(const LoadTournamentsEvent());
+  }
+
+  @override
+  void didUpdateWidget(covariant PartnerMainScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.initialIndex != widget.initialIndex) {
+      _currentIndex = widget.initialIndex.clamp(0, 3);
+    }
   }
 
   @override
@@ -57,7 +71,7 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
                                 "Shrvn's Sporto",
                                 style: theme.textTheme.titleLarge?.copyWith(
                                   fontSize: 18 * scale,
-                                  fontWeight: FontWeight.w700,
+                                  fontWeight: FontWeight.w600,
                                   color: colorScheme.onSurface,
                                 ),
                               ),
@@ -104,7 +118,7 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
                                             ?.copyWith(
                                                 color: colorScheme.onSurface,
                                                 fontSize: 14 * scale,
-                                                fontWeight: FontWeight.w700)),
+                                                fontWeight: FontWeight.w600)),
                                     SizedBox(width: 5 * scale),
                                     Container(
                                       width: 22 * scale,
@@ -161,7 +175,7 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
               const SizedBox.shrink(),
               const SafeArea(
                 bottom: false,
-                child: ProfileScreen(),
+                child: PartnerProfileScreen(),
               ),
             ],
           ),
@@ -434,7 +448,7 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
                       style: TextStyle(
                           color: cs.tertiary,
                           fontSize: 12 * scale,
-                          fontWeight: FontWeight.w600)),
+                          fontWeight: FontWeight.w500)),
                   SizedBox(width: 4 * scale),
                   Icon(Icons.chevron_right_rounded,
                       color: cs.onTertiary, size: 16 * scale),
@@ -478,7 +492,7 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
                       style: TextStyle(
                           color: cs.secondary,
                           fontSize: 24 * scale,
-                          fontWeight: FontWeight.w700)),
+                          fontWeight: FontWeight.w600)),
                 ),
                 SizedBox(width: 10 * scale),
                 Expanded(
@@ -489,7 +503,7 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
                           style: TextStyle(
                               color: cs.onSurface,
                               fontSize: 14 * scale,
-                              fontWeight: FontWeight.w600)),
+                              fontWeight: FontWeight.w500)),
                       SizedBox(height: 4 * scale),
                       RichText(
                         text: TextSpan(
@@ -527,7 +541,7 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
                             text: startIn,
                             style: TextStyle(
                                 color: cs.tertiary,
-                                fontWeight: FontWeight.w600)),
+                                fontWeight: FontWeight.w500)),
                       ],
                     ),
                   ),

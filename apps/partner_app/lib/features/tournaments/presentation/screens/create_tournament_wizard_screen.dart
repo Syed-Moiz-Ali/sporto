@@ -81,7 +81,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
         title: Text('Create Tournament',
             style: tt.titleLarge?.copyWith(
                 fontSize: 18 * scale,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w500,
                 color: cs.onSurface)),
         bottom: PreferredSize(
           preferredSize: Size.fromHeight(4 * scale),
@@ -166,7 +166,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                   style: TextStyle(
                       color: cs.tertiary,
                       fontSize: 16,
-                      fontWeight: FontWeight.w600)),
+                      fontWeight: FontWeight.w500)),
               const SizedBox(height: 10),
               Wrap(spacing: 24, runSpacing: 12, children: [
                 SportoBulletPoint(text: 'Independent'),
@@ -202,7 +202,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                   style: TextStyle(
                       color: cs.secondary,
                       fontSize: 16,
-                      fontWeight: FontWeight.w600)),
+                      fontWeight: FontWeight.w500)),
               const SizedBox(height: 10),
               Wrap(spacing: 24, runSpacing: 12, children: [
                 SportoBulletPoint(text: 'Official Event'),
@@ -335,7 +335,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                   style: TextStyle(
                       color: cs.onSurface,
                       fontSize: 16,
-                      fontWeight: FontWeight.w700))),
+                      fontWeight: FontWeight.w600))),
           const SizedBox(width: 16),
           SportoStepperButton(
               icon: Icons.add,
@@ -356,7 +356,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                 style: TextStyle(
                     color: cs.secondary,
                     fontSize: 14,
-                    fontWeight: FontWeight.w700)),
+                    fontWeight: FontWeight.w600)),
             const SizedBox(height: 8),
             Text(
                 '128 Teams → 64 Teams → 32 Teams → 16 Teams → Quarter Finals → Semi Finals → Final',
@@ -406,7 +406,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
               style: TextStyle(
                   color: cs.secondary,
                   fontSize: 14,
-                  fontWeight: FontWeight.w600)),
+                  fontWeight: FontWeight.w500)),
         ),
         const SizedBox(height: 24),
 
@@ -599,7 +599,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text('Choose Sport',
                   style: theme.textTheme.titleLarge
-                      ?.copyWith(fontSize: 18, fontWeight: FontWeight.w700)),
+                      ?.copyWith(fontSize: 18, fontWeight: FontWeight.w600)),
               const SizedBox(height: 16),
               for (final option in options) ...[
                 SportoSelectableBox(
@@ -621,7 +621,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                   },
                   child: Text(option.$2,
                       style: theme.textTheme.bodyLarge?.copyWith(
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w500,
                         color: _selectedSportPreset == option.$1
                             ? theme.colorScheme.secondary
                             : theme.colorScheme.onSurface,
@@ -661,7 +661,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                 style: TextStyle(
                     color: cs.secondary,
                     fontSize: 14,
-                    fontWeight: FontWeight.w700)),
+                    fontWeight: FontWeight.w600)),
             const SizedBox(height: 8),
             Text(
                 '128 Teams → 64 Teams → 32 Teams → 16 Teams → Quarter Finals → Semi Finals → Final',
@@ -678,7 +678,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                 style: TextStyle(
                     color: cs.onSurface,
                     fontSize: 16,
-                    fontWeight: FontWeight.w700)),
+                    fontWeight: FontWeight.w600)),
             Text('Single Venue',
                 style: TextStyle(color: cs.secondary, fontSize: 13)),
           ]),
@@ -700,7 +700,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                       style: TextStyle(
                           color: cs.onTertiary,
                           fontSize: 16,
-                          fontWeight: FontWeight.w700)),
+                          fontWeight: FontWeight.w600)),
                   const SizedBox(height: 8),
                   Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -712,7 +712,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                                   style: TextStyle(
                                       color: cs.onSurface,
                                       fontSize: 14,
-                                      fontWeight: FontWeight.w600)),
+                                      fontWeight: FontWeight.w500)),
                               Text(v['matches'],
                                   style: TextStyle(
                                       color: cs.onSurfaceVariant,
@@ -725,7 +725,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                             child: Row(mainAxisSize: MainAxisSize.min, children: [
                               Text('Add Venue Details', style: TextStyle(
                                   color: cs.tertiary, fontSize: 13,
-                                  fontWeight: FontWeight.w700)),
+                                  fontWeight: FontWeight.w600)),
                               const SizedBox(width: 5),
                               Icon(Icons.arrow_forward_ios_rounded,
                                   color: cs.tertiary, size: 13),
@@ -810,7 +810,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                                         style: TextStyle(
                                             color: cs.onTertiary,
                                             fontSize: 20,
-                                            fontWeight: FontWeight.w700)),
+                                            fontWeight: FontWeight.w600)),
                                     Text('Round of 128 • 64 Matches',
                                         style: TextStyle(
                                             color: cs.onSurfaceVariant,
@@ -942,7 +942,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
               style: TextStyle(
                   color: cs.secondary,
                   fontSize: 14,
-                  fontWeight: FontWeight.w700)),
+                  fontWeight: FontWeight.w600)),
           const SizedBox(height: 12),
           SportoTextField(
               label: 'Total Prize Money',
@@ -979,7 +979,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
               style: TextStyle(
                   color: cs.secondary,
                   fontSize: 14,
-                  fontWeight: FontWeight.w700)),
+                  fontWeight: FontWeight.w600)),
           const SizedBox(height: 12),
           SportoTextField(label: 'Batsman - Most Runs', hint: 'e.g. ₹20,000'),
           const SizedBox(height: 16),
@@ -1006,7 +1006,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
               style: TextStyle(
                   color: cs.secondary,
                   fontSize: 14,
-                  fontWeight: FontWeight.w700)),
+                  fontWeight: FontWeight.w600)),
           const SizedBox(height: 12),
           SportoTextField(label: 'Bowler - Most Wickets', hint: 'e.g. ₹20,000'),
           const SizedBox(height: 16),
@@ -1032,7 +1032,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
               style: TextStyle(
                   color: cs.secondary,
                   fontSize: 14,
-                  fontWeight: FontWeight.w700)),
+                  fontWeight: FontWeight.w600)),
           const SizedBox(height: 12),
           SportoTextField(label: 'Prize 1', hint: 'e.g. ₹20,000'),
           const SizedBox(height: 12),
@@ -1054,7 +1054,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
               style: TextStyle(
                   color: cs.onTertiary,
                   fontSize: 14,
-                  fontWeight: FontWeight.w700)),
+                  fontWeight: FontWeight.w600)),
           const SizedBox(height: 12),
           Row(children: [
             Expanded(
@@ -1095,7 +1095,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                   style: TextStyle(
                       color: cs.secondary,
                       fontSize: 14,
-                      fontWeight: FontWeight.w700)),
+                      fontWeight: FontWeight.w600)),
               const SizedBox(height: 12),
               SportoSummaryRow(label: 'Estimated Collection', value: '₹12,800'),
               SportoSummaryRow(label: 'Prize Money', value: '-₹15,000'),
@@ -1136,13 +1136,13 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                 style: TextStyle(
                     color: cs.tertiary,
                     fontSize: 12,
-                    fontWeight: FontWeight.w700)),
+                    fontWeight: FontWeight.w600)),
             const SizedBox(height: 4),
             Text('Miyapur Super Over Cup',
                 style: TextStyle(
                     color: cs.onSurface,
                     fontSize: 20,
-                    fontWeight: FontWeight.w700)),
+                    fontWeight: FontWeight.w600)),
             RichText(
                 text: TextSpan(
                     style: DefaultTextStyle.of(context)
@@ -1181,7 +1181,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                 onPressed: () => setState(() => _currentStep = 2),
                 child: Row(mainAxisSize: MainAxisSize.min, children: [
                   Text('Edit', style: TextStyle(color: cs.tertiary,
-                      fontSize: 12, fontWeight: FontWeight.w700)),
+                      fontSize: 12, fontWeight: FontWeight.w600)),
                   const SizedBox(width: 4),
                   Icon(Icons.arrow_forward_ios_rounded,
                       color: cs.tertiary, size: 11),
@@ -1192,7 +1192,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
               style: TextStyle(
                   color: cs.onSurface,
                   fontSize: 14,
-                  fontWeight: FontWeight.w600)),
+                  fontWeight: FontWeight.w500)),
           Text(
               'Wind Ball • 3 Overs • 3 Balls/over • 5 Overs • 20 mins Match • 10 mins Buffers',
               style: TextStyle(
@@ -1216,7 +1216,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                 onPressed: () => setState(() => _currentStep = 3),
                 child: Row(mainAxisSize: MainAxisSize.min, children: [
                   Text('Edit', style: TextStyle(color: cs.tertiary,
-                      fontSize: 12, fontWeight: FontWeight.w700)),
+                      fontSize: 12, fontWeight: FontWeight.w600)),
                   const SizedBox(width: 4),
                   Icon(Icons.arrow_forward_ios_rounded,
                       color: cs.tertiary, size: 11),
@@ -1240,7 +1240,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                   style: TextStyle(
                       color: cs.secondary,
                       fontSize: 14,
-                      fontWeight: FontWeight.w700)),
+                      fontWeight: FontWeight.w600)),
               const SizedBox(height: 12),
               SportoSummaryRow(label: 'Estimated Collection', value: '₹12,800'),
               SportoSummaryRow(label: 'Prize Money', value: '-₹15,000'),

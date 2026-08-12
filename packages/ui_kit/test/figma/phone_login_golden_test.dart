@@ -64,13 +64,38 @@ void main() {
 
 Future<void> _loadFonts() async {
   for (final font in const {
-    'MaterialIcons': 'fonts/MaterialIcons-Regular.otf',
-    'packages/ui_kit/Space Grotesk': 'assets/fonts/SpaceGrotesk-Variable.ttf',
-    'packages/ui_kit/Quicksand': 'assets/fonts/Quicksand-Variable.ttf',
-    'packages/ui_kit/Inter': 'assets/fonts/Inter-Variable.ttf',
-    'packages/ui_kit/Mulish': 'assets/fonts/Mulish-Variable.ttf',
+    'MaterialIcons': ['fonts/MaterialIcons-Regular.otf'],
+    'packages/ui_kit/Space Grotesk': [
+      'assets/fonts/SpaceGrotesk-Regular.ttf',
+      'assets/fonts/SpaceGrotesk-Medium.ttf',
+      'assets/fonts/SpaceGrotesk-SemiBold.ttf',
+      'assets/fonts/SpaceGrotesk-Bold.ttf',
+    ],
+    'packages/ui_kit/Quicksand': [
+      'assets/fonts/Quicksand-Regular.ttf',
+      'assets/fonts/Quicksand-Medium.ttf',
+      'assets/fonts/Quicksand-SemiBold.ttf',
+      'assets/fonts/Quicksand-Bold.ttf',
+    ],
+    'packages/ui_kit/Inter': [
+      'assets/fonts/Inter-Regular.ttf',
+      'assets/fonts/Inter-Medium.ttf',
+      'assets/fonts/Inter-SemiBold.ttf',
+      'assets/fonts/Inter-Bold.ttf',
+      'assets/fonts/Inter-Black.ttf',
+    ],
+    'packages/ui_kit/Mulish': [
+      'assets/fonts/Mulish-Regular.ttf',
+      'assets/fonts/Mulish-Medium.ttf',
+      'assets/fonts/Mulish-SemiBold.ttf',
+      'assets/fonts/Mulish-Bold.ttf',
+      'assets/fonts/Mulish-Black.ttf',
+    ],
   }.entries) {
-    final loader = FontLoader(font.key)..addFont(rootBundle.load(font.value));
+    final loader = FontLoader(font.key);
+    for (final asset in font.value) {
+      loader.addFont(rootBundle.load(asset));
+    }
     await loader.load();
   }
 }

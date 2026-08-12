@@ -64,7 +64,7 @@ class SportoMatchVerificationHeader extends StatelessWidget {
                     title,
                     style: theme.textTheme.headlineMedium?.copyWith(
                       fontSize: 18 * scale,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                   SizedBox(height: 3 * scale),
@@ -170,7 +170,7 @@ class SportoVerificationMatchSummaryCard extends StatelessWidget {
               color: colors.onSurface,
               fontSize: 15 * scale,
               height: 1,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w600,
             ),
           ),
 
@@ -260,7 +260,7 @@ class SportoVerificationMatchSummaryCard extends StatelessWidget {
                     text: startsIn,
                     style: TextStyle(
                       color: context.sporto.assigned,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                   TextSpan(
@@ -446,7 +446,7 @@ class SportoVerificationAbsentDecisionCard extends StatelessWidget {
               color: context.sporto.live,
               fontSize: 15 * scale,
               height: 1.25,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w600,
             ),
           ),
 
@@ -568,7 +568,7 @@ class SportoWalkoverActions extends StatelessWidget {
                 style: theme.textTheme.titleMedium?.copyWith(
                   color: Colors.white,
                   fontSize: 15 * scale,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),
@@ -600,7 +600,7 @@ class SportoWalkoverActions extends StatelessWidget {
                 style: theme.textTheme.titleMedium?.copyWith(
                   color: theme.colorScheme.tertiary,
                   fontSize: 15 * scale,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),

@@ -97,7 +97,7 @@ class _HomeHeader extends StatelessWidget {
                   color: colors.onSurface,
                   fontSize: 17,
                   height: 1.15,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ],
@@ -141,7 +141,7 @@ class _WalletBalance extends StatelessWidget {
                 color: colors.onSurface,
                 fontSize: 16,
                 height: 1,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ),
@@ -390,7 +390,7 @@ class _StatCard extends StatelessWidget {
                   : colors.onSurfaceVariant.withValues(alpha: .70),
               fontSize: 22,
               height: 1,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w500,
             ),
           ),
           const SizedBox(height: 7),
@@ -455,7 +455,7 @@ class _SecondaryStat extends StatelessWidget {
               text: value,
               style: TextStyle(
                 color: colors.onSurfaceVariant,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ],
@@ -513,7 +513,7 @@ class _EmptyHomeContent extends StatelessWidget {
             style: theme.textTheme.titleMedium?.copyWith(
               color: colors.onSurface,
               fontSize: 16,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w500,
             ),
           ),
           const SizedBox(height: 8),
@@ -522,7 +522,7 @@ class _EmptyHomeContent extends StatelessWidget {
             style: theme.textTheme.bodyMedium?.copyWith(
               color: context.sporto.assigned,
               fontSize: 14,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w500,
             ),
           ),
           const Spacer(),
@@ -646,7 +646,7 @@ class _SectionHeader extends StatelessWidget {
               style: theme.textTheme.titleMedium?.copyWith(
                 color: color,
                 fontSize: 16,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ),
@@ -721,7 +721,7 @@ class _LiveMatchCard extends StatelessWidget {
               color: colors.tertiary,
               fontSize: 15,
               height: 1.15,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w500,
             ),
           ),
           const SizedBox(height: 9),
@@ -761,7 +761,7 @@ class _LiveMatchCard extends StatelessWidget {
                 style: theme.textTheme.titleMedium?.copyWith(
                   color: colors.onSurface,
                   fontSize: 14,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
               const Spacer(),
@@ -788,7 +788,7 @@ class _LiveMatchCard extends StatelessWidget {
                     'Continue Scoring',
                     style: TextStyle(
                       fontSize: 13,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
@@ -857,7 +857,7 @@ class _UpcomingHomeCard extends StatelessWidget {
               color: colors.onSurface,
               fontSize: 16,
               height: 1.1,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w500,
             ),
           ),
           const SizedBox(height: 2),
@@ -893,7 +893,7 @@ class _UpcomingHomeCard extends StatelessWidget {
                       style: theme.textTheme.titleMedium?.copyWith(
                         color: colors.onSurface,
                         fontSize: 15,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w500,
                       ),
                       children: [
                         const TextSpan(
@@ -903,7 +903,7 @@ class _UpcomingHomeCard extends StatelessWidget {
                           text: '00:28:35',
                           style: TextStyle(
                             color: context.sporto.assigned,
-                            fontWeight: FontWeight.w700,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ],
@@ -935,7 +935,7 @@ class _UpcomingHomeCard extends StatelessWidget {
                     'Verify Teams',
                     style: TextStyle(
                       fontSize: 13,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
@@ -977,7 +977,7 @@ class _StatusChip extends StatelessWidget {
         style: Theme.of(context).textTheme.labelSmall?.copyWith(
               color: color,
               fontSize: 11,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w500,
             ),
       ),
     );
@@ -1062,7 +1062,7 @@ class _Team extends StatelessWidget {
           style: theme.textTheme.titleMedium?.copyWith(
             color: colors.onSurface,
             fontSize: 15,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w600,
           ),
         ),
         if (score != null) ...[
@@ -1075,7 +1075,7 @@ class _Team extends StatelessWidget {
             style: theme.textTheme.titleMedium?.copyWith(
               color: colors.onSurface,
               fontSize: 14,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],
@@ -1115,7 +1115,7 @@ class _InlineMetric extends StatelessWidget {
             text: value,
             style: TextStyle(
               color: colors.onSurface,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],
@@ -1213,7 +1213,7 @@ class _AdsBanner extends StatelessWidget {
             style: theme.textTheme.titleLarge?.copyWith(
               color: Colors.white,
               fontSize: 16,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w600,
             ),
           ),
           const Spacer(),

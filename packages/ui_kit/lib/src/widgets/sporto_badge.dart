@@ -83,7 +83,7 @@ class SportoBadge extends StatelessWidget {
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
                   color: foreground,
                   fontSize: fontSize,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w500,
                 ),
           ),
         ],

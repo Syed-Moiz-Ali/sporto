@@ -20,7 +20,7 @@ class RefereeScoringTabScreen extends StatelessWidget {
             "Today's Matches",
             style: theme.textTheme.headlineSmall?.copyWith(
               fontSize: 18,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w600,
             ),
           ),
           const SizedBox(height: 4),
@@ -29,7 +29,7 @@ class RefereeScoringTabScreen extends StatelessWidget {
             style: theme.textTheme.bodyMedium?.copyWith(
               color: const Color(0xFF58C6F5),
               fontSize: 14,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w500,
             ),
           ),
           const SizedBox(height: 21),

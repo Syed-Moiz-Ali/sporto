@@ -67,7 +67,7 @@ class _SplashScreenState extends State<SplashScreen> {
                       'SPORTO',
                       style: textTheme.displayLarge?.copyWith(
                         color: colorScheme.onSurface,
-                        fontWeight: FontWeight.w900,
+                        fontWeight: FontWeight.w600,
                         letterSpacing: 4.0,
                       ),
                     ),
@@ -101,7 +101,7 @@ class _SplashScreenState extends State<SplashScreen> {
                     'Powered by Sporto Engine',
                     style: textTheme.labelMedium?.copyWith(
                       color: colorScheme.onSurfaceVariant.withOpacity(0.7),
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w500,
                       letterSpacing: 1.0,
                     ),
                   ),
@@ -111,7 +111,7 @@ class _SplashScreenState extends State<SplashScreen> {
                     style: textTheme.labelSmall?.copyWith(
                       color: colorScheme.onSurfaceVariant.withOpacity(0.4),
                       letterSpacing: 2.0,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ],

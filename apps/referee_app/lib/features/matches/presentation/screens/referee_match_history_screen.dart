@@ -38,7 +38,7 @@ class _RefereeMatchHistoryScreenState extends State<RefereeMatchHistoryScreen> {
             const SizedBox(width: 11),
             Text('Match History',
                 style: theme.textTheme.titleLarge
-                    ?.copyWith(fontSize: 18, fontWeight: FontWeight.w700)),
+                    ?.copyWith(fontSize: 18, fontWeight: FontWeight.w600)),
           ]),
         ),
         Padding(
@@ -70,7 +70,7 @@ class _RefereeMatchHistoryScreenState extends State<RefereeMatchHistoryScreen> {
                         style: theme.textTheme.bodyMedium?.copyWith(
                             color: active ? Colors.white : cs.onSurfaceVariant,
                             fontWeight:
-                                active ? FontWeight.w700 : FontWeight.w500)),
+                                active ? FontWeight.w600 : FontWeight.w500)),
                   ),
                 ));
               })),
@@ -126,7 +126,7 @@ class _HistoryResultCard extends StatelessWidget {
               style: TextStyle(
                   color: cs.tertiary,
                   fontSize: 15,
-                  fontWeight: FontWeight.w600)),
+                  fontWeight: FontWeight.w500)),
           const Spacer(),
           Text('Yesterday, 06:30 PM',
               style: theme.textTheme.bodySmall?.copyWith(fontSize: 12)),
@@ -151,7 +151,7 @@ class _HistoryResultCard extends StatelessWidget {
                     style: TextStyle(
                         color: Color(0xFF42F58D),
                         fontSize: 14,
-                        fontWeight: FontWeight.w700))
+                        fontWeight: FontWeight.w600))
               ])),
           Text('Vs', style: theme.textTheme.bodySmall),
           const Expanded(
@@ -159,7 +159,7 @@ class _HistoryResultCard extends StatelessWidget {
                   Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
             Text('Hyd Highlanders', style: TextStyle(fontSize: 12)),
             Text('85/3',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700))
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600))
           ])),
         ]),
         const SizedBox(height: 8),
@@ -173,7 +173,7 @@ class _HistoryResultCard extends StatelessWidget {
               style: TextStyle(
                   color: Color(0xFF55F58E),
                   fontSize: 14,
-                  fontWeight: FontWeight.w600)),
+                  fontWeight: FontWeight.w500)),
         ])),
       ]),
     );

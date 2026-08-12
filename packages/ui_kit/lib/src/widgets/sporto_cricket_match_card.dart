@@ -103,7 +103,7 @@ class SportoCricketMatchCard extends StatelessWidget {
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 color: cs.tertiary,
                 fontSize: 16,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w600,
               ),
         ),
         _location(context),
@@ -288,7 +288,7 @@ class SportoCricketMatchCard extends StatelessWidget {
                 'Delhi Warriors Won',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: sporto.assigned,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w600,
                     ),
               ),
             ),
@@ -341,7 +341,7 @@ class SportoCricketMatchCard extends StatelessWidget {
               'Heavy Rain',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: cs.error,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w600,
                   ),
             ),
           ],
@@ -434,7 +434,7 @@ class SportoCricketMatchCard extends StatelessWidget {
           'Asia Cup 2026',
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 fontSize: 16,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w600,
               ),
         ),
         _location(context),
@@ -500,7 +500,7 @@ class SportoCricketMatchCard extends StatelessWidget {
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       color: scoreColor ?? cs.onSurface,
                       fontSize: 14,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w600,
                     ),
               ),
           ],
@@ -557,7 +557,7 @@ class SportoCricketMatchCard extends StatelessWidget {
             text: value,
             style: TextStyle(
               color: Theme.of(context).colorScheme.onSurface,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],
@@ -583,7 +583,7 @@ class SportoCricketMatchCard extends StatelessWidget {
           value,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontSize: 14,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w600,
               ),
         ),
       ],
@@ -609,7 +609,7 @@ class SportoCricketMatchCard extends StatelessWidget {
             text: value,
             style: TextStyle(
               color: context.sporto.assigned,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],
@@ -689,7 +689,7 @@ class SportoCricketMatchCard extends StatelessWidget {
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
                   color: live,
                   fontSize: 11,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w600,
                 ),
           ),
         ],
@@ -743,7 +743,7 @@ class SportoCricketMatchCard extends StatelessWidget {
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
                   color: foreground,
                   fontSize: 11,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w500,
                 ),
           ),
         ],
@@ -794,7 +794,7 @@ class SportoCricketMatchCard extends StatelessWidget {
             style: Theme.of(context).textTheme.labelMedium?.copyWith(
                   color: fg,
                   fontSize: 12,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w600,
                 ),
           ),
         ),

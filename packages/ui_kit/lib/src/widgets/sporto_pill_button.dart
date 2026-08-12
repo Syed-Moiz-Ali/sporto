@@ -75,7 +75,7 @@ class SportoPillButton extends StatelessWidget {
                 style: Theme.of(context).textTheme.labelLarge?.copyWith(
                       fontSize: fontSize,
                       color: foregroundColor ?? (filled ? Colors.white : color),
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w600,
                     ),
               )),
             ],

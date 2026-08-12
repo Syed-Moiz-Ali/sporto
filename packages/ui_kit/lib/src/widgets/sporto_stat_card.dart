@@ -61,14 +61,14 @@ class SportoStatCard extends StatelessWidget {
               Text(value,
                   style: TextStyle(
                       fontSize: fontSize,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w600,
                       color: valueColor)),
             ],
           )
         : Text(value,
             style: TextStyle(
                 fontSize: fontSize,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w600,
                 color: valueColor));
 
     return SportoCard(

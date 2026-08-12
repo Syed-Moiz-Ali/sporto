@@ -7,7 +7,12 @@ import '../../../../features/tournaments/presentation/screens/partner_main_scree
 
 /// Handles splash + auth gate (login / onboarding / authenticated home).
 class AuthFlowView extends StatefulWidget {
-  const AuthFlowView({super.key});
+  final int initialTabIndex;
+
+  const AuthFlowView({
+    super.key,
+    this.initialTabIndex = 0,
+  });
 
   @override
   State<AuthFlowView> createState() => _AuthFlowViewState();
@@ -47,7 +52,7 @@ class _AuthFlowViewState extends State<AuthFlowView> {
         final isSubmitting = state is AuthLoadingState;
 
         if (screenState is AuthenticatedState) {
-          return const PartnerMainScreen();
+          return PartnerMainScreen(initialIndex: widget.initialTabIndex);
         }
 
         if (screenState is NeedsOnboardingState) {

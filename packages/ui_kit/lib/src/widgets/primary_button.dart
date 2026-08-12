@@ -81,7 +81,7 @@ class PrimaryButton extends StatelessWidget {
                     style: tt.titleLarge?.copyWith(
                       color: cs.onPrimary,
                       fontSize: 16,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w600,
                       letterSpacing: 0.3,
                     ),
                   ),

@@ -40,7 +40,7 @@ class _ReviewCard extends StatelessWidget {
               style: tt.bodyLarge?.copyWith(
                 color: isHeader ? cs.onSurface : cs.onTertiary,
                 fontSize: 15 * scale,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w500,
               ),
             ),
             if (sub != null) ...[
@@ -268,7 +268,7 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
                           'Apply as Referee',
                           style: tt.titleLarge?.copyWith(
                             fontSize: scaled(18),
-                            fontWeight: FontWeight.w700,
+                            fontWeight: FontWeight.w600,
                             color: cs.onSurface,
                           ),
                         ),
@@ -823,7 +823,7 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
             title,
             style: tt.displaySmall?.copyWith(
               fontSize: 20 * scale,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w500,
               color: cs.onSurface,
               letterSpacing: -0.3,
             ),
@@ -962,7 +962,7 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
                             textAlign: TextAlign.center,
                             style: tt.displaySmall?.copyWith(
                               fontSize: 20 * scale,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w500,
                               color: cs.onSurface,
                             ),
                           ),
@@ -1126,7 +1126,7 @@ class ApplicationStatusScreen extends StatelessWidget {
                             'Application Status',
                             style: tt.titleLarge?.copyWith(
                               fontSize: 18 * scale,
-                              fontWeight: FontWeight.w700,
+                              fontWeight: FontWeight.w600,
                               color: cs.onSurface,
                             ),
                           ),

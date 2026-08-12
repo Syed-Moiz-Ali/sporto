@@ -402,7 +402,7 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
               style: tt.bodyMedium?.copyWith(
                 color: cs.tertiary,
                 fontSize: 14 * scale,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ),
@@ -536,7 +536,7 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
         style: tt.displayMedium?.copyWith(
           color: cs.onSurface,
           fontSize: 22,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w500,
         ),
         decoration: InputDecoration(
           counterText: '',
@@ -577,7 +577,7 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
           style: tt.bodyLarge?.copyWith(
             color: cs.tertiary,
             fontSize: 14,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w500,
           ),
         ),
       );
@@ -595,7 +595,7 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
             text: timeLabel,
             style: TextStyle(
               color: cs.onTertiary,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],

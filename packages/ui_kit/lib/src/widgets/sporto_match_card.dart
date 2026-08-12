@@ -214,7 +214,7 @@ class SportoMatchCard extends StatelessWidget {
                     style: TextStyle(
                         color: cs.onSurface,
                         fontSize: 12,
-                        fontWeight: FontWeight.w600)),
+                        fontWeight: FontWeight.w500)),
               )
             else if (timeLabel != null) ...[
               Text(timeLabel!,
@@ -238,7 +238,7 @@ class SportoMatchCard extends StatelessWidget {
                 style: TextStyle(
                     color: noteColor ?? cs.error,
                     fontSize: 12,
-                    fontWeight: FontWeight.w700)),
+                    fontWeight: FontWeight.w600)),
           ]),
         ],
         const SizedBox(height: 7),
@@ -276,13 +276,13 @@ class SportoMatchCard extends StatelessWidget {
                                 ? cs.onSurfaceVariant
                                 : cs.onSurface,
                             fontSize: 12,
-                            fontWeight: FontWeight.w600)),
+                            fontWeight: FontWeight.w500)),
                     if (scoreA != null)
                       Text(scoreA!,
                           style: TextStyle(
                               color: _isLive ? cs.onSurface : cs.secondary,
                               fontSize: 16,
-                              fontWeight: FontWeight.w700)),
+                              fontWeight: FontWeight.w600)),
                   ]),
             ),
             Text('Vs',
@@ -295,13 +295,13 @@ class SportoMatchCard extends StatelessWidget {
                         color:
                             scoreB != null ? cs.onSurfaceVariant : cs.onSurface,
                         fontSize: 12,
-                        fontWeight: FontWeight.w600)),
+                        fontWeight: FontWeight.w500)),
                 if (scoreB != null)
                   Text(scoreB!,
                       style: TextStyle(
                           color: _isLive ? cs.onSurface : cs.onSurface,
                           fontSize: 16,
-                          fontWeight: FontWeight.w700)),
+                          fontWeight: FontWeight.w600)),
               ]),
             ),
           ],
@@ -354,7 +354,7 @@ class SportoMatchCard extends StatelessWidget {
                     style: TextStyle(
                         color: cs.onSurface,
                         fontSize: 14,
-                        fontWeight: FontWeight.w600)),
+                        fontWeight: FontWeight.w500)),
               ])
             else if (noteLabel != null)
               Row(children: [
@@ -369,7 +369,7 @@ class SportoMatchCard extends StatelessWidget {
                     style: TextStyle(
                         color: noteColor ?? cs.secondary,
                         fontSize: 13,
-                        fontWeight: FontWeight.w600)),
+                        fontWeight: FontWeight.w500)),
               ])
             else if (startsInLabel != null)
               Flexible(
@@ -383,7 +383,7 @@ class SportoMatchCard extends StatelessWidget {
                     TextSpan(
                         text: startsInLabel,
                         style: TextStyle(
-                            color: cs.secondary, fontWeight: FontWeight.w700))
+                            color: cs.secondary, fontWeight: FontWeight.w600))
                   ])))
             else
               const SizedBox.shrink(),

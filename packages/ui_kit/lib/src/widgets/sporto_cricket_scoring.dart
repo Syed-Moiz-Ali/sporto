@@ -58,7 +58,7 @@ class SportoCricketScoringHeader extends StatelessWidget {
                   style: theme.textTheme.headlineMedium?.copyWith(
                     fontSize: 18 * s,
                     height: 1,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
                 SizedBox(height: 4 * s),
@@ -143,7 +143,7 @@ class SportoCricketStatusBadge extends StatelessWidget {
                   color: color,
                   fontSize: 11 * s,
                   height: 1,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w500,
                 ),
           ),
         ],
@@ -231,7 +231,7 @@ class SportoCricketMatchHeaderCard extends StatelessWidget {
               color: t.orange,
               fontSize: 15 * s,
               height: 1,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w500,
             ),
           ),
           SizedBox(height: 5 * s),
@@ -478,7 +478,7 @@ class SportoCricketScoreCard extends StatelessWidget {
               color: t.orange,
               fontSize: 31 * s,
               height: 1,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w600,
             ),
           ),
           SizedBox(height: 11 * s),
@@ -488,7 +488,7 @@ class SportoCricketScoreCard extends StatelessWidget {
               color: cs.onSurface,
               fontSize: 14 * s,
               height: 1,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w500,
             ),
           ),
           if (balls != null) ...[
@@ -514,7 +514,7 @@ class SportoCricketScoreCard extends StatelessWidget {
                       text: bowler ?? 'Amit Kumar',
                       style: TextStyle(
                         color: cs.onSurface,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ],
@@ -575,7 +575,7 @@ class _BallChip extends StatelessWidget {
         style: Theme.of(context).textTheme.labelMedium?.copyWith(
               color: darkText ? const Color(0xFF061018) : Colors.white,
               fontSize: 12 * s,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w600,
             ),
       ),
     );
@@ -887,7 +887,7 @@ class SportoCricketScoringPad extends StatelessWidget {
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 color: t.orange,
                 fontSize: 15 * s,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w500,
               ),
         ),
         SizedBox(height: 14 * s),
@@ -1007,7 +1007,7 @@ class _ScoreAction extends StatelessWidget {
                           ? t.orange
                           : cs.onSurface,
                   fontSize: 18 * s,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w500,
                 ),
           ),
         ),

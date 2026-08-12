@@ -47,7 +47,7 @@ class SportoSegmentedControl extends StatelessWidget {
                   style: TextStyle(
                     color: isSelected ? Colors.black : cs.onSurfaceVariant,
                     fontSize: 13,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ),

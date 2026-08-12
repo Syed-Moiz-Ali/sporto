@@ -71,7 +71,7 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
             Text('Hyderabad Super Cup',
                 style: tt.titleLarge?.copyWith(
                     fontSize: 18 * scale,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w600,
                     color: cs.onSurface)),
             Text('SPT-20481',
                 style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant)),
@@ -154,7 +154,7 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
         children: [
           Text('Hyderabad Super Cup',
               style: tt.titleLarge
-                  ?.copyWith(color: cs.onSurface, fontWeight: FontWeight.w700)),
+                  ?.copyWith(color: cs.onSurface, fontWeight: FontWeight.w600)),
           const SizedBox(height: 8),
           Row(
             children: [
@@ -166,7 +166,7 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
               const SizedBox(width: 6),
               Text('Live Matches',
                   style: TextStyle(
-                      color: cs.onSurface, fontWeight: FontWeight.w600)),
+                      color: cs.onSurface, fontWeight: FontWeight.w500)),
             ],
           ),
           const SizedBox(height: 12),
@@ -175,7 +175,7 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
             children: [
               Text('Round of 128',
                   style: TextStyle(
-                      color: cs.secondary, fontWeight: FontWeight.w600)),
+                      color: cs.secondary, fontWeight: FontWeight.w500)),
               Expanded(
                 child: RichText(
                   textAlign: TextAlign.end,
@@ -183,7 +183,7 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
                   overflow: TextOverflow.ellipsis,
                   text: TextSpan(
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          fontFamily: 'Quicksand',
+                          fontFamily: 'packages/ui_kit/Quicksand',
                           fontSize: 12,
                         ),
                     children: [
@@ -274,7 +274,7 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
               Text('Delhi Warriors',
                   style: TextStyle(
-                      color: cs.tertiary, fontWeight: FontWeight.w600)),
+                      color: cs.tertiary, fontWeight: FontWeight.w500)),
               Text('Vs', style: TextStyle(color: cs.onSurfaceVariant)),
               Text('Hyd Highlanders',
                   style: TextStyle(color: cs.onSurfaceVariant)),
@@ -286,7 +286,7 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
                   style: TextStyle(
                       color: cs.tertiary,
                       fontSize: 32,
-                      fontWeight: FontWeight.w700)),
+                      fontWeight: FontWeight.w600)),
               Text('4.3 Overs',
                   style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)),
             ])),
@@ -447,7 +447,7 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
               style: TextStyle(
                   color: cs.onSurfaceVariant,
                   fontSize: 13,
-                  fontWeight: FontWeight.w600)),
+                  fontWeight: FontWeight.w500)),
           const SizedBox(height: 12),
           GridView.count(
             crossAxisCount: 4,
@@ -566,7 +566,7 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
                 style: TextStyle(
                     color: cs.onSurface,
                     fontSize: 13,
-                    fontWeight: FontWeight.w600)),
+                    fontWeight: FontWeight.w500)),
             Divider(height: 18, color: cs.outline),
             if (centeredAction) ...[
               Center(
@@ -579,7 +579,7 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
             ] else ...[
               Text(message,
                   style: TextStyle(
-                      color: color, fontSize: 13, fontWeight: FontWeight.w600)),
+                      color: color, fontSize: 13, fontWeight: FontWeight.w500)),
               const SizedBox(height: 5),
               Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
                 Expanded(
@@ -679,7 +679,7 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
               alignment: Alignment.center,
               child: Text(initials,
                   style: TextStyle(
-                      color: cs.onSurface, fontWeight: FontWeight.w700))),
+                      color: cs.onSurface, fontWeight: FontWeight.w600))),
           const SizedBox(width: 12),
           Expanded(
               child: Column(
@@ -688,7 +688,7 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
                 Text(name,
                     style: TextStyle(
                         color: cs.onSurface,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w600,
                         fontSize: 16)),
                 RichText(
                     text: TextSpan(
@@ -727,7 +727,7 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
                   style: TextStyle(
                       color: cs.onSurface,
                       fontSize: 12,
-                      fontWeight: FontWeight.w600))),
+                      fontWeight: FontWeight.w500))),
         ]),
       ]));
     });
@@ -799,7 +799,7 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
                 Text(name,
                     style: TextStyle(
                         color: cs.onSurface,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w600,
                         fontSize: 16)),
                 Text('Level: $level referee',
                     style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
@@ -813,7 +813,7 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
             Text(match.split(' Vs ')[0],
                 style:
-                    TextStyle(color: cs.tertiary, fontWeight: FontWeight.w600)),
+                    TextStyle(color: cs.tertiary, fontWeight: FontWeight.w500)),
             Text('Vs', style: TextStyle(color: cs.onSurfaceVariant)),
             Text(match.split(' Vs ')[1],
                 style: TextStyle(color: cs.onSurfaceVariant)),
@@ -859,7 +859,7 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
                 child: Text('Assign',
                     style: TextStyle(
                         color: Colors.black,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w500,
                         fontSize: 12)))
           else if (match != null)
             TextButton(
@@ -868,7 +868,7 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
                     style: TextStyle(
                         color: cs.onSurface,
                         fontSize: 12,
-                        fontWeight: FontWeight.w600))),
+                        fontWeight: FontWeight.w500))),
         ]),
       ]));
     });
@@ -978,7 +978,7 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
             Text(name,
                 style: TextStyle(
                     color: cs.onSurface,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w600,
                     fontSize: 16)),
           ]),
           Row(children: [
@@ -990,7 +990,7 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
             const SizedBox(width: 6),
             Text(status,
                 style:
-                    TextStyle(color: statusColor, fontWeight: FontWeight.w700)),
+                    TextStyle(color: statusColor, fontWeight: FontWeight.w600)),
           ]),
         ]),
         const SizedBox(height: 4),
@@ -1005,7 +1005,7 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
             Text(match.split(' Vs ')[0],
                 style:
-                    TextStyle(color: cs.tertiary, fontWeight: FontWeight.w600)),
+                    TextStyle(color: cs.tertiary, fontWeight: FontWeight.w500)),
             Text('Vs', style: TextStyle(color: cs.onSurfaceVariant)),
             Text(match.split(' Vs ')[1],
                 style: TextStyle(color: cs.onSurfaceVariant)),
@@ -1023,7 +1023,7 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
                 child: Text(actionLabel,
                     style: TextStyle(
                         color: actionColor,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w500,
                         fontSize: 12))),
           ]),
         ] else if (staffReady) ...[
@@ -1056,7 +1056,7 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
                   TextSpan(
                       text: startsIn,
                       style: TextStyle(
-                          color: cs.secondary, fontWeight: FontWeight.w600))
+                          color: cs.secondary, fontWeight: FontWeight.w500))
                 ]))),
             Container(
                 padding:
@@ -1067,7 +1067,7 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
                 child: Text(actionLabel,
                     style: TextStyle(
                         color: actionColor,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w500,
                         fontSize: 12))),
           ]),
         ] else if (referee != null) ...[
@@ -1093,7 +1093,7 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
                 child: Text(actionLabel,
                     style: TextStyle(
                         color: actionColor,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w500,
                         fontSize: 12))),
           ]),
         ],
@@ -1122,7 +1122,7 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
       const SizedBox(height: 20),
       Text('09:00 AM',
           style: TextStyle(
-              color: cs.onSurface, fontWeight: FontWeight.w700, fontSize: 16)),
+              color: cs.onSurface, fontWeight: FontWeight.w600, fontSize: 16)),
       const SizedBox(height: 12),
       _ScheduleCard(
           time: '09:00 AM',
@@ -1137,7 +1137,7 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
       const SizedBox(height: 20),
       Text('09:30 AM',
           style: TextStyle(
-              color: cs.onSurface, fontWeight: FontWeight.w700, fontSize: 16)),
+              color: cs.onSurface, fontWeight: FontWeight.w600, fontSize: 16)),
       const SizedBox(height: 12),
       _ScheduleCard(
           time: '09:30 AM',
@@ -1150,7 +1150,7 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
       const SizedBox(height: 20),
       Text('Mon 02 Aug, 09:30 AM',
           style: TextStyle(
-              color: cs.onSurface, fontWeight: FontWeight.w700, fontSize: 16)),
+              color: cs.onSurface, fontWeight: FontWeight.w600, fontSize: 16)),
       const SizedBox(height: 12),
       _ScheduleCard(
           time: 'Mon 02 Aug, 09:30 AM',
@@ -1190,7 +1190,7 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
               const SizedBox(width: 6),
               Text('LIVE',
                   style: TextStyle(
-                      color: Colors.redAccent, fontWeight: FontWeight.w700))
+                      color: Colors.redAccent, fontWeight: FontWeight.w600))
             ])
           else
             Row(children: [
@@ -1206,7 +1206,7 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
               Text(score,
                   style: TextStyle(
                       color: cs.onSurface,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w600,
                       fontSize: 18)),
               Text(overs!,
                   style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12))
@@ -1215,7 +1215,7 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
             Text(startsIn,
                 style: TextStyle(
                     color: cs.secondary,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w500,
                     fontSize: 12))
           else if (round != null)
             Text(round,
@@ -1236,7 +1236,7 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
           Text(match.split(' Vs ')[0],
               style:
-                  TextStyle(color: cs.tertiary, fontWeight: FontWeight.w600)),
+                  TextStyle(color: cs.tertiary, fontWeight: FontWeight.w500)),
           Text('Vs', style: TextStyle(color: cs.onSurfaceVariant)),
           Text(match.split(' Vs ')[1],
               style: TextStyle(color: cs.onSurfaceVariant)),
@@ -1253,7 +1253,7 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
               child: Text(action,
                   style: TextStyle(
                       color: actionColor ?? cs.secondary,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w500,
                       fontSize: 12))),
         ]),
       ]));

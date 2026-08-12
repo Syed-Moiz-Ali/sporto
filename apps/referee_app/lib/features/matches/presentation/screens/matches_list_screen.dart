@@ -65,7 +65,7 @@ class _MatchesListScreenState extends State<MatchesListScreen> {
                       color: colors.onSurface,
                       fontSize: 18,
                       height: 1.15,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                   const SizedBox(height: 4),

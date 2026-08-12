@@ -60,7 +60,7 @@ class SecondaryButton extends StatelessWidget {
                   style: TextStyle(
                       color: cs.onSurface,
                       fontSize: 16,
-                      fontWeight: FontWeight.w600)),
+                      fontWeight: FontWeight.w500)),
             ],
           ),
         ),

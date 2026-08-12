@@ -65,7 +65,7 @@ class SportoTeamVerificationCard extends StatelessWidget {
                       style: theme.textTheme.titleLarge?.copyWith(
                         color: context.sporto.info,
                         fontSize: 15 * scale,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                     SizedBox(height: 5 * scale),
@@ -74,7 +74,7 @@ class SportoTeamVerificationCard extends StatelessWidget {
                       style: theme.textTheme.titleLarge?.copyWith(
                         color: cs.onSurface,
                         fontSize: 16 * scale,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ],
@@ -233,7 +233,7 @@ class _PlayerName extends StatelessWidget {
             text: captainText,
             style: TextStyle(
               color: cs.primary,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],

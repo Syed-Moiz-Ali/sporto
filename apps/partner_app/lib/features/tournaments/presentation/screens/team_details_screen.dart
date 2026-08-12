@@ -74,7 +74,7 @@ class TeamDetailsScreen extends StatelessWidget {
         decoration:
             BoxDecoration(color: fill, borderRadius: BorderRadius.circular(10)),
         child: Text(text,
-            style: TextStyle(color: cs.onSurface, fontWeight: FontWeight.w700)),
+            style: TextStyle(color: cs.onSurface, fontWeight: FontWeight.w600)),
       );
 
   Widget _metric(ThemeData theme, String label, String value,
