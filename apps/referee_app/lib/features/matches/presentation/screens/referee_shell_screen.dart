@@ -34,7 +34,7 @@ class _RefereeShellScreenState extends State<RefereeShellScreen> {
                   ),
                   const MatchesListScreen(),
                   const RefereeScoringTabScreen(),
-                  const ProfileScreen(),
+                  const RefereeProfileScreen(),
                 ],
               ),
             ),

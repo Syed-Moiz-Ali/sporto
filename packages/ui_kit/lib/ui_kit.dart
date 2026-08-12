@@ -35,7 +35,16 @@ export 'src/widgets/sporto_pill_button.dart';
 export 'src/widgets/sporto_match_card.dart';
 export 'src/widgets/sporto_cricket_match_card.dart';
 export 'src/widgets/sporto_team_verification_card.dart';
+export 'src/widgets/sporto_match_verification.dart';
 export 'src/widgets/sporto_info_row.dart';
+export 'src/theme/sporto_cricket_scoring_theme.dart';
+export 'src/widgets/sporto_cricket_scoring.dart';
+export 'src/theme/sporto_scoring_tokens.dart';
+export 'src/widgets/sporto_live_scoring.dart';
+export 'src/widgets/sporto_cricket_final_result.dart';
+export 'src/widgets/sporto_conduct_toss.dart';
+export 'src/widgets/sporto_result_submitted.dart';
+export 'src/widgets/sporto_referee_profile.dart';
 
 // Screens (Mobile OTP & Onboarding)
 export 'src/screens/splash_screen.dart';

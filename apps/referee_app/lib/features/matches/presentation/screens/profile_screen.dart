@@ -1,240 +1,183 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:core/core.dart';
 import 'package:ui_kit/ui_kit.dart';
-import '../../../../app/router/app_router.dart';
 
-class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
-    return SingleChildScrollView(
-      physics: const ClampingScrollPhysics(),
-      padding: const EdgeInsets.fromLTRB(20, 26, 20, 84),
-      child: Column(
-        children: [
-          // --- Profile Header Card ---
-          SportoGradientCard(
-            radius: 20,
-            padding: const EdgeInsets.all(14),
-            colors: const [Color(0xFF7A315D), Color(0xFF343B38)],
-            child: Row(
-              children: [
-                CircleAvatar(
-                  radius: 24,
-                  foregroundImage:
-                      const NetworkImage('https://i.pravatar.cc/150?img=5'),
-                  onForegroundImageError: (_, __) {},
-                  child: const Icon(Icons.person_rounded),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Priya Agrawal',
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleLarge
-                              ?.copyWith(fontSize: 16, color: Colors.white)),
-                      const SizedBox(height: 4),
-                      Text('+91 98765XXXXX',
-                          style: TextStyle(
-                              color: Colors.white.withOpacity(0.7),
-                              fontSize: 13)),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 20),
-
-          // --- Certification Badge ---
-          SportoCard(
-            radius: 16,
-            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-            backgroundColor: cs.secondary.withOpacity(0.1),
-            borderColor: cs.secondary.withOpacity(0.3),
-            child: Row(
-              children: [
-                Icon(Icons.verified_rounded, color: cs.secondary, size: 20),
-                const SizedBox(width: 8),
-                Expanded(
-                    child: RichText(
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        text: TextSpan(
-                            style: TextStyle(
-                                fontSize: 14, fontWeight: FontWeight.w600),
-                            children: [
-                              TextSpan(
-                                  text: 'Certified Referee ',
-                                  style: TextStyle(color: cs.secondary)),
-                              TextSpan(
-                                  text: '• Cricket',
-                                  style: TextStyle(color: cs.onSurface)),
-                            ]))),
-              ],
-            ),
-          ),
-          const SizedBox(height: 20),
-
-          // --- Stats Row ---
-          SizedBox(
-            height: 66,
-            child: Row(
-              children: [
-                Expanded(
-                    child: SportoStatCard(
-                  label: 'Matches',
-                  value: '48',
-                  highlight: true,
-                  highlightColor: cs.tertiary,
-                  fontSize: 18,
-                  labelSize: 12,
-                )),
-                const SizedBox(width: 12),
-                Expanded(
-                    child: SportoStatCard(
-                  label: 'Rating',
-                  value: '4.9',
-                  highlight: true,
-                  highlightColor: cs.tertiary,
-                  fontSize: 18,
-                  labelSize: 12,
-                )),
-                const SizedBox(width: 12),
-                Expanded(
-                    child: SportoStatCard(
-                  label: 'Disputes',
-                  value: '2',
-                  highlight: true,
-                  highlightColor: cs.tertiary,
-                  fontSize: 18,
-                  labelSize: 12,
-                )),
-              ],
-            ),
-          ),
-          const SizedBox(height: 20),
-
-          // --- Menu Sections ---
-          _MenuSection(items: [
-            _MenuItem(
-                icon: Icons.bar_chart_outlined,
-                label: 'Statistic',
-                onTap: () {}),
-            _MenuItem(
-                icon: Icons.emoji_events_outlined,
-                label: 'My Tournaments',
-                onTap: () => context.push(AppRouter.matchesRoute)),
-          ]),
-          const SizedBox(height: 20),
-
-          _MenuSection(items: [
-            _MenuItem(
-                icon: Icons.headset_mic_outlined,
-                label: 'Add Customer Support',
-                onTap: () {}),
-          ]),
-          const SizedBox(height: 20),
-
-          _MenuSection(items: [
-            _MenuItem(
-                icon: Icons.info_outline, label: 'About Us', isMuted: true),
-            _MenuItem(
-                icon: Icons.description_outlined,
-                label: 'Terms & Condition',
-                isMuted: true),
-            _MenuItem(
-                icon: Icons.policy_outlined,
-                label: 'Privacy Policy',
-                isMuted: true),
-            _MenuItem(
-                icon: Icons.support_agent_outlined,
-                label: 'Customer Service',
-                isMuted: true),
-          ]),
-          const SizedBox(height: 20),
-
-          // --- Logout Button ---
-          SecondaryButton(
-            label: 'Logout',
-            icon: Icons.logout_rounded,
-            width: 160,
-            height: 59,
-            onPressed: () {
-              context.read<AuthBloc>().add(LogoutRequestedEvent());
-            },
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _MenuSection extends StatelessWidget {
-  final List<_MenuItem> items;
-  const _MenuSection({required this.items});
+class RefereeProfileScreen extends StatelessWidget {
+  const RefereeProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final emphasized = items.any((item) => !item.isMuted);
-    return Material(
-      color: Colors.transparent,
-      child: SportoCard(
-        radius: 16,
-        padding: const EdgeInsets.symmetric(vertical: 5),
-        backgroundColor:
-            emphasized ? const Color(0xFF19243A) : cs.surfaceContainerHigh,
-        borderColor: emphasized
-            ? cs.onTertiary.withValues(alpha: .26)
-            : Colors.transparent,
+    final scale = context.sportoScale;
+
+    return SportoScreenShell(
+      ambient: true,
+      body: SafeArea(
+        bottom: false,
         child: Column(
-          children: items.asMap().entries.map((entry) {
-            final item = entry.value;
-            return SizedBox(
-                height: 44,
-                child: ListTile(
-                  dense: true,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 20),
-                  minLeadingWidth: 22,
-                  horizontalTitleGap: 12,
-                  leading: Icon(item.icon,
-                      color: item.isMuted
-                          ? Colors.grey[600]
-                          : Theme.of(context).colorScheme.onSurface,
-                      size: 20),
-                  title: Text(item.label,
-                      style: TextStyle(
-                          color: item.isMuted
-                              ? Colors.grey[500]
-                              : Theme.of(context).colorScheme.onSurface,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600)),
-                  onTap: item.onTap,
-                ));
-          }).toList(),
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                physics: const ClampingScrollPhysics(),
+                padding: EdgeInsets.fromLTRB(
+                  20 * scale,
+                  18 * scale,
+                  20 * scale,
+                  20 * scale,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SportoProfileHeaderCard(
+                      name: 'Priya Agrawal',
+                      phone: '+91 98765XXXXX',
+                      avatarImage: const AssetImage(
+                        'assets/images/profile_avatar.png',
+                      ),
+                      onTap: () {
+                        // open edit profile / profile details
+                      },
+                    ),
+                    SizedBox(height: 22 * scale),
+                    const SportoCertifiedBadge(
+                      title: 'Cricket',
+                    ),
+                    SizedBox(height: 22 * scale),
+                    SportoProfileStatsRow(
+                      stats: [
+                        SportoProfileStatData(
+                          value: '48',
+                          label: 'Matches',
+                        ),
+                        SportoProfileStatData(
+                          value: '4.9',
+                          label: 'Rating',
+                        ),
+                        SportoProfileStatData(
+                          value: '2',
+                          label: 'Disputes',
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 20 * scale),
+                    SportoProfileMenuCard(
+                      items: [
+                        SportoProfileMenuItemData(
+                          title: 'Statistic',
+                          icon: Icons.notifications_none_rounded,
+                          onTap: () {
+                            // context.push('/statistics');
+                          },
+                        ),
+                        SportoProfileMenuItemData(
+                          title: 'My Tournaments',
+                          icon: Icons.notifications_none_rounded,
+                          onTap: () {
+                            // context.push('/my-tournaments');
+                          },
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 20 * scale),
+                    SportoProfileMenuCard(
+                      items: [
+                        SportoProfileMenuItemData(
+                          title: 'Add Customer Support',
+                          icon: Icons.notifications_none_rounded,
+                          onTap: () {
+                            // context.push('/customer-support');
+                          },
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 20 * scale),
+                    SportoProfileMenuCard(
+                      items: [
+                        SportoProfileMenuItemData(
+                          title: 'About Us',
+                          icon: Icons.priority_high_rounded,
+                          onTap: () {
+                            // context.push('/about-us');
+                          },
+                        ),
+                        SportoProfileMenuItemData(
+                          title: 'Terms & Condition',
+                          icon: Icons.priority_high_rounded,
+                          onTap: () {
+                            // context.push('/terms');
+                          },
+                        ),
+                        SportoProfileMenuItemData(
+                          title: 'Privacy Policy',
+                          icon: Icons.priority_high_rounded,
+                          onTap: () {
+                            // context.push('/privacy-policy');
+                          },
+                        ),
+                        SportoProfileMenuItemData(
+                          title: 'Customer Service',
+                          icon: Icons.support_agent_rounded,
+                          onTap: () {
+                            // context.push('/customer-service');
+                          },
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 22 * scale),
+                    Center(
+                      child: SportoLogoutButton(
+                        onTap: () {
+                          _showLogoutDialog(context);
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
-}
 
-class _MenuItem {
-  final IconData icon;
-  final String label;
-  final bool isMuted;
-  final VoidCallback? onTap;
-  const _MenuItem(
-      {required this.icon,
-      required this.label,
-      this.isMuted = false,
-      this.onTap});
+  void _showLogoutDialog(BuildContext context) {
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFF18233A),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+          ),
+          title: const Text(
+            'Logout',
+            style: TextStyle(color: Colors.white),
+          ),
+          content: const Text(
+            'Are you sure you want to logout?',
+            style: TextStyle(color: Colors.white70),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+
+                // call logout bloc / auth bloc here
+                // context.read<AuthBloc>().add(LogoutRequested());
+
+                if (context.mounted) {
+                  // context.go('/login');
+                }
+              },
+              child: const Text('Logout'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 }

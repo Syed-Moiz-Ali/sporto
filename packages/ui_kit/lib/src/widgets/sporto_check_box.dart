@@ -1,34 +1,61 @@
-// ============================================================
-// sporto_check_box.dart
-// Square checkbox used in confirm/selection rows.
-// ============================================================
 import 'package:flutter/material.dart';
+
 import 'sporto_check_circle.dart';
 
 class SportoCheckBox extends StatelessWidget {
   final bool checked;
+  final bool enabled;
 
-  const SportoCheckBox({super.key, required this.checked});
+  final double size;
+  final double radius;
+  final double checkSize;
+
+  final Color? activeColor;
+
+  const SportoCheckBox({
+    super.key,
+    required this.checked,
+    this.enabled = true,
+    this.size = 22,
+    this.radius = 6,
+    this.checkSize = 14,
+    this.activeColor,
+  });
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 180),
-      width: 22,
-      height: 22,
-      decoration: BoxDecoration(
-        color: checked ? cs.secondary : Colors.transparent,
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(
-          color: checked ? cs.secondary : SportoCheckCircle.inactiveBorder,
-          width: 1.5,
+
+    final selectedColor = activeColor ?? cs.secondary;
+
+    final borderColor =
+        checked ? selectedColor : SportoCheckCircle.inactiveBorder;
+
+    return Opacity(
+      opacity: enabled ? 1 : .55,
+      child: AnimatedContainer(
+        duration: const Duration(
+          milliseconds: 160,
         ),
+        width: size,
+        height: size,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: checked ? selectedColor : Colors.transparent,
+          borderRadius: BorderRadius.circular(radius),
+          border: Border.all(
+            color: borderColor,
+            width: 1.3,
+          ),
+        ),
+        child: checked
+            ? Icon(
+                Icons.check_rounded,
+                color: Colors.white,
+                size: checkSize,
+              )
+            : null,
       ),
-      alignment: Alignment.center,
-      child: checked
-          ? const Icon(Icons.check_rounded, color: Colors.white, size: 14)
-          : null,
     );
   }
 }

@@ -24,6 +24,8 @@ class SportoDesignTokens extends ThemeExtension<SportoDesignTokens> {
   final LinearGradient ambientGradient;
   final LinearGradient authPanelGradient;
   final LinearGradient authBackgroundGradient;
+  final Color actionOrange;
+  final Color navSurface;
 
   const SportoDesignTokens({
     required this.canvas,
@@ -46,42 +48,86 @@ class SportoDesignTokens extends ThemeExtension<SportoDesignTokens> {
     required this.ambientGradient,
     required this.authPanelGradient,
     required this.authBackgroundGradient,
+    required this.actionOrange,
+    required this.navSurface,
   });
 
   static const dark = SportoDesignTokens(
-    canvas: Color(0xFF090C10),
-    card: Color(0xFF0F1216),
+    canvas: Color(0xFF0E0C08),
+
+    card: Color(0xFF171717),
+
     cardElevated: Color(0xFF1C2026),
+
     field: Color(0xFF1C2026),
+
     fieldBorder: Color(0xFF35424E),
+
     fieldBorderFocused: Color(0xFF4FBAF0),
+
     authFieldBorder: Color(0xFF31516B),
+
     border: Color(0xFF283040),
+
     muted: Color(0xFF92949A),
-    live: Color(0xFFFE464B),
+
+    // Screenshot states
+    live: Color(0xFFFF4B50),
+
     upcoming: Color(0xFFFF6C4A),
-    assigned: Color(0xFF68EE76),
-    info: Color(0xFF4FBAF0),
-    liveCardStart: Color(0xFF3B1009),
-    liveCardEnd: Color(0xFF27100B),
+
+    assigned: Color(0xFF3ED48E),
+
+    info: Color(0xFF54C2F3),
+
+    // Live card
+    liveCardStart: Color(0xFF3A0E07),
+
+    liveCardEnd: Color(0xFF28100C),
+
     authBadge: Color(0xE6261808),
+
+    // Buttons
+    actionOrange: Color(0xFFFF4B00),
+
+    // Bottom navigation
+    navSurface: Color(0xFF1D1C19),
+
     primaryGradient: LinearGradient(
-      colors: [Color(0xFFED7B00), Color(0xFFCF9E24)],
+      colors: [
+        Color(0xFFFF4B00),
+        Color(0xFFCF9E24),
+      ],
     ),
+
     ambientGradient: LinearGradient(
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
-      colors: [Color(0x1A7BD0FA), Color(0x000E0C08), Color(0x145B213F)],
+      colors: [
+        Color(0x1A7BD0FA),
+        Color(0x000E0C08),
+        Color(0x145B213F),
+      ],
     ),
+
     authPanelGradient: LinearGradient(
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
-      colors: [Color(0xFF151B22), Color(0xFF101316), Color(0xFF171318)],
+      colors: [
+        Color(0xFF151B22),
+        Color(0xFF101316),
+        Color(0xFF171318),
+      ],
     ),
+
     authBackgroundGradient: LinearGradient(
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
-      colors: [Color(0xFF171719), Color(0xFF24191E), Color(0xFF111A1A)],
+      colors: [
+        Color(0xFF171719),
+        Color(0xFF24191E),
+        Color(0xFF111A1A),
+      ],
     ),
   );
 
@@ -107,6 +153,8 @@ class SportoDesignTokens extends ThemeExtension<SportoDesignTokens> {
     LinearGradient? ambientGradient,
     LinearGradient? authPanelGradient,
     LinearGradient? authBackgroundGradient,
+    Color? actionOrange,
+    Color? navSurface,
   }) =>
       SportoDesignTokens(
         canvas: canvas ?? this.canvas,
@@ -130,6 +178,8 @@ class SportoDesignTokens extends ThemeExtension<SportoDesignTokens> {
         authPanelGradient: authPanelGradient ?? this.authPanelGradient,
         authBackgroundGradient:
             authBackgroundGradient ?? this.authBackgroundGradient,
+        actionOrange: actionOrange ?? this.actionOrange,
+        navSurface: navSurface ?? this.navSurface,
       );
 
   @override

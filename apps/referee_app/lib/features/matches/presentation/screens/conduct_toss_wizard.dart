@@ -1,640 +1,665 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:ui_kit/ui_kit.dart';
 
-// Reusable Player Selection Card
-class _PlayerSelectionCard extends StatelessWidget {
-  final String title;
-  final String teamName;
-  final List<String> players;
-  final String? selectedPlayer;
-  final ValueChanged<String> onSelected;
-  final String? excludePlayer;
+import '../../../../app/router/app_router.dart';
+import '../../../../core/di/dependency_injector.dart';
+import '../../application/conduct_toss_bloc.dart';
 
-  const _PlayerSelectionCard({
-    required this.title,
-    required this.teamName,
-    required this.players,
-    required this.selectedPlayer,
-    required this.onSelected,
-    this.excludePlayer,
+// ============================================================
+// CONDUCT TOSS WIZARD
+// ============================================================
+
+class ConductTossWizard extends StatelessWidget {
+  /// Actual repository match id.
+  ///
+  /// Current repository mock has ids such as m-901 / m-902.
+  final String matchId;
+
+  /// What designer wants displayed.
+  final String matchCode;
+
+  /// Null = actual random toss.
+  ///
+  /// For screenshot testing:
+  ///
+  /// TossCoinSide.tails
+  final TossCoinSide? debugForcedCoinSide;
+
+  const ConductTossWizard({
+    super.key,
+
+    // Current local mock repository contains m-902.
+    // Replace with actual selected match id later.
+    this.matchId = 'm-902',
+    this.matchCode = 'SPT-20481',
+    this.debugForcedCoinSide,
+  });
+
+  // ==========================================================
+  // TEAM 1
+  // ==========================================================
+
+  static const TossTeam _delhiWarriors = TossTeam(
+    id: 'delhi',
+    name: 'Delhi Warriors',
+    players: [
+      TossPlayer(
+        id: 'shrvn',
+        name: 'Shrvn Prajapati',
+        captain: true,
+      ),
+      TossPlayer(
+        id: 'amit',
+        name: 'Amit Kumar',
+      ),
+      TossPlayer(
+        id: 'manish',
+        name: 'Manish K',
+      ),
+      TossPlayer(
+        id: 'sumit',
+        name: 'Sumit Nai',
+      ),
+      TossPlayer(
+        id: 'mayank',
+        name: 'Mayank S',
+      ),
+    ],
+  );
+
+  // ==========================================================
+  // TEAM 2
+  // ==========================================================
+
+  static const TossTeam _hydHighlanders = TossTeam(
+    id: 'hyd',
+    name: 'Hyd Highlanders',
+    players: [
+      TossPlayer(
+        id: 'vikram',
+        name: 'Vikram Reddy',
+        captain: true,
+
+        // Matches your design where captain
+        // isn't available as opening bowler.
+        canBowl: false,
+      ),
+      TossPlayer(
+        id: 'dev',
+        name: 'Dev Kumar',
+      ),
+      TossPlayer(
+        id: 'pankaj',
+        name: 'Pankaj S',
+      ),
+      TossPlayer(
+        id: 'rohan',
+        name: 'Rohan A',
+      ),
+      TossPlayer(
+        id: 'vinayak',
+        name: 'Vinayak L',
+      ),
+    ],
+  );
+
+  // ==========================================================
+  // BUILD
+  // ==========================================================
+
+  @override
+  Widget build(BuildContext context) {
+    final di = DependencyInjector.instance;
+
+    return BlocProvider(
+      create: (_) {
+        return di.createConductTossBloc(
+          matchId: matchId,
+
+          team1: _delhiWarriors,
+
+          team2: _hydHighlanders,
+
+          // Screenshot flow:
+          // Hyd calls tails.
+          callerTeamId: _hydHighlanders.id,
+
+          callerChoice: TossCoinSide.tails,
+
+          // Null = actual random.
+          forcedCoinSide: debugForcedCoinSide,
+        );
+      },
+      child: _ConductTossView(
+        matchCode: matchCode,
+      ),
+    );
+  }
+}
+
+// ============================================================
+// UI
+// ============================================================
+
+class _ConductTossView extends StatelessWidget {
+  final String matchCode;
+
+  const _ConductTossView({
+    required this.matchCode,
   });
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return SportoCard(
-        padding: EdgeInsets.zero,
-        child: Column(children: [
-          Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(title,
-                        style: TextStyle(
-                            color: cs.onTertiary,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700)),
-                    Text(teamName,
-                        style: TextStyle(
-                            color: cs.onSurface,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600)),
-                  ])),
-          const SportoDivider(height: 1),
-          ...players.map((p) {
-            final isSelected = selectedPlayer == p;
-            final isExcluded = p == excludePlayer;
-            return ListTile(
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-              enabled: !isExcluded,
-              leading: GestureDetector(
-                  onTap:
-                      isExcluded ? null : () => onSelected(isSelected ? '' : p),
-                  child: SportoCheckBox(checked: isSelected)),
-              title: Text(p,
-                  style: TextStyle(
-                    color: isExcluded
-                        ? cs.onSurfaceVariant.withOpacity(0.3)
-                        : (isSelected ? cs.onSurface : cs.onSurfaceVariant),
-                    fontSize: 14,
-                    fontWeight:
-                        isSelected ? FontWeight.w600 : FontWeight.normal,
-                  )),
-              onTap: isExcluded ? null : () => onSelected(isSelected ? '' : p),
-            );
-          }).toList(),
-        ]));
-  }
-}
+    return BlocConsumer<ConductTossBloc, ConductTossState>(
+      listenWhen: (
+        previous,
+        current,
+      ) {
+        return previous.errorMessage != current.errorMessage;
+      },
+      listener: (
+        context,
+        state,
+      ) {
+        final error = state.errorMessage;
 
-// ============================================================
-// MAIN CONDUCT TOSS WIZARD (ALL 4 STEPS)
-// ============================================================
-class ConductTossWizard extends StatefulWidget {
-  final int initialStep;
+        if (error == null) {
+          return;
+        }
 
-  const ConductTossWizard({super.key, this.initialStep = 0});
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(
+            SnackBar(
+              content: Text(
+                error,
+              ),
+            ),
+          );
+      },
+      builder: (
+        context,
+        state,
+      ) {
+        return SportoTossShell(
+          child: SafeArea(
+            bottom: false,
+            child: SingleChildScrollView(
+              physics: const ClampingScrollPhysics(),
+              padding: EdgeInsets.fromLTRB(
+                20 * context.sportoScale,
+                10 * context.sportoScale,
+                20 * context.sportoScale,
+                40 * context.sportoScale,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // ===========================================
+                  // HEADER
+                  // ===========================================
 
-  @override
-  State<ConductTossWizard> createState() => _ConductTossWizardState();
-}
+                  SportoTossHeader(
+                    title: state.screenTitle,
+                    matchId: matchCode,
+                    currentStep: state.progressStep,
+                    onBack: () {
+                      if (context.canPop()) {
+                        context.pop();
+                      }
+                    },
+                  ),
 
-class _ConductTossWizardState extends State<ConductTossWizard> {
-  late int _currentStep;
+                  SizedBox(
+                    height: 25 * context.sportoScale,
+                  ),
 
-  // Toss State
-  bool _isFlipping = false;
-  String? _tossWinner;
-  String? _tossChoice;
+                  // ===========================================
+                  // CURRENT STEP
+                  // ===========================================
 
-  // Opener Selection State
-  String? _striker;
-  String? _nonStriker;
-  String? _openingBowler;
-
-  final List<String> _team1Players = [
-    'Shrvn Prajapati (Captain)',
-    'Amit Kumar',
-    'Manish K',
-    'Sumit Nai',
-    'Mayank S'
-  ];
-  final List<String> _team2Players = [
-    'Vikram Reddy (Captain)',
-    'Dev Kumar',
-    'Pankaj S',
-    'Rohan A',
-    'Vinayak L'
-  ];
-
-  @override
-  void initState() {
-    super.initState();
-    _currentStep = widget.initialStep.clamp(0, 4);
-    if (_currentStep > 0) _tossWinner = 'Hyd Highlanders';
-    if (_currentStep > 2) _tossChoice = 'Bat First';
-    if (_currentStep > 3) {
-      _striker = _team1Players.first;
-      _nonStriker = _team1Players[1];
-      _openingBowler = _team2Players[1];
-    }
-  }
-
-  void _flipCoin() {
-    setState(() => _isFlipping = true);
-    Future.delayed(const Duration(seconds: 2), () {
-      if (!mounted) return;
-      setState(() {
-        _isFlipping = false;
-        _tossWinner = 'Hyd Highlanders'; // Hardcoded for demo
-        _currentStep = 1;
-      });
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final cs = theme.colorScheme;
-    final spacing = context.sportoLayout;
-
-    return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        toolbarHeight: 64,
-        titleSpacing: 0,
-        leadingWidth: 56,
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 20, top: 14, bottom: 14),
-          child: Material(
-            color: context.sporto.cardElevated,
-            borderRadius: BorderRadius.circular(10),
-            child: InkWell(
-              onTap: () => Navigator.maybePop(context),
-              borderRadius: BorderRadius.circular(10),
-              child: Icon(Icons.arrow_back_ios_new_rounded,
-                  color: cs.onSurface, size: 18),
+                  AnimatedSwitcher(
+                    duration: const Duration(
+                      milliseconds: 220,
+                    ),
+                    switchInCurve: Curves.easeOutCubic,
+                    switchOutCurve: Curves.easeInCubic,
+                    child: KeyedSubtree(
+                      key: ValueKey(
+                        state.step,
+                      ),
+                      child: _buildStep(
+                        context,
+                        state,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(_screenTitle,
-                style: theme.textTheme.titleLarge?.copyWith(
-                  color: cs.onSurface,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                )),
-            Text('Match #SPT-20481',
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: cs.onSurfaceVariant,
-                  fontSize: 12,
-                )),
-          ],
-        ),
-        bottom: PreferredSize(
-          preferredSize: Size.fromHeight(spacing.space24),
-          child: Padding(
-            padding: EdgeInsets.fromLTRB(
-                spacing.space20, 0, spacing.space20, spacing.space4),
-            child: Row(
-              children: List.generate(
-                  3,
-                  (i) => Expanded(
-                        child: Container(
-                          height: 3,
-                          margin: EdgeInsets.only(
-                              right: i == 2 ? 0 : spacing.space4),
-                          decoration: BoxDecoration(
-                            color: i <= _progressStep
-                                ? cs.tertiary
-                                : cs.surfaceContainerHigh,
-                            borderRadius:
-                                BorderRadius.circular(spacing.radius4),
-                          ),
-                        ),
-                      )),
-            ),
-          ),
-        ),
-      ),
-      body: SingleChildScrollView(
-        physics: const ClampingScrollPhysics(),
-        padding: EdgeInsets.fromLTRB(
-            spacing.space20, spacing.space16, spacing.space20, spacing.space30),
-        child: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 300),
-          key: Key('step_$_currentStep'),
-          child: _buildCurrentStep(cs),
-        ),
-      ),
+        );
+      },
     );
   }
 
-  Widget _buildCurrentStep(ColorScheme cs) {
-    switch (_currentStep) {
-      case 0:
-        return _buildStep1FlipCoin(cs);
-      case 1:
-        return _buildCoinResult(cs);
-      case 2:
-        return _buildStep2TossResult(cs);
-      case 3:
-        return _buildStep3SelectOpeners(cs);
-      case 4:
-        return _buildStep4MatchReady(cs);
-      default:
-        return const SizedBox.shrink();
+  // ==========================================================
+  // STEP ROUTER
+  // ==========================================================
+
+  Widget _buildStep(
+    BuildContext context,
+    ConductTossState state,
+  ) {
+    switch (state.step) {
+      case ConductTossStep.flipCoin:
+        return _flipCoin(
+          context,
+          state,
+        );
+
+      case ConductTossStep.coinResult:
+        return _coinResult(
+          context,
+          state,
+        );
+
+      case ConductTossStep.chooseBatBowl:
+        return _chooseBatBowl(
+          context,
+          state,
+        );
+
+      case ConductTossStep.selectOpeners:
+        return _selectOpeners(
+          context,
+          state,
+        );
     }
   }
 
-  String get _screenTitle => switch (_currentStep) {
-        3 => 'Select Openers',
-        4 => 'Match Ready',
-        _ => 'Conduct Toss',
-      };
+  // ==========================================================
+  // STEP 1
+  // FLIP COIN
+  // ==========================================================
 
-  int get _progressStep => switch (_currentStep) {
-        0 || 1 => 0,
-        2 => 1,
-        _ => 2,
-      };
+  Widget _flipCoin(
+    BuildContext context,
+    ConductTossState state,
+  ) {
+    final scale = context.sportoScale;
 
-  // Shared Match Header for all steps
-  Widget _matchHeader(ColorScheme cs) {
-    final theme = Theme.of(context);
-    final spacing = context.sportoLayout;
-    return SportoCard(
-        radius: spacing.radius10,
-        padding: EdgeInsets.symmetric(
-            horizontal: spacing.space16,
-            vertical: spacing.space12 + spacing.space2),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text('Delhi Warriors',
-                style: theme.textTheme.bodyMedium?.copyWith(
-                    color: cs.onSurface,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600)),
-            Text('Vs',
-                style: theme.textTheme.bodySmall
-                    ?.copyWith(color: cs.onSurfaceVariant, fontSize: 12)),
-            Text('Hyd Highlanders',
-                style: theme.textTheme.bodyMedium?.copyWith(
-                    color: cs.onSurface,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600)),
-          ],
-        ));
-  }
-
-  // ============================================================
-  // STEP 1: FLIP COIN
-  // ============================================================
-  Widget _buildStep1FlipCoin(ColorScheme cs) {
-    final theme = Theme.of(context);
-    final spacing = context.sportoLayout;
-    return Column(children: [
-      _matchHeader(cs),
-      SizedBox(height: spacing.space20),
-      SportoCard(
-          width: double.infinity,
-          radius: spacing.radius12,
-          backgroundColor: const Color(0xFF1B2027),
-          borderColor: Colors.transparent,
-          padding: EdgeInsets.fromLTRB(spacing.space20, spacing.space30,
-              spacing.space20, spacing.space30),
-          child: Column(children: [
-            AnimatedSwitcher(
-              duration: const Duration(milliseconds: 500),
-              child: _isFlipping
-                  ? SizedBox.square(
-                      dimension: 150,
-                      key: const ValueKey('spin'),
-                      child: CircularProgressIndicator(
-                        color: cs.tertiary,
-                        strokeWidth: 3,
-                      ),
-                    )
-                  : Image.asset(
-                      'assets/images/toss_coin_heads.png',
-                      key: const ValueKey('coin'),
-                      width: 150,
-                      height: 150,
-                      fit: BoxFit.contain,
-                    ),
-            ),
-            SizedBox(height: spacing.space24),
-            Text('Flip coin to decide who chooses first',
-                style: theme.textTheme.bodyMedium?.copyWith(
-                    color: cs.onSurfaceVariant,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500)),
-            SizedBox(height: spacing.space30),
-            PrimaryButton(
-                width: 270,
-                height: 48,
-                radius: spacing.radius12,
-                label: 'Flip Coin',
-                onPressed: _flipCoin),
-          ])),
-    ]);
-  }
-
-  Widget _buildCoinResult(ColorScheme cs) {
-    final theme = Theme.of(context);
-    return Column(children: [
-      _matchHeader(cs),
-      const SizedBox(height: 20),
-      SportoCard(
-        width: double.infinity,
-        backgroundColor: const Color(0xFF1B2027),
-        borderColor: Colors.transparent,
-        padding: const EdgeInsets.fromLTRB(20, 32, 20, 30),
-        child: Column(children: [
-          Image.asset('assets/images/toss_coin_tails.png',
-              width: 150, height: 150, fit: BoxFit.contain),
-          const SizedBox(height: 22),
-          Text('Coin landed on',
-              style: theme.textTheme.bodyLarge
-                  ?.copyWith(color: cs.onSurfaceVariant)),
-          const SizedBox(height: 14),
-          Text('TAILS',
-              style: theme.textTheme.displaySmall
-                  ?.copyWith(color: cs.tertiary, fontWeight: FontWeight.w700)),
-          const SizedBox(height: 18),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-            decoration: BoxDecoration(
-              color: cs.secondary.withValues(alpha: .10),
-              borderRadius: BorderRadius.circular(18),
-            ),
-            child: Text('Hyd Highlanders Won The Toss',
-                style: theme.textTheme.bodySmall?.copyWith(
-                    color: cs.secondary, fontWeight: FontWeight.w600)),
-          ),
-          const SizedBox(height: 28),
-          PrimaryButton(
-            width: 270,
-            height: 48,
-            radius: 12,
-            label: 'Continue',
-            onPressed: () => setState(() => _currentStep = 2),
-          ),
-        ]),
-      ),
-    ]);
-  }
-
-  // ============================================================
-  // STEP 2: TOSS RESULT & CHOOSE
-  // ============================================================
-  Widget _buildStep2TossResult(ColorScheme cs) {
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      _matchHeader(cs),
-      const SizedBox(height: 24),
-
-      // Winner Card
-      SportoCard(
-          width: double.infinity,
-          child:
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text('Toss Winner',
-                style: TextStyle(
-                    color: cs.secondary,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600)),
-            const SizedBox(height: 4),
-            Text(_tossWinner ?? '',
-                style: TextStyle(
-                    color: cs.onSurface,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700)),
-          ])),
-      const SizedBox(height: 24),
-
-      // Choice Section
-      Text('${_tossWinner} chooses to',
-          style: TextStyle(
-              color: cs.secondary, fontSize: 16, fontWeight: FontWeight.w600)),
-      const SizedBox(height: 16),
-      Row(children: [
-        Expanded(
-            child: _ChoiceCard(
-                label: 'Bat First',
-                icon: Icons.sports_cricket,
-                isSelected: _tossChoice == 'Bat First',
-                onTap: () => setState(() => _tossChoice = 'Bat First'))),
-        const SizedBox(width: 16),
-        Expanded(
-            child: _ChoiceCard(
-                label: 'Bowl First',
-                icon: Icons.sports_baseball,
-                isSelected: _tossChoice == 'Bowl First',
-                onTap: () => setState(() => _tossChoice = 'Bowl First'))),
-      ]),
-      const SizedBox(height: 32),
-      PrimaryButton(
-        width: double.infinity,
-        height: 56,
-        label: 'Confirm & Select Openers',
-        disabled: _tossChoice == null,
-        onPressed: () => setState(() => _currentStep = 3),
-      ),
-    ]);
-  }
-
-  Widget _ChoiceCard(
-      {required String label,
-      required IconData icon,
-      required bool isSelected,
-      required VoidCallback onTap}) {
-    return Builder(builder: (context) {
-      final cs = Theme.of(context).colorScheme;
-      return GestureDetector(
-        onTap: onTap,
-        child: Container(
-          height: 140,
-          decoration: BoxDecoration(
-            color: isSelected
-                ? cs.secondary.withOpacity(0.1)
-                : SportoCard.defaultFill.withOpacity(0.6),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-                color: isSelected ? cs.secondary : SportoCard.defaultBorder,
-                width: isSelected ? 2 : 1),
-          ),
-          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-            Icon(icon,
-                size: 48,
-                color: isSelected ? cs.secondary : cs.onSurfaceVariant),
-            const SizedBox(height: 12),
-            Text(label,
-                style: TextStyle(
-                    color: isSelected ? cs.secondary : cs.onSurface,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600)),
-          ]),
+    return Column(
+      children: [
+        SportoTossMatchStrip(
+          team1: state.team1.name,
+          team2: state.team2.name,
         ),
-      );
-    });
+        SizedBox(
+          height: 21 * scale,
+        ),
+        SportoTossCoinCard(
+          coinAsset: 'assets/images/toss_coin_heads.png',
+          isFlipping: state.isFlipping,
+          buttonText: 'Flip Coin',
+          onButtonPressed: () {
+            context.read<ConductTossBloc>().add(
+                  FlipCoinRequested(),
+                );
+          },
+        ),
+      ],
+    );
   }
 
-  // ============================================================
-  // STEP 3: SELECT OPENERS
-  // ============================================================
-  Widget _buildStep3SelectOpeners(ColorScheme cs) {
-    final battingTeam =
-        _tossChoice == 'Bat First' ? 'Hyd Highlanders' : 'Delhi Warriors';
-    final bowlingTeam =
-        _tossChoice == 'Bat First' ? 'Delhi Warriors' : 'Hyd Highlanders';
-    final battingPlayers =
-        _tossChoice == 'Bat First' ? _team1Players : _team2Players;
-    final bowlingPlayers =
-        _tossChoice == 'Bat First' ? _team2Players : _team1Players;
+  // ==========================================================
+  // STEP 1 RESULT
+  // ==========================================================
 
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      // Batting/Bowling Header
-      SportoCard(
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(battingTeam,
-                    style: TextStyle(
-                        color: cs.secondary,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600)),
-                Text('Batting',
-                    style: TextStyle(
-                        color: cs.onSurface,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700)),
-              ]),
-              Text('Vs',
-                  style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
-              Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-                Text(bowlingTeam,
-                    style: TextStyle(
-                        color: cs.secondary,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600)),
-                Text('Bowling',
-                    style: TextStyle(
-                        color: cs.onSurface,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700)),
-              ]),
-            ],
-          )),
-      const SizedBox(height: 24),
+  Widget _coinResult(
+    BuildContext context,
+    ConductTossState state,
+  ) {
+    final scale = context.sportoScale;
 
-      // Striker Selection
-      _PlayerSelectionCard(
-        title: 'Striker',
-        teamName: battingTeam,
-        players: battingPlayers,
-        selectedPlayer: _striker,
-        onSelected: (p) => setState(() => _striker = p),
-      ),
-      const SizedBox(height: 16),
+    final landedSide = state.landedSide;
 
-      // Non-Striker Selection
-      _PlayerSelectionCard(
-        title: 'Non - Striker',
-        teamName: battingTeam,
-        players: battingPlayers,
-        selectedPlayer: _nonStriker,
-        onSelected: (p) => setState(() => _nonStriker = p),
-        excludePlayer: _striker,
-      ),
-      const SizedBox(height: 16),
+    final winner = state.tossWinner;
 
-      // Opening Bowler Selection
-      _PlayerSelectionCard(
-        title: 'Opening Bowler',
-        teamName: bowlingTeam,
-        players: bowlingPlayers,
-        selectedPlayer: _openingBowler,
-        onSelected: (p) => setState(() => _openingBowler = p),
-      ),
-      const SizedBox(height: 32),
+    if (landedSide == null || winner == null) {
+      return const SizedBox.shrink();
+    }
 
-      PrimaryButton(
-        width: double.infinity,
-        height: 56,
-        label: 'Start Scoring',
-        disabled:
-            _striker == null || _nonStriker == null || _openingBowler == null,
-        onPressed: () => setState(() => _currentStep = 4),
-      ),
-    ]);
+    final isTails = landedSide == TossCoinSide.tails;
+
+    return Column(
+      children: [
+        SportoTossMatchStrip(
+          team1: state.team1.name,
+          team2: state.team2.name,
+        ),
+        SizedBox(
+          height: 21 * scale,
+        ),
+        SportoTossCoinCard(
+          coinAsset: isTails
+              ? 'assets/images/toss_coin_tails.png'
+              : 'assets/images/toss_coin_heads.png',
+          landedText: isTails ? 'TAILS' : 'HEADS',
+          winnerText: '${winner.name} Won The Toss',
+          buttonText: 'Continue',
+          onButtonPressed: () {
+            context.read<ConductTossBloc>().add(
+                  ContinueAfterCoinResult(),
+                );
+          },
+        ),
+      ],
+    );
   }
 
-  // ============================================================
-  // STEP 4: MATCH READY
-  // ============================================================
-  Widget _buildStep4MatchReady(ColorScheme cs) {
-    final battingTeam =
-        _tossChoice == 'Bat First' ? 'Hyd Highlanders' : 'Delhi Warriors';
-    final bowlingTeam =
-        _tossChoice == 'Bat First' ? 'Delhi Warriors' : 'Hyd Highlanders';
+  // ==========================================================
+  // STEP 2
+  // BAT / BOWL
+  // ==========================================================
 
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      // Innings Set Card
-      SportoCard(
-          width: double.infinity,
-          child:
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text('Innings Set',
-                style: TextStyle(
-                    color: cs.secondary,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600)),
-            const SizedBox(height: 8),
-            RichText(
-                text: TextSpan(
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-                    children: [
-                  TextSpan(
-                      text: '$battingTeam ',
-                      style: TextStyle(color: cs.onSurface)),
-                  TextSpan(
-                      text: 'First Batting',
-                      style: TextStyle(color: cs.tertiary)),
-                ])),
-            const SizedBox(height: 4),
-            RichText(
-                text: TextSpan(style: TextStyle(fontSize: 14), children: [
-              TextSpan(
-                  text: 'Vs $bowlingTeam ',
-                  style: TextStyle(color: cs.onSurfaceVariant)),
-              TextSpan(text: 'Bowling', style: TextStyle(color: cs.onTertiary)),
-            ])),
-          ])),
-      const SizedBox(height: 24),
+  Widget _chooseBatBowl(
+    BuildContext context,
+    ConductTossState state,
+  ) {
+    final scale = context.sportoScale;
 
-      // On the Field Section
-      Text('On the Field',
-          style: TextStyle(
-              color: cs.onSurface, fontSize: 16, fontWeight: FontWeight.w700)),
-      const SizedBox(height: 16),
+    final winner = state.tossWinner;
 
-      SportoCard(
-          width: double.infinity,
-          padding: EdgeInsets.zero,
-          child: Column(children: [
-            SportoInfoRow(
-                label: 'Striker',
-                value: _striker?.split(' (')[0] ?? '',
-                suffix: (_striker?.contains('Captain') ?? false)
-                    ? ' (Captain)'
-                    : null),
-            const SportoDivider(height: 1),
-            SportoInfoRow(
-                label: 'Non-Striker', value: _nonStriker?.split(' (')[0] ?? ''),
-            const SportoDivider(height: 1),
-            SportoInfoRow(
-                label: 'Opening Bowler',
-                value: _openingBowler?.split(' (')[0] ?? ''),
-          ])),
-      const SizedBox(height: 40),
+    if (winner == null) {
+      return const SizedBox.shrink();
+    }
 
-      // Let's Begin Button
-      PrimaryButton(
-          width: double.infinity,
-          height: 56,
-          label: 'Let\'s Begin First Over',
-          onPressed: () {
-            // Navigate to Live Scoring Screen
-          }),
-    ]);
+    SportoTossChoice? selected;
+
+    if (state.tossChoice == TossBatBowlChoice.batFirst) {
+      selected = SportoTossChoice.bat;
+    }
+
+    if (state.tossChoice == TossBatBowlChoice.bowlFirst) {
+      selected = SportoTossChoice.bowl;
+    }
+
+    return Column(
+      children: [
+        // ===========================================
+        // WINNER
+        // ===========================================
+
+        SportoTossWinnerCard(
+          winner: winner.name,
+        ),
+
+        SizedBox(
+          height: 22 * scale,
+        ),
+
+        // ===========================================
+        // TEAMS
+        // ===========================================
+
+        SportoTossMatchStrip(
+          team1: state.team1.name,
+          team2: state.team2.name,
+        ),
+
+        SizedBox(
+          height: 20 * scale,
+        ),
+
+        // ===========================================
+        // CHOICE
+        // ===========================================
+
+        SportoTossChoicePanel(
+          winner: winner.name,
+          selected: selected,
+          onSelected: (
+            choice,
+          ) {
+            final bloc = context.read<ConductTossBloc>();
+
+            if (choice == SportoTossChoice.bat) {
+              bloc.add(
+                const TossChoiceSelected(
+                  TossBatBowlChoice.batFirst,
+                ),
+              );
+
+              return;
+            }
+
+            bloc.add(
+              const TossChoiceSelected(
+                TossBatBowlChoice.bowlFirst,
+              ),
+            );
+          },
+        ),
+
+        SizedBox(
+          height: 20 * scale,
+        ),
+
+        // ===========================================
+        // CONFIRM
+        //
+        // IMPORTANT:
+        // No MatchScoringBloc.
+        // No TossResultEntity in UI.
+        // No repository in UI.
+        // ===========================================
+
+        SportoTossPrimaryButton(
+          text: state.isSavingToss
+              ? 'Saving Toss...'
+              : 'Confirm & Select Openers',
+          disabled: !state.canConfirmTossChoice,
+          onTap: () {
+            context.read<ConductTossBloc>().add(
+                  ConfirmTossChoice(),
+                );
+          },
+        ),
+      ],
+    );
+  }
+
+  // ==========================================================
+  // STEP 3
+  // SELECT OPENERS
+  // ==========================================================
+
+  Widget _selectOpeners(
+    BuildContext context,
+    ConductTossState state,
+  ) {
+    final scale = context.sportoScale;
+
+    final battingTeam = state.battingTeam;
+
+    final bowlingTeam = state.bowlingTeam;
+
+    if (battingTeam == null || bowlingTeam == null) {
+      return const SizedBox.shrink();
+    }
+
+    return Column(
+      children: [
+        // ===========================================
+        // TEAMS
+        // ===========================================
+
+        SportoTossRoleStrip(
+          battingTeam: battingTeam.name,
+          bowlingTeam: bowlingTeam.name,
+        ),
+
+        SizedBox(
+          height: 22 * scale,
+        ),
+
+        // ===========================================
+        // STRIKER
+        // ===========================================
+
+        SportoTossPlayerSelector(
+          title: 'Striker',
+          teamName: battingTeam.name,
+          players: _battingOptions(
+            state,
+            selectedId: state.strikerId,
+            excludedId: state.nonStrikerId,
+          ),
+          onSelected: (
+            playerId,
+          ) {
+            context.read<ConductTossBloc>().add(
+                  StrikerSelected(
+                    playerId,
+                  ),
+                );
+          },
+        ),
+
+        SizedBox(
+          height: 2 * scale,
+        ),
+
+        // ===========================================
+        // NON STRIKER
+        // ===========================================
+
+        SportoTossPlayerSelector(
+          title: 'Non - Striker',
+          players: _battingOptions(
+            state,
+            selectedId: state.nonStrikerId,
+            excludedId: state.strikerId,
+          ),
+          onSelected: (
+            playerId,
+          ) {
+            context.read<ConductTossBloc>().add(
+                  NonStrikerSelected(
+                    playerId,
+                  ),
+                );
+          },
+        ),
+
+        SizedBox(
+          height: 21 * scale,
+        ),
+
+        // ===========================================
+        // OPENING BOWLER
+        // ===========================================
+
+        SportoTossPlayerSelector(
+          title: 'Opening Bowler',
+          teamName: bowlingTeam.name,
+          players: _bowlingOptions(
+            state,
+          ),
+          onSelected: (
+            playerId,
+          ) {
+            context.read<ConductTossBloc>().add(
+                  OpeningBowlerSelected(
+                    playerId,
+                  ),
+                );
+          },
+        ),
+
+        SizedBox(
+          height: 21 * scale,
+        ),
+
+        // ===========================================
+        // START SCORING
+        // ===========================================
+
+        SportoTossPrimaryButton(
+          text: 'Start Scoring',
+          disabled: !state.canStartScoring,
+          onTap: () {
+            if (!state.canStartScoring) {
+              return;
+            }
+
+            // ================================================
+            // At this point ConductTossBloc contains:
+            //
+            // state.battingTeam
+            // state.bowlingTeam
+            // state.strikerId
+            // state.nonStrikerId
+            // state.openingBowlerId
+            //
+            // Next we should pass these to LiveScoringBloc.
+            // ================================================
+
+            context.push(
+              AppRouter.liveScoringRoute,
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  // ==========================================================
+  // BATTING PLAYER OPTIONS
+  // ==========================================================
+
+  List<SportoTossPlayerOption> _battingOptions(
+    ConductTossState state, {
+    required String? selectedId,
+    required String? excludedId,
+  }) {
+    return state.battingPlayers.map(
+      (
+        player,
+      ) {
+        return SportoTossPlayerOption(
+          id: player.id,
+          name: player.name,
+          captain: player.captain,
+          selected: selectedId == player.id,
+          enabled: excludedId != player.id,
+        );
+      },
+    ).toList();
+  }
+
+  // ==========================================================
+  // BOWLING PLAYER OPTIONS
+  // ==========================================================
+
+  List<SportoTossPlayerOption> _bowlingOptions(
+    ConductTossState state,
+  ) {
+    return state.bowlingPlayers.map(
+      (
+        player,
+      ) {
+        return SportoTossPlayerOption(
+          id: player.id,
+          name: player.name,
+          captain: player.captain,
+          selected: state.openingBowlerId == player.id,
+          enabled: player.canBowl,
+        );
+      },
+    ).toList();
   }
 }
