@@ -18,103 +18,92 @@ class _RefereeMatchHistoryScreenState extends State<RefereeMatchHistoryScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
-    return Scaffold(
-      backgroundColor: context.sporto.canvas,
-      body: Stack(children: [
-        const SportoAmbientBackground(),
-        SafeArea(
-            child: Column(children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 20, 20, 23),
-            child: Row(children: [
-              Material(
-                  color: const Color(0xFF252C3B),
-                  borderRadius: BorderRadius.circular(10),
-                  child: InkWell(
-                      onTap: () => context.pop(),
-                      borderRadius: BorderRadius.circular(10),
-                      child: const SizedBox(
-                          width: 36,
-                          height: 36,
-                          child: Icon(Icons.arrow_back_ios_new_rounded,
-                              size: 18)))),
-              const SizedBox(width: 11),
-              Text('Match History',
-                  style: theme.textTheme.titleLarge
-                      ?.copyWith(fontSize: 18, fontWeight: FontWeight.w700)),
-            ]),
-          ),
-          Padding(
+    return SportoScreenShell(
+      body: SafeArea(
+          child: Column(children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 23),
+          child: Row(children: [
+            Material(
+                color: const Color(0xFF252C3B),
+                borderRadius: BorderRadius.circular(10),
+                child: InkWell(
+                    onTap: () => context.pop(),
+                    borderRadius: BorderRadius.circular(10),
+                    child: const SizedBox(
+                        width: 36,
+                        height: 36,
+                        child:
+                            Icon(Icons.arrow_back_ios_new_rounded, size: 18)))),
+            const SizedBox(width: 11),
+            Text('Match History',
+                style: theme.textTheme.titleLarge
+                    ?.copyWith(fontSize: 18, fontWeight: FontWeight.w700)),
+          ]),
+        ),
+        Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Container(
+              height: 42,
+              padding: const EdgeInsets.all(5),
+              decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                      colors: [Color(0xFF23202C), Color(0xFF1C2427)]),
+                  borderRadius: BorderRadius.circular(15)),
+              child: Row(
+                  children: List.generate(3, (index) {
+                final active = selected == index;
+                return Expanded(
+                    child: GestureDetector(
+                  onTap: () => setState(() => selected = index),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 160),
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                        gradient: active
+                            ? const LinearGradient(
+                                colors: [Color(0xFFFF8500), Color(0xFFD9A81B)])
+                            : null,
+                        borderRadius: BorderRadius.circular(10)),
+                    child: Text(
+                        const ['This Week', 'This Month', 'All Matches'][index],
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                            color: active ? Colors.white : cs.onSurfaceVariant,
+                            fontWeight:
+                                active ? FontWeight.w700 : FontWeight.w500)),
+                  ),
+                ));
+              })),
+            )),
+        if (selected == 2) ...[
+          const SizedBox(height: 16),
+          Container(
+              height: 40,
+              color: const Color(0xFF1D2941),
               padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Container(
-                height: 42,
-                padding: const EdgeInsets.all(5),
-                decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                        colors: [Color(0xFF23202C), Color(0xFF1C2427)]),
-                    borderRadius: BorderRadius.circular(15)),
-                child: Row(
-                    children: List.generate(3, (index) {
-                  final active = selected == index;
-                  return Expanded(
-                      child: GestureDetector(
-                    onTap: () => setState(() => selected = index),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 160),
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                          gradient: active
-                              ? const LinearGradient(colors: [
-                                  Color(0xFFFF8500),
-                                  Color(0xFFD9A81B)
-                                ])
-                              : null,
-                          borderRadius: BorderRadius.circular(10)),
-                      child: Text(
-                          const [
-                            'This Week',
-                            'This Month',
-                            'All Matches'
-                          ][index],
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                              color:
-                                  active ? Colors.white : cs.onSurfaceVariant,
-                              fontWeight:
-                                  active ? FontWeight.w700 : FontWeight.w500)),
-                    ),
-                  ));
-                })),
-              )),
-          if (selected == 2) ...[
-            const SizedBox(height: 16),
-            Container(
-                height: 40,
-                color: const Color(0xFF1D2941),
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Row(children: [
-                  Text('Sort By: ',
-                      style: theme.textTheme.bodyMedium
-                          ?.copyWith(color: cs.onSurfaceVariant)),
-                  const Text('Popularity',
-                      style: TextStyle(color: Color(0xFF58C6F5), fontSize: 14)),
-                  const Spacer(),
-                  Icon(Icons.filter_list_rounded,
-                      size: 20, color: cs.onSurfaceVariant),
-                  const SizedBox(width: 7),
-                  Text('Filter',
-                      style: theme.textTheme.bodyMedium
-                          ?.copyWith(color: cs.onSurfaceVariant)),
-                ])),
-          ],
-          Expanded(
-              child: ListView.separated(
-            padding: EdgeInsets.fromLTRB(20, selected == 2 ? 16 : 21, 20, 30),
-            itemCount: 2,
-            separatorBuilder: (_, __) => const SizedBox(height: 10),
-            itemBuilder: (_, __) => const _HistoryResultCard(),
-          )),
-        ])),
-      ]),
+              child: Row(children: [
+                Text('Sort By: ',
+                    style: theme.textTheme.bodyMedium
+                        ?.copyWith(color: cs.onSurfaceVariant)),
+                const Text('Popularity',
+                    style: TextStyle(color: Color(0xFF58C6F5), fontSize: 14)),
+                const Spacer(),
+                Icon(Icons.filter_list_rounded,
+                    size: 20, color: cs.onSurfaceVariant),
+                const SizedBox(width: 7),
+                Text('Filter',
+                    style: theme.textTheme.bodyMedium
+                        ?.copyWith(color: cs.onSurfaceVariant)),
+              ])),
+        ],
+        Expanded(
+            child: ListView.separated(
+          padding: EdgeInsets.fromLTRB(20, selected == 2 ? 16 : 21, 20, 30),
+          itemCount: 2,
+          separatorBuilder: (_, __) => const SizedBox(height: 10),
+          itemBuilder: (_, __) => const _HistoryResultCard(),
+        )),
+      ])),
     );
   }
 }

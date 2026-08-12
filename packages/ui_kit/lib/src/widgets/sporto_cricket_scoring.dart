@@ -7,57 +7,6 @@ import 'sporto_check_box.dart';
 import 'sporto_divider.dart';
 
 // ============================================================
-// SCORING SCREEN
-// ============================================================
-
-class SportoCricketScoringShell extends StatelessWidget {
-  final Widget child;
-
-  const SportoCricketScoringShell({
-    super.key,
-    required this.child,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.cricketScoring;
-
-    return Scaffold(
-      backgroundColor: t.backgroundBottom,
-      body: Stack(
-        children: [
-          Positioned.fill(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  stops: const [
-                    0,
-                    .11,
-                    .155,
-                    .80,
-                    1,
-                  ],
-                  colors: [
-                    t.backgroundTop,
-                    t.backgroundMiddle,
-                    t.backgroundBottom,
-                    t.backgroundBottom,
-                    const Color(0xFF171718),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          child,
-        ],
-      ),
-    );
-  }
-}
-
-// ============================================================
 // PAGE HEADER
 // ============================================================
 

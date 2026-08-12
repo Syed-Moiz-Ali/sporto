@@ -183,8 +183,8 @@ class _ConductTossView extends StatelessWidget {
         context,
         state,
       ) {
-        return SportoTossShell(
-          child: SafeArea(
+        return SportoScreenShell(
+          body: SafeArea(
             bottom: false,
             child: SingleChildScrollView(
               physics: const ClampingScrollPhysics(),

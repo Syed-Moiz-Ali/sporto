@@ -5,55 +5,6 @@ import 'primary_button.dart';
 import 'sporto_check_box.dart';
 
 // ============================================================
-// SHELL
-// ============================================================
-
-class SportoTossShell extends StatelessWidget {
-  final Widget child;
-
-  const SportoTossShell({
-    super.key,
-    required this.child,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFF0E0C08),
-      body: Stack(
-        children: [
-          const Positioned.fill(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  stops: [
-                    0,
-                    .12,
-                    .18,
-                    .85,
-                    1,
-                  ],
-                  colors: [
-                    Color(0xFF131924),
-                    Color(0xFF10141E),
-                    Color(0xFF0E0C08),
-                    Color(0xFF0E0C08),
-                    Color(0xFF171718),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          child,
-        ],
-      ),
-    );
-  }
-}
-
-// ============================================================
 // HEADER + PROGRESS
 // ============================================================
 

@@ -1,4 +1,6 @@
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:ui_kit/ui_kit.dart';
 
 import '../../features/auth/presentation/views/auth_flow_view.dart';
 import '../../features/tournaments/presentation/screens/create_tournament_wizard_screen.dart';
@@ -57,7 +59,12 @@ abstract final class AppRouter {
       GoRoute(
         path: profilePath,
         name: 'profile',
-        builder: (context, state) => const ProfileScreen(),
+        builder: (context, state) => const SportoScreenShell(
+          body: SafeArea(
+            bottom: false,
+            child: ProfileScreen(),
+          ),
+        ),
       ),
     ],
   );

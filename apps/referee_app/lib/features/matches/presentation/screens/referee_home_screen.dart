@@ -35,77 +35,26 @@ class _RefereeHomeScreenState extends State<RefereeHomeScreen> {
     final hasMatches =
         state is MatchScoringListLoadedState && state.matches.isNotEmpty;
 
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: Stack(
-        children: [
-          const Positioned.fill(
-            child: _HomeBackground(),
-          ),
-          SafeArea(
-            bottom: false,
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              padding: const EdgeInsets.fromLTRB(
-                20,
-                17,
-                20,
-                22,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const _HomeHeader(),
-                  const SizedBox(height: 15),
-                  const _HomeSearchBar(),
-                  const SizedBox(height: 24),
-                  _MatchOverview(
-                    hasMatches: hasMatches,
-                  ),
-                  const SizedBox(height: 24),
-                  if (hasMatches)
-                    _LoadedHomeContent(
-                      onViewAll: widget.onViewAll,
-                    )
-                  else
-                    const _EmptyHomeContent(),
-                  const SizedBox(height: 21),
-                  const _AdsBanner(),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ============================================================
-// BACKGROUND
-// ============================================================
-
-class _HomeBackground extends StatelessWidget {
-  const _HomeBackground();
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          stops: const [
-            0,
-            .18,
-            .28,
-            1,
-          ],
-          colors: [
-            const Color(0xFF111722),
-            const Color(0xFF10141D),
-            const Color(0xFF0E0C08),
-            context.sporto.canvas,
+    return SafeArea(
+      bottom: false,
+      child: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(20, 17, 20, 22),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const _HomeHeader(),
+            const SizedBox(height: 15),
+            const _HomeSearchBar(),
+            const SizedBox(height: 24),
+            _MatchOverview(hasMatches: hasMatches),
+            const SizedBox(height: 24),
+            if (hasMatches)
+              _LoadedHomeContent(onViewAll: widget.onViewAll)
+            else
+              const _EmptyHomeContent(),
+            const SizedBox(height: 21),
+            const _AdsBanner(),
           ],
         ),
       ),

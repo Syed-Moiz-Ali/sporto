@@ -99,7 +99,6 @@ class _MatchVerificationScreenState extends State<MatchVerificationScreen> {
     final scale = context.sportoScale;
 
     return SportoScreenShell(
-      ambient: true,
       body: SafeArea(
         bottom: false,
         child: Column(

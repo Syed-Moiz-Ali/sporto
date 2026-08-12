@@ -20,25 +20,25 @@ class _RefereeShellScreenState extends State<RefereeShellScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: IndexedStack(
-                index: _currentIndex,
-                children: [
-                  RefereeHomeScreen(
-                    onViewAll: () => setState(() => _currentIndex = 1),
-                  ),
-                  const MatchesListScreen(),
-                  const RefereeScoringTabScreen(),
-                  const RefereeProfileScreen(),
-                ],
-              ),
+    return SportoScreenShell(
+      body: Column(
+        children: [
+          Expanded(
+            child: IndexedStack(
+              index: _currentIndex,
+              children: [
+                RefereeHomeScreen(
+                  onViewAll: () => setState(() => _currentIndex = 1),
+                ),
+                const MatchesListScreen(),
+                const RefereeScoringTabScreen(),
+                const RefereeProfileScreen(),
+              ],
             ),
-            SportoBottomNav(
+          ),
+          SafeArea(
+            top: false,
+            child: SportoBottomNav(
               currentIndex: _currentIndex,
               onTap: (idx) => setState(() => _currentIndex = idx),
               items: const [
@@ -48,8 +48,8 @@ class _RefereeShellScreenState extends State<RefereeShellScreen> {
                 SportoNavItem(Icons.person_outline_rounded, 'Profile'),
               ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

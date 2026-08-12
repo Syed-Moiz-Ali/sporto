@@ -1,4 +1,5 @@
 import 'package:go_router/go_router.dart';
+import 'package:ui_kit/ui_kit.dart';
 
 import '../../../features/auth/presentation/views/auth_flow_view.dart';
 import '../../../features/matches/presentation/screens/conduct_toss_wizard.dart';
@@ -32,7 +33,9 @@ abstract final class AppRouter {
       GoRoute(
         path: matchesPath,
         name: 'matches',
-        builder: (context, state) => const MatchesListScreen(),
+        builder: (context, state) => const SportoScreenShell(
+          body: MatchesListScreen(),
+        ),
       ),
       GoRoute(
         path: matchVerificationPath,

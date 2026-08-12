@@ -9,7 +9,7 @@ class TeamDetailsScreen extends StatelessWidget {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final scale = context.sportoScale;
-    return Scaffold(
+    return SportoScreenShell(
       appBar: AppBar(
         leading: IconButton(
           onPressed: () => Navigator.maybePop(context),

@@ -138,8 +138,8 @@ class _LiveScoringView extends StatelessWidget {
         final finalResult = state.step == LiveScoringStep.finalResult ||
             state.step == LiveScoringStep.superOverFinalResult;
 
-        return SportoLiveScoringShell(
-          child: SafeArea(
+        return SportoScreenShell(
+          body: SafeArea(
             bottom: false,
             child: SingleChildScrollView(
               physics: const ClampingScrollPhysics(),

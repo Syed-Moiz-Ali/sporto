@@ -29,194 +29,192 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
     final colorScheme = theme.colorScheme;
     final scale = context.sportoScale;
 
-    return Scaffold(
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        body: Stack(
-          children: [
-            const SportoAmbientBackground(),
-            IndexedStack(
-              index: _currentIndex,
-              children: [
-                SafeArea(
-                  bottom: false,
-                  child: Column(
-                    children: [
-                      // ---- Header ----
-                      Padding(
+    return SportoScreenShell(
+      body: Stack(
+        children: [
+          IndexedStack(
+            index: _currentIndex,
+            children: [
+              SafeArea(
+                bottom: false,
+                child: Column(
+                  children: [
+                    // ---- Header ----
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(
+                        20 * scale,
+                        10 * scale,
+                        20 * scale,
+                        8 * scale,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Shrvn's Sporto",
+                                style: theme.textTheme.titleLarge?.copyWith(
+                                  fontSize: 18 * scale,
+                                  fontWeight: FontWeight.w700,
+                                  color: colorScheme.onSurface,
+                                ),
+                              ),
+                              Text(
+                                'Good Morning',
+                                style: TextStyle(
+                                  fontSize: 13 * scale,
+                                  color: colorScheme.tertiary, // gold subtitle
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              IconButton(
+                                padding: EdgeInsets.all(6 * scale),
+                                constraints: BoxConstraints.tightFor(
+                                  width: 36 * scale,
+                                  height: 36 * scale,
+                                ),
+                                icon: Icon(
+                                  Icons.notifications_none_rounded,
+                                  color: colorScheme.onSurface,
+                                  size: 22 * scale,
+                                ),
+                                onPressed: () {},
+                              ),
+                              SizedBox(width: 4 * scale),
+                              SportoCard(
+                                radius: 7 * scale,
+                                blur: 10 * scale,
+                                padding: EdgeInsets.fromLTRB(
+                                  8 * scale,
+                                  3 * scale,
+                                  2 * scale,
+                                  3 * scale,
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text('₹ 500',
+                                        style: theme.textTheme.titleMedium
+                                            ?.copyWith(
+                                                color: colorScheme.onSurface,
+                                                fontSize: 14 * scale,
+                                                fontWeight: FontWeight.w700)),
+                                    SizedBox(width: 5 * scale),
+                                    Container(
+                                      width: 22 * scale,
+                                      height: 22 * scale,
+                                      decoration: BoxDecoration(
+                                        color: colorScheme.tertiary,
+                                        borderRadius:
+                                            BorderRadius.circular(5 * scale),
+                                      ),
+                                      alignment: Alignment.center,
+                                      child: Icon(Icons.add_rounded,
+                                          color: Colors.black,
+                                          size: 16 * scale),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // ---- Body content ----
+                    Expanded(
+                      child: SingleChildScrollView(
+                        physics: const ClampingScrollPhysics(),
                         padding: EdgeInsets.fromLTRB(
                           20 * scale,
-                          10 * scale,
-                          20 * scale,
                           8 * scale,
+                          20 * scale,
+                          100 * scale,
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Shrvn's Sporto",
-                                  style: theme.textTheme.titleLarge?.copyWith(
-                                    fontSize: 18 * scale,
-                                    fontWeight: FontWeight.w700,
-                                    color: colorScheme.onSurface,
-                                  ),
-                                ),
-                                Text(
-                                  'Good Morning',
-                                  style: TextStyle(
-                                    fontSize: 13 * scale,
-                                    color:
-                                        colorScheme.tertiary, // gold subtitle
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                IconButton(
-                                  padding: EdgeInsets.all(6 * scale),
-                                  constraints: BoxConstraints.tightFor(
-                                    width: 36 * scale,
-                                    height: 36 * scale,
-                                  ),
-                                  icon: Icon(
-                                    Icons.notifications_none_rounded,
-                                    color: colorScheme.onSurface,
-                                    size: 22 * scale,
-                                  ),
-                                  onPressed: () {},
-                                ),
-                                SizedBox(width: 4 * scale),
-                                SportoCard(
-                                  radius: 7 * scale,
-                                  blur: 10 * scale,
-                                  padding: EdgeInsets.fromLTRB(
-                                    8 * scale,
-                                    3 * scale,
-                                    2 * scale,
-                                    3 * scale,
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text('₹ 500',
-                                          style: theme.textTheme.titleMedium
-                                              ?.copyWith(
-                                                  color: colorScheme.onSurface,
-                                                  fontSize: 14 * scale,
-                                                  fontWeight: FontWeight.w700)),
-                                      SizedBox(width: 5 * scale),
-                                      Container(
-                                        width: 22 * scale,
-                                        height: 22 * scale,
-                                        decoration: BoxDecoration(
-                                          color: colorScheme.tertiary,
-                                          borderRadius:
-                                              BorderRadius.circular(5 * scale),
-                                        ),
-                                        alignment: Alignment.center,
-                                        child: Icon(Icons.add_rounded,
-                                            color: Colors.black,
-                                            size: 16 * scale),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
+                            _buildOverviewSection(colorScheme),
+                            SizedBox(height: 20 * scale),
+                            _buildQuickActions(colorScheme),
+                            SizedBox(height: 12 * scale),
+                            _buildAnnouncementsBanner(colorScheme),
+                            SizedBox(height: 22 * scale),
+                            _buildLiveTournaments(colorScheme),
+                            SizedBox(height: 20 * scale),
+                            _buildTodaysSchedule(colorScheme),
                           ],
                         ),
                       ),
-
-                      // ---- Body content ----
-                      Expanded(
-                        child: SingleChildScrollView(
-                          physics: const ClampingScrollPhysics(),
-                          padding: EdgeInsets.fromLTRB(
-                            20 * scale,
-                            8 * scale,
-                            20 * scale,
-                            100 * scale,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _buildOverviewSection(colorScheme),
-                              SizedBox(height: 20 * scale),
-                              _buildQuickActions(colorScheme),
-                              SizedBox(height: 12 * scale),
-                              _buildAnnouncementsBanner(colorScheme),
-                              SizedBox(height: 22 * scale),
-                              _buildLiveTournaments(colorScheme),
-                              SizedBox(height: 20 * scale),
-                              _buildTodaysSchedule(colorScheme),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox.shrink(),
-                const SizedBox.shrink(),
-                const SafeArea(
-                  bottom: false,
-                  child: ProfileScreen(),
-                ),
-              ],
-            ),
-
-            // ---- Bottom Gradient CTA Bar (Using PrimaryButton) ----
-            if (_currentIndex == 0)
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: 54 * scale,
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20 * scale),
-                  child: PrimaryButton(
-                    label: 'Create New Tournament',
-                    widthFactor: 1.0, // Full width within padding
-                    height: 48 * scale,
-                    radius: 14 * scale,
-                    onPressed: () {
-                      context.push(AppRouter.createTournamentRoute);
-                    },
-                  ),
+                    ),
+                  ],
                 ),
               ),
+              const SizedBox.shrink(),
+              const SizedBox.shrink(),
+              const SafeArea(
+                bottom: false,
+                child: ProfileScreen(),
+              ),
+            ],
+          ),
 
-            // ---- Bottom Navigation ----
+          // ---- Bottom Gradient CTA Bar (Using PrimaryButton) ----
+          if (_currentIndex == 0)
             Positioned(
               left: 0,
               right: 0,
-              bottom: 0,
-              child: SportoBottomNav(
-                currentIndex: _currentIndex,
-                onTap: (idx) {
-                  setState(() => _currentIndex = idx);
-                  switch (idx) {
-                    case 1:
-                      context.push(AppRouter.matchHistoryRoute);
-                    case 2:
-                      context.push(AppRouter.scheduleRoute);
-                    case 3:
-                      break;
-                  }
-                },
-                items: const [
-                  SportoNavItem(Icons.home_rounded, 'Home'),
-                  SportoNavItem(Icons.emoji_events_outlined, 'Tournaments'),
-                  SportoNavItem(Icons.calendar_month_rounded, 'Schedules'),
-                  SportoNavItem(Icons.person_outline_rounded, 'Profile'),
-                ],
+              bottom: 54 * scale,
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20 * scale),
+                child: PrimaryButton(
+                  label: 'Create New Tournament',
+                  widthFactor: 1.0, // Full width within padding
+                  height: 48 * scale,
+                  radius: 14 * scale,
+                  onPressed: () {
+                    context.push(AppRouter.createTournamentRoute);
+                  },
+                ),
               ),
             ),
-          ],
-        ));
+
+          // ---- Bottom Navigation ----
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: SportoBottomNav(
+              currentIndex: _currentIndex,
+              onTap: (idx) {
+                setState(() => _currentIndex = idx);
+                switch (idx) {
+                  case 1:
+                    context.push(AppRouter.matchHistoryRoute);
+                  case 2:
+                    context.push(AppRouter.scheduleRoute);
+                  case 3:
+                    break;
+                }
+              },
+              items: const [
+                SportoNavItem(Icons.home_rounded, 'Home'),
+                SportoNavItem(Icons.emoji_events_outlined, 'Tournaments'),
+                SportoNavItem(Icons.calendar_month_rounded, 'Schedules'),
+                SportoNavItem(Icons.person_outline_rounded, 'Profile'),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   // ============================================================

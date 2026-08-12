@@ -26,141 +26,103 @@ class _MatchesListScreenState extends State<MatchesListScreen> {
     final layout = context.sportoLayout;
     final sporto = context.sporto;
 
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: Stack(
+    return SafeArea(
+      bottom: false,
+      child: Column(
         children: [
-          const Positioned.fill(
-            child: _MatchesBackground(),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              20,
+              18,
+              20,
+              16,
+            ),
+            child: SizedBox(
+              width: double.infinity,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (Navigator.of(context).canPop()) ...[
+                    IconButton(
+                      padding: EdgeInsets.zero,
+                      visualDensity: VisualDensity.compact,
+                      constraints: const BoxConstraints(
+                        minWidth: 32,
+                        minHeight: 32,
+                      ),
+                      icon: Icon(
+                        Icons.arrow_back_ios_new_rounded,
+                        color: colors.onSurface,
+                        size: 19,
+                      ),
+                      onPressed: () => context.pop(),
+                    ),
+                    const SizedBox(height: 6),
+                  ],
+                  Text(
+                    'Today\'s Matches',
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      color: colors.onSurface,
+                      fontSize: 18,
+                      height: 1.15,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '6 Matches Assigned',
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      color: sporto.info,
+                      fontSize: 14,
+                      height: 1.15,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
-          SafeArea(
-            bottom: false,
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    20,
-                    18,
-                    20,
-                    16,
-                  ),
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (Navigator.of(context).canPop()) ...[
-                          IconButton(
-                            padding: EdgeInsets.zero,
-                            visualDensity: VisualDensity.compact,
-                            constraints: const BoxConstraints(
-                              minWidth: 32,
-                              minHeight: 32,
-                            ),
-                            icon: Icon(
-                              Icons.arrow_back_ios_new_rounded,
-                              color: colors.onSurface,
-                              size: 19,
-                            ),
-                            onPressed: () => context.pop(),
-                          ),
-                          const SizedBox(height: 6),
-                        ],
-                        Text(
-                          'Today\'s Matches',
-                          style: theme.textTheme.titleLarge?.copyWith(
-                            color: colors.onSurface,
-                            fontSize: 18,
-                            height: 1.15,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          '6 Matches Assigned',
-                          style: theme.textTheme.bodyLarge?.copyWith(
-                            color: sporto.info,
-                            fontSize: 14,
-                            height: 1.15,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                _MatchTabs(
-                  tabs: _tabs,
-                  selectedIndex: _selectedTab,
-                  onChanged: (index) {
-                    setState(() {
-                      _selectedTab = index;
-                    });
-                  },
-                ),
-                const SizedBox(height: 16),
-                Expanded(
-                  child: ListView.separated(
-                    physics: const BouncingScrollPhysics(),
-                    padding: EdgeInsets.fromLTRB(
-                      layout.space20,
-                      layout.space8,
-                      layout.space20,
-                      layout.space12,
-                    ),
-                    itemCount: _selectedTab == 0 ? 4 : 1,
-                    separatorBuilder: (_, __) {
-                      return SizedBox(
-                        height: layout.space12,
-                      );
-                    },
-                    itemBuilder: (context, index) {
-                      final state = _selectedTab == 0
-                          ? SportoCricketMatchState.values[index]
-                          : switch (_selectedTab) {
-                              1 => SportoCricketMatchState.upcoming,
-                              2 => SportoCricketMatchState.live,
-                              _ => SportoCricketMatchState.completed,
-                            };
+          _MatchTabs(
+            tabs: _tabs,
+            selectedIndex: _selectedTab,
+            onChanged: (index) {
+              setState(() {
+                _selectedTab = index;
+              });
+            },
+          ),
+          const SizedBox(height: 16),
+          Expanded(
+            child: ListView.separated(
+              physics: const BouncingScrollPhysics(),
+              padding: EdgeInsets.fromLTRB(
+                layout.space20,
+                layout.space8,
+                layout.space20,
+                layout.space12,
+              ),
+              itemCount: _selectedTab == 0 ? 4 : 1,
+              separatorBuilder: (_, __) {
+                return SizedBox(
+                  height: layout.space12,
+                );
+              },
+              itemBuilder: (context, index) {
+                final state = _selectedTab == 0
+                    ? SportoCricketMatchState.values[index]
+                    : switch (_selectedTab) {
+                        1 => SportoCricketMatchState.upcoming,
+                        2 => SportoCricketMatchState.live,
+                        _ => SportoCricketMatchState.completed,
+                      };
 
-                      return SportoCricketMatchCard(
-                        state: state,
-                      );
-                    },
-                  ),
-                ),
-              ],
+                return SportoCricketMatchCard(
+                  state: state,
+                );
+              },
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _MatchesBackground extends StatelessWidget {
-  const _MatchesBackground();
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          stops: const [
-            0,
-            .13,
-            .21,
-            1,
-          ],
-          colors: [
-            const Color(0xFF131924),
-            const Color(0xFF10141D),
-            const Color(0xFF0E0C08),
-            Theme.of(context).scaffoldBackgroundColor,
-          ],
-        ),
       ),
     );
   }

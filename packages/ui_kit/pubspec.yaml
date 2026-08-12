@@ -21,6 +21,8 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/backgrounds/
   fonts:
     - family: Space Grotesk
       fonts:

@@ -11,42 +11,37 @@ class RefereeScoringTabScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Stack(
-      children: [
-        const SportoAmbientBackground(),
-        SafeArea(
-          bottom: false,
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(20, 19, 20, 88),
-            children: [
-              Text(
-                "Today's Matches",
-                style: theme.textTheme.headlineSmall?.copyWith(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                '6 Matches Assigned',
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: const Color(0xFF58C6F5),
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 21),
-              GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: () => context.push(AppRouter.liveScoringPath),
-                child: const SportoCricketMatchCard(
-                  state: SportoCricketMatchState.live,
-                ),
-              ),
-            ],
+    return SafeArea(
+      bottom: false,
+      child: ListView(
+        padding: const EdgeInsets.fromLTRB(20, 19, 20, 88),
+        children: [
+          Text(
+            "Today's Matches",
+            style: theme.textTheme.headlineSmall?.copyWith(
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+            ),
           ),
-        ),
-      ],
+          const SizedBox(height: 4),
+          Text(
+            '6 Matches Assigned',
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: const Color(0xFF58C6F5),
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 21),
+          GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => context.push(AppRouter.liveScoringPath),
+            child: const SportoCricketMatchCard(
+              state: SportoCricketMatchState.live,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

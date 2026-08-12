@@ -7,58 +7,6 @@ import 'sporto_badge.dart';
 import 'sporto_check_box.dart';
 
 // ============================================================
-// ROOT SCORING SHELL
-// ============================================================
-
-class SportoLiveScoringShell extends StatelessWidget {
-  final Widget child;
-
-  const SportoLiveScoringShell({
-    super.key,
-    required this.child,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: SportoScoringTokens.backgroundBottom,
-      body: SizedBox(
-        height: double.infinity,
-        child: Stack(
-          children: [
-            const Positioned.fill(
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    stops: [
-                      0,
-                      .11,
-                      .17,
-                      .82,
-                      1,
-                    ],
-                    colors: [
-                      SportoScoringTokens.backgroundTop,
-                      SportoScoringTokens.backgroundMiddle,
-                      SportoScoringTokens.backgroundBottom,
-                      SportoScoringTokens.backgroundBottom,
-                      Color(0xFF171718),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            child,
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// ============================================================
 // PAGE HEADER
 // ============================================================
 
