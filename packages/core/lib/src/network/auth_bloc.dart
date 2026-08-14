@@ -14,11 +14,15 @@ class CheckAuthStatusEvent extends AuthEvent {}
 
 class SendOtpRequestedEvent extends AuthEvent {
   final String mobileNumber;
+  final String role;
 
-  const SendOtpRequestedEvent(this.mobileNumber);
+  const SendOtpRequestedEvent({
+    required this.mobileNumber,
+    required this.role,
+  });
 
   @override
-  List<Object?> get props => [mobileNumber];
+  List<Object?> get props => [mobileNumber, role];
 }
 
 class VerifyOtpRequestedEvent extends AuthEvent {
@@ -119,7 +123,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<LogoutRequestedEvent>(_onLogoutRequested);
   }
 
-  void _onCheckAuthStatus(CheckAuthStatusEvent event, Emitter<AuthState> emit) async {
+  void _onCheckAuthStatus(
+      CheckAuthStatusEvent event, Emitter<AuthState> emit) async {
     emit(AuthLoadingState());
     try {
       final user = await getCurrentUserUseCase();
@@ -137,20 +142,23 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
-  void _onSendOtpRequested(SendOtpRequestedEvent event, Emitter<AuthState> emit) async {
+  void _onSendOtpRequested(
+      SendOtpRequestedEvent event, Emitter<AuthState> emit) async {
     emit(AuthLoadingState());
     try {
-      await sendOtpUseCase(event.mobileNumber);
+      await sendOtpUseCase(event.mobileNumber, event.role);
       emit(OtpSentState(event.mobileNumber));
     } catch (e) {
       emit(AuthErrorState('Failed to send OTP: $e'));
     }
   }
 
-  void _onVerifyOtpRequested(VerifyOtpRequestedEvent event, Emitter<AuthState> emit) async {
+  void _onVerifyOtpRequested(
+      VerifyOtpRequestedEvent event, Emitter<AuthState> emit) async {
     emit(AuthLoadingState());
     try {
-      final result = await verifyOtpUseCase(event.mobileNumber, event.otpCode, event.role);
+      final result =
+          await verifyOtpUseCase(event.mobileNumber, event.otpCode, event.role);
       if (result.isNewUser || !result.user.isProfileComplete) {
         emit(NeedsOnboardingState(result.user));
       } else {
@@ -161,7 +169,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
-  void _onCompleteProfileRequested(CompleteProfileRequestedEvent event, Emitter<AuthState> emit) async {
+  void _onCompleteProfileRequested(
+      CompleteProfileRequestedEvent event, Emitter<AuthState> emit) async {
     emit(AuthLoadingState());
     try {
       final completedUser = await completeProfileUseCase(event.updatedUser);
@@ -171,7 +180,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
-  void _onLogoutRequested(LogoutRequestedEvent event, Emitter<AuthState> emit) async {
+  void _onLogoutRequested(
+      LogoutRequestedEvent event, Emitter<AuthState> emit) async {
     emit(AuthLoadingState());
     await logoutUseCase();
     emit(UnauthenticatedState());

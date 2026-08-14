@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ui_kit/ui_kit.dart';
 
 import '../core/di/dependency_injector.dart';
+import '../features/partner_api/application/partner_api_bloc.dart';
 import '../features/tournaments/application/tournament_bloc.dart';
 import 'router/app_router.dart';
 
@@ -18,6 +19,7 @@ class PartnerApp extends StatelessWidget {
         BlocProvider<ThemeBloc>.value(value: di.themeBloc),
         BlocProvider<ConnectivityBloc>.value(value: di.connectivityBloc),
         BlocProvider<AuthBloc>.value(value: di.authBloc),
+        BlocProvider<PartnerApiBloc>.value(value: di.partnerApiBloc),
         BlocProvider<TournamentBloc>.value(value: di.tournamentBloc),
       ],
       child: BlocBuilder<ThemeBloc, ThemeState>(

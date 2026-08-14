@@ -1,0 +1,112 @@
+{
+  "baseUrl": "https://app.spotoapp.in/api",
+  "ranAt": "2026-08-14T12:31:37.341Z",
+  "token": "<redacted>",
+  "results": [
+    {
+      "name": "Documents / Add Government ID For Submit",
+      "method": "POST",
+      "url": "https://app.spotoapp.in/api/v1/partner/documents",
+      "status": 200,
+      "ms": 202,
+      "body": {
+        "document_type": "government_id",
+        "document_path": "uploads/government-id-submit.jpg"
+      },
+      "response": {
+        "success": true,
+        "message": "Document added successfully.",
+        "data": {
+          "partner_profile_id": 2,
+          "document_type": "government_id",
+          "document_path": "uploads/government-id-submit.jpg",
+          "verification_status": 1,
+          "rejection_reason": null,
+          "updated_at": "2026-08-14T12:31:37.000000Z",
+          "created_at": "2026-08-14T12:31:37.000000Z",
+          "id": 4
+        }
+      }
+    },
+    {
+      "name": "Application / Submit Application Recheck",
+      "method": "POST",
+      "url": "https://app.spotoapp.in/api/v1/partner/submit",
+      "status": 200,
+      "ms": 77,
+      "body": {
+        "confirmation": true
+      },
+      "response": {
+        "success": true,
+        "message": "Application submitted successfully.",
+        "data": {
+          "application_number": "PARTNER-20260814-000001",
+          "application_status": 2
+        }
+      }
+    },
+    {
+      "name": "Tournament Venues / Store Venue Corrected",
+      "method": "POST",
+      "url": "https://app.spotoapp.in/api/v1/partner/tournaments/1/venues",
+      "status": 404,
+      "ms": 58,
+      "body": {
+        "venue_name": "Main ground",
+        "venue_id": 1,
+        "notes": "Main ground"
+      },
+      "response": {
+        "success": false,
+        "message": "Resource not found.",
+        "errors": null
+      }
+    },
+    {
+      "name": "Tournament Budget / Update Budget Corrected",
+      "method": "PUT",
+      "url": "https://app.spotoapp.in/api/v1/partner/tournaments/1/budget",
+      "status": 404,
+      "ms": 58,
+      "body": {
+        "registration_fee": 1000,
+        "currency": "INR",
+        "prizes": [
+          {
+            "title": "Winner",
+            "category": "winner",
+            "amount": 5000
+          }
+        ],
+        "sponsors": [
+          {
+            "name": "Local Brand",
+            "sponsor_type": "cash",
+            "contribution_amount": 2000
+          }
+        ]
+      },
+      "response": {
+        "success": false,
+        "message": "Resource not found.",
+        "errors": null
+      }
+    },
+    {
+      "name": "Tournament Submit / Submit Corrected",
+      "method": "POST",
+      "url": "https://app.spotoapp.in/api/v1/partner/tournaments/1/submit",
+      "status": 404,
+      "ms": 55,
+      "body": {
+        "confirmation": true
+      },
+      "response": {
+        "success": false,
+        "message": "Resource not found.",
+        "errors": null
+      }
+    }
+  ]
+}

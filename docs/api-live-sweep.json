@@ -1,0 +1,526 @@
+{
+  "baseUrl": "https://app.spotoapp.in/api",
+  "ranAt": "2026-08-14T11:53:37.586Z",
+  "variables": {
+    "partner_session_key": "a29366b2-50ef-4370-a3ec-fd377fc6ce68",
+    "partner_token_obtained": false
+  },
+  "results": [
+    {
+      "name": "Authentication / Send OTP",
+      "method": "POST",
+      "url": "https://app.spotoapp.in/api/v1/partner/send-otp",
+      "auth": false,
+      "body": {
+        "mobile_number": "9876543210"
+      },
+      "status": 200,
+      "ms": 736,
+      "response": {
+        "success": true,
+        "message": "OTP sent successfully.",
+        "data": {
+          "session_key": "a29366b2-50ef-4370-a3ec-fd377fc6ce68",
+          "provider_response": {
+            "Status": "Success",
+            "Details": "a29366b2-50ef-4370-a3ec-fd377fc6ce68"
+          }
+        }
+      },
+      "error": null
+    },
+    {
+      "name": "Authentication / Verify OTP",
+      "method": "POST",
+      "url": "https://app.spotoapp.in/api/v1/partner/verify-otp",
+      "auth": false,
+      "body": {
+        "mobile_number": "9876543210",
+        "otp": "1234",
+        "session_key": "a29366b2-50ef-4370-a3ec-fd377fc6ce68",
+        "device_id": "device-123"
+      },
+      "status": 400,
+      "ms": 149,
+      "response": {
+        "success": false,
+        "message": "Invalid API / SessionId Combination - No Entry Exists",
+        "errors": null
+      },
+      "error": null
+    },
+    {
+      "name": "Profile / Get Profile",
+      "method": "GET",
+      "url": "https://app.spotoapp.in/api/v1/partner/profile",
+      "auth": true,
+      "status": 401,
+      "ms": 60,
+      "response": {
+        "success": false,
+        "message": "Unauthenticated.",
+        "errors": null
+      },
+      "error": null
+    },
+    {
+      "name": "Profile / Create / Save Profile",
+      "method": "POST",
+      "url": "https://app.spotoapp.in/api/v1/partner/profile",
+      "auth": true,
+      "body": {
+        "first_name": "John",
+        "last_name": "Doe",
+        "email": "john.partner@example.com",
+        "date_of_birth": "1990-01-01",
+        "gender": "male",
+        "address_line_1": "123 Main St",
+        "address_line_2": "Suite 400",
+        "city": "Mumbai",
+        "state": "Maharashtra",
+        "country": "India",
+        "pincode": "400001",
+        "highest_qualification": "Bachelors Degree",
+        "present_occupation": "Coach"
+      },
+      "status": 401,
+      "ms": 46,
+      "response": {
+        "success": false,
+        "message": "Unauthenticated.",
+        "errors": null
+      },
+      "error": null
+    },
+    {
+      "name": "Profile / Update Profile",
+      "method": "PUT",
+      "url": "https://app.spotoapp.in/api/v1/partner/profile",
+      "auth": true,
+      "body": {
+        "address_line_1": "456 New St",
+        "city": "Pune",
+        "pincode": "411001",
+        "highest_qualification": "Masters Degree",
+        "present_occupation": "Head Coach"
+      },
+      "status": 401,
+      "ms": 46,
+      "response": {
+        "success": false,
+        "message": "Unauthenticated.",
+        "errors": null
+      },
+      "error": null
+    },
+    {
+      "name": "Sports / Get Available Sports",
+      "method": "GET",
+      "url": "https://app.spotoapp.in/api/v1/partner/sports/available",
+      "auth": true,
+      "status": 401,
+      "ms": 46,
+      "response": {
+        "success": false,
+        "message": "Unauthenticated.",
+        "errors": null
+      },
+      "error": null
+    },
+    {
+      "name": "Sports / Get My Selected Sports",
+      "method": "GET",
+      "url": "https://app.spotoapp.in/api/v1/partner/sports",
+      "auth": true,
+      "status": 401,
+      "ms": 46,
+      "response": {
+        "success": false,
+        "message": "Unauthenticated.",
+        "errors": null
+      },
+      "error": null
+    },
+    {
+      "name": "Sports / Add Sport",
+      "method": "POST",
+      "url": "https://app.spotoapp.in/api/v1/partner/sports",
+      "auth": true,
+      "body": {
+        "sport_ids": [
+          1,
+          2,
+          5
+        ],
+        "experience_years": 5
+      },
+      "status": 401,
+      "ms": 46,
+      "response": {
+        "success": false,
+        "message": "Unauthenticated.",
+        "errors": null
+      },
+      "error": null
+    },
+    {
+      "name": "Sports / Update Sport",
+      "method": "PUT",
+      "url": "https://app.spotoapp.in/api/v1/partner/sports/1",
+      "auth": true,
+      "body": {
+        "experience_years": 6
+      },
+      "status": 401,
+      "ms": 46,
+      "response": {
+        "success": false,
+        "message": "Unauthenticated.",
+        "errors": null
+      },
+      "error": null
+    },
+    {
+      "name": "Sports / Remove Sport",
+      "method": "DELETE",
+      "url": "https://app.spotoapp.in/api/v1/partner/sports/1",
+      "auth": true,
+      "status": 401,
+      "ms": 45,
+      "response": {
+        "success": false,
+        "message": "Unauthenticated.",
+        "errors": null
+      },
+      "error": null
+    },
+    {
+      "name": "Documents / Get Documents",
+      "method": "GET",
+      "url": "https://app.spotoapp.in/api/v1/partner/documents",
+      "auth": true,
+      "status": 401,
+      "ms": 45,
+      "response": {
+        "success": false,
+        "message": "Unauthenticated.",
+        "errors": null
+      },
+      "error": null
+    },
+    {
+      "name": "Documents / Add Document",
+      "method": "POST",
+      "url": "https://app.spotoapp.in/api/v1/partner/documents",
+      "auth": true,
+      "body": {
+        "document_type": "government_id",
+        "document_path": "uploads/test.jpg"
+      },
+      "status": 401,
+      "ms": 49,
+      "response": {
+        "success": false,
+        "message": "Unauthenticated.",
+        "errors": null
+      },
+      "error": null
+    },
+    {
+      "name": "Documents / Remove Document",
+      "method": "DELETE",
+      "url": "https://app.spotoapp.in/api/v1/partner/documents/1",
+      "auth": true,
+      "status": 401,
+      "ms": 47,
+      "response": {
+        "success": false,
+        "message": "Unauthenticated.",
+        "errors": null
+      },
+      "error": null
+    },
+    {
+      "name": "Application / Get Application",
+      "method": "GET",
+      "url": "https://app.spotoapp.in/api/v1/partner/application",
+      "auth": true,
+      "status": 401,
+      "ms": 48,
+      "response": {
+        "success": false,
+        "message": "Unauthenticated.",
+        "errors": null
+      },
+      "error": null
+    },
+    {
+      "name": "Application / Submit Application",
+      "method": "POST",
+      "url": "https://app.spotoapp.in/api/v1/partner/submit",
+      "auth": true,
+      "body": {
+        "confirmation": true
+      },
+      "status": 401,
+      "ms": 51,
+      "response": {
+        "success": false,
+        "message": "Unauthenticated.",
+        "errors": null
+      },
+      "error": null
+    },
+    {
+      "name": "Master Data / Get Types",
+      "method": "GET",
+      "url": "https://app.spotoapp.in/api/v1/partner/tournaments/types",
+      "auth": true,
+      "status": 401,
+      "ms": 54,
+      "response": {
+        "success": false,
+        "message": "Unauthenticated.",
+        "errors": null
+      },
+      "error": null
+    },
+    {
+      "name": "Master Data / Get Sports",
+      "method": "GET",
+      "url": "https://app.spotoapp.in/api/v1/partner/tournaments/sports",
+      "auth": true,
+      "status": 401,
+      "ms": 46,
+      "response": {
+        "success": false,
+        "message": "Unauthenticated.",
+        "errors": null
+      },
+      "error": null
+    },
+    {
+      "name": "Master Data / Get Formats",
+      "method": "GET",
+      "url": "https://app.spotoapp.in/api/v1/partner/tournaments/sports/1/formats",
+      "auth": true,
+      "status": 401,
+      "ms": 53,
+      "response": {
+        "success": false,
+        "message": "Unauthenticated.",
+        "errors": null
+      },
+      "error": null
+    },
+    {
+      "name": "Master Data / Get Form Config",
+      "method": "GET",
+      "url": "https://app.spotoapp.in/api/v1/partner/tournaments/form-config?sport_id=1&sport_format_id=1",
+      "auth": true,
+      "status": 401,
+      "ms": 48,
+      "response": {
+        "success": false,
+        "message": "Unauthenticated.",
+        "errors": null
+      },
+      "error": null
+    },
+    {
+      "name": "Draft / Store Draft",
+      "method": "POST",
+      "url": "https://app.spotoapp.in/api/v1/partner/tournaments/",
+      "auth": true,
+      "body": {
+        "sport_id": 1,
+        "sport_format_id": 1,
+        "tournament_type_id": 1
+      },
+      "status": 401,
+      "ms": 48,
+      "response": {
+        "success": false,
+        "message": "Unauthenticated.",
+        "errors": null
+      },
+      "error": null
+    },
+    {
+      "name": "Draft / Show Tournament",
+      "method": "GET",
+      "url": "https://app.spotoapp.in/api/v1/partner/tournaments/1",
+      "auth": true,
+      "status": 401,
+      "ms": 46,
+      "response": {
+        "success": false,
+        "message": "Unauthenticated.",
+        "errors": null
+      },
+      "error": null
+    },
+    {
+      "name": "Draft / Update Details",
+      "method": "PUT",
+      "url": "https://app.spotoapp.in/api/v1/partner/tournaments/1",
+      "auth": true,
+      "body": {
+        "name": "Updated Tournament",
+        "registration_end_at": "2026-12-31 23:59:59"
+      },
+      "status": 401,
+      "ms": 47,
+      "response": {
+        "success": false,
+        "message": "Unauthenticated.",
+        "errors": null
+      },
+      "error": null
+    },
+    {
+      "name": "Draft / Delete Tournament",
+      "method": "DELETE",
+      "url": "https://app.spotoapp.in/api/v1/partner/tournaments/1",
+      "auth": true,
+      "status": 401,
+      "ms": 67,
+      "response": {
+        "success": false,
+        "message": "Unauthenticated.",
+        "errors": null
+      },
+      "error": null
+    },
+    {
+      "name": "Rules / Update Rules",
+      "method": "PUT",
+      "url": "https://app.spotoapp.in/api/v1/partner/tournaments/1/rules",
+      "auth": true,
+      "body": {
+        "rules": [
+          {
+            "sport_rule_field_id": 1,
+            "value": "Custom rule value"
+          }
+        ]
+      },
+      "status": 401,
+      "ms": 52,
+      "response": {
+        "success": false,
+        "message": "Unauthenticated.",
+        "errors": null
+      },
+      "error": null
+    },
+    {
+      "name": "Venues / Store Venue",
+      "method": "POST",
+      "url": "https://app.spotoapp.in/api/v1/partner/tournaments/1/venues",
+      "auth": true,
+      "body": {
+        "venue_id": 1,
+        "notes": "Main ground"
+      },
+      "status": 401,
+      "ms": 80,
+      "response": {
+        "success": false,
+        "message": "Unauthenticated.",
+        "errors": null
+      },
+      "error": null
+    },
+    {
+      "name": "Venues / Update Venue",
+      "method": "PUT",
+      "url": "https://app.spotoapp.in/api/v1/partner/tournaments/1/venues/1",
+      "auth": true,
+      "body": {
+        "venue_id": 2,
+        "notes": "Updated ground"
+      },
+      "status": 401,
+      "ms": 57,
+      "response": {
+        "success": false,
+        "message": "Unauthenticated.",
+        "errors": null
+      },
+      "error": null
+    },
+    {
+      "name": "Venues / Remove Venue",
+      "method": "DELETE",
+      "url": "https://app.spotoapp.in/api/v1/partner/tournaments/1/venues/1",
+      "auth": true,
+      "status": 401,
+      "ms": 47,
+      "response": {
+        "success": false,
+        "message": "Unauthenticated.",
+        "errors": null
+      },
+      "error": null
+    },
+    {
+      "name": "Budget / Update Budget",
+      "method": "PUT",
+      "url": "https://app.spotoapp.in/api/v1/partner/tournaments/1/budget",
+      "auth": true,
+      "body": {
+        "registration_fee": 1000,
+        "currency": "INR",
+        "prizes": [
+          {
+            "title": "Winner",
+            "amount": 5000
+          }
+        ],
+        "sponsors": [
+          {
+            "name": "Local Brand",
+            "contribution_amount": 2000
+          }
+        ]
+      },
+      "status": 401,
+      "ms": 45,
+      "response": {
+        "success": false,
+        "message": "Unauthenticated.",
+        "errors": null
+      },
+      "error": null
+    },
+    {
+      "name": "Review / Review",
+      "method": "GET",
+      "url": "https://app.spotoapp.in/api/v1/partner/tournaments/1/review",
+      "auth": true,
+      "status": 401,
+      "ms": 46,
+      "response": {
+        "success": false,
+        "message": "Unauthenticated.",
+        "errors": null
+      },
+      "error": null
+    },
+    {
+      "name": "Submit / Submit",
+      "method": "POST",
+      "url": "https://app.spotoapp.in/api/v1/partner/tournaments/1/submit",
+      "auth": true,
+      "status": 401,
+      "ms": 45,
+      "response": {
+        "success": false,
+        "message": "Unauthenticated.",
+        "errors": null
+      },
+      "error": null
+    }
+  ]
+}

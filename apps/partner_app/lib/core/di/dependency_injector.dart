@@ -2,6 +2,7 @@ import 'package:core/core.dart';
 import 'package:partner_data/partner_data.dart';
 import 'package:shared_domain/shared_domain.dart';
 
+import '../../features/partner_api/application/partner_api_bloc.dart';
 import '../../features/tournaments/application/tournament_bloc.dart';
 
 /// Composition root: wires data layer (repositories) to the presentation
@@ -18,6 +19,8 @@ class DependencyInjector {
     ..add(StartConnectivityWatcherEvent());
 
   late final AuthBloc authBloc = _buildAuthBloc();
+
+  late final PartnerApiBloc partnerApiBloc = _buildPartnerApiBloc();
 
   late final TournamentBloc tournamentBloc = _buildTournamentBloc();
 
@@ -37,6 +40,14 @@ class DependencyInjector {
     return TournamentBloc(
       getTournamentsUseCase: GetTournamentsUseCase(tournamentRepository),
       createTournamentUseCase: CreateTournamentUseCase(tournamentRepository),
+    );
+  }
+
+  PartnerApiBloc _buildPartnerApiBloc() {
+    final sessionStore = AuthSessionStore();
+    final apiClient = SportoApiClient(tokenProvider: sessionStore.getToken);
+    return PartnerApiBloc(
+      remoteDataSource: PartnerRemoteDataSource(apiClient: apiClient),
     );
   }
 }

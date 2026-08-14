@@ -61,14 +61,24 @@ class _ReviewCard extends StatelessWidget {
 // ============================================================
 class AutomatedOnboardingWizard extends StatefulWidget {
   final UserEntity user;
+  final int initialStep;
   final Function(UserEntity updatedUser) onComplete;
+  final Future<void> Function(OnboardingSubmission submission)?
+      onSubmitOnboarding;
+  final Future<void> Function(
+      OnboardingSubmission submission, int completedStep)? onContinueStep;
+  final Future<String?> Function(OnboardingUploadType type)? onUploadDocument;
   final VoidCallback? onTrackApplication;
   final VoidCallback? onGoHome;
 
   const AutomatedOnboardingWizard({
     super.key,
     required this.user,
+    this.initialStep = 1,
     required this.onComplete,
+    this.onSubmitOnboarding,
+    this.onContinueStep,
+    this.onUploadDocument,
     this.onTrackApplication,
     this.onGoHome,
   });
@@ -79,8 +89,9 @@ class AutomatedOnboardingWizard extends StatefulWidget {
 }
 
 class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
-  int _currentStep = 1;
-  final int _totalSteps = 6;
+  late int _currentStep;
+  bool get _isReferee => widget.user.role == 'referee';
+  int get _totalSteps => _isReferee ? 6 : 5;
 
   // Step 1
   late TextEditingController _firstNameController;
@@ -128,6 +139,11 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
   bool _govIdUploaded = false;
   bool _sportsCertUploaded = false;
   bool _resumeUploaded = false;
+  String? _profilePhotoPath;
+  String? _governmentIdPath;
+  String? _sportsCertificatePath;
+  String? _resumePath;
+  OnboardingUploadType? _uploadingDocumentType;
 
   // Step 6
   bool _confirmAccuracy = false;
@@ -135,12 +151,15 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
   // Post-submit state
   UserEntity? _pendingUser;
   bool _applicationSubmitted = false;
+  bool _isSubmittingOnboarding = false;
+  String? _submissionError;
   late final ConfettiController _confettiController;
   static const String _applicationRef = 'RF202600124';
 
   @override
   void initState() {
     super.initState();
+    _currentStep = widget.initialStep.clamp(1, _totalSteps);
     final nameParts = widget.user.name.trim().split(RegExp(r'\s+'));
     final hasName = widget.user.name.trim().isNotEmpty;
     _firstNameController =
@@ -176,10 +195,10 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
   }
 
   // FIXED: Don't call onComplete here — defer to Track/Back buttons
-  void _finishOnboarding() {
-    if (!_confirmAccuracy) return;
+  Future<void> _finishOnboarding() async {
+    if (!_confirmAccuracy || _isSubmittingOnboarding) return;
 
-    _pendingUser = widget.user.copyWith(
+    final updatedUser = widget.user.copyWith(
       name:
           '${_firstNameController.text.trim()} ${_lastNameController.text.trim()}',
       email: _emailController.text.trim(),
@@ -191,9 +210,102 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
       isProfileComplete: true,
     );
 
+    setState(() {
+      _isSubmittingOnboarding = true;
+      _submissionError = null;
+    });
+
+    try {
+      await widget.onSubmitOnboarding?.call(_buildSubmission(updatedUser));
+    } catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _isSubmittingOnboarding = false;
+        _submissionError = error.toString();
+      });
+      return;
+    }
+
+    _pendingUser = updatedUser;
+
     if (!mounted) return;
-    setState(() => _applicationSubmitted = true);
+    setState(() {
+      _isSubmittingOnboarding = false;
+      _applicationSubmitted = true;
+    });
     _confettiController.play();
+  }
+
+  OnboardingSubmission _buildSubmission(UserEntity updatedUser) {
+    return OnboardingSubmission(
+      user: updatedUser,
+      firstName: _firstNameController.text.trim(),
+      lastName: _lastNameController.text.trim(),
+      email: _emailController.text.trim(),
+      dateOfBirth: _dobController.text.trim(),
+      gender: _selectedGender?.toLowerCase() ?? '',
+      addressLine1: _addressLineController.text.trim(),
+      city: _cityController.text.trim(),
+      state: _stateController.text.trim(),
+      country: _countryController.text.trim(),
+      pincode: _pinCodeController.text.trim(),
+      selectedSports: _selectedSports.toList(),
+      experienceYears: int.tryParse(_experienceController.text.trim()) ?? 0,
+      highestQualification: _qualificationController.text.trim(),
+      presentOccupation: _isReferee ? 'Referee' : 'Coach',
+      hasProfilePhoto: _profilePhotoUploaded,
+      hasGovernmentId: _govIdUploaded,
+      hasSportsCertificate: _sportsCertUploaded,
+      hasResume: _resumeUploaded,
+      profilePhotoPath: _profilePhotoPath,
+      governmentIdPath: _governmentIdPath,
+      sportsCertificatePath: _sportsCertificatePath,
+      resumePath: _resumePath,
+      availableDays: _selectedDays.toList(),
+      preferredCity: _preferredCityController.text.trim(),
+      travelRadiusKm: int.tryParse(_travelRadiusController.text.trim()),
+      emergencyContact: _emergencyContactController.text.trim(),
+    );
+  }
+
+  Future<void> _uploadDocument(OnboardingUploadType type) async {
+    if (_uploadingDocumentType != null) return;
+    setState(() {
+      _uploadingDocumentType = type;
+      _submissionError = null;
+    });
+    try {
+      final uploadedPath = await widget.onUploadDocument?.call(type);
+      if (uploadedPath == null || uploadedPath.isEmpty) {
+        if (!mounted) return;
+        setState(() => _uploadingDocumentType = null);
+        return;
+      }
+      if (!mounted) return;
+      setState(() {
+        switch (type) {
+          case OnboardingUploadType.profilePhoto:
+            _profilePhotoUploaded = true;
+            _profilePhotoPath = uploadedPath;
+          case OnboardingUploadType.governmentId:
+            _govIdUploaded = true;
+            _governmentIdPath = uploadedPath;
+          case OnboardingUploadType.sportsCertificate:
+            _sportsCertUploaded = true;
+            _sportsCertificatePath = uploadedPath;
+          case OnboardingUploadType.resume:
+            _resumeUploaded = true;
+            _resumePath = uploadedPath;
+        }
+        _uploadingDocumentType = null;
+      });
+    } catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _uploadingDocumentType = null;
+        _submissionError = error.toString();
+      });
+    }
   }
 
   @override
@@ -265,7 +377,9 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
                       SizedBox(width: scaled(14)),
                       Expanded(
                         child: Text(
-                          'Apply as Referee',
+                          _isReferee
+                              ? 'Apply as Referee'
+                              : 'Complete Partner Profile',
                           style: tt.titleLarge?.copyWith(
                             fontSize: scaled(18),
                             fontWeight: FontWeight.w600,
@@ -336,18 +450,54 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
                             width: scaled(270),
                             height: scaled(48),
                             radius: scaled(14),
-                            label:
-                                isLastStep ? 'Submit Application' : 'Continue',
-                            disabled: submitDisabled,
-                            onPressed: () {
-                              if (submitDisabled) return;
+                            label: _isSubmittingOnboarding
+                                ? 'Submitting...'
+                                : isLastStep
+                                    ? 'Submit Application'
+                                    : 'Continue',
+                            disabled: submitDisabled || _isSubmittingOnboarding,
+                            onPressed: () async {
+                              if (submitDisabled || _isSubmittingOnboarding)
+                                return;
                               if (_currentStep < _totalSteps) {
-                                setState(() => _currentStep++);
+                                setState(() {
+                                  _isSubmittingOnboarding = true;
+                                  _submissionError = null;
+                                });
+                                try {
+                                  await widget.onContinueStep?.call(
+                                    _buildSubmission(widget.user),
+                                    _currentStep,
+                                  );
+                                } catch (error) {
+                                  if (!mounted) return;
+                                  setState(() {
+                                    _isSubmittingOnboarding = false;
+                                    _submissionError = error.toString();
+                                  });
+                                  return;
+                                }
+                                if (!mounted) return;
+                                setState(() {
+                                  _isSubmittingOnboarding = false;
+                                  _currentStep++;
+                                });
                               } else {
                                 _finishOnboarding();
                               }
                             },
                           ),
+                          if (_submissionError != null) ...[
+                            SizedBox(height: scaled(12)),
+                            Text(
+                              _submissionError!,
+                              textAlign: TextAlign.center,
+                              style: tt.bodyMedium?.copyWith(
+                                color: cs.error,
+                                fontSize: scaled(12),
+                              ),
+                            ),
+                          ],
                           SizedBox(height: scaled(28)),
                         ],
                       ),
@@ -374,9 +524,13 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
       case 3:
         return _buildStep3Sports(cs, tt);
       case 4:
-        return _buildStep4Availability(cs, tt);
+        return _isReferee
+            ? _buildStep4Availability(cs, tt)
+            : _buildStep5Identity(cs, tt);
       case 5:
-        return _buildStep5Identity(cs, tt);
+        return _isReferee
+            ? _buildStep5Identity(cs, tt)
+            : _buildStep6Review(cs, tt);
       case 6:
         return _buildStep6Review(cs, tt);
       default:
@@ -526,7 +680,11 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSectionHeader(
-            'Sports & Experience', 'Sports You Can Officiate', cs, tt),
+          'Sports & Experience',
+          _isReferee ? 'Sports You Can Officiate' : 'Sports You Organize',
+          cs,
+          tt,
+        ),
         ..._allSports.map((sport) => _buildCheckRow(
               label: sport,
               isSelected: _selectedSports.contains(sport),
@@ -610,32 +768,52 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
         _buildUploadTile(
             label: 'Profile Photo',
             isUploaded: _profilePhotoUploaded,
-            onUpload: () => setState(() => _profilePhotoUploaded = true),
-            onClear: () => setState(() => _profilePhotoUploaded = false),
+            isUploading:
+                _uploadingDocumentType == OnboardingUploadType.profilePhoto,
+            onUpload: () => _uploadDocument(OnboardingUploadType.profilePhoto),
+            onClear: () => setState(() {
+                  _profilePhotoUploaded = false;
+                  _profilePhotoPath = null;
+                }),
             wide: false,
             cs: cs,
             tt: tt),
         _buildUploadTile(
             label: 'Government ID',
             isUploaded: _govIdUploaded,
-            onUpload: () => setState(() => _govIdUploaded = true),
-            onClear: () => setState(() => _govIdUploaded = false),
+            isUploading:
+                _uploadingDocumentType == OnboardingUploadType.governmentId,
+            onUpload: () => _uploadDocument(OnboardingUploadType.governmentId),
+            onClear: () => setState(() {
+                  _govIdUploaded = false;
+                  _governmentIdPath = null;
+                }),
             wide: false,
             cs: cs,
             tt: tt),
         _buildUploadTile(
             label: 'Sports Certificate (Optional)',
             isUploaded: _sportsCertUploaded,
-            onUpload: () => setState(() => _sportsCertUploaded = true),
-            onClear: () => setState(() => _sportsCertUploaded = false),
+            isUploading: _uploadingDocumentType ==
+                OnboardingUploadType.sportsCertificate,
+            onUpload: () =>
+                _uploadDocument(OnboardingUploadType.sportsCertificate),
+            onClear: () => setState(() {
+                  _sportsCertUploaded = false;
+                  _sportsCertificatePath = null;
+                }),
             wide: false,
             cs: cs,
             tt: tt),
         _buildUploadTile(
             label: 'Resume (Optional)',
             isUploaded: _resumeUploaded,
-            onUpload: () => setState(() => _resumeUploaded = true),
-            onClear: () => setState(() => _resumeUploaded = false),
+            isUploading: _uploadingDocumentType == OnboardingUploadType.resume,
+            onUpload: () => _uploadDocument(OnboardingUploadType.resume),
+            onClear: () => setState(() {
+                  _resumeUploaded = false;
+                  _resumePath = null;
+                }),
             wide: true,
             cs: cs,
             tt: tt),
@@ -646,6 +824,7 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
   Widget _buildUploadTile({
     required String label,
     required bool isUploaded,
+    required bool isUploading,
     required VoidCallback onUpload,
     required VoidCallback onClear,
     required bool wide,
@@ -667,22 +846,31 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
       backgroundColor: cs.onSurface.withValues(alpha: 0.12),
       padding: EdgeInsets.zero,
       child: Center(
-        child: isUploaded
-            ? Icon(Icons.check_rounded,
-                color: cs.secondary, size: (wide ? 26 : 30) * scale)
-            : Text(
-                'Upload',
-                style: tt.bodyLarge?.copyWith(
-                  color: cs.onSurfaceVariant,
-                  fontSize: 15 * scale,
-                  fontWeight: FontWeight.w500,
+        child: isUploading
+            ? SizedBox(
+                width: 22 * scale,
+                height: 22 * scale,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2 * scale,
+                  color: cs.tertiary,
                 ),
-              ),
+              )
+            : isUploaded
+                ? Icon(Icons.check_rounded,
+                    color: cs.secondary, size: (wide ? 26 : 30) * scale)
+                : Text(
+                    'Upload',
+                    style: tt.bodyLarge?.copyWith(
+                      color: cs.onSurfaceVariant,
+                      fontSize: 15 * scale,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
       ),
     );
 
     final tappableTile = GestureDetector(
-      onTap: isUploaded ? null : onUpload,
+      onTap: isUploaded || isUploading ? null : onUpload,
       behavior: HitTestBehavior.opaque,
       child: wide ? SizedBox(width: double.infinity, child: tile) : tile,
     );
@@ -746,7 +934,11 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSectionHeader(
-            'Review Application', 'Sports You Can Officiate', cs, tt),
+          _isReferee ? 'Review Application' : 'Review Profile',
+          _isReferee ? 'Sports You Can Officiate' : 'Sports You Organize',
+          cs,
+          tt,
+        ),
 
         // Card 1: name (white) + sports (blue), NO gray label
         _ReviewCard(value: fullName, sub: sports),
@@ -1254,4 +1446,71 @@ class ApplicationStatusScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+class OnboardingSubmission {
+  const OnboardingSubmission({
+    required this.user,
+    required this.firstName,
+    required this.lastName,
+    required this.email,
+    required this.dateOfBirth,
+    required this.gender,
+    required this.addressLine1,
+    required this.city,
+    required this.state,
+    required this.country,
+    required this.pincode,
+    required this.selectedSports,
+    required this.experienceYears,
+    required this.highestQualification,
+    required this.presentOccupation,
+    required this.hasProfilePhoto,
+    required this.hasGovernmentId,
+    required this.hasSportsCertificate,
+    required this.hasResume,
+    this.profilePhotoPath,
+    this.governmentIdPath,
+    this.sportsCertificatePath,
+    this.resumePath,
+    required this.availableDays,
+    required this.preferredCity,
+    required this.travelRadiusKm,
+    required this.emergencyContact,
+  });
+
+  final UserEntity user;
+  final String firstName;
+  final String lastName;
+  final String email;
+  final String dateOfBirth;
+  final String gender;
+  final String addressLine1;
+  final String city;
+  final String state;
+  final String country;
+  final String pincode;
+  final List<String> selectedSports;
+  final int experienceYears;
+  final String highestQualification;
+  final String presentOccupation;
+  final bool hasProfilePhoto;
+  final bool hasGovernmentId;
+  final bool hasSportsCertificate;
+  final bool hasResume;
+  final String? profilePhotoPath;
+  final String? governmentIdPath;
+  final String? sportsCertificatePath;
+  final String? resumePath;
+  final List<String> availableDays;
+  final String preferredCity;
+  final int? travelRadiusKm;
+  final String emergencyContact;
+}
+
+enum OnboardingUploadType {
+  profilePhoto,
+  governmentId,
+  sportsCertificate,
+  resume,
 }

@@ -1,0 +1,1203 @@
+{
+  "baseUrl": "https://app.spotoapp.in/api",
+  "ranAt": "2026-08-14T12:02:36.201Z",
+  "token": "<redacted>",
+  "verifyResponse": {
+    "success": true,
+    "message": "Logged in successfully.",
+    "data": {
+      "token": "<redacted>",
+      "is_new_user": true,
+      "user": {
+        "id": 5,
+        "mobile_number": "<redacted_mobile>",
+        "status": 1,
+        "profile": {
+          "id": 4,
+          "user_id": 5,
+          "full_name": null,
+          "email": null,
+          "date_of_birth": null,
+          "gender": null,
+          "city": null,
+          "state": null,
+          "country": null,
+          "profile_photo_path": null,
+          "created_at": "2026-08-14T12:01:32.000000Z",
+          "updated_at": "2026-08-14T12:01:32.000000Z"
+        }
+      }
+    }
+  },
+  "results": [
+    {
+      "name": "Profile / Get Profile",
+      "method": "GET",
+      "url": "https://app.spotoapp.in/api/v1/partner/profile",
+      "auth": true,
+      "status": 404,
+      "ms": 184,
+      "response": {
+        "success": false,
+        "message": "Partner profile not found.",
+        "errors": null
+      },
+      "error": null
+    },
+    {
+      "name": "Profile / Create / Save Profile",
+      "method": "POST",
+      "url": "https://app.spotoapp.in/api/v1/partner/profile",
+      "auth": true,
+      "body": {
+        "first_name": "John",
+        "last_name": "Doe",
+        "email": "john.partner@example.com",
+        "date_of_birth": "1990-01-01",
+        "gender": "male",
+        "address_line_1": "123 Main St",
+        "address_line_2": "Suite 400",
+        "city": "Mumbai",
+        "state": "Maharashtra",
+        "country": "India",
+        "pincode": "400001",
+        "highest_qualification": "Bachelors Degree",
+        "present_occupation": "Coach"
+      },
+      "status": 500,
+      "ms": 71,
+      "response": {
+        "success": false,
+        "message": "Failed to save profile: SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry 'john.partner@example.com' for key 'users_email_unique' (Connection: mysql, Host: 172.31.6.72, Port: 3306, Database: sporto_db, SQL: update `users` set `name` = John Doe, `email` = john.partner@example.com, `users`.`updated_at` = 2026-08-14 12:02:34 where `id` = 5)",
+        "errors": null
+      },
+      "error": null
+    },
+    {
+      "name": "Profile / Update Profile",
+      "method": "PUT",
+      "url": "https://app.spotoapp.in/api/v1/partner/profile",
+      "auth": true,
+      "body": {
+        "address_line_1": "456 New St",
+        "city": "Pune",
+        "pincode": "411001",
+        "highest_qualification": "Masters Degree",
+        "present_occupation": "Head Coach"
+      },
+      "status": 200,
+      "ms": 88,
+      "response": {
+        "success": true,
+        "message": "Partner profile retrieved successfully.",
+        "data": {
+          "personal_information": {
+            "first_name": "",
+            "last_name": "",
+            "email": "",
+            "date_of_birth": null,
+            "gender": ""
+          },
+          "address": {
+            "address_line_1": "456 New St",
+            "address_line_2": null,
+            "city": "Pune",
+            "state": null,
+            "pincode": "411001",
+            "country": null
+          },
+          "professional_information": {
+            "highest_qualification": "Masters Degree",
+            "present_occupation": "Head Coach"
+          },
+          "application": {
+            "id": 2,
+            "application_number": null,
+            "application_status": 1,
+            "status": 2
+          }
+        }
+      },
+      "error": null
+    },
+    {
+      "name": "Sports / Get Available Sports",
+      "method": "GET",
+      "url": "https://app.spotoapp.in/api/v1/partner/sports/available",
+      "auth": true,
+      "status": 200,
+      "ms": 57,
+      "response": {
+        "success": true,
+        "message": "Available sports retrieved successfully.",
+        "data": [
+          {
+            "id": 1,
+            "name": "Cricket",
+            "code": "CRICKET",
+            "slug": "cricket",
+            "description": "A bat-and-ball game played between two teams of eleven players.",
+            "icon_path": null,
+            "display_order": 1
+          },
+          {
+            "id": 2,
+            "name": "Football",
+            "code": "FOOTBALL",
+            "slug": "football",
+            "description": "A team sport played with a spherical ball between two teams.",
+            "icon_path": null,
+            "display_order": 2
+          },
+          {
+            "id": 3,
+            "name": "Basketball",
+            "code": "BASKETBALL",
+            "slug": "basketball",
+            "description": "A game played between two teams of five players each on a rectangular court.",
+            "icon_path": null,
+            "display_order": 3
+          },
+          {
+            "id": 4,
+            "name": "Volleyball",
+            "code": "VOLLEYBALL",
+            "slug": "volleyball",
+            "description": "A team sport in which two teams of six players are separated by a net.",
+            "icon_path": null,
+            "display_order": 4
+          },
+          {
+            "id": 5,
+            "name": "Badminton",
+            "code": "BADMINTON",
+            "slug": "badminton",
+            "description": "A racquet sport played using racquets to hit a shuttlecock across a net.",
+            "icon_path": null,
+            "display_order": 5
+          },
+          {
+            "id": 6,
+            "name": "Table Tennis",
+            "code": "TABLE_TENNIS",
+            "slug": "table-tennis",
+            "description": "A sport in which two or four players hit a lightweight ball back and forth across a table.",
+            "icon_path": null,
+            "display_order": 6
+          },
+          {
+            "id": 7,
+            "name": "Tennis",
+            "code": "TENNIS",
+            "slug": "tennis",
+            "description": "A racket sport that can be played individually against a single opponent or between two teams of two players.",
+            "icon_path": null,
+            "display_order": 7
+          },
+          {
+            "id": 8,
+            "name": "Kabaddi",
+            "code": "KABADDI",
+            "slug": "kabaddi",
+            "description": "A contact team sport played between two teams of seven players.",
+            "icon_path": null,
+            "display_order": 8
+          },
+          {
+            "id": 9,
+            "name": "Kho Kho",
+            "code": "KHO_KHO",
+            "slug": "kho-kho",
+            "description": "A traditional Indian tag game played by teams of twelve players, of which nine enter the field.",
+            "icon_path": null,
+            "display_order": 9
+          },
+          {
+            "id": 10,
+            "name": "Chess",
+            "code": "CHESS",
+            "slug": "chess",
+            "description": "A two-player strategy board game played on a checkered board.",
+            "icon_path": null,
+            "display_order": 10
+          },
+          {
+            "id": 11,
+            "name": "Carrom",
+            "code": "CARROM",
+            "slug": "carrom",
+            "description": "A tabletop game of Indian origin.",
+            "icon_path": null,
+            "display_order": 11
+          },
+          {
+            "id": 12,
+            "name": "Swimming",
+            "code": "SWIMMING",
+            "slug": "swimming",
+            "description": "The sport or activity of propelling oneself through water using the limbs.",
+            "icon_path": null,
+            "display_order": 12
+          },
+          {
+            "id": 13,
+            "name": "Athletics",
+            "code": "ATHLETICS",
+            "slug": "athletics",
+            "description": "A collection of sporting events that involve competitive running, jumping, throwing, and walking.",
+            "icon_path": null,
+            "display_order": 13
+          },
+          {
+            "id": 14,
+            "name": "Cycling",
+            "code": "CYCLING",
+            "slug": "cycling",
+            "description": "The sport of riding bicycles off-road, on road, or on a track.",
+            "icon_path": null,
+            "display_order": 14
+          },
+          {
+            "id": 15,
+            "name": "Hockey",
+            "code": "HOCKEY",
+            "slug": "hockey",
+            "description": "A family of sports in which two teams play against each other by trying to maneuver a ball or a puck into the opponent's goal.",
+            "icon_path": null,
+            "display_order": 15
+          },
+          {
+            "id": 16,
+            "name": "Esports",
+            "code": "ESPORTS",
+            "slug": "esports",
+            "description": "Competitive video gaming.",
+            "icon_path": null,
+            "display_order": 16
+          },
+          {
+            "id": 17,
+            "name": "Futsal",
+            "code": "FUTSAL",
+            "slug": "futsal",
+            "description": "A football-based game played on a hard court.",
+            "icon_path": null,
+            "display_order": 17
+          },
+          {
+            "id": 18,
+            "name": "Handball",
+            "code": "HANDBALL",
+            "slug": "handball",
+            "description": "A team sport in which two teams of seven players each pass a ball using their hands.",
+            "icon_path": null,
+            "display_order": 18
+          },
+          {
+            "id": 19,
+            "name": "Baseball",
+            "code": "BASEBALL",
+            "slug": "baseball",
+            "description": "A bat-and-ball game played between two opposing teams.",
+            "icon_path": null,
+            "display_order": 19
+          },
+          {
+            "id": 20,
+            "name": "Softball",
+            "code": "SOFTBALL",
+            "slug": "softball",
+            "description": "A game similar to baseball played with a larger ball.",
+            "icon_path": null,
+            "display_order": 20
+          },
+          {
+            "id": 21,
+            "name": "Rugby",
+            "code": "RUGBY",
+            "slug": "rugby",
+            "description": "A team sport played with an oval ball.",
+            "icon_path": null,
+            "display_order": 21
+          },
+          {
+            "id": 22,
+            "name": "Netball",
+            "code": "NETBALL",
+            "slug": "netball",
+            "description": "A ball sport played by two teams of seven players.",
+            "icon_path": null,
+            "display_order": 22
+          },
+          {
+            "id": 23,
+            "name": "Boxing",
+            "code": "BOXING",
+            "slug": "boxing",
+            "description": "A combat sport in which two people fight using their fists.",
+            "icon_path": null,
+            "display_order": 23
+          },
+          {
+            "id": 24,
+            "name": "Wrestling",
+            "code": "WRESTLING",
+            "slug": "wrestling",
+            "description": "A combat sport involving grappling type techniques.",
+            "icon_path": null,
+            "display_order": 24
+          },
+          {
+            "id": 25,
+            "name": "Judo",
+            "code": "JUDO",
+            "slug": "judo",
+            "description": "A modern Japanese martial art.",
+            "icon_path": null,
+            "display_order": 25
+          },
+          {
+            "id": 26,
+            "name": "Karate",
+            "code": "KARATE",
+            "slug": "karate",
+            "description": "A martial art developed in the Ryukyu Kingdom.",
+            "icon_path": null,
+            "display_order": 26
+          },
+          {
+            "id": 27,
+            "name": "Taekwondo",
+            "code": "TAEKWONDO",
+            "slug": "taekwondo",
+            "description": "A Korean martial art.",
+            "icon_path": null,
+            "display_order": 27
+          },
+          {
+            "id": 28,
+            "name": "Archery",
+            "code": "ARCHERY",
+            "slug": "archery",
+            "description": "The sport, practice, or skill of using a bow to shoot arrows.",
+            "icon_path": null,
+            "display_order": 28
+          },
+          {
+            "id": 29,
+            "name": "Shooting",
+            "code": "SHOOTING",
+            "slug": "shooting",
+            "description": "The act or process of discharging firearms or other projectile weapons.",
+            "icon_path": null,
+            "display_order": 29
+          },
+          {
+            "id": 30,
+            "name": "Weightlifting",
+            "code": "WEIGHTLIFTING",
+            "slug": "weightlifting",
+            "description": "An athletic discipline in the modern Olympic programme in which the athlete attempts a maximum-weight single lift.",
+            "icon_path": null,
+            "display_order": 30
+          },
+          {
+            "id": 31,
+            "name": "Powerlifting",
+            "code": "POWERLIFTING",
+            "slug": "powerlifting",
+            "description": "A strength sport that consists of three attempts at maximal weight on three lifts.",
+            "icon_path": null,
+            "display_order": 31
+          },
+          {
+            "id": 32,
+            "name": "Bodybuilding",
+            "code": "BODYBUILDING",
+            "slug": "bodybuilding",
+            "description": "The use of progressive resistance exercise to control and develop one's muscles.",
+            "icon_path": null,
+            "display_order": 32
+          },
+          {
+            "id": 33,
+            "name": "Golf",
+            "code": "GOLF",
+            "slug": "golf",
+            "description": "A club-and-ball sport.",
+            "icon_path": null,
+            "display_order": 33
+          },
+          {
+            "id": 34,
+            "name": "Snooker",
+            "code": "SNOOKER",
+            "slug": "snooker",
+            "description": "A cue sport that is typically played on a table covered with a green cloth.",
+            "icon_path": null,
+            "display_order": 34
+          },
+          {
+            "id": 35,
+            "name": "Billiards",
+            "code": "BILLIARDS",
+            "slug": "billiards",
+            "description": "A variety of games generally played with a cue stick.",
+            "icon_path": null,
+            "display_order": 35
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "name": "Sports / Get My Selected Sports",
+      "method": "GET",
+      "url": "https://app.spotoapp.in/api/v1/partner/sports",
+      "auth": true,
+      "status": 200,
+      "ms": 58,
+      "response": {
+        "success": true,
+        "message": "Partner sports retrieved successfully.",
+        "data": []
+      },
+      "error": null
+    },
+    {
+      "name": "Sports / Add Sport",
+      "method": "POST",
+      "url": "https://app.spotoapp.in/api/v1/partner/sports",
+      "auth": true,
+      "body": {
+        "sport_ids": [
+          1,
+          2,
+          5
+        ],
+        "experience_years": 5
+      },
+      "status": 200,
+      "ms": 79,
+      "response": {
+        "success": true,
+        "message": "Sports added to profile successfully.",
+        "data": [
+          {
+            "partner_profile_id": 2,
+            "sport_id": 1,
+            "experience_years": 5,
+            "updated_at": "2026-08-14T12:02:35.000000Z",
+            "created_at": "2026-08-14T12:02:35.000000Z",
+            "id": 11
+          },
+          {
+            "partner_profile_id": 2,
+            "sport_id": 2,
+            "experience_years": 5,
+            "updated_at": "2026-08-14T12:02:35.000000Z",
+            "created_at": "2026-08-14T12:02:35.000000Z",
+            "id": 12
+          },
+          {
+            "partner_profile_id": 2,
+            "sport_id": 5,
+            "experience_years": 5,
+            "updated_at": "2026-08-14T12:02:35.000000Z",
+            "created_at": "2026-08-14T12:02:35.000000Z",
+            "id": 13
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "name": "Sports / Update Sport",
+      "method": "PUT",
+      "url": "https://app.spotoapp.in/api/v1/partner/sports/1",
+      "auth": true,
+      "body": {
+        "experience_years": 6
+      },
+      "status": 404,
+      "ms": 59,
+      "response": {
+        "success": false,
+        "message": "Sport record not found or access denied.",
+        "errors": null
+      },
+      "error": null
+    },
+    {
+      "name": "Sports / Remove Sport",
+      "method": "DELETE",
+      "url": "https://app.spotoapp.in/api/v1/partner/sports/1",
+      "auth": true,
+      "status": 404,
+      "ms": 57,
+      "response": {
+        "success": false,
+        "message": "Sport record not found or access denied.",
+        "errors": null
+      },
+      "error": null
+    },
+    {
+      "name": "Documents / Get Documents",
+      "method": "GET",
+      "url": "https://app.spotoapp.in/api/v1/partner/documents",
+      "auth": true,
+      "status": 200,
+      "ms": 59,
+      "response": {
+        "success": true,
+        "message": "Partner documents retrieved successfully.",
+        "data": []
+      },
+      "error": null
+    },
+    {
+      "name": "Documents / Add Document",
+      "method": "POST",
+      "url": "https://app.spotoapp.in/api/v1/partner/documents",
+      "auth": true,
+      "body": {
+        "document_type": "government_id",
+        "document_path": "uploads/test.jpg"
+      },
+      "status": 200,
+      "ms": 63,
+      "response": {
+        "success": true,
+        "message": "Document added successfully.",
+        "data": {
+          "partner_profile_id": 2,
+          "document_type": "government_id",
+          "document_path": "uploads/test.jpg",
+          "verification_status": 1,
+          "rejection_reason": null,
+          "updated_at": "2026-08-14T12:02:35.000000Z",
+          "created_at": "2026-08-14T12:02:35.000000Z",
+          "id": 2
+        }
+      },
+      "error": null
+    },
+    {
+      "name": "Documents / Remove Document",
+      "method": "DELETE",
+      "url": "https://app.spotoapp.in/api/v1/partner/documents/2",
+      "auth": true,
+      "status": 200,
+      "ms": 58,
+      "response": {
+        "success": true,
+        "message": "Document removed successfully.",
+        "data": []
+      },
+      "error": null
+    },
+    {
+      "name": "Application / Get Application",
+      "method": "GET",
+      "url": "https://app.spotoapp.in/api/v1/partner/application",
+      "auth": true,
+      "status": 200,
+      "ms": 67,
+      "response": {
+        "success": true,
+        "message": "Partner application state retrieved successfully.",
+        "data": {
+          "application_number": null,
+          "application_status": 1,
+          "can_submit": false,
+          "personal_information": {
+            "first_name": "",
+            "last_name": "",
+            "email": "",
+          "mobile_number": "<redacted_mobile>",
+            "date_of_birth": null,
+            "gender": ""
+          },
+          "address": {
+            "address_line_1": "456 New St",
+            "address_line_2": null,
+            "city": "Pune",
+            "state": null,
+            "pincode": "411001",
+            "country": null
+          },
+          "professional_information": {
+            "highest_qualification": "Masters Degree",
+            "present_occupation": "Head Coach"
+          },
+          "sports": [
+            {
+              "id": 11,
+              "sport_id": 1,
+              "sport_name": "Cricket",
+              "experience_years": 5
+            },
+            {
+              "id": 12,
+              "sport_id": 2,
+              "sport_name": "Football",
+              "experience_years": 5
+            },
+            {
+              "id": 13,
+              "sport_id": 5,
+              "sport_name": "Badminton",
+              "experience_years": 5
+            }
+          ],
+          "documents": [],
+          "timeline": []
+        }
+      },
+      "error": null
+    },
+    {
+      "name": "Application / Submit Application",
+      "method": "POST",
+      "url": "https://app.spotoapp.in/api/v1/partner/submit",
+      "auth": true,
+      "body": {
+        "confirmation": true
+      },
+      "status": 400,
+      "ms": 61,
+      "response": {
+        "success": false,
+        "message": "Personal information must be completed before submission.",
+        "errors": null
+      },
+      "error": null
+    },
+    {
+      "name": "Master Data / Get Types",
+      "method": "GET",
+      "url": "https://app.spotoapp.in/api/v1/partner/tournaments/types",
+      "auth": true,
+      "status": 200,
+      "ms": 59,
+      "response": {
+        "success": true,
+        "message": "Tournament types retrieved.",
+        "data": [
+          {
+            "id": 1,
+            "name": "Knockout",
+            "code": "KNOCKOUT",
+            "slug": "knockout",
+            "description": "A standard single-elimination tournament where participants are eliminated after a single loss.",
+            "display_order": 1,
+            "status": 1,
+            "created_at": "2026-08-02T03:19:05.000000Z",
+            "updated_at": "2026-08-02T03:19:05.000000Z",
+            "deleted_at": null
+          },
+          {
+            "id": 2,
+            "name": "League",
+            "code": "LEAGUE",
+            "slug": "league",
+            "description": "A round-robin format where all participants play against each other, with standings determined by points.",
+            "display_order": 2,
+            "status": 1,
+            "created_at": "2026-08-02T03:19:05.000000Z",
+            "updated_at": "2026-08-02T03:19:05.000000Z",
+            "deleted_at": null
+          },
+          {
+            "id": 3,
+            "name": "League + Knockout",
+            "code": "LEAGUE_KNOCKOUT",
+            "slug": "league-knockout",
+            "description": "A multi-phase format starting with group stage round-robins, followed by a knockout stage for top teams.",
+            "display_order": 3,
+            "status": 1,
+            "created_at": "2026-08-02T03:19:05.000000Z",
+            "updated_at": "2026-08-02T03:19:05.000000Z",
+            "deleted_at": null
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "name": "Master Data / Get Sports",
+      "method": "GET",
+      "url": "https://app.spotoapp.in/api/v1/partner/tournaments/sports",
+      "auth": true,
+      "status": 200,
+      "ms": 59,
+      "response": {
+        "success": true,
+        "message": "Partner sports retrieved.",
+        "data": [
+          {
+            "id": 1,
+            "name": "Cricket",
+            "code": "CRICKET",
+            "slug": "cricket",
+            "description": "A bat-and-ball game played between two teams of eleven players.",
+            "icon_path": null,
+            "status": 1,
+            "display_order": 1,
+            "created_at": "2026-08-02T03:19:06.000000Z",
+            "updated_at": "2026-08-02T03:19:06.000000Z",
+            "deleted_at": null
+          },
+          {
+            "id": 2,
+            "name": "Football",
+            "code": "FOOTBALL",
+            "slug": "football",
+            "description": "A team sport played with a spherical ball between two teams.",
+            "icon_path": null,
+            "status": 1,
+            "display_order": 2,
+            "created_at": "2026-08-02T03:19:06.000000Z",
+            "updated_at": "2026-08-02T03:19:06.000000Z",
+            "deleted_at": null
+          },
+          {
+            "id": 5,
+            "name": "Badminton",
+            "code": "BADMINTON",
+            "slug": "badminton",
+            "description": "A racquet sport played using racquets to hit a shuttlecock across a net.",
+            "icon_path": null,
+            "status": 1,
+            "display_order": 5,
+            "created_at": "2026-08-02T03:19:06.000000Z",
+            "updated_at": "2026-08-02T03:19:06.000000Z",
+            "deleted_at": null
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "name": "Master Data / Get Formats",
+      "method": "GET",
+      "url": "https://app.spotoapp.in/api/v1/partner/tournaments/sports/1/formats",
+      "auth": true,
+      "status": 200,
+      "ms": 58,
+      "response": {
+        "success": true,
+        "message": "Sport formats retrieved.",
+        "data": [
+          {
+            "id": 6,
+            "sport_id": 1,
+            "name": "Box Cricket",
+            "slug": "box-cricket",
+            "description": "Cricket - Box Cricket",
+            "status": 1,
+            "created_at": "2026-08-02T03:19:06.000000Z",
+            "updated_at": "2026-08-02T03:19:06.000000Z",
+            "deleted_at": null
+          },
+          {
+            "id": 10,
+            "sport_id": 1,
+            "name": "Corporate Cricket",
+            "slug": "corporate-cricket",
+            "description": "Cricket - Corporate Cricket",
+            "status": 1,
+            "created_at": "2026-08-02T03:19:06.000000Z",
+            "updated_at": "2026-08-02T03:19:06.000000Z",
+            "deleted_at": null
+          },
+          {
+            "id": 2,
+            "sport_id": 1,
+            "name": "One Day (50 Overs)",
+            "slug": "one-day-50-overs",
+            "description": "Cricket - One Day (50 Overs)",
+            "status": 1,
+            "created_at": "2026-08-02T03:19:06.000000Z",
+            "updated_at": "2026-08-02T03:19:06.000000Z",
+            "deleted_at": null
+          },
+          {
+            "id": 11,
+            "sport_id": 1,
+            "name": "Street Cricket",
+            "slug": "street-cricket",
+            "description": "Cricket - Street Cricket",
+            "status": 1,
+            "created_at": "2026-08-02T03:19:06.000000Z",
+            "updated_at": "2026-08-02T03:19:06.000000Z",
+            "deleted_at": null
+          },
+          {
+            "id": 7,
+            "sport_id": 1,
+            "name": "Super Over",
+            "slug": "super-over",
+            "description": "Cricket - Super Over",
+            "status": 1,
+            "created_at": "2026-08-02T03:19:06.000000Z",
+            "updated_at": "2026-08-02T03:19:06.000000Z",
+            "deleted_at": null
+          },
+          {
+            "id": 4,
+            "sport_id": 1,
+            "name": "T10",
+            "slug": "t10",
+            "description": "Cricket - T10",
+            "status": 1,
+            "created_at": "2026-08-02T03:19:06.000000Z",
+            "updated_at": "2026-08-02T03:19:06.000000Z",
+            "deleted_at": null
+          },
+          {
+            "id": 1,
+            "sport_id": 1,
+            "name": "T20",
+            "slug": "t20",
+            "description": "Cricket - T20",
+            "status": 1,
+            "created_at": "2026-08-02T03:19:06.000000Z",
+            "updated_at": "2026-08-02T03:19:06.000000Z",
+            "deleted_at": null
+          },
+          {
+            "id": 8,
+            "sport_id": 1,
+            "name": "Tape Ball",
+            "slug": "tape-ball",
+            "description": "Cricket - Tape Ball",
+            "status": 1,
+            "created_at": "2026-08-02T03:19:06.000000Z",
+            "updated_at": "2026-08-02T03:19:06.000000Z",
+            "deleted_at": null
+          },
+          {
+            "id": 9,
+            "sport_id": 1,
+            "name": "Tennis Ball",
+            "slug": "tennis-ball",
+            "description": "Cricket - Tennis Ball",
+            "status": 1,
+            "created_at": "2026-08-02T03:19:06.000000Z",
+            "updated_at": "2026-08-02T03:19:06.000000Z",
+            "deleted_at": null
+          },
+          {
+            "id": 3,
+            "sport_id": 1,
+            "name": "Test Match",
+            "slug": "test-match",
+            "description": "Cricket - Test Match",
+            "status": 1,
+            "created_at": "2026-08-02T03:19:06.000000Z",
+            "updated_at": "2026-08-02T03:19:06.000000Z",
+            "deleted_at": null
+          },
+          {
+            "id": 5,
+            "sport_id": 1,
+            "name": "The Hundred",
+            "slug": "the-hundred",
+            "description": "Cricket - The Hundred",
+            "status": 1,
+            "created_at": "2026-08-02T03:19:06.000000Z",
+            "updated_at": "2026-08-02T03:19:06.000000Z",
+            "deleted_at": null
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "name": "Master Data / Get Form Config",
+      "method": "GET",
+      "url": "https://app.spotoapp.in/api/v1/partner/tournaments/form-config?sport_id=1&sport_format_id=1",
+      "auth": true,
+      "status": 200,
+      "ms": 61,
+      "response": {
+        "success": true,
+        "message": "Form configuration retrieved.",
+        "data": [
+          {
+            "sport_rule_field_id": 1,
+            "key": "overs",
+            "name": "Overs",
+            "category": 1,
+            "type": 2,
+            "required": true,
+            "validation_rules": null,
+            "master_default_value": "20",
+            "display_order": 1
+          },
+          {
+            "sport_rule_field_id": 2,
+            "key": "minimum_players_per_team",
+            "name": "Players",
+            "category": 1,
+            "type": 2,
+            "required": true,
+            "validation_rules": null,
+            "master_default_value": "11",
+            "display_order": 2
+          },
+          {
+            "sport_rule_field_id": 3,
+            "key": "max_substitutes",
+            "name": "Substitutes",
+            "category": 1,
+            "type": 2,
+            "required": true,
+            "validation_rules": null,
+            "master_default_value": "4",
+            "display_order": 3
+          },
+          {
+            "sport_rule_field_id": 4,
+            "key": "tie_breaker_method",
+            "name": "Tie Breaker",
+            "category": 1,
+            "type": 1,
+            "required": true,
+            "validation_rules": null,
+            "master_default_value": "Super Over",
+            "display_order": 4
+          },
+          {
+            "sport_rule_field_id": 5,
+            "key": "points_for_win",
+            "name": "Points for Win",
+            "category": 1,
+            "type": 2,
+            "required": true,
+            "validation_rules": null,
+            "master_default_value": "2",
+            "display_order": 5
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "name": "Draft / Store Draft",
+      "method": "POST",
+      "url": "https://app.spotoapp.in/api/v1/partner/tournaments/",
+      "auth": true,
+      "body": {
+        "sport_id": 1,
+        "sport_format_id": 1,
+        "tournament_type_id": 1
+      },
+      "status": 403,
+      "ms": 82,
+      "response": {
+        "success": false,
+        "message": "No organization associated with this user.",
+        "errors": null
+      },
+      "error": null
+    },
+    {
+      "name": "Draft / Show Tournament",
+      "method": "GET",
+      "url": "https://app.spotoapp.in/api/v1/partner/tournaments/1",
+      "auth": true,
+      "status": 404,
+      "ms": 70,
+      "response": {
+        "success": false,
+        "message": "Resource not found.",
+        "errors": null
+      },
+      "error": null
+    },
+    {
+      "name": "Draft / Update Details",
+      "method": "PUT",
+      "url": "https://app.spotoapp.in/api/v1/partner/tournaments/1",
+      "auth": true,
+      "body": {
+        "name": "Updated Tournament",
+        "registration_end_at": "2026-12-31 23:59:59"
+      },
+      "status": 404,
+      "ms": 61,
+      "response": {
+        "success": false,
+        "message": "Resource not found.",
+        "errors": null
+      },
+      "error": null
+    },
+    {
+      "name": "Draft / Delete Tournament",
+      "method": "DELETE",
+      "url": "https://app.spotoapp.in/api/v1/partner/tournaments/1",
+      "auth": true,
+      "status": 404,
+      "ms": 53,
+      "response": {
+        "success": false,
+        "message": "Resource not found.",
+        "errors": null
+      },
+      "error": null
+    },
+    {
+      "name": "Rules / Update Rules",
+      "method": "PUT",
+      "url": "https://app.spotoapp.in/api/v1/partner/tournaments/1/rules",
+      "auth": true,
+      "body": {
+        "rules": [
+          {
+            "sport_rule_field_id": 1,
+            "value": "Custom rule value"
+          }
+        ]
+      },
+      "status": 404,
+      "ms": 63,
+      "response": {
+        "success": false,
+        "message": "Resource not found.",
+        "errors": null
+      },
+      "error": null
+    },
+    {
+      "name": "Venues / Store Venue",
+      "method": "POST",
+      "url": "https://app.spotoapp.in/api/v1/partner/tournaments/1/venues",
+      "auth": true,
+      "body": {
+        "venue_id": 1,
+        "notes": "Main ground"
+      },
+      "status": 422,
+      "ms": 56,
+      "response": {
+        "success": false,
+        "message": "Validation failed.",
+        "errors": {
+          "venue_name": [
+            "The venue name field is required."
+          ]
+        }
+      },
+      "error": null
+    },
+    {
+      "name": "Venues / Update Venue",
+      "method": "PUT",
+      "url": "https://app.spotoapp.in/api/v1/partner/tournaments/1/venues/1",
+      "auth": true,
+      "body": {
+        "venue_id": 2,
+        "notes": "Updated ground"
+      },
+      "status": 422,
+      "ms": 53,
+      "response": {
+        "success": false,
+        "message": "Validation failed.",
+        "errors": {
+          "venue_name": [
+            "The venue name field is required."
+          ]
+        }
+      },
+      "error": null
+    },
+    {
+      "name": "Venues / Remove Venue",
+      "method": "DELETE",
+      "url": "https://app.spotoapp.in/api/v1/partner/tournaments/1/venues/1",
+      "auth": true,
+      "status": 404,
+      "ms": 54,
+      "response": {
+        "success": false,
+        "message": "Resource not found.",
+        "errors": null
+      },
+      "error": null
+    },
+    {
+      "name": "Budget / Update Budget",
+      "method": "PUT",
+      "url": "https://app.spotoapp.in/api/v1/partner/tournaments/1/budget",
+      "auth": true,
+      "body": {
+        "registration_fee": 1000,
+        "currency": "INR",
+        "prizes": [
+          {
+            "title": "Winner",
+            "amount": 5000
+          }
+        ],
+        "sponsors": [
+          {
+            "name": "Local Brand",
+            "contribution_amount": 2000
+          }
+        ]
+      },
+      "status": 422,
+      "ms": 61,
+      "response": {
+        "success": false,
+        "message": "Validation failed.",
+        "errors": {
+          "prizes.0.category": [
+            "The prizes.0.category field is required."
+          ],
+          "sponsors.0.sponsor_type": [
+            "The sponsors.0.sponsor_type field is required."
+          ]
+        }
+      },
+      "error": null
+    },
+    {
+      "name": "Review / Review",
+      "method": "GET",
+      "url": "https://app.spotoapp.in/api/v1/partner/tournaments/1/review",
+      "auth": true,
+      "status": 404,
+      "ms": 58,
+      "response": {
+        "success": false,
+        "message": "Resource not found.",
+        "errors": null
+      },
+      "error": null
+    },
+    {
+      "name": "Submit / Submit",
+      "method": "POST",
+      "url": "https://app.spotoapp.in/api/v1/partner/tournaments/1/submit",
+      "auth": true,
+      "status": 422,
+      "ms": 55,
+      "response": {
+        "success": false,
+        "message": "Validation failed.",
+        "errors": {
+          "confirmation": [
+            "The confirmation field is required."
+          ]
+        }
+      },
+      "error": null
+    }
+  ]
+}

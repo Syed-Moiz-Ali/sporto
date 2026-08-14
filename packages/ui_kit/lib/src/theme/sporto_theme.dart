@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:ui_kit/src/theme/sporto_cricket_scoring_tokens.dart';
 
 import 'sporto_cricket_scoring_theme.dart';
 import 'sporto_design_tokens.dart';

@@ -1,0 +1,21 @@
+{
+  "baseUrl": "https://app.spotoapp.in/api",
+  "ranAt": "2026-08-14T13:33:44.008Z",
+  "token": "<redacted>",
+  "request": {
+    "method": "POST",
+    "url": "https://app.spotoapp.in/api/v1/common/upload",
+    "file": "profile_avatar.png",
+    "folder": "users/profile"
+  },
+  "status": 200,
+  "ms": 1271,
+  "response": {
+    "success": true,
+    "message": "File uploaded successfully.",
+    "data": {
+      "path": "users/profile/903ef7f6-62a8-46c2-9a5e-acbb9c74b179.png",
+      "url": "https://pub-c94d45e28dfa4bf08b2cd5d22adb73e6.r2.dev/users/profile/903ef7f6-62a8-46c2-9a5e-acbb9c74b179.png"
+    }
+  }
+}

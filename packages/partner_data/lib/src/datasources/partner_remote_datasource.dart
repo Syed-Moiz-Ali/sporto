@@ -1,0 +1,344 @@
+import 'package:core/core.dart';
+
+import '../models/partner_api_response_models.dart';
+
+class PartnerRemoteDataSource {
+  PartnerRemoteDataSource({SportoApiClient? apiClient})
+      : _apiClient = apiClient ?? SportoApiClient();
+
+  final SportoApiClient _apiClient;
+
+  Future<SportoApiResponse> getProfile() {
+    return _get(SportoApiEndpoints.partnerProfile.profile);
+  }
+
+  Future<PartnerProfileResponseData> getProfileData() async {
+    final response = await getProfile();
+    return PartnerProfileResponseData.fromJson(_mapData(response.data));
+  }
+
+  Future<SportoApiResponse> saveProfile(PartnerProfileRequest request) {
+    return _post(
+      SportoApiEndpoints.partnerProfile.profile,
+      body: request.toJson(),
+    );
+  }
+
+  Future<PartnerProfileResponseData> saveProfileData(
+    PartnerProfileRequest request,
+  ) async {
+    final response = await saveProfile(request);
+    return PartnerProfileResponseData.fromJson(_mapData(response.data));
+  }
+
+  Future<SportoApiResponse> updateProfile(
+    PartnerProfileUpdateRequest request,
+  ) {
+    return _put(
+      SportoApiEndpoints.partnerProfile.profile,
+      body: request.toJson(),
+    );
+  }
+
+  Future<PartnerProfileResponseData> updateProfileData(
+    PartnerProfileUpdateRequest request,
+  ) async {
+    final response = await updateProfile(request);
+    return PartnerProfileResponseData.fromJson(_mapData(response.data));
+  }
+
+  Future<SportoApiResponse> getAvailableSports() {
+    return _get(SportoApiEndpoints.partnerSports.available);
+  }
+
+  Future<List<SportMasterResponse>> getAvailableSportsData() async {
+    final response = await getAvailableSports();
+    return _listData(response.data).map(SportMasterResponse.fromJson).toList();
+  }
+
+  Future<SportoApiResponse> getSelectedSports() {
+    return _get(SportoApiEndpoints.partnerSports.selected);
+  }
+
+  Future<List<PartnerSportResponse>> getSelectedSportsData() async {
+    final response = await getSelectedSports();
+    return _listData(response.data).map(PartnerSportResponse.fromJson).toList();
+  }
+
+  Future<SportoApiResponse> addSports(PartnerAddSportsRequest request) {
+    return _post(
+      SportoApiEndpoints.partnerSports.selected,
+      body: request.toJson(),
+    );
+  }
+
+  Future<List<PartnerSportResponse>> addSportsData(
+    PartnerAddSportsRequest request,
+  ) async {
+    final response = await addSports(request);
+    return _listData(response.data).map(PartnerSportResponse.fromJson).toList();
+  }
+
+  Future<SportoApiResponse> updateSport(
+    Object partnerSportId,
+    PartnerUpdateSportRequest request,
+  ) {
+    return _put(
+      SportoApiEndpoints.partnerSports.byId(partnerSportId),
+      body: request.toJson(),
+    );
+  }
+
+  Future<SportoApiResponse> removeSport(Object partnerSportId) {
+    return _delete(SportoApiEndpoints.partnerSports.byId(partnerSportId));
+  }
+
+  Future<SportoApiResponse> getDocuments() {
+    return _get(SportoApiEndpoints.partnerDocuments.documents);
+  }
+
+  Future<List<PartnerDocumentResponse>> getDocumentsData() async {
+    final response = await getDocuments();
+    return _listData(response.data)
+        .map(PartnerDocumentResponse.fromJson)
+        .toList();
+  }
+
+  Future<SportoApiResponse> addDocument(PartnerDocumentRequest request) {
+    return _post(
+      SportoApiEndpoints.partnerDocuments.documents,
+      body: request.toJson(),
+    );
+  }
+
+  Future<PartnerDocumentResponse> addDocumentData(
+    PartnerDocumentRequest request,
+  ) async {
+    final response = await addDocument(request);
+    return PartnerDocumentResponse.fromJson(_mapData(response.data));
+  }
+
+  Future<SportoApiResponse> removeDocument(Object partnerDocumentId) {
+    return _delete(
+      SportoApiEndpoints.partnerDocuments.byId(partnerDocumentId),
+    );
+  }
+
+  Future<SportoApiResponse> getApplication() {
+    return _get(SportoApiEndpoints.partnerApplication.application);
+  }
+
+  Future<PartnerApplicationStateResponse> getApplicationData() async {
+    final response = await getApplication();
+    return PartnerApplicationStateResponse.fromJson(_mapData(response.data));
+  }
+
+  Future<SportoApiResponse> submitApplication(
+    PartnerApplicationSubmitRequest request,
+  ) {
+    return _post(
+      SportoApiEndpoints.partnerApplication.submit,
+      body: request.toJson(),
+    );
+  }
+
+  Future<PartnerApplicationSubmitResponse> submitApplicationData(
+    PartnerApplicationSubmitRequest request,
+  ) async {
+    final response = await submitApplication(request);
+    return PartnerApplicationSubmitResponse.fromJson(_mapData(response.data));
+  }
+
+  Future<SportoApiResponse> getTournamentTypes() {
+    return _get(SportoApiEndpoints.partnerTournaments.types);
+  }
+
+  Future<List<TournamentTypeResponse>> getTournamentTypesData() async {
+    final response = await getTournamentTypes();
+    return _listData(response.data)
+        .map(TournamentTypeResponse.fromJson)
+        .toList();
+  }
+
+  Future<SportoApiResponse> getTournamentSports() {
+    return _get(SportoApiEndpoints.partnerTournaments.sports);
+  }
+
+  Future<List<SportMasterResponse>> getTournamentSportsData() async {
+    final response = await getTournamentSports();
+    return _listData(response.data).map(SportMasterResponse.fromJson).toList();
+  }
+
+  Future<SportoApiResponse> getTournamentFormats(Object sportId) {
+    return _get(SportoApiEndpoints.partnerTournaments.formats(sportId));
+  }
+
+  Future<List<SportFormatResponse>> getTournamentFormatsData(
+    Object sportId,
+  ) async {
+    final response = await getTournamentFormats(sportId);
+    return _listData(response.data).map(SportFormatResponse.fromJson).toList();
+  }
+
+  Future<SportoApiResponse> getTournamentFormConfig({
+    required int sportId,
+    required int sportFormatId,
+  }) {
+    return _get(
+      SportoApiEndpoints.partnerTournaments.formConfig,
+      queryParameters: {
+        'sport_id': sportId,
+        'sport_format_id': sportFormatId,
+      },
+    );
+  }
+
+  Future<List<TournamentFormConfigFieldResponse>> getTournamentFormConfigData({
+    required int sportId,
+    required int sportFormatId,
+  }) async {
+    final response = await getTournamentFormConfig(
+      sportId: sportId,
+      sportFormatId: sportFormatId,
+    );
+    return _listData(response.data)
+        .map(TournamentFormConfigFieldResponse.fromJson)
+        .toList();
+  }
+
+  Future<SportoApiResponse> storeTournamentDraft(
+    TournamentDraftRequest request,
+  ) {
+    return _post(
+      SportoApiEndpoints.partnerTournaments.drafts,
+      body: request.toJson(),
+    );
+  }
+
+  Future<SportoApiResponse> showTournament(Object tournamentId) {
+    return _get(SportoApiEndpoints.partnerTournaments.byId(tournamentId));
+  }
+
+  Future<SportoApiResponse> updateTournamentDetails(
+    Object tournamentId,
+    TournamentDetailsRequest request,
+  ) {
+    return _put(
+      SportoApiEndpoints.partnerTournaments.byId(tournamentId),
+      body: request.toJson(),
+    );
+  }
+
+  Future<SportoApiResponse> deleteTournament(Object tournamentId) {
+    return _delete(SportoApiEndpoints.partnerTournaments.byId(tournamentId));
+  }
+
+  Future<SportoApiResponse> updateTournamentRules(
+    Object tournamentId,
+    TournamentRuleRequest request,
+  ) {
+    return _put(
+      SportoApiEndpoints.partnerTournaments.rules(tournamentId),
+      body: request.toJson(),
+    );
+  }
+
+  Future<SportoApiResponse> storeTournamentVenue(
+    Object tournamentId,
+    TournamentVenueRequest request,
+  ) {
+    return _post(
+      SportoApiEndpoints.partnerTournaments.venues(tournamentId),
+      body: request.toJson(),
+    );
+  }
+
+  Future<SportoApiResponse> updateTournamentVenue(
+    Object tournamentId,
+    Object venueId,
+    TournamentVenueRequest request,
+  ) {
+    return _put(
+      SportoApiEndpoints.partnerTournaments.venueById(tournamentId, venueId),
+      body: request.toJson(),
+    );
+  }
+
+  Future<SportoApiResponse> removeTournamentVenue(
+    Object tournamentId,
+    Object venueId,
+  ) {
+    return _delete(
+      SportoApiEndpoints.partnerTournaments.venueById(tournamentId, venueId),
+    );
+  }
+
+  Future<SportoApiResponse> updateTournamentBudget(
+    Object tournamentId,
+    TournamentBudgetRequest request,
+  ) {
+    return _put(
+      SportoApiEndpoints.partnerTournaments.budget(tournamentId),
+      body: request.toJson(),
+    );
+  }
+
+  Future<SportoApiResponse> reviewTournament(Object tournamentId) {
+    return _get(SportoApiEndpoints.partnerTournaments.review(tournamentId));
+  }
+
+  Future<SportoApiResponse> submitTournament(
+    Object tournamentId,
+    TournamentSubmitRequest request,
+  ) {
+    return _post(
+      SportoApiEndpoints.partnerTournaments.submit(tournamentId),
+      body: request.toJson(),
+    );
+  }
+
+  Future<SportoApiResponse> _get(
+    String path, {
+    Map<String, dynamic>? queryParameters,
+  }) async {
+    return _parse(await _apiClient.getJson(
+      path,
+      queryParameters: queryParameters,
+    ));
+  }
+
+  Future<SportoApiResponse> _post(
+    String path, {
+    Map<String, dynamic>? body,
+  }) async {
+    return _parse(await _apiClient.postJson(path, body: body));
+  }
+
+  Future<SportoApiResponse> _put(
+    String path, {
+    Map<String, dynamic>? body,
+  }) async {
+    return _parse(await _apiClient.putJson(path, body: body));
+  }
+
+  Future<SportoApiResponse> _delete(String path) async {
+    return _parse(await _apiClient.deleteJson(path));
+  }
+
+  SportoApiResponse _parse(Map<String, dynamic> json) {
+    return SportoApiResponse.fromJson(json);
+  }
+
+  Map<String, dynamic> _mapData(Object? data) {
+    if (data is Map) return Map<String, dynamic>.from(data);
+    return <String, dynamic>{};
+  }
+
+  List<Map<String, dynamic>> _listData(Object? data) {
+    if (data is! List) return const [];
+    return data
+        .whereType<Map>()
+        .map((item) => Map<String, dynamic>.from(item))
+        .toList();
+  }
+}

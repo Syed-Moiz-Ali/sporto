@@ -5,7 +5,7 @@ class SendOtpUseCase {
 
   SendOtpUseCase(this.repository);
 
-  Future<void> call(String mobileNumber) {
-    return repository.sendOtp(mobileNumber);
+  Future<void> call(String mobileNumber, String role) {
+    return repository.sendOtp(mobileNumber, role);
   }
 }

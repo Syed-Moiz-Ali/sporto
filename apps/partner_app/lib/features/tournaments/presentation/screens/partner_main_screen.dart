@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:ui_kit/ui_kit.dart';
 
 import '../../../../app/router/app_router.dart';
+import '../../../partner_api/application/partner_api_bloc.dart';
 import '../../application/tournament_bloc.dart';
 import '../widgets/live_tournament_card.dart';
 import 'match_history_screen.dart';
@@ -27,6 +28,7 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
   void initState() {
     super.initState();
     context.read<TournamentBloc>().add(const LoadTournamentsEvent());
+    context.read<PartnerApiBloc>().add(const LoadPartnerApiBootstrapEvent());
   }
 
   @override
@@ -207,11 +209,10 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
 
   Widget _buildOverviewSection(ColorScheme cs) {
     final scale = context.sportoScale;
-    final availableWidth =
-        (context.sportoResponsive.contentMaxWidth -
-                context.sportoResponsive.horizontalPadding * 2)
-            .clamp(280.0, double.infinity)
-            .toDouble();
+    final availableWidth = (context.sportoResponsive.contentMaxWidth -
+            context.sportoResponsive.horizontalPadding * 2)
+        .clamp(280.0, double.infinity)
+        .toDouble();
     final tileWidth = (availableWidth - 12 * scale) / 2;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -284,11 +285,10 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
 
   Widget _buildQuickActions(ColorScheme cs) {
     final scale = context.sportoScale;
-    final availableWidth =
-        (context.sportoResponsive.contentMaxWidth -
-                context.sportoResponsive.horizontalPadding * 2)
-            .clamp(280.0, double.infinity)
-            .toDouble();
+    final availableWidth = (context.sportoResponsive.contentMaxWidth -
+            context.sportoResponsive.horizontalPadding * 2)
+        .clamp(280.0, double.infinity)
+        .toDouble();
     final gap = 12 * scale;
     final tileWidth = (availableWidth - gap * 3) / 4;
     return Column(

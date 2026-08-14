@@ -70,7 +70,10 @@ class _AuthFlowViewState extends State<AuthFlowView> {
               screenState is OtpSentState ? screenState.mobileNumber : null,
           isSubmitting: isSubmitting,
           onSendOtp: (mobileNumber) {
-            context.read<AuthBloc>().add(SendOtpRequestedEvent(mobileNumber));
+            context.read<AuthBloc>().add(SendOtpRequestedEvent(
+                  mobileNumber: mobileNumber,
+                  role: 'referee',
+                ));
           },
           onVerifyOtp: (mobileNumber, otpCode) {
             context.read<AuthBloc>().add(VerifyOtpRequestedEvent(
