@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:ui_kit/ui_kit.dart';
-import '../../../../app/router/app_router.dart';
 
 class MatchHistoryScreen extends StatefulWidget {
-  const MatchHistoryScreen({super.key});
+  final bool embedded;
+
+  const MatchHistoryScreen({
+    super.key,
+    this.embedded = false,
+  });
 
   @override
   State<MatchHistoryScreen> createState() => _MatchHistoryScreenState();
@@ -19,13 +22,18 @@ class _MatchHistoryScreenState extends State<MatchHistoryScreen> {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final scale = context.sportoScale;
-    return SportoScreenShell(
-      body: SafeArea(
-        bottom: false,
+    final content = SafeArea(
+      bottom: false,
+      child: SportoResponsiveContent(
+        padding: EdgeInsets.zero,
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Padding(
             padding: EdgeInsets.fromLTRB(
-                20 * scale, 20 * scale, 20 * scale, 8 * scale),
+              context.sportoResponsive.horizontalPadding,
+              20 * scale,
+              context.sportoResponsive.horizontalPadding,
+              8 * scale,
+            ),
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text("Today's Matches",
@@ -39,7 +47,9 @@ class _MatchHistoryScreenState extends State<MatchHistoryScreen> {
           SizedBox(
             height: 42 * scale,
             child: ListView.separated(
-              padding: EdgeInsets.symmetric(horizontal: 20 * scale),
+              padding: EdgeInsets.symmetric(
+                horizontal: context.sportoResponsive.horizontalPadding,
+              ),
               scrollDirection: Axis.horizontal,
               itemCount: _tabs.length,
               separatorBuilder: (_, __) => SizedBox(width: 28 * scale),
@@ -68,7 +78,11 @@ class _MatchHistoryScreenState extends State<MatchHistoryScreen> {
           Expanded(
             child: ListView(
               padding: EdgeInsets.fromLTRB(
-                  20 * scale, 26 * scale, 20 * scale, 90 * scale),
+                context.sportoResponsive.horizontalPadding,
+                26 * scale,
+                context.sportoResponsive.horizontalPadding,
+                context.sportoResponsive.bottomContentPadding(context),
+              ),
               children: [
                 const SportoCricketMatchCard(
                     state: SportoCricketMatchState.live),
@@ -86,27 +100,7 @@ class _MatchHistoryScreenState extends State<MatchHistoryScreen> {
           ),
         ]),
       ),
-      bottomNavigationBar: SportoBottomNav(
-        currentIndex: 1,
-        items: [
-          const SportoNavItem(Icons.home_outlined, 'Home'),
-          const SportoNavItem(Icons.emoji_events_outlined, 'Tournaments'),
-          const SportoNavItem(Icons.calendar_month_outlined, 'Schedules'),
-          const SportoNavItem(Icons.person_outline, 'Profile'),
-        ],
-        onTap: (index) {
-          switch (index) {
-            case 0:
-              context.go(AppRouter.homePath);
-            case 1:
-              return;
-            case 2:
-              context.go(AppRouter.scheduleRoute);
-            case 3:
-              context.go(AppRouter.profileRoute);
-          }
-        },
-      ),
     );
+    return widget.embedded ? content : SportoScreenShell(body: content);
   }
 }

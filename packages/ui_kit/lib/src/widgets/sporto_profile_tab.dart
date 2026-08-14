@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/sporto_design_tokens.dart';
+import 'sporto_responsive_layout.dart';
 import 'sporto_referee_profile.dart';
 
 class SportoProfileMenuSectionData {
@@ -40,43 +41,45 @@ class SportoProfileTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scale = context.sportoScale;
+    final metrics = context.sportoResponsive;
 
     return SafeArea(
       bottom: false,
       child: SingleChildScrollView(
         physics: const ClampingScrollPhysics(),
-        padding: padding ??
-            EdgeInsets.fromLTRB(
-              20 * scale,
-              18 * scale,
-              20 * scale,
-              84 * scale,
-            ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SportoProfileHeaderCard(
-              name: name,
-              phone: phone,
-              avatarImage: avatarImage,
-              onTap: onAvatarTap,
-            ),
-            SizedBox(height: 22 * scale),
-            SportoCertifiedBadge(
-              label: certificationLabel,
-              title: certificationTitle,
-            ),
-            SizedBox(height: 22 * scale),
-            SportoProfileStatsRow(stats: stats),
-            for (final section in sections) ...[
-              SizedBox(height: 20 * scale),
-              SportoProfileMenuCard(items: section.items),
+        padding: EdgeInsets.only(
+          top: 18 * scale,
+          bottom: metrics.bottomContentPadding(context),
+        ),
+        child: SportoResponsiveContent(
+          padding: padding,
+          applyBottomInset: false,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SportoProfileHeaderCard(
+                name: name,
+                phone: phone,
+                avatarImage: avatarImage,
+                onTap: onAvatarTap,
+              ),
+              SizedBox(height: 22 * scale),
+              SportoCertifiedBadge(
+                label: certificationLabel,
+                title: certificationTitle,
+              ),
+              SizedBox(height: 22 * scale),
+              SportoProfileStatsRow(stats: stats),
+              for (final section in sections) ...[
+                SizedBox(height: 20 * scale),
+                SportoProfileMenuCard(items: section.items),
+              ],
+              SizedBox(height: 22 * scale),
+              Center(
+                child: SportoLogoutButton(onTap: onLogoutTap),
+              ),
             ],
-            SizedBox(height: 22 * scale),
-            Center(
-              child: SportoLogoutButton(onTap: onLogoutTap),
-            ),
-          ],
+          ),
         ),
       ),
     );

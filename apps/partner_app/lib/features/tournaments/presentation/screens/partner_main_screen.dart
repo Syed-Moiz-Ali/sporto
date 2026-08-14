@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ui_kit/ui_kit.dart';
+
 import '../../../../app/router/app_router.dart';
 import '../../application/tournament_bloc.dart';
 import '../widgets/live_tournament_card.dart';
+import 'match_history_screen.dart';
 import 'profile_screen.dart';
+import 'schedule_screen.dart';
 
 class PartnerMainScreen extends StatefulWidget {
   final int initialIndex;
@@ -20,224 +23,196 @@ class PartnerMainScreen extends StatefulWidget {
 }
 
 class _PartnerMainScreenState extends State<PartnerMainScreen> {
-  int _currentIndex = 0;
-
   @override
   void initState() {
     super.initState();
-    _currentIndex = widget.initialIndex.clamp(0, 3);
     context.read<TournamentBloc>().add(const LoadTournamentsEvent());
   }
 
   @override
-  void didUpdateWidget(covariant PartnerMainScreen oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.initialIndex != widget.initialIndex) {
-      _currentIndex = widget.initialIndex.clamp(0, 3);
-    }
+  Widget build(BuildContext context) {
+    final scale = context.sportoScale;
+
+    return SportoBottomTabShell(
+      initialIndex: widget.initialIndex,
+      tabs: [
+        _buildHomeTab(context),
+        const MatchHistoryScreen(embedded: true),
+        const ScheduleScreen(embedded: true),
+        const PartnerProfileScreen(),
+      ],
+      items: const [
+        SportoNavItem(Icons.home_rounded, 'Home'),
+        SportoNavItem(Icons.emoji_events_outlined, 'Tournaments'),
+        SportoNavItem(Icons.calendar_month_rounded, 'Schedules'),
+        SportoNavItem(Icons.person_outline_rounded, 'Profile'),
+      ],
+      overlayBuilder: (context, currentIndex, setIndex) {
+        if (currentIndex != 0) {
+          return null;
+        }
+        return PrimaryButton(
+          label: 'Create New Tournament',
+          widthFactor: 1.0,
+          height: 48 * scale,
+          radius: 14 * scale,
+          onPressed: () => context.push(AppRouter.createTournamentRoute),
+        );
+      },
+    );
   }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildHomeTab(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final scale = context.sportoScale;
 
-    return SportoScreenShell(
-      body: Stack(
-        children: [
-          IndexedStack(
-            index: _currentIndex,
-            children: [
-              SafeArea(
-                bottom: false,
-                child: Column(
-                  children: [
-                    // ---- Header ----
-                    Padding(
-                      padding: EdgeInsets.fromLTRB(
-                        20 * scale,
-                        10 * scale,
-                        20 * scale,
-                        8 * scale,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Shrvn's Sporto",
-                                style: theme.textTheme.titleLarge?.copyWith(
-                                  fontSize: 18 * scale,
-                                  fontWeight: FontWeight.w600,
-                                  color: colorScheme.onSurface,
-                                ),
-                              ),
-                              Text(
-                                'Good Morning',
-                                style: TextStyle(
-                                  fontSize: 13 * scale,
-                                  color: colorScheme.tertiary, // gold subtitle
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
+    return SafeArea(
+      bottom: false,
+      child: SportoResponsiveContent(
+        padding: EdgeInsets.zero,
+        child: Column(
+          children: [
+            Padding(
+              padding: EdgeInsets.fromLTRB(
+                context.sportoResponsive.horizontalPadding,
+                10 * scale,
+                context.sportoResponsive.horizontalPadding,
+                8 * scale,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Shrvn's Sporto",
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            fontSize: 18 * scale,
+                            fontWeight: FontWeight.w600,
+                            color: colorScheme.onSurface,
                           ),
-                          Row(
-                            children: [
-                              IconButton(
-                                padding: EdgeInsets.all(6 * scale),
-                                constraints: BoxConstraints.tightFor(
-                                  width: 36 * scale,
-                                  height: 36 * scale,
-                                ),
-                                icon: Icon(
-                                  Icons.notifications_none_rounded,
-                                  color: colorScheme.onSurface,
-                                  size: 22 * scale,
-                                ),
-                                onPressed: () {},
-                              ),
-                              SizedBox(width: 4 * scale),
-                              SportoCard(
-                                radius: 7 * scale,
-                                blur: 10 * scale,
-                                padding: EdgeInsets.fromLTRB(
-                                  8 * scale,
-                                  3 * scale,
-                                  2 * scale,
-                                  3 * scale,
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text('₹ 500',
-                                        style: theme.textTheme.titleMedium
-                                            ?.copyWith(
-                                                color: colorScheme.onSurface,
-                                                fontSize: 14 * scale,
-                                                fontWeight: FontWeight.w600)),
-                                    SizedBox(width: 5 * scale),
-                                    Container(
-                                      width: 22 * scale,
-                                      height: 22 * scale,
-                                      decoration: BoxDecoration(
-                                        color: colorScheme.tertiary,
-                                        borderRadius:
-                                            BorderRadius.circular(5 * scale),
-                                      ),
-                                      alignment: Alignment.center,
-                                      child: Icon(Icons.add_rounded,
-                                          color: Colors.black,
-                                          size: 16 * scale),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    // ---- Body content ----
-                    Expanded(
-                      child: SingleChildScrollView(
-                        physics: const ClampingScrollPhysics(),
-                        padding: EdgeInsets.fromLTRB(
-                          20 * scale,
-                          8 * scale,
-                          20 * scale,
-                          100 * scale,
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        Text(
+                          'Good Morning',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 13 * scale,
+                            color: colorScheme.tertiary,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(width: 8 * scale),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        padding: EdgeInsets.all(6 * scale),
+                        constraints: BoxConstraints.tightFor(
+                          width: 36 * scale,
+                          height: 36 * scale,
+                        ),
+                        icon: Icon(
+                          Icons.notifications_none_rounded,
+                          color: colorScheme.onSurface,
+                          size: 22 * scale,
+                        ),
+                        onPressed: () {},
+                      ),
+                      SizedBox(width: 4 * scale),
+                      SportoCard(
+                        radius: 7 * scale,
+                        blur: 10 * scale,
+                        padding: EdgeInsets.fromLTRB(
+                          8 * scale,
+                          3 * scale,
+                          2 * scale,
+                          3 * scale,
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
-                            _buildOverviewSection(colorScheme),
-                            SizedBox(height: 20 * scale),
-                            _buildQuickActions(colorScheme),
-                            SizedBox(height: 12 * scale),
-                            _buildAnnouncementsBanner(colorScheme),
-                            SizedBox(height: 22 * scale),
-                            _buildLiveTournaments(colorScheme),
-                            SizedBox(height: 20 * scale),
-                            _buildTodaysSchedule(colorScheme),
+                            Text(
+                              'Rs 500',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: theme.textTheme.titleMedium?.copyWith(
+                                color: colorScheme.onSurface,
+                                fontSize: 14 * scale,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            SizedBox(width: 5 * scale),
+                            Container(
+                              width: 22 * scale,
+                              height: 22 * scale,
+                              decoration: BoxDecoration(
+                                color: colorScheme.tertiary,
+                                borderRadius: BorderRadius.circular(5 * scale),
+                              ),
+                              alignment: Alignment.center,
+                              child: Icon(
+                                Icons.add_rounded,
+                                color: Colors.black,
+                                size: 16 * scale,
+                              ),
+                            ),
                           ],
                         ),
                       ),
-                    ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                physics: const ClampingScrollPhysics(),
+                padding: EdgeInsets.fromLTRB(
+                  context.sportoResponsive.horizontalPadding,
+                  8 * scale,
+                  context.sportoResponsive.horizontalPadding,
+                  context.sportoResponsive.bottomContentPadding(context) +
+                      54 * scale,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildOverviewSection(colorScheme),
+                    SizedBox(height: 20 * scale),
+                    _buildQuickActions(colorScheme),
+                    SizedBox(height: 12 * scale),
+                    _buildAnnouncementsBanner(colorScheme),
+                    SizedBox(height: 22 * scale),
+                    _buildLiveTournaments(colorScheme),
+                    SizedBox(height: 20 * scale),
+                    _buildTodaysSchedule(colorScheme),
                   ],
                 ),
               ),
-              const SizedBox.shrink(),
-              const SizedBox.shrink(),
-              const SafeArea(
-                bottom: false,
-                child: PartnerProfileScreen(),
-              ),
-            ],
-          ),
-
-          // ---- Bottom Gradient CTA Bar (Using PrimaryButton) ----
-          if (_currentIndex == 0)
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 54 * scale,
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20 * scale),
-                child: PrimaryButton(
-                  label: 'Create New Tournament',
-                  widthFactor: 1.0, // Full width within padding
-                  height: 48 * scale,
-                  radius: 14 * scale,
-                  onPressed: () {
-                    context.push(AppRouter.createTournamentRoute);
-                  },
-                ),
-              ),
             ),
-
-          // ---- Bottom Navigation ----
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: SportoBottomNav(
-              currentIndex: _currentIndex,
-              onTap: (idx) {
-                setState(() => _currentIndex = idx);
-                switch (idx) {
-                  case 1:
-                    context.push(AppRouter.matchHistoryRoute);
-                  case 2:
-                    context.push(AppRouter.scheduleRoute);
-                  case 3:
-                    break;
-                }
-              },
-              items: const [
-                SportoNavItem(Icons.home_rounded, 'Home'),
-                SportoNavItem(Icons.emoji_events_outlined, 'Tournaments'),
-                SportoNavItem(Icons.calendar_month_rounded, 'Schedules'),
-                SportoNavItem(Icons.person_outline_rounded, 'Profile'),
-              ],
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
-  // ============================================================
-  // TODAY'S OVERVIEW (2x2 grid)
-  // ============================================================
   Widget _buildOverviewSection(ColorScheme cs) {
     final scale = context.sportoScale;
-    final gridWidth = MediaQuery.sizeOf(context).width - 40 * scale;
-    final tileWidth = (gridWidth - 12 * scale) / 2;
+    final availableWidth =
+        (context.sportoResponsive.contentMaxWidth -
+                context.sportoResponsive.horizontalPadding * 2)
+            .clamp(280.0, double.infinity)
+            .toDouble();
+    final tileWidth = (availableWidth - 12 * scale) / 2;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -257,7 +232,7 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
           children: [
             SportoStatCard(
               label: 'Revenue',
-              value: '₹12,850',
+              value: 'Rs 12,850',
               highlight: true,
               highlightColor: cs.tertiary,
               fontSize: 16 * scale,
@@ -307,12 +282,13 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
     );
   }
 
-  // ============================================================
-  // QUICK ACTIONS (4 icon buttons)
-  // ============================================================
   Widget _buildQuickActions(ColorScheme cs) {
     final scale = context.sportoScale;
-    final availableWidth = MediaQuery.sizeOf(context).width - 40 * scale;
+    final availableWidth =
+        (context.sportoResponsive.contentMaxWidth -
+                context.sportoResponsive.horizontalPadding * 2)
+            .clamp(280.0, double.infinity)
+            .toDouble();
     final gap = 12 * scale;
     final tileWidth = (availableWidth - gap * 3) / 4;
     return Column(
@@ -353,9 +329,6 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
     );
   }
 
-  // ============================================================
-  // ANNOUNCEMENTS BANNER
-  // ============================================================
   Widget _buildAnnouncementsBanner(ColorScheme cs) {
     final scale = context.sportoScale;
     return SportoCard(
@@ -368,6 +341,8 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
               color: cs.onSurfaceVariant, size: 14 * scale),
           SizedBox(width: 5 * scale),
           Text('Announcements',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: TextStyle(
                   color: cs.onSurface,
                   fontSize: 11 * scale,
@@ -377,9 +352,6 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
     );
   }
 
-  // ============================================================
-  // LIVE TOURNAMENT CARDS
-  // ============================================================
   Widget _buildLiveTournaments(ColorScheme cs) {
     final scale = context.sportoScale;
     return Column(
@@ -390,7 +362,7 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
             Container(
                 width: 8 * scale,
                 height: 8 * scale,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                     shape: BoxShape.circle, color: Colors.redAccent)),
             SizedBox(width: 6 * scale),
             Text('Live Tournament',
@@ -424,9 +396,6 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
     );
   }
 
-  // ============================================================
-  // TODAY'S SCHEDULE
-  // ============================================================
   Widget _buildTodaysSchedule(ColorScheme cs) {
     final scale = context.sportoScale;
     return Column(
@@ -443,6 +412,7 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
             GestureDetector(
               onTap: () {},
               child: Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Text('View All',
                       style: TextStyle(
@@ -475,6 +445,8 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(time,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                     color: cs.onSurfaceVariant, fontSize: 11 * scale)),
             SizedBox(height: 10 * scale),
@@ -500,17 +472,21 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('Hyderabad Super Cup',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                               color: cs.onSurface,
                               fontSize: 14 * scale,
                               fontWeight: FontWeight.w500)),
                       SizedBox(height: 4 * scale),
                       RichText(
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         text: TextSpan(
                           style: TextStyle(fontSize: 11 * scale),
                           children: [
                             TextSpan(
-                                text: 'Cricket • ',
+                                text: 'Cricket - ',
                                 style: TextStyle(color: cs.tertiary)),
                             TextSpan(
                                 text: '18 Teams',
@@ -531,6 +507,8 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
               children: [
                 Expanded(
                   child: RichText(
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     text: TextSpan(
                       style: TextStyle(fontSize: 11 * scale),
                       children: [
@@ -552,6 +530,8 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text('View Tournament',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                               color: cs.onSurfaceVariant,
                               fontSize: 11 * scale)),

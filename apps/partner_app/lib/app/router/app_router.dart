@@ -3,8 +3,6 @@ import 'package:go_router/go_router.dart';
 import '../../features/auth/presentation/views/auth_flow_view.dart';
 import '../../features/tournaments/presentation/screens/create_tournament_wizard_screen.dart';
 import '../../features/tournaments/presentation/screens/match_detail_screen.dart';
-import '../../features/tournaments/presentation/screens/match_history_screen.dart';
-import '../../features/tournaments/presentation/screens/schedule_screen.dart';
 
 /// Central route table for the partner app.
 abstract final class AppRouter {
@@ -48,12 +46,12 @@ abstract final class AppRouter {
       GoRoute(
         path: matchHistoryPath,
         name: 'matchHistory',
-        builder: (context, state) => const MatchHistoryScreen(),
+        builder: (context, state) => const AuthFlowView(initialTabIndex: 1),
       ),
       GoRoute(
         path: schedulePath,
         name: 'schedule',
-        builder: (context, state) => const ScheduleScreen(),
+        builder: (context, state) => const AuthFlowView(initialTabIndex: 2),
       ),
     ],
   );

@@ -29,9 +29,11 @@ class PartnerApp extends StatelessWidget {
             themeMode: themeState.themeMode,
             debugShowCheckedModeBanner: false,
             routerConfig: AppRouter.router,
-            builder: (context, child) => SportoAppBackgroundScope(
-              background: SportoAppBackground.partner,
-              child: child ?? const SizedBox.shrink(),
+            builder: (context, child) => SportoAppTextScale(
+              child: SportoAppBackgroundScope(
+                background: SportoAppBackground.partner,
+                child: child ?? const SizedBox.shrink(),
+              ),
             ),
           );
         },

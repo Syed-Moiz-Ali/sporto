@@ -4,6 +4,7 @@
 // ============================================================
 import 'package:flutter/material.dart';
 import '../theme/sporto_design_tokens.dart';
+import 'sporto_responsive_layout.dart';
 
 class SportoNavItem {
   final IconData icon;
@@ -27,14 +28,60 @@ class SportoBottomNav extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final scale = context.sportoScale;
+    final metrics = context.sportoResponsive;
+    final bottomInset = MediaQuery.paddingOf(context).bottom;
+    final isFloating = metrics.isTablet;
+    final iconSize = (22) * scale;
+    final labelSize = (11) * scale;
+    final indicatorWidth = (18) * scale;
+
+    final availableWidth = MediaQuery.sizeOf(context).width -
+        metrics.horizontalPadding * 2 -
+        MediaQuery.paddingOf(context).horizontal;
+    final itemWidth = 76 * scale;
+    final floatingWidth = (items.length * itemWidth + 18 * scale)
+        .clamp(0, metrics.navMaxWidth)
+        .clamp(0, availableWidth)
+        .toDouble();
+
     return Container(
-      height: 60,
+      width: isFloating ? floatingWidth : double.infinity,
+      height: metrics.bottomNavHeight + (isFloating ? 0 : bottomInset),
+      margin: isFloating
+          ? EdgeInsets.symmetric(horizontal: metrics.horizontalPadding)
+          : EdgeInsets.zero,
+      padding: EdgeInsets.fromLTRB(
+        8 * scale,
+        0,
+        8 * scale,
+        isFloating ? 0 : bottomInset,
+      ),
       decoration: BoxDecoration(
-        color: context.sporto.card.withValues(alpha: 0.98),
-        border: Border(top: BorderSide(color: context.sporto.border)),
+        color: context.sporto.navSurface.withValues(
+          alpha: isFloating ? 0.96 : 0.98,
+        ),
+        borderRadius: isFloating ? BorderRadius.circular(22 * scale) : null,
+        border: isFloating
+            ? Border.all(color: context.sporto.border)
+            : Border(top: BorderSide(color: context.sporto.border)),
+        boxShadow: isFloating
+            ? [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.28),
+                  blurRadius: 18 * scale,
+                  offset: Offset(0, 8 * scale),
+                ),
+              ]
+            : [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.20),
+                  blurRadius: 14 * scale,
+                  offset: Offset(0, -4 * scale),
+                ),
+              ],
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: List.generate(items.length, (i) {
           final item = items[i];
           final isActive = i == currentIndex;
@@ -54,23 +101,26 @@ class SportoBottomNav extends StatelessWidget {
                     children: [
                       Icon(item.icon,
                           color: isActive ? cs.tertiary : cs.onSurfaceVariant,
-                          size: 24),
-                      const SizedBox(height: 4),
-                      Text(item.label,
-                          style:
-                              Theme.of(context).textTheme.labelSmall?.copyWith(
-                                    color: isActive
-                                        ? cs.tertiary
-                                        : cs.onSurfaceVariant,
-                                    fontWeight: isActive
-                                        ? FontWeight.w500
-                                        : FontWeight.normal,
-                                  )),
+                          size: iconSize),
+                      SizedBox(height: 3 * scale),
+                      Text(
+                        item.label,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                              color:
+                                  isActive ? cs.tertiary : cs.onSurfaceVariant,
+                              fontSize: labelSize,
+                              fontWeight: isActive
+                                  ? FontWeight.w500
+                                  : FontWeight.normal,
+                            ),
+                      ),
                       if (isActive)
                         Container(
-                          margin: const EdgeInsets.only(top: 2),
-                          width: 20,
-                          height: 3,
+                          margin: EdgeInsets.only(top: 2 * scale),
+                          width: indicatorWidth,
+                          height: 3 * scale,
                           decoration: BoxDecoration(
                             color: cs.tertiary,
                             borderRadius: BorderRadius.circular(
@@ -78,7 +128,7 @@ class SportoBottomNav extends StatelessWidget {
                           ),
                         )
                       else
-                        const SizedBox(height: 5),
+                        SizedBox(height: 5 * scale),
                     ],
                   ),
                 ),

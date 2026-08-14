@@ -116,6 +116,8 @@ class SportoProfileHeaderCard extends StatelessWidget {
                   children: [
                     Text(
                       name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: theme.textTheme.titleLarge?.copyWith(
                         fontSize: 17 * scale,
                         fontWeight: FontWeight.w600,
@@ -126,6 +128,8 @@ class SportoProfileHeaderCard extends StatelessWidget {
                     SizedBox(height: 6 * scale),
                     Text(
                       phone,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: theme.textTheme.bodyMedium?.copyWith(
                         fontSize: 13 * scale,
                         color: const Color(0xB8FFFFFF),
@@ -217,6 +221,8 @@ class SportoCertifiedBadge extends StatelessWidget {
                   ),
                 ],
               ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
@@ -288,6 +294,8 @@ class SportoProfileStatCard extends StatelessWidget {
         children: [
           Text(
             value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: theme.textTheme.headlineSmall?.copyWith(
               color: const Color(0xFFFFB317),
               fontSize: 18 * scale,
@@ -298,6 +306,9 @@ class SportoProfileStatCard extends StatelessWidget {
           SizedBox(height: 8 * scale),
           Text(
             label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
             style: theme.textTheme.bodyLarge?.copyWith(
               color: const Color(0xFFD0D4DD),
               fontSize: 13 * scale,
@@ -420,6 +431,8 @@ class SportoProfileMenuItem extends StatelessWidget {
               Expanded(
                 child: Text(
                   item.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.bodyLarge?.copyWith(
                     color: Colors.white,
                     fontSize: 15 * scale,

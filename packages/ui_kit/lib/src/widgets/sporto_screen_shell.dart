@@ -5,6 +5,35 @@ enum SportoAppBackground {
   partner,
 }
 
+/// Applies SPORTO's app-level text size lift across every route.
+///
+/// Many SPORTO screens use local `fontSize` values for dense scorecards,
+/// fields, and chips. Theme changes alone do not affect those, but Flutter's
+/// text scaler does.
+class SportoAppTextScale extends StatelessWidget {
+  const SportoAppTextScale({
+    super.key,
+    required this.child,
+    this.factor = 1.12,
+  });
+
+  final Widget child;
+  final double factor;
+
+  @override
+  Widget build(BuildContext context) {
+    final media = MediaQuery.of(context);
+    final currentFactor = MediaQuery.textScalerOf(context).scale(1);
+
+    return MediaQuery(
+      data: media.copyWith(
+        textScaler: TextScaler.linear(currentFactor * factor),
+      ),
+      child: child,
+    );
+  }
+}
+
 /// Selects the shared shell artwork once for an entire application.
 class SportoAppBackgroundScope extends InheritedWidget {
   const SportoAppBackgroundScope({

@@ -16,41 +16,26 @@ class RefereeShellScreen extends StatefulWidget {
 }
 
 class _RefereeShellScreenState extends State<RefereeShellScreen> {
-  int _currentIndex = 0;
+  final _shellKey = GlobalKey<SportoBottomTabShellState>();
 
   @override
   Widget build(BuildContext context) {
-    return SportoScreenShell(
-      body: Column(
-        children: [
-          Expanded(
-            child: IndexedStack(
-              index: _currentIndex,
-              children: [
-                RefereeHomeScreen(
-                  onViewAll: () => setState(() => _currentIndex = 1),
-                ),
-                const MatchesListScreen(),
-                const RefereeScoringTabScreen(),
-                const RefereeProfileScreen(),
-              ],
-            ),
-          ),
-          SafeArea(
-            top: false,
-            child: SportoBottomNav(
-              currentIndex: _currentIndex,
-              onTap: (idx) => setState(() => _currentIndex = idx),
-              items: const [
-                SportoNavItem(Icons.home_rounded, 'Home'),
-                SportoNavItem(Icons.calendar_month_rounded, 'Matches'),
-                SportoNavItem(Icons.sports_cricket_rounded, 'Scoring'),
-                SportoNavItem(Icons.person_outline_rounded, 'Profile'),
-              ],
-            ),
-          ),
-        ],
-      ),
+    return SportoBottomTabShell(
+      key: _shellKey,
+      tabs: [
+        RefereeHomeScreen(
+          onViewAll: () => _shellKey.currentState?.setIndex(1),
+        ),
+        const MatchesListScreen(),
+        const RefereeScoringTabScreen(),
+        const RefereeProfileScreen(),
+      ],
+      items: const [
+        SportoNavItem(Icons.home_rounded, 'Home'),
+        SportoNavItem(Icons.calendar_month_rounded, 'Matches'),
+        SportoNavItem(Icons.sports_cricket_rounded, 'Scoring'),
+        SportoNavItem(Icons.person_outline_rounded, 'Profile'),
+      ],
     );
   }
 }

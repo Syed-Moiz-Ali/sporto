@@ -1,21 +1,30 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:ui_kit/ui_kit.dart';
-import '../../../../app/router/app_router.dart';
 
 class ScheduleScreen extends StatelessWidget {
-  const ScheduleScreen({super.key});
+  final bool embedded;
+
+  const ScheduleScreen({
+    super.key,
+    this.embedded = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final scale = context.sportoScale;
-    return SportoScreenShell(
-      body: SafeArea(
-        bottom: false,
+    final content = SafeArea(
+      bottom: false,
+      child: SportoResponsiveContent(
+        padding: EdgeInsets.zero,
         child: ListView(
-          padding: EdgeInsets.fromLTRB(20 * scale, 10 * scale, 20 * scale, 90),
+          padding: EdgeInsets.fromLTRB(
+            context.sportoResponsive.horizontalPadding,
+            10 * scale,
+            context.sportoResponsive.horizontalPadding,
+            context.sportoResponsive.bottomContentPadding(context),
+          ),
           children: [
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -109,27 +118,8 @@ class ScheduleScreen extends StatelessWidget {
           ],
         ),
       ),
-      bottomNavigationBar: SportoBottomNav(
-          currentIndex: 2,
-          onTap: (index) {
-            switch (index) {
-              case 0:
-                context.go(AppRouter.homePath);
-              case 1:
-                context.go(AppRouter.matchHistoryRoute);
-              case 2:
-                return;
-              case 3:
-                context.go(AppRouter.profileRoute);
-            }
-          },
-          items: const [
-            SportoNavItem(Icons.home_outlined, 'Home'),
-            SportoNavItem(Icons.emoji_events_outlined, 'Tournaments'),
-            SportoNavItem(Icons.calendar_month, 'Schedules'),
-            SportoNavItem(Icons.person_outline, 'Profile'),
-          ]),
     );
+    return embedded ? content : SportoScreenShell(body: content);
   }
 
   Widget _stat(BuildContext c, String value, String label) => SportoCard(

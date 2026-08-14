@@ -195,8 +195,15 @@ extension SportoThemeContext on BuildContext {
       Theme.of(this).extension<SportoLayoutTokens>()!;
 
   /// Bounded multiplier based on the 390 px Figma mobile canvas.
-  double get sportoScale =>
-      (MediaQuery.sizeOf(this).width / 390).clamp(0.92, 1.16);
+  /// Bounded multiplier based on the 390 px Figma mobile canvas.
+  /// Geometry stays close to the design; app-wide text is lifted separately.
+  double get sportoScale {
+    final width = MediaQuery.sizeOf(this).width;
+    if (width < 360) {
+      return (width / 360).clamp(0.96, 1.0);
+    }
+    return (width / 390).clamp(1.0, 1.16);
+  }
 
   double sportoSize(double figmaValue) => figmaValue * sportoScale;
 }
