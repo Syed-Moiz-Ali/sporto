@@ -70,7 +70,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         theme: SportoTheme.darkTheme,
-        home: const ApplicationStatusScreen(applicationRef: 'RF202600124'),
+        home: const ApplicationStatusScreen(),
       ),
     );
     await tester.pumpAndSettle();

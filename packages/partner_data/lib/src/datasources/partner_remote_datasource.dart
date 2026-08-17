@@ -209,24 +209,47 @@ class PartnerRemoteDataSource {
   Future<SportoApiResponse> storeTournamentDraft(
     TournamentDraftRequest request,
   ) {
-    return _post(
+    return _postForm(
       SportoApiEndpoints.partnerTournaments.drafts,
-      body: request.toJson(),
+      fields: request.toJson(),
     );
+  }
+
+  Future<PartnerTournamentResponse> storeTournamentDraftData(
+    TournamentDraftRequest request,
+  ) async {
+    final response = await storeTournamentDraft(request);
+    return PartnerTournamentResponse.fromJson(_mapData(response.data));
   }
 
   Future<SportoApiResponse> showTournament(Object tournamentId) {
     return _get(SportoApiEndpoints.partnerTournaments.byId(tournamentId));
   }
 
+  Future<PartnerTournamentResponse> showTournamentData(
+    Object tournamentId,
+  ) async {
+    final response = await showTournament(tournamentId);
+    return PartnerTournamentResponse.fromJson(_mapData(response.data));
+  }
+
   Future<SportoApiResponse> updateTournamentDetails(
     Object tournamentId,
     TournamentDetailsRequest request,
   ) {
-    return _put(
+    return _postForm(
       SportoApiEndpoints.partnerTournaments.byId(tournamentId),
-      body: request.toJson(),
+      fields: request.toJson(),
+      methodOverride: 'PUT',
     );
+  }
+
+  Future<PartnerTournamentResponse> updateTournamentDetailsData(
+    Object tournamentId,
+    TournamentDetailsRequest request,
+  ) async {
+    final response = await updateTournamentDetails(tournamentId, request);
+    return PartnerTournamentResponse.fromJson(_mapData(response.data));
   }
 
   Future<SportoApiResponse> deleteTournament(Object tournamentId) {
@@ -237,20 +260,37 @@ class PartnerRemoteDataSource {
     Object tournamentId,
     TournamentRuleRequest request,
   ) {
-    return _put(
+    return _postForm(
       SportoApiEndpoints.partnerTournaments.rules(tournamentId),
-      body: request.toJson(),
+      fields: request.toJson(),
+      methodOverride: 'PUT',
     );
+  }
+
+  Future<PartnerTournamentResponse> updateTournamentRulesData(
+    Object tournamentId,
+    TournamentRuleRequest request,
+  ) async {
+    final response = await updateTournamentRules(tournamentId, request);
+    return PartnerTournamentResponse.fromJson(_mapData(response.data));
   }
 
   Future<SportoApiResponse> storeTournamentVenue(
     Object tournamentId,
     TournamentVenueRequest request,
   ) {
-    return _post(
+    return _postForm(
       SportoApiEndpoints.partnerTournaments.venues(tournamentId),
-      body: request.toJson(),
+      fields: request.toJson(),
     );
+  }
+
+  Future<PartnerTournamentVenueResponse> storeTournamentVenueData(
+    Object tournamentId,
+    TournamentVenueRequest request,
+  ) async {
+    final response = await storeTournamentVenue(tournamentId, request);
+    return PartnerTournamentVenueResponse.fromJson(_mapData(response.data));
   }
 
   Future<SportoApiResponse> updateTournamentVenue(
@@ -258,10 +298,21 @@ class PartnerRemoteDataSource {
     Object venueId,
     TournamentVenueRequest request,
   ) {
-    return _put(
+    return _postForm(
       SportoApiEndpoints.partnerTournaments.venueById(tournamentId, venueId),
-      body: request.toJson(),
+      fields: request.toJson(),
+      methodOverride: 'PUT',
     );
+  }
+
+  Future<PartnerTournamentVenueResponse> updateTournamentVenueData(
+    Object tournamentId,
+    Object venueId,
+    TournamentVenueRequest request,
+  ) async {
+    final response =
+        await updateTournamentVenue(tournamentId, venueId, request);
+    return PartnerTournamentVenueResponse.fromJson(_mapData(response.data));
   }
 
   Future<SportoApiResponse> removeTournamentVenue(
@@ -277,10 +328,19 @@ class PartnerRemoteDataSource {
     Object tournamentId,
     TournamentBudgetRequest request,
   ) {
-    return _put(
+    return _postForm(
       SportoApiEndpoints.partnerTournaments.budget(tournamentId),
-      body: request.toJson(),
+      fields: request.toJson(),
+      methodOverride: 'PUT',
     );
+  }
+
+  Future<PartnerTournamentResponse> updateTournamentBudgetData(
+    Object tournamentId,
+    TournamentBudgetRequest request,
+  ) async {
+    final response = await updateTournamentBudget(tournamentId, request);
+    return PartnerTournamentResponse.fromJson(_mapData(response.data));
   }
 
   Future<SportoApiResponse> reviewTournament(Object tournamentId) {
@@ -291,10 +351,18 @@ class PartnerRemoteDataSource {
     Object tournamentId,
     TournamentSubmitRequest request,
   ) {
-    return _post(
+    return _postForm(
       SportoApiEndpoints.partnerTournaments.submit(tournamentId),
-      body: request.toJson(),
+      fields: request.toJson(),
     );
+  }
+
+  Future<PartnerTournamentResponse> submitTournamentData(
+    Object tournamentId,
+    TournamentSubmitRequest request,
+  ) async {
+    final response = await submitTournament(tournamentId, request);
+    return PartnerTournamentResponse.fromJson(_mapData(response.data));
   }
 
   Future<SportoApiResponse> _get(
@@ -312,6 +380,18 @@ class PartnerRemoteDataSource {
     Map<String, dynamic>? body,
   }) async {
     return _parse(await _apiClient.postJson(path, body: body));
+  }
+
+  Future<SportoApiResponse> _postForm(
+    String path, {
+    required Map<String, dynamic> fields,
+    String? methodOverride,
+  }) async {
+    return _parse(await _apiClient.postForm(
+      path,
+      fields: fields,
+      methodOverride: methodOverride,
+    ));
   }
 
   Future<SportoApiResponse> _put(

@@ -161,6 +161,95 @@ Important backend/data-state blockers:
 - Tournament draft/detail/rules/review/delete endpoints using Postman `tournament_id = 1` returned `404 Resource not found`.
 - Venue, budget, and tournament submit bodies were corrected from backend validation feedback, but still return `404 Resource not found` because tournament `1` is unavailable for this authenticated user.
 
+## Tournament Recheck - 2026-08-15
+
+Backend provided a fresh token and reported the organization/tournament access issues as fixed. Recheck was performed against real created draft tournament IDs instead of hardcoded Postman tournament `1`.
+
+Confirmed working:
+
+- `GET /v1/partner/tournaments/types`: `200`
+- `POST /v1/partner/tournaments/`: `200 Draft created successfully` with created tournament `id = 7`
+- `GET /v1/partner/tournaments/7`: `200 Tournament retrieved`
+- `PUT /v1/partner/tournaments/7`: `200 Tournament details updated`
+- `PUT /v1/partner/tournaments/7/rules`: `200 Tournament rules updated`
+- `POST /v1/partner/tournaments/7/venues`: `200 Venue added successfully`
+- `PUT /v1/partner/tournaments/8/venues/2`: `200 Venue updated successfully`
+- `DELETE /v1/partner/tournaments/8/venues/2`: `200 Venue removed successfully`
+- `PUT /v1/partner/tournaments/7/budget`: `200 Budget and registration updated successfully`
+- `GET /v1/partner/tournaments/7/review`: `200 Review data retrieved`
+- `POST /v1/partner/tournaments/7/submit`: `200 Tournament submitted successfully`
+- `DELETE /v1/partner/tournaments/8`: `200 Tournament draft deleted successfully`
+
+Important request contract observed from live backend:
+
+- Tournament mutation endpoints did not accept JSON request bodies during recheck. JSON body returned validation errors saying required fields were missing.
+- The same fields worked when sent as multipart/form-data.
+- `PUT` mutation endpoints worked reliably when sent as multipart/form-data with `_method=PUT`.
+- `POST /v1/partner/tournaments/{id}/submit` accepted `confirmation=1`. Form value `confirmation=true` returned `422` saying the field must be true or false.
+- Venue create/update still require `venue_name`; `venue_id` alone is not enough.
+- Budget still requires `prizes[0][category]` and `sponsors[0][sponsor_type]`.
+- Duplicate profile email issue is still not fixed: `POST /v1/partner/profile` with `john.partner@example.com` returned `500 Internal Server Error` with SQL unique-key details. Expected response remains `422 Validation failed`.
+
+Frontend integration updated accordingly:
+
+- Tournament mutations now use centralized form-data helper in `SportoApiClient.postForm`.
+- Partner tournament datasource sends create/update/rules/venue/budget/submit using form-data and `_method=PUT` where required.
+- Added typed tournament response models and status workflow mapping:
+  `1 Draft`, `2 Published`, `3 Registration Open`, `4 Registration Closed`, `5 Check In`, `6 In Progress`, `7 Completed`, `8 Cancelled`, `9 Archived`.
+
+## Tournament Creation QA Validation Sweep - 2026-08-15
+
+Scope: tournament create/update/rules/venue/budget/review/submit was retested as a QA flow with both negative validation cases and a full happy path using a real authenticated partner token.
+
+Passing validation/backhandling checks:
+
+- `GET /v1/partner/tournaments/types`: `200 Tournament types retrieved.`
+- `GET /v1/partner/tournaments/sports`: `200 Partner sports retrieved.`
+- `GET /v1/partner/tournaments/sports/1/formats`: `200 Sport formats retrieved.`
+- `GET /v1/partner/tournaments/form-config?sport_id=1&sport_format_id=1`: `200 Form configuration retrieved.`
+- `GET /v1/partner/tournaments/form-config?sport_id=999999&sport_format_id=999999`: `422 Validation failed` with clean `sport_id` and `sport_format_id` errors.
+- `POST /v1/partner/tournaments/` with empty JSON: `422 Validation failed` with required-field errors for `tournament_type_id`, `sport_id`, and `sport_format_id`.
+- `POST /v1/partner/tournaments/` with invalid IDs: `422 Validation failed` with selected-id validation errors.
+- `POST /v1/partner/tournaments/` with valid JSON: `200 Draft created successfully.`
+- `GET /v1/partner/tournaments/{created_id}`: `200 Tournament retrieved.`
+- `GET /v1/partner/tournaments/1`: `404 Resource not found.` This is correct for this test user because tournament `1` is not accessible.
+- `PUT /v1/partner/tournaments/{created_id}` with bad date: `422 Validation failed` with `registration_end_at` date error.
+- `PUT /v1/partner/tournaments/{created_id}` with valid JSON: `200 Tournament details updated.`
+- `PUT /v1/partner/tournaments/{created_id}/rules` with empty rules: `422 Validation failed` with `rules` required error.
+- `PUT /v1/partner/tournaments/{created_id}/rules` with valid JSON: `200 Tournament rules updated.`
+- `POST /v1/partner/tournaments/{created_id}/venues` with complete JSON including `venue_name`: `200 Venue added successfully.`
+- `PUT /v1/partner/tournaments/{created_id}/venues/{venue_id}` with valid JSON: `200 Venue updated successfully.`
+- `DELETE /v1/partner/tournaments/{created_id}/venues/{venue_id}`: `200 Venue removed successfully.`
+- `PUT /v1/partner/tournaments/{created_id}/budget` with complete JSON including prize `category` and sponsor `sponsor_type`: `200 Budget and registration updated successfully.`
+- `GET /v1/partner/tournaments/{created_id}/review`: `200 Review data retrieved.`
+- `POST /v1/partner/tournaments/{created_id}/submit` with empty JSON: `422 Validation failed` with `confirmation` required error.
+- Full happy path on tournament `12`: create draft, update details, update rules, add venue, update budget, review, submit, and show submitted tournament all returned `200`.
+- `POST /v1/partner/tournaments/{created_id}/submit` with JSON `{ "confirmation": true }`: `200 Tournament submitted successfully.`
+
+Current backend/Postman issues found:
+
+- `POST /v1/partner/tournaments/{created_id}/venues` using the current Postman body `{ "venue_id": 1, "notes": "Main ground" }` returns `422 Validation failed` because backend requires `venue_name`. Postman collection should be updated or backend should make `venue_name` optional when `venue_id` is supplied.
+- `PUT /v1/partner/tournaments/{created_id}/budget` using the current Postman body fails with `422` because backend requires `prizes.0.category` and `sponsors.0.sponsor_type`. Postman collection should include these fields.
+- `POST /v1/partner/tournaments/{created_id}/submit` after deleting all venues returns `422 At least one venue must be configured.` This is valid backend protection and frontend should not allow deleting/removing every venue before final submit.
+
+Frontend validation/backhandling updates:
+
+- Tournament submit now blocks obvious invalid UI data before hitting backend:
+  - empty venue name
+  - empty venue location
+  - invalid or zero daily match capacity
+  - invalid entry fee
+  - invalid prize pool
+- Backend validation errors from `SportoApiException.errors` are now shown as readable first validation messages instead of raw exception text.
+- `TournamentVenueRequest` now supports and sends the backend-accepted venue fields from the wizard: `location`, `daily_match_capacity`, `ground_type`, `date`, `start_time`, and `round_name`.
+
+Manual device check:
+
+- ADB detected `Redmi Note 7 Pro`, Android 13.
+- Partner app debug build installed and launched successfully on the real device.
+- Startup logs showed `SPLASH_GATE started partner profile check` followed by `SPLASH_GATE no stored token, showing login`.
+- Authenticated UI/API log testing on the device requires completing OTP login once on that device so Hive contains the bearer token.
+
 ## Backend Issues / Blockers
 
 ### Initial Postman OTP Run Failed
@@ -260,7 +349,7 @@ Blocked endpoints:
 - The reusable UI wizard exposes `OnboardingSubmission` and `OnboardingUploadType`; backend calls stay in the partner app/data layer.
 - Onboarding upload buttons open a native file picker, upload the selected file through Common Upload, show a spinner while uploading, and only mark the tile uploaded after the backend returns a path.
 
-## Not Implemented Yet
+## Remaining Integration Notes
 
-Tournament draft/detail/rules/venue/budget/submit success models are intentionally pending because the authenticated test user has no organization and Postman `tournament_id = 1` does not return a success payload for this user.
-Referee onboarding API integration is pending because the current `postman/` folder only includes partner onboarding endpoints.
+- Tournament draft/detail/rules/venue/budget/submit success models are implemented from live `200` responses.
+- Referee onboarding API integration is pending because the current `postman/` folder only includes partner onboarding endpoints.

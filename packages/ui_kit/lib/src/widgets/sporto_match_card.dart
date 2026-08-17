@@ -3,6 +3,7 @@
 // Data-driven match card used across home & match list screens.
 // ============================================================
 import 'package:flutter/material.dart';
+import '../assets/sporto_assets.dart';
 import 'sporto_badge.dart';
 import 'sporto_card.dart';
 import 'sporto_divider.dart';
@@ -146,7 +147,7 @@ class SportoMatchCard extends StatelessWidget {
             ),
             if (location != null)
               Row(children: [
-                Icon(Icons.location_on_outlined,
+                SportoAssetIcon(SportoAssets.locationPin,
                     size: 14, color: cs.onSurfaceVariant),
                 const SizedBox(width: 4),
                 Text(location!, style: Theme.of(context).textTheme.bodySmall),
@@ -252,7 +253,7 @@ class SportoMatchCard extends StatelessWidget {
         if (location != null) ...[
           Row(
             children: [
-              Icon(Icons.location_on_outlined,
+              SportoAssetIcon(SportoAssets.locationPin,
                   size: 14, color: cs.onSurfaceVariant),
               const SizedBox(width: 4),
               Text(location!,

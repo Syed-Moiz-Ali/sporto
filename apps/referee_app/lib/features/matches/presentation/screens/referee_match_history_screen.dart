@@ -133,7 +133,7 @@ class _HistoryResultCard extends StatelessWidget {
         ]),
         const SizedBox(height: 2),
         Row(children: [
-          Icon(Icons.location_on_outlined,
+          SportoAssetIcon(SportoAssets.locationPin,
               size: 14, color: cs.onSurfaceVariant),
           const SizedBox(width: 2),
           Text('Hyderabad', style: theme.textTheme.bodySmall)

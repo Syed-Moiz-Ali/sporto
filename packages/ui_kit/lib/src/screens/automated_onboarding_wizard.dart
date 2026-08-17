@@ -97,7 +97,7 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
   late TextEditingController _firstNameController;
   late TextEditingController _lastNameController;
   late TextEditingController _emailController;
-  final _dobController = TextEditingController();
+  late TextEditingController _dobController;
   String? _selectedGender;
 
   // Step 2
@@ -115,9 +115,10 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
     'Volleyball',
     'Badminton'
   ];
-  final Set<String> _selectedSports = {'Cricket', 'Football'};
+  final Set<String> _selectedSports = {};
   final _experienceController = TextEditingController();
   final _qualificationController = TextEditingController();
+  final _occupationController = TextEditingController();
 
   // Step 4
   final List<String> _allDays = [
@@ -129,7 +130,7 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
     'Saturday',
     'Sunday'
   ];
-  final Set<String> _selectedDays = {'Monday', 'Tuesday'};
+  final Set<String> _selectedDays = {};
   final _preferredCityController = TextEditingController();
   final _travelRadiusController = TextEditingController();
   final _emergencyContactController = TextEditingController();
@@ -153,9 +154,8 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
   bool _applicationSubmitted = false;
   bool _isSubmittingOnboarding = false;
   String? _submissionError;
+  final Map<String, String> _fieldErrors = {};
   late final ConfettiController _confettiController;
-  static const String _applicationRef = 'RF202600124';
-
   @override
   void initState() {
     super.initState();
@@ -169,6 +169,9 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
     );
     _emailController = TextEditingController(
       text: widget.user.email,
+    );
+    _dobController = TextEditingController(
+      text: _normaliseDob(widget.user.dob),
     );
     _confettiController =
         ConfettiController(duration: const Duration(seconds: 3));
@@ -188,15 +191,281 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
     _countryController.dispose();
     _experienceController.dispose();
     _qualificationController.dispose();
+    _occupationController.dispose();
     _preferredCityController.dispose();
     _travelRadiusController.dispose();
     _emergencyContactController.dispose();
     super.dispose();
   }
 
+  void _clearFieldError(String field) {
+    if (!_fieldErrors.containsKey(field)) return;
+    setState(() {
+      _fieldErrors.remove(field);
+      _submissionError = null;
+    });
+  }
+
+  bool _validateCurrentStep() {
+    final errors = <String, String>{};
+    switch (_currentStep) {
+      case 1:
+        _validatePersonalInfo(errors);
+      case 2:
+        _validateAddress(errors);
+      case 3:
+        _validateSportsAndExperience(errors);
+      case 4:
+        if (_isReferee) {
+          _validateAvailability(errors);
+        } else {
+          _validateDocuments(errors);
+        }
+      case 5:
+        if (_isReferee) {
+          _validateDocuments(errors);
+        } else {
+          _validateReview(errors);
+        }
+      case 6:
+        _validateReview(errors);
+    }
+
+    setState(() {
+      _fieldErrors
+        ..clear()
+        ..addAll(errors);
+      _submissionError = errors.isEmpty ? null : errors.values.first;
+    });
+    return errors.isEmpty;
+  }
+
+  void _validatePersonalInfo(Map<String, String> errors) {
+    _validateName(
+        errors, 'firstName', _firstNameController.text.trim(), 'First name');
+    _validateName(
+        errors, 'lastName', _lastNameController.text.trim(), 'Last name');
+    final email = _emailController.text.trim();
+    if (email.isEmpty) {
+      errors['email'] = 'Email address is required.';
+    } else if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(email)) {
+      errors['email'] = 'Enter a valid email address.';
+    }
+    final dob = _dobController.text.trim();
+    if (dob.isEmpty) {
+      errors['dateOfBirth'] = 'Date of birth is required.';
+    } else if (!_isValidDob(dob)) {
+      errors['dateOfBirth'] = 'Select a valid date of birth.';
+    }
+    if (_selectedGender == null) {
+      errors['gender'] = 'Select gender.';
+    }
+  }
+
+  void _validateAddress(Map<String, String> errors) {
+    _validateRequiredMin(errors, 'addressLine1',
+        _addressLineController.text.trim(), 'Address line', 3);
+    _validateRequiredMin(
+        errors, 'city', _cityController.text.trim(), 'City', 2);
+    _validateRequiredMin(
+        errors, 'state', _stateController.text.trim(), 'State', 2);
+    final pincode = _pinCodeController.text.trim();
+    if (pincode.isEmpty) {
+      errors['pincode'] = 'PIN code is required.';
+    } else if (!RegExp(r'^\d{6}$').hasMatch(pincode)) {
+      errors['pincode'] = 'Enter a valid 6-digit PIN code.';
+    }
+    _validateRequiredMin(
+        errors, 'country', _countryController.text.trim(), 'Country', 2);
+  }
+
+  void _validateSportsAndExperience(Map<String, String> errors) {
+    if (_selectedSports.isEmpty) {
+      errors['sports'] = _isReferee
+          ? 'Select at least one sport you can officiate.'
+          : 'Select at least one sport you organize.';
+    }
+    final experienceText = _experienceController.text.trim();
+    final experience = int.tryParse(experienceText);
+    if (experienceText.isEmpty) {
+      errors['experienceYears'] = 'Years of experience is required.';
+    } else if (experience == null || experience < 0 || experience > 60) {
+      errors['experienceYears'] = 'Experience must be between 0 and 60 years.';
+    }
+    _validateRequiredMin(errors, 'highestQualification',
+        _qualificationController.text.trim(), 'Highest qualification', 2);
+    _validateRequiredMin(errors, 'presentOccupation',
+        _occupationController.text.trim(), 'Present occupation', 2);
+  }
+
+  void _validateAvailability(Map<String, String> errors) {
+    if (_selectedDays.isEmpty) {
+      errors['availabilityDays'] = 'Select at least one available day.';
+    }
+    _validateRequiredMin(errors, 'preferredCity',
+        _preferredCityController.text.trim(), 'Preferred city', 2);
+    final radiusText = _travelRadiusController.text.trim();
+    final radius = int.tryParse(radiusText);
+    if (radiusText.isEmpty) {
+      errors['travelRadius'] = 'Travel radius is required.';
+    } else if (radius == null || radius <= 0 || radius > 500) {
+      errors['travelRadius'] = 'Travel radius must be between 1 and 500 km.';
+    }
+    final emergency = _emergencyContactController.text.trim();
+    if (emergency.isEmpty) {
+      errors['emergencyContact'] = 'Emergency contact is required.';
+    } else if (!RegExp(r'^\d{10}$').hasMatch(emergency)) {
+      errors['emergencyContact'] = 'Enter a valid 10-digit mobile number.';
+    }
+  }
+
+  void _validateDocuments(Map<String, String> errors) {
+    if (!_govIdUploaded) {
+      errors['governmentId'] = 'Government ID document is required.';
+    }
+  }
+
+  void _validateReview(Map<String, String> errors) {
+    if (!_confirmAccuracy) {
+      errors['confirmAccuracy'] = 'Confirm that all information is accurate.';
+    }
+  }
+
+  void _validateName(
+      Map<String, String> errors, String key, String value, String label) {
+    if (value.isEmpty) {
+      errors[key] = '$label is required.';
+    } else if (value.length < 2) {
+      errors[key] = '$label must be at least 2 characters.';
+    } else if (!RegExp(r"^[A-Za-z][A-Za-z\s'.-]*$").hasMatch(value)) {
+      errors[key] = 'Enter a valid $label.';
+    }
+  }
+
+  void _validateRequiredMin(Map<String, String> errors, String key,
+      String value, String label, int minLength) {
+    if (value.isEmpty) {
+      errors[key] = '$label is required.';
+    } else if (value.length < minLength) {
+      errors[key] = '$label must be at least $minLength characters.';
+    }
+  }
+
+  bool _isValidDob(String value) {
+    final parsed = _parseApiDate(value);
+    if (parsed == null) return false;
+    final now = DateTime.now();
+    final age = now.year -
+        parsed.year -
+        ((now.month < parsed.month ||
+                (now.month == parsed.month && now.day < parsed.day))
+            ? 1
+            : 0);
+    return age >= 13 && age <= 100;
+  }
+
+  DateTime? _parseApiDate(String value) {
+    if (!RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(value)) return null;
+    final parsed = DateTime.tryParse(value);
+    if (parsed == null || value != _formatApiDate(parsed)) return null;
+    return parsed;
+  }
+
+  String _normaliseDob(String? value) {
+    if (value == null || value.trim().isEmpty) return '';
+    final parsed = DateTime.tryParse(value.trim());
+    return parsed == null ? '' : _formatApiDate(parsed);
+  }
+
+  String _formatApiDate(DateTime date) {
+    return '${date.year.toString().padLeft(4, '0')}-'
+        '${date.month.toString().padLeft(2, '0')}-'
+        '${date.day.toString().padLeft(2, '0')}';
+  }
+
+  Future<void> _pickDateOfBirth() async {
+    FocusScope.of(context).unfocus();
+    final now = DateTime.now();
+    final latestAllowed = DateTime(now.year - 13, now.month, now.day);
+    final earliestAllowed = DateTime(now.year - 100, now.month, now.day);
+    final existingDate = _parseApiDate(_dobController.text.trim());
+    final initialDate = existingDate == null
+        ? DateTime(now.year - 18, now.month, now.day)
+        : existingDate.isBefore(earliestAllowed)
+            ? earliestAllowed
+            : existingDate.isAfter(latestAllowed)
+                ? latestAllowed
+                : existingDate;
+
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: initialDate,
+      firstDate: earliestAllowed,
+      lastDate: latestAllowed,
+      helpText: 'Select date of birth',
+      cancelText: 'Cancel',
+      confirmText: 'Done',
+      builder: (context, child) {
+        return Theme(
+          data: theme.copyWith(
+            colorScheme: cs.copyWith(
+              primary: cs.tertiary,
+              onPrimary: cs.onTertiary,
+              surface: cs.surface,
+              onSurface: cs.onSurface,
+              onSurfaceVariant: cs.onSurfaceVariant,
+            ),
+            dialogTheme: DialogThemeData(
+              backgroundColor: cs.surface,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(18),
+                side: BorderSide(color: cs.outlineVariant),
+              ),
+            ),
+            datePickerTheme: DatePickerThemeData(
+              backgroundColor: cs.surface,
+              headerBackgroundColor: cs.surfaceContainerHighest,
+              headerForegroundColor: cs.onSurface,
+              dayForegroundColor: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.selected)) {
+                  return Colors.black;
+                }
+                if (states.contains(WidgetState.disabled)) {
+                  return cs.onSurfaceVariant.withValues(alpha: .35);
+                }
+                return cs.onSurface;
+              }),
+              dayBackgroundColor: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.selected)) {
+                  return cs.tertiary;
+                }
+                return Colors.transparent;
+              }),
+              todayBorder: BorderSide(color: cs.tertiary),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(18),
+              ),
+            ),
+          ),
+          child: child ?? const SizedBox.shrink(),
+        );
+      },
+    );
+
+    if (picked == null || !mounted) return;
+    setState(() {
+      _dobController.text = _formatApiDate(picked);
+      _fieldErrors.remove('dateOfBirth');
+      _submissionError = null;
+    });
+  }
+
   // FIXED: Don't call onComplete here — defer to Track/Back buttons
   Future<void> _finishOnboarding() async {
     if (!_confirmAccuracy || _isSubmittingOnboarding) return;
+    if (!_validateCurrentStep()) return;
 
     final updatedUser = widget.user.copyWith(
       name:
@@ -252,7 +521,7 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
       selectedSports: _selectedSports.toList(),
       experienceYears: int.tryParse(_experienceController.text.trim()) ?? 0,
       highestQualification: _qualificationController.text.trim(),
-      presentOccupation: _isReferee ? 'Referee' : 'Coach',
+      presentOccupation: _occupationController.text.trim(),
       hasProfilePhoto: _profilePhotoUploaded,
       hasGovernmentId: _govIdUploaded,
       hasSportsCertificate: _sportsCertUploaded,
@@ -290,6 +559,7 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
           case OnboardingUploadType.governmentId:
             _govIdUploaded = true;
             _governmentIdPath = uploadedPath;
+            _fieldErrors.remove('governmentId');
           case OnboardingUploadType.sportsCertificate:
             _sportsCertUploaded = true;
             _sportsCertificatePath = uploadedPath;
@@ -459,6 +729,7 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
                             onPressed: () async {
                               if (submitDisabled || _isSubmittingOnboarding)
                                 return;
+                              if (!_validateCurrentStep()) return;
                               if (_currentStep < _totalSteps) {
                                 setState(() {
                                   _isSubmittingOnboarding = true;
@@ -546,18 +817,21 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
       children: [
         _buildSectionHeader('Personal Information', null, cs, tt),
         _buildGlassInput(
+            fieldKey: 'firstName',
             label: 'First Name',
             controller: _firstNameController,
             hint: 'Enter your first name',
             cs: cs,
             tt: tt),
         _buildGlassInput(
+            fieldKey: 'lastName',
             label: 'Last Name',
             controller: _lastNameController,
             hint: 'Enter your last name',
             cs: cs,
             tt: tt),
         _buildGlassInput(
+            fieldKey: 'email',
             label: 'Email Address',
             controller: _emailController,
             hint: 'Enter your email address',
@@ -565,9 +839,17 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
             cs: cs,
             tt: tt),
         _buildGlassInput(
+            fieldKey: 'dateOfBirth',
             label: 'Date of Birth',
             controller: _dobController,
-            hint: 'DD/MM/YYYY',
+            hint: 'Select date of birth',
+            readOnly: true,
+            onTap: _pickDateOfBirth,
+            suffixIcon: SportoAssetIcon(
+              SportoAssets.calendarTick,
+              color: cs.onSurfaceVariant,
+              size: 18 * scale,
+            ),
             cs: cs,
             tt: tt),
         SizedBox(height: 4 * scale),
@@ -584,6 +866,7 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
             _buildGenderPill('Others', null, cs, tt),
           ],
         ),
+        _buildFieldError('gender', tt, cs),
       ],
     );
   }
@@ -592,9 +875,17 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
       String gender, IconData? icon, ColorScheme cs, TextTheme tt) {
     final isSelected = _selectedGender == gender;
     final scale = context.sportoScale;
+    final asset = switch (gender) {
+      'Male' => SportoAssets.genderMale,
+      'Female' => SportoAssets.genderFemale,
+      _ => null,
+    };
     return Expanded(
       child: GestureDetector(
-        onTap: () => setState(() => _selectedGender = gender),
+        onTap: () => setState(() {
+          _selectedGender = gender;
+          _fieldErrors.remove('gender');
+        }),
         behavior: HitTestBehavior.opaque,
         child: GlassContainer(
           height: 48 * scale,
@@ -611,10 +902,17 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              if (icon != null) ...[
-                Icon(icon,
+              if (asset != null || icon != null) ...[
+                if (asset != null)
+                  SportoAssetIcon(
+                    asset,
                     size: 18 * scale,
-                    color: isSelected ? cs.tertiary : cs.onSurfaceVariant),
+                    color: isSelected ? cs.tertiary : cs.onSurfaceVariant,
+                  )
+                else
+                  Icon(icon,
+                      size: 18 * scale,
+                      color: isSelected ? cs.tertiary : cs.onSurfaceVariant),
                 SizedBox(width: 6 * scale),
               ],
               Text(
@@ -639,24 +937,28 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
       children: [
         _buildSectionHeader('Address Details', 'Current Address', cs, tt),
         _buildGlassInput(
+            fieldKey: 'addressLine1',
             label: 'Address Line',
             controller: _addressLineController,
             hint: 'Enter your address line',
             cs: cs,
             tt: tt),
         _buildGlassInput(
+            fieldKey: 'city',
             label: 'City',
             controller: _cityController,
             hint: 'Enter your city name',
             cs: cs,
             tt: tt),
         _buildGlassInput(
+            fieldKey: 'state',
             label: 'State',
             controller: _stateController,
             hint: 'Enter your state name',
             cs: cs,
             tt: tt),
         _buildGlassInput(
+            fieldKey: 'pincode',
             label: 'PIN Code',
             controller: _pinCodeController,
             hint: 'Enter PIN code',
@@ -665,6 +967,7 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
             cs: cs,
             tt: tt),
         _buildGlassInput(
+            fieldKey: 'country',
             label: 'Country',
             controller: _countryController,
             hint: 'Enter your country',
@@ -692,12 +995,15 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
                 _selectedSports.contains(sport)
                     ? _selectedSports.remove(sport)
                     : _selectedSports.add(sport);
+                _fieldErrors.remove('sports');
               }),
               cs: cs,
               tt: tt,
             )),
+        _buildFieldError('sports', tt, cs),
         const SizedBox(height: 28),
         _buildGlassInput(
+            fieldKey: 'experienceYears',
             label: 'Years of Experience',
             controller: _experienceController,
             hint: 'Enter your years of experience',
@@ -706,9 +1012,17 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
             cs: cs,
             tt: tt),
         _buildGlassInput(
+            fieldKey: 'highestQualification',
             label: 'Highest Qualification',
             controller: _qualificationController,
             hint: 'Enter your highest qualification',
+            cs: cs,
+            tt: tt),
+        _buildGlassInput(
+            fieldKey: 'presentOccupation',
+            label: 'Present Occupation',
+            controller: _occupationController,
+            hint: 'Enter your present occupation',
             cs: cs,
             tt: tt),
       ],
@@ -728,18 +1042,22 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
                 _selectedDays.contains(day)
                     ? _selectedDays.remove(day)
                     : _selectedDays.add(day);
+                _fieldErrors.remove('availabilityDays');
               }),
               cs: cs,
               tt: tt,
             )),
+        _buildFieldError('availabilityDays', tt, cs),
         const SizedBox(height: 28),
         _buildGlassInput(
+            fieldKey: 'preferredCity',
             label: 'Preferred City',
             controller: _preferredCityController,
             hint: 'Enter your preferred city',
             cs: cs,
             tt: tt),
         _buildGlassInput(
+            fieldKey: 'travelRadius',
             label: 'Travel Radius (in kilometer)',
             controller: _travelRadiusController,
             hint: 'Ex. 20 km',
@@ -747,6 +1065,7 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
             cs: cs,
             tt: tt),
         _buildGlassInput(
+            fieldKey: 'emergencyContact',
             label: 'Emergency Contact',
             controller: _emergencyContactController,
             hint: 'Enter an emergency contact',
@@ -787,10 +1106,13 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
             onClear: () => setState(() {
                   _govIdUploaded = false;
                   _governmentIdPath = null;
+                  _fieldErrors['governmentId'] =
+                      'Government ID document is required.';
                 }),
             wide: false,
             cs: cs,
             tt: tt),
+        _buildFieldError('governmentId', tt, cs),
         _buildUploadTile(
             label: 'Sports Certificate (Optional)',
             isUploaded: _sportsCertUploaded,
@@ -944,8 +1266,8 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
         _ReviewCard(value: fullName, sub: sports),
 
         // Labeled cards: gray label + blue value
-        const _ReviewCard(label: 'Mobile', value: '91 XXXXX XXXXX'),
-        _ReviewCard(label: 'Email', value: 'rahul@email.com'),
+        _ReviewCard(label: 'Mobile', value: widget.user.mobileNumber),
+        _ReviewCard(label: 'Email', value: _emailController.text.trim()),
         _ReviewCard(label: 'Experience', value: experience),
 
         // Documents row: green RING check
@@ -996,6 +1318,7 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
             ),
           ),
         ),
+        _buildFieldError('confirmAccuracy', tt, cs),
       ],
     );
   }
@@ -1037,6 +1360,7 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
   }
 
   Widget _buildGlassInput({
+    required String fieldKey,
     required String label,
     required TextEditingController controller,
     required String hint,
@@ -1044,6 +1368,9 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
     required TextTheme tt,
     TextInputType keyboardType = TextInputType.text,
     List<TextInputFormatter>? inputFormatters,
+    bool readOnly = false,
+    VoidCallback? onTap,
+    Widget? suffixIcon,
   }) {
     final scale = context.sportoScale;
     return Padding(
@@ -1052,8 +1379,33 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
         label: label,
         hint: hint,
         controller: controller,
+        readOnly: readOnly,
+        onTap: onTap,
+        suffixIcon: suffixIcon,
         keyboardType: keyboardType,
         inputFormatters: inputFormatters,
+        errorText: _fieldErrors[fieldKey],
+        onChanged: (_) => _clearFieldError(fieldKey),
+      ),
+    );
+  }
+
+  Widget _buildFieldError(String fieldKey, TextTheme tt, ColorScheme cs) {
+    final error = _fieldErrors[fieldKey];
+    if (error == null) return const SizedBox.shrink();
+    final scale = context.sportoScale;
+    return Padding(
+      padding: EdgeInsets.only(top: 6 * scale, bottom: 12 * scale),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: Text(
+          error,
+          style: tt.bodySmall?.copyWith(
+            color: cs.error,
+            fontSize: 12 * scale,
+            height: 1.25,
+          ),
+        ),
       ),
     );
   }
@@ -1160,7 +1512,9 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
                           ),
                           SizedBox(height: 10 * scale),
                           Text(
-                            'Thank you for applying as a Sporto Referee.',
+                            _isReferee
+                                ? 'Thank you for applying as a Sporto Referee.'
+                                : 'Your partner profile has been submitted.',
                             textAlign: TextAlign.center,
                             style: tt.bodyLarge?.copyWith(
                               color: cs.onSurfaceVariant,
@@ -1210,7 +1564,7 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
                       } else {
                         Navigator.of(context).push(MaterialPageRoute(
                           builder: (_) => ApplicationStatusScreen(
-                              applicationRef: _applicationRef),
+                              applicationRef: _pendingUser?.badgeId),
                         ));
                       }
                     },
@@ -1244,11 +1598,11 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
 // SCREEN 3: APPLICATION STATUS (Image 12)
 // ============================================================
 class ApplicationStatusScreen extends StatelessWidget {
-  final String applicationRef;
+  final String? applicationRef;
   final VoidCallback? onRefresh;
   const ApplicationStatusScreen({
     super.key,
-    required this.applicationRef,
+    this.applicationRef,
     this.onRefresh,
   });
 
@@ -1322,14 +1676,17 @@ class ApplicationStatusScreen extends StatelessWidget {
                               color: cs.onSurface,
                             ),
                           ),
-                          SizedBox(height: 2 * scale),
-                          Text(
-                            '#$applicationRef',
-                            style: tt.bodyMedium?.copyWith(
-                              color: cs.onSurfaceVariant,
-                              fontSize: 12 * scale,
+                          if (applicationRef != null &&
+                              applicationRef!.trim().isNotEmpty) ...[
+                            SizedBox(height: 2 * scale),
+                            Text(
+                              '#${applicationRef!.trim()}',
+                              style: tt.bodyMedium?.copyWith(
+                                color: cs.onSurfaceVariant,
+                                fontSize: 12 * scale,
+                              ),
                             ),
-                          ),
+                          ],
                         ],
                       ),
                     ],

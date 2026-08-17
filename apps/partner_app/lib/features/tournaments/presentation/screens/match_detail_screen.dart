@@ -28,12 +28,12 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
     'Schedule',
     'Venues',
   ];
-  final List<IconData> _tabIcons = [
-    Icons.dashboard_outlined,
-    Icons.sports_cricket_outlined,
-    Icons.people_outline_rounded,
-    Icons.calendar_today_outlined,
-    Icons.location_on_outlined,
+  final List<String?> _tabAssets = [
+    null,
+    SportoAssets.cricketAction,
+    SportoAssets.soccer,
+    SportoAssets.calendarTick,
+    SportoAssets.soccer,
   ];
 
   @override
@@ -103,7 +103,7 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
                           padding: EdgeInsets.only(right: 8 * scale),
                           child: SportoTabChip(
                             label: _tabs[i],
-                            icon: _tabIcons[i],
+                            asset: _tabAssets[i],
                             active: _selectedTabIndex == i,
                             onTap: () => setState(() => _selectedTabIndex = i),
                           ),
@@ -136,7 +136,11 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
                     color: context.sporto.info.withValues(alpha: .55),
                     width: 5),
               ),
-              icon: const Icon(Icons.campaign_rounded),
+              icon: const SportoAssetIcon(
+                SportoAssets.announcement,
+                color: Colors.white,
+                size: 18,
+              ),
               label: const Text('Create Announcement'),
               onPressed: () {},
             )
@@ -226,7 +230,8 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         children: [
-          Icon(Icons.search_rounded, color: cs.onSurfaceVariant, size: 20),
+          SportoAssetIcon(SportoAssets.searchNormal,
+              color: cs.onSurfaceVariant, size: 20),
           const SizedBox(width: 12),
           Expanded(
               child: Text(placeholder,
@@ -824,7 +829,8 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
           Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             if (ground != null)
               Row(children: [
-                Icon(Icons.location_on_outlined, size: 14, color: cs.secondary),
+                SportoAssetIcon(SportoAssets.locationPin,
+                    size: 14, color: cs.secondary),
                 const SizedBox(width: 4),
                 Text(ground,
                     style: TextStyle(color: cs.secondary, fontSize: 12))
@@ -972,7 +978,7 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
         // Header: Name + Status
         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
           Row(children: [
-            Icon(Icons.location_on_outlined,
+            SportoAssetIcon(SportoAssets.locationPin,
                 color: cs.onSurfaceVariant, size: 18),
             const SizedBox(width: 6),
             Text(name,
@@ -1194,7 +1200,7 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
             ])
           else
             Row(children: [
-              Icon(Icons.location_on_outlined,
+              SportoAssetIcon(SportoAssets.locationPin,
                   size: 14, color: cs.onSurfaceVariant),
               const SizedBox(width: 4),
               Text(ground, style: TextStyle(color: cs.onSurfaceVariant))
@@ -1227,7 +1233,8 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
         if (isLive) ...[
           const SizedBox(height: 8),
           Row(children: [
-            Icon(Icons.location_on_outlined, size: 14, color: cs.secondary),
+            SportoAssetIcon(SportoAssets.locationPin,
+                size: 14, color: cs.secondary),
             const SizedBox(width: 4),
             Text(ground, style: TextStyle(color: cs.secondary, fontSize: 12))
           ]),

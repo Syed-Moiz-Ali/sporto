@@ -166,6 +166,12 @@ class TournamentVenueRequest with _$TournamentVenueRequest {
     @JsonKey(name: 'venue_name') required String venueName,
     required String notes,
     @JsonKey(name: 'venue_id') int? venueId,
+    String? location,
+    @JsonKey(name: 'daily_match_capacity') int? dailyMatchCapacity,
+    @JsonKey(name: 'ground_type') String? groundType,
+    String? date,
+    @JsonKey(name: 'start_time') String? startTime,
+    @JsonKey(name: 'round_name') String? roundName,
   }) = _TournamentVenueRequest;
 
   factory TournamentVenueRequest.fromJson(Map<String, dynamic> json) =>

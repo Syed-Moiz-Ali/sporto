@@ -7,6 +7,7 @@ import 'package:shared_domain/shared_domain.dart';
 import 'package:ui_kit/ui_kit.dart';
 
 import '../../../../features/tournaments/presentation/screens/partner_main_screen.dart';
+import 'partner_permission_setup_screen.dart';
 
 /// Handles splash + auth gate (login / onboarding / authenticated home).
 class AuthFlowView extends StatefulWidget {
@@ -22,8 +23,11 @@ class AuthFlowView extends StatefulWidget {
 }
 
 class _AuthFlowViewState extends State<AuthFlowView> {
+  static const _partnerPermissionSetupDoneKey = 'partner_permission_setup_done';
+
   bool _splashFinished = false;
   Future<_ServerGateResult>? _serverGateFuture;
+  String? _serverGateKey;
   late final PartnerRemoteDataSource _partnerRemoteDataSource =
       PartnerRemoteDataSource(
     apiClient: SportoApiClient(tokenProvider: AuthSessionStore().getToken),
@@ -36,12 +40,11 @@ class _AuthFlowViewState extends State<AuthFlowView> {
   // Last non-loading auth state - keeps the current screen visible
   // (with an in-button spinner) while auth operations are in flight.
   AuthState? _lastScreenState;
-  String? _serverGateAuthUserId;
 
   @override
   void initState() {
     super.initState();
-    _serverGateFuture = _checkServerTokenGate();
+    _serverGateFuture = _getServerGateFuture('startup');
   }
 
   @override
@@ -60,15 +63,6 @@ class _AuthFlowViewState extends State<AuthFlowView> {
                 backgroundColor: Theme.of(context).colorScheme.error),
           );
         }
-        final authUser = switch (state) {
-          AuthenticatedState(:final user) => user,
-          NeedsOnboardingState(:final user) => user,
-          _ => null,
-        };
-        if (authUser != null && _serverGateAuthUserId != authUser.id) {
-          _serverGateAuthUserId = authUser.id;
-          _serverGateFuture = _checkServerTokenGate();
-        }
       },
       builder: (context, state) {
         if (state is! AuthLoadingState) {
@@ -81,50 +75,117 @@ class _AuthFlowViewState extends State<AuthFlowView> {
         final loginScreen = _buildLoginScreen(screenState, isSubmitting);
 
         if (screenState is AuthenticatedState) {
-          return _buildServerTokenGate(loginScreen);
+          return _buildServerTokenGate(
+            loginScreen,
+            gateKey: 'auth-${screenState.user.id}',
+          );
         }
 
         if (screenState is NeedsOnboardingState) {
-          return _buildServerTokenGate(loginScreen);
+          return _buildServerTokenGate(
+            loginScreen,
+            gateKey: 'auth-${screenState.user.id}',
+          );
         }
 
-        return _buildServerTokenGate(loginScreen);
+        return _buildServerTokenGate(loginScreen, gateKey: 'startup');
       },
     );
   }
 
-  Widget _buildServerTokenGate(Widget loginScreen) {
+  Widget _buildServerTokenGate(Widget loginScreen, {required String gateKey}) {
     return FutureBuilder<_ServerGateResult>(
-      future: _serverGateFuture ??= _checkServerTokenGate(),
+      future: _getServerGateFuture(gateKey),
       builder: (context, snapshot) {
         if (snapshot.connectionState != ConnectionState.done) {
           return const _PartnerGateLoadingScreen();
         }
 
+        if (snapshot.hasError) {
+          debugPrint('[SportoApi] AUTH_GATE error ${snapshot.error}');
+        }
+
         final result = snapshot.data;
         if (result == null || !result.hasValidSession) {
+          debugPrint('[SportoApi] AUTH_GATE routing to login');
           return loginScreen;
         }
 
         if (result.needsOnboarding) {
+          debugPrint(
+            '[SportoApi] AUTH_GATE routing to onboarding step '
+            '${result.initialStep}',
+          );
           return _buildOnboarding(result.user, initialStep: result.initialStep);
         }
 
         if (result.showApplicationStatus) {
+          debugPrint(
+            '[SportoApi] AUTH_GATE routing to application status '
+            '${result.applicationNumber ?? 'PARTNER'} '
+            'status=${result.applicationStatusLabel ?? 'unknown'}',
+          );
           return ApplicationStatusScreen(
             applicationRef: result.applicationNumber ?? 'PARTNER',
             onRefresh: _refreshServerGate,
           );
         }
 
-        return PartnerMainScreen(initialIndex: widget.initialTabIndex);
+        debugPrint(
+          '[SportoApi] AUTH_GATE routing to dashboard '
+          'status=${result.applicationStatusLabel ?? 'unknown'}',
+        );
+        return _buildPermissionSetupGate();
       },
     );
   }
 
+  Widget _buildPermissionSetupGate() {
+    return FutureBuilder<bool>(
+      future: _hasCompletedPartnerPermissionSetup(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState != ConnectionState.done) {
+          return const _PartnerGateLoadingScreen();
+        }
+
+        final completed = snapshot.data ?? false;
+        if (completed) {
+          return PartnerMainScreen(initialIndex: widget.initialTabIndex);
+        }
+
+        return PartnerPermissionSetupScreen(
+          onContinue: () async {
+            await _markPartnerPermissionSetupComplete();
+            if (!mounted) return;
+            setState(() {});
+          },
+        );
+      },
+    );
+  }
+
+  Future<bool> _hasCompletedPartnerPermissionSetup() async {
+    final value =
+        HiveService.authSessionBox.get(_partnerPermissionSetupDoneKey);
+    return value == true;
+  }
+
+  Future<void> _markPartnerPermissionSetupComplete() async {
+    await HiveService.authSessionBox.put(_partnerPermissionSetupDoneKey, true);
+  }
+
+  Future<_ServerGateResult> _getServerGateFuture(String gateKey) {
+    if (_serverGateFuture == null || _serverGateKey != gateKey) {
+      _serverGateKey = gateKey;
+      _serverGateFuture = _checkServerTokenGate();
+    }
+    return _serverGateFuture!;
+  }
+
   void _refreshServerGate() {
     setState(() {
-      _serverGateFuture = _checkServerTokenGate();
+      _serverGateKey = null;
+      _serverGateFuture = null;
     });
   }
 
@@ -145,6 +206,8 @@ class _AuthFlowViewState extends State<AuthFlowView> {
           : _firstIncompleteOnboardingStep(profile, application);
       final applicationStatus = application?.applicationStatus ??
           profile.application.applicationStatus;
+      final workflowStatus =
+          PartnerApplicationWorkflowStatus.fromValue(applicationStatus);
       final applicationNumber = application?.applicationNumber ??
           profile.application.applicationNumber;
       final personal = profile.personalInformation;
@@ -165,8 +228,9 @@ class _AuthFlowViewState extends State<AuthFlowView> {
         needsOnboarding: initialStep != null,
         initialStep: initialStep ?? 1,
         showApplicationStatus:
-            initialStep == null && !_isApprovedApplication(applicationStatus),
+            initialStep == null && !_shouldOpenDashboard(workflowStatus),
         applicationNumber: applicationNumber,
+        applicationStatusLabel: workflowStatus.label,
         user: user,
       );
     } on SportoApiException catch (error) {
@@ -183,6 +247,7 @@ class _AuthFlowViewState extends State<AuthFlowView> {
         initialStep: 1,
         showApplicationStatus: false,
         applicationNumber: null,
+        applicationStatusLabel: null,
         user: const UserEntity(
           id: 'server-partner',
           name: '',
@@ -239,8 +304,20 @@ class _AuthFlowViewState extends State<AuthFlowView> {
     return null;
   }
 
-  bool _isApprovedApplication(int applicationStatus) {
-    return applicationStatus == 3;
+  bool _shouldOpenDashboard(PartnerApplicationWorkflowStatus status) {
+    return switch (status) {
+      PartnerApplicationWorkflowStatus.published ||
+      PartnerApplicationWorkflowStatus.registrationOpen ||
+      PartnerApplicationWorkflowStatus.registrationClosed ||
+      PartnerApplicationWorkflowStatus.checkIn ||
+      PartnerApplicationWorkflowStatus.inProgress ||
+      PartnerApplicationWorkflowStatus.completed =>
+        true,
+      PartnerApplicationWorkflowStatus.draft ||
+      PartnerApplicationWorkflowStatus.cancelled ||
+      PartnerApplicationWorkflowStatus.archived =>
+        false,
+    };
   }
 
   int? _firstIncompleteOnboardingStep(
@@ -291,7 +368,7 @@ class _AuthFlowViewState extends State<AuthFlowView> {
       },
       onGoHome: () {
         _serverGateFuture = null;
-        _serverGateAuthUserId = null;
+        _serverGateKey = null;
         context.read<AuthBloc>().add(LogoutRequestedEvent());
       },
     );
@@ -518,6 +595,7 @@ class _ServerGateResult {
     required this.initialStep,
     required this.showApplicationStatus,
     required this.applicationNumber,
+    required this.applicationStatusLabel,
     required this.user,
   });
 
@@ -527,6 +605,7 @@ class _ServerGateResult {
         initialStep = 1,
         showApplicationStatus = false,
         applicationNumber = null,
+        applicationStatusLabel = null,
         user = const UserEntity(
           id: 'server-partner',
           name: '',
@@ -540,5 +619,6 @@ class _ServerGateResult {
   final int initialStep;
   final bool showApplicationStatus;
   final String? applicationNumber;
+  final String? applicationStatusLabel;
   final UserEntity user;
 }

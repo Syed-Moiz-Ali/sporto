@@ -1,5 +1,6 @@
 library ui_kit;
 
+export 'src/assets/sporto_assets.dart';
 export 'src/theme/sporto_theme.dart';
 export 'src/theme/sporto_design_tokens.dart';
 export 'src/widgets/glass_container.dart';

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../assets/sporto_assets.dart';
 import '../theme/sporto_design_tokens.dart';
 
 enum SportoCricketMatchState {
@@ -447,8 +448,8 @@ class SportoCricketMatchCard extends StatelessWidget {
 
     return Row(
       children: [
-        Icon(
-          Icons.location_on_outlined,
+        SportoAssetIcon(
+          SportoAssets.locationPin,
           size: 13,
           color: cs.onSurfaceVariant,
         ),

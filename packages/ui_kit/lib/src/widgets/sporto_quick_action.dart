@@ -3,22 +3,25 @@
 // Icon button with label below, used in quick-action rows.
 // ============================================================
 import 'package:flutter/material.dart';
+import '../assets/sporto_assets.dart';
 import '../theme/sporto_design_tokens.dart';
 import 'glass_container.dart';
 
 class SportoQuickAction extends StatelessWidget {
-  final IconData icon;
+  final IconData? icon;
+  final String? asset;
   final String label;
   final VoidCallback? onTap;
   final double? width;
 
   const SportoQuickAction({
     super.key,
-    required this.icon,
+    this.icon,
+    this.asset,
     required this.label,
     this.onTap,
     this.width,
-  });
+  }) : assert(icon != null || asset != null);
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +45,10 @@ class SportoQuickAction extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: cs.tertiary, size: 26 * scale),
+            if (asset != null)
+              SportoAssetIcon(asset!, size: 26 * scale)
+            else
+              Icon(icon, color: cs.tertiary, size: 26 * scale),
             SizedBox(height: 5 * scale),
             Text(
               label,

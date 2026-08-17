@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../assets/sporto_assets.dart';
 import '../theme/sporto_design_tokens.dart';
 import 'primary_button.dart';
 import 'sporto_badge.dart';
@@ -179,8 +180,8 @@ class SportoVerificationMatchSummaryCard extends StatelessWidget {
           /// Location
           Row(
             children: [
-              Icon(
-                Icons.location_on_outlined,
+              SportoAssetIcon(
+                SportoAssets.locationPin,
                 size: 14 * scale,
                 color: colors.onSurfaceVariant,
               ),

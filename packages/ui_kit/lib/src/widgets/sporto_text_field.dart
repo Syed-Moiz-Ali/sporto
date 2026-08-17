@@ -22,6 +22,8 @@ class SportoTextField extends StatefulWidget {
   final double? height;
   final TextInputType? keyboardType;
   final List<TextInputFormatter>? inputFormatters;
+  final ValueChanged<String>? onChanged;
+  final String? errorText;
 
   const SportoTextField({
     super.key,
@@ -40,6 +42,8 @@ class SportoTextField extends StatefulWidget {
     this.height,
     this.keyboardType,
     this.inputFormatters,
+    this.onChanged,
+    this.errorText,
   });
 
   @override
@@ -101,6 +105,17 @@ class _SportoTextFieldState extends State<SportoTextField> {
           SizedBox(height: spacing.space8),
         ],
         _buildField(context),
+        if (widget.errorText != null) ...[
+          SizedBox(height: spacing.space6),
+          Text(
+            widget.errorText!,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.error,
+              fontSize: 12,
+              height: 1.25,
+            ),
+          ),
+        ],
       ],
     );
   }
@@ -182,10 +197,13 @@ class _SportoTextFieldState extends State<SportoTextField> {
     final spacing = context.sportoLayout;
     final focused = _focusNode.hasFocus;
     final scale = _responsiveScale(context);
+    final hasError = widget.errorText != null;
 
-    final borderColor = focused
-        ? (widget.focusedBorderColor ?? tokens.fieldBorderFocused)
-        : (widget.borderColor ?? tokens.fieldBorder);
+    final borderColor = hasError
+        ? Theme.of(context).colorScheme.error
+        : focused
+            ? (widget.focusedBorderColor ?? tokens.fieldBorderFocused)
+            : (widget.borderColor ?? tokens.fieldBorder);
     return Container(
       key: const ValueKey('sporto_text_field_surface'),
       height: height,
@@ -214,8 +232,7 @@ class _SportoTextFieldState extends State<SportoTextField> {
     );
   }
 
-  double _responsiveScale(BuildContext context) =>
-      context.sportoScale;
+  double _responsiveScale(BuildContext context) => context.sportoScale;
 
   Widget _buildInput(BuildContext context, {double fontSize = 14}) {
     final theme = Theme.of(context);
@@ -228,6 +245,7 @@ class _SportoTextFieldState extends State<SportoTextField> {
       onTap: widget.onTap,
       keyboardType: widget.keyboardType,
       inputFormatters: widget.inputFormatters,
+      onChanged: widget.onChanged,
       cursorColor: context.sporto.fieldBorderFocused,
       style: theme.textTheme.bodyLarge?.copyWith(
         color: cs.onSurface,

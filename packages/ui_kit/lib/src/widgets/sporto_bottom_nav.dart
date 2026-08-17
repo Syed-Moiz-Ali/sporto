@@ -3,14 +3,21 @@
 // Docked bottom navigation bar with active glow + underline.
 // ============================================================
 import 'package:flutter/material.dart';
+import '../assets/sporto_assets.dart';
 import '../theme/sporto_design_tokens.dart';
 import 'sporto_responsive_layout.dart';
 
 class SportoNavItem {
-  final IconData icon;
+  final IconData? icon;
   final String label;
+  final String? asset;
 
-  const SportoNavItem(this.icon, this.label);
+  const SportoNavItem(this.icon, this.label) : asset = null;
+
+  const SportoNavItem.asset({
+    required this.asset,
+    required this.label,
+  }) : icon = null;
 }
 
 class SportoBottomNav extends StatelessWidget {
@@ -99,9 +106,16 @@ class SportoBottomNav extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(item.icon,
-                          color: isActive ? cs.tertiary : cs.onSurfaceVariant,
-                          size: iconSize),
+                      if (item.asset != null)
+                        _ActiveNavAssetIcon(
+                          asset: item.asset!,
+                          active: isActive,
+                          size: iconSize,
+                        )
+                      else
+                        Icon(item.icon,
+                            color: isActive ? cs.tertiary : cs.onSurfaceVariant,
+                            size: iconSize),
                       SizedBox(height: 3 * scale),
                       Text(
                         item.label,
@@ -136,6 +150,44 @@ class SportoBottomNav extends StatelessWidget {
             ),
           );
         }),
+      ),
+    );
+  }
+}
+
+class _ActiveNavAssetIcon extends StatelessWidget {
+  final String asset;
+  final bool active;
+  final double size;
+
+  const _ActiveNavAssetIcon({
+    required this.asset,
+    required this.active,
+    required this.size,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final color = active ? cs.tertiary : cs.onSurfaceVariant;
+
+    if (!active) {
+      return SportoAssetIcon(asset, color: color, size: size);
+    }
+
+    return SizedBox(
+      width: size,
+      height: size,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          SportoAssetIcon(
+            asset,
+            color: color.withValues(alpha: .34),
+            size: size * 1.08,
+          ),
+          SportoAssetIcon(asset, color: color, size: size),
+        ],
       ),
     );
   }

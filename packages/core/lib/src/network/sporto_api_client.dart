@@ -77,6 +77,19 @@ class SportoApiClient {
     return _request(() => dio.delete<Object?>(path));
   }
 
+  Future<Map<String, dynamic>> postForm(
+    String path, {
+    required Map<String, dynamic> fields,
+    String? methodOverride,
+  }) async {
+    final data = <String, dynamic>{
+      if (methodOverride != null) '_method': methodOverride,
+      ..._flattenFormFields(fields),
+    };
+    return _request(
+        () => dio.post<Object?>(path, data: FormData.fromMap(data)));
+  }
+
   Future<Map<String, dynamic>> uploadFile({
     required String path,
     required String filePath,
@@ -108,6 +121,32 @@ class SportoApiClient {
   Map<String, dynamic> _asMap(Object? data) {
     if (data is Map) return Map<String, dynamic>.from(data);
     return <String, dynamic>{'data': data};
+  }
+
+  Map<String, dynamic> _flattenFormFields(Map<String, dynamic> fields) {
+    final result = <String, dynamic>{};
+
+    void write(String key, Object? value) {
+      if (value == null) return;
+      if (value is Map) {
+        value.forEach((nestedKey, nestedValue) {
+          write('$key[$nestedKey]', nestedValue);
+        });
+        return;
+      }
+      if (value is Iterable && value is! String) {
+        var index = 0;
+        for (final item in value) {
+          write('$key[$index]', item);
+          index++;
+        }
+        return;
+      }
+      result[key] = value is bool ? (value ? 1 : 0) : value;
+    }
+
+    fields.forEach(write);
+    return result;
   }
 }
 

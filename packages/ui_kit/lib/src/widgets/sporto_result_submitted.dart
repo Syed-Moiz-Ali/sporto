@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../assets/sporto_assets.dart';
 import '../theme/sporto_design_tokens.dart';
 import '../theme/sporto_scoring_tokens.dart';
 import 'sporto_badge.dart';
@@ -308,8 +309,8 @@ class SportoCompletedMatchCard extends StatelessWidget {
 
           Row(
             children: [
-              Icon(
-                Icons.location_on_outlined,
+              SportoAssetIcon(
+                SportoAssets.locationPin,
                 size: 14 * scale,
                 color: cs.onSurfaceVariant,
               ),

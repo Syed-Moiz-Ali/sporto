@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../assets/sporto_assets.dart';
 import '../theme/sporto_design_tokens.dart';
 import '../theme/sporto_scoring_tokens.dart';
 import 'primary_button.dart';
@@ -220,8 +221,8 @@ class SportoCricketFinalMatchHeader extends StatelessWidget {
           SizedBox(height: 5 * scale),
           Row(
             children: [
-              Icon(
-                Icons.location_on_outlined,
+              SportoAssetIcon(
+                SportoAssets.locationPin,
                 size: 14 * scale,
                 color: colors.onSurfaceVariant,
               ),

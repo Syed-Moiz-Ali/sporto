@@ -195,11 +195,11 @@ class _HomeSearchBar extends StatelessWidget {
               children: [
                 Positioned(
                   left: 0,
-                  top: 1,
-                  child: Icon(
-                    Icons.search_rounded,
+                  top: 2,
+                  child: SportoAssetIcon(
+                    SportoAssets.searchNormal,
                     color: colors.onSurfaceVariant,
-                    size: 24,
+                    size: 22,
                   ),
                 ),
                 Positioned(
@@ -240,10 +240,10 @@ class _HomeSearchBar extends StatelessWidget {
             child: Stack(
               alignment: Alignment.center,
               children: [
-                Icon(
-                  Icons.mic_none_rounded,
+                SportoAssetIcon(
+                  SportoAssets.mic,
                   color: colors.onSurfaceVariant,
-                  size: 23,
+                  size: 24,
                 ),
                 Positioned(
                   bottom: 0,
@@ -863,8 +863,8 @@ class _UpcomingHomeCard extends StatelessWidget {
           const SizedBox(height: 2),
           Row(
             children: [
-              Icon(
-                Icons.location_on_outlined,
+              SportoAssetIcon(
+                SportoAssets.locationPin,
                 color: colors.onSurfaceVariant,
                 size: 14,
               ),

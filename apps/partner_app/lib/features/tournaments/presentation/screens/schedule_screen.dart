@@ -74,7 +74,11 @@ class ScheduleScreen extends StatelessWidget {
             const SizedBox(height: 28),
             SportoTextField(
               hint: 'Search matches...',
-              prefix: Icon(Icons.search, color: cs.onSurfaceVariant),
+              prefix: SportoAssetIcon(
+                SportoAssets.searchNormal,
+                color: cs.onSurfaceVariant,
+                size: 20,
+              ),
               suffixIcon: Icon(Icons.sort, color: cs.onSurfaceVariant),
             ),
             const SizedBox(height: 24),

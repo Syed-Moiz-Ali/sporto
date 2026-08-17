@@ -31,10 +31,22 @@ class _RefereeShellScreenState extends State<RefereeShellScreen> {
         const RefereeProfileScreen(),
       ],
       items: const [
-        SportoNavItem(Icons.home_rounded, 'Home'),
-        SportoNavItem(Icons.calendar_month_rounded, 'Matches'),
-        SportoNavItem(Icons.sports_cricket_rounded, 'Scoring'),
-        SportoNavItem(Icons.person_outline_rounded, 'Profile'),
+        SportoNavItem.asset(
+          asset: SportoAssets.home,
+          label: 'Home',
+        ),
+        SportoNavItem.asset(
+          asset: SportoAssets.matches,
+          label: 'Matches',
+        ),
+        SportoNavItem.asset(
+          asset: SportoAssets.tournaments,
+          label: 'Scoring',
+        ),
+        SportoNavItem.asset(
+          asset: SportoAssets.profile,
+          label: 'Profile',
+        ),
       ],
     );
   }
