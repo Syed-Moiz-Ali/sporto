@@ -98,7 +98,7 @@ class _SportoTextFieldState extends State<SportoTextField> {
             widget.label!,
             style: theme.textTheme.bodyMedium?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
-              fontSize: 13,
+               fontSize: 13,
               fontWeight: FontWeight.w500,
             ),
           ),

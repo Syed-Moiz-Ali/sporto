@@ -8,6 +8,13 @@ scripts:
     exec: flutter analyze --no-fatal-infos
     description: Run flutter analyze across all packages.
 
+  test_ui:
+    exec: flutter test
+    packageFilters:
+      scope:
+        - ui_kit
+    description: Run the UI kit unit and Figma golden tests.
+
   build_runner:
     exec: dart run build_runner build --delete-conflicting-outputs
     packageFilters:

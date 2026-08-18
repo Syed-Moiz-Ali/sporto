@@ -83,24 +83,36 @@ class _MatchHistoryScreenState extends State<MatchHistoryScreen> {
                 context.sportoResponsive.horizontalPadding,
                 context.sportoResponsive.bottomContentPadding(context),
               ),
-              children: [
-                const SportoCricketMatchCard(
-                    state: SportoCricketMatchState.live),
-                SizedBox(height: 21 * scale),
-                const SportoCricketMatchCard(
-                    state: SportoCricketMatchState.upcoming),
-                SizedBox(height: 11 * scale),
-                const SportoCricketMatchCard(
-                    state: SportoCricketMatchState.completed),
-                SizedBox(height: 13 * scale),
-                const SportoCricketMatchCard(
-                    state: SportoCricketMatchState.delayed),
-              ],
+              children: _matchCards(scale),
             ),
           ),
         ]),
       ),
     );
     return widget.embedded ? content : SportoScreenShell(body: content);
+  }
+
+  List<Widget> _matchCards(double scale) {
+    final states = _selectedTab == 0
+        ? const [
+            SportoCricketMatchState.live,
+            SportoCricketMatchState.upcoming,
+            SportoCricketMatchState.completed,
+            SportoCricketMatchState.delayed,
+          ]
+        : [
+            switch (_selectedTab) {
+              1 => SportoCricketMatchState.upcoming,
+              2 => SportoCricketMatchState.live,
+              _ => SportoCricketMatchState.completed,
+            }
+          ];
+
+    return [
+      for (var index = 0; index < states.length; index++) ...[
+        SportoCricketMatchCard(state: states[index]),
+        if (index != states.length - 1) SizedBox(height: 16 * scale),
+      ],
+    ];
   }
 }

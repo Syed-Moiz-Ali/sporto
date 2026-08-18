@@ -92,12 +92,12 @@ class PartnerProfileResponseData with _$PartnerProfileResponseData {
 @freezed
 class PartnerPersonalInformation with _$PartnerPersonalInformation {
   const factory PartnerPersonalInformation({
-    @JsonKey(name: 'first_name') required String firstName,
-    @JsonKey(name: 'last_name') required String lastName,
-    required String email,
+    @JsonKey(name: 'first_name') String? firstName,
+    @JsonKey(name: 'last_name') String? lastName,
+    String? email,
     @JsonKey(name: 'mobile_number') String? mobileNumber,
     @JsonKey(name: 'date_of_birth') String? dateOfBirth,
-    required String gender,
+    String? gender,
   }) = _PartnerPersonalInformation;
 
   factory PartnerPersonalInformation.fromJson(Map<String, dynamic> json) =>
@@ -107,11 +107,11 @@ class PartnerPersonalInformation with _$PartnerPersonalInformation {
 @freezed
 class PartnerAddress with _$PartnerAddress {
   const factory PartnerAddress({
-    @JsonKey(name: 'address_line_1') required String addressLine1,
+    @JsonKey(name: 'address_line_1') String? addressLine1,
     @JsonKey(name: 'address_line_2') String? addressLine2,
-    required String city,
+    String? city,
     String? state,
-    required String pincode,
+    String? pincode,
     String? country,
   }) = _PartnerAddress;
 
@@ -123,8 +123,8 @@ class PartnerAddress with _$PartnerAddress {
 class PartnerProfessionalInformation with _$PartnerProfessionalInformation {
   const factory PartnerProfessionalInformation({
     @JsonKey(name: 'highest_qualification')
-    required String highestQualification,
-    @JsonKey(name: 'present_occupation') required String presentOccupation,
+    String? highestQualification,
+    @JsonKey(name: 'present_occupation') String? presentOccupation,
   }) = _PartnerProfessionalInformation;
 
   factory PartnerProfessionalInformation.fromJson(Map<String, dynamic> json) =>
@@ -134,10 +134,11 @@ class PartnerProfessionalInformation with _$PartnerProfessionalInformation {
 @freezed
 class PartnerApplicationSummary with _$PartnerApplicationSummary {
   const factory PartnerApplicationSummary({
-    required int id,
+    @JsonKey(fromJson: _intFromJson) required int id,
     @JsonKey(name: 'application_number') String? applicationNumber,
-    @JsonKey(name: 'application_status') required int applicationStatus,
-    required int status,
+    @JsonKey(name: 'application_status', fromJson: _intFromJson)
+    required int applicationStatus,
+    @JsonKey(fromJson: _intFromJson) required int status,
   }) = _PartnerApplicationSummary;
 
   factory PartnerApplicationSummary.fromJson(Map<String, dynamic> json) =>
@@ -227,8 +228,9 @@ class PartnerApplicationStateResponse with _$PartnerApplicationStateResponse {
 @freezed
 class PartnerApplicationSubmitResponse with _$PartnerApplicationSubmitResponse {
   const factory PartnerApplicationSubmitResponse({
-    @JsonKey(name: 'application_number') required String applicationNumber,
-    @JsonKey(name: 'application_status') required int applicationStatus,
+    @JsonKey(name: 'application_number') String? applicationNumber,
+    @JsonKey(name: 'application_status', fromJson: _intFromJson)
+    required int applicationStatus,
   }) = _PartnerApplicationSubmitResponse;
 
   factory PartnerApplicationSubmitResponse.fromJson(

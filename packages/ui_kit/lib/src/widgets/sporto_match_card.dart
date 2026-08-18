@@ -122,7 +122,7 @@ class SportoMatchCard extends StatelessWidget {
       return SportoGradientCard(
         colors: gradientColors ??
             [context.sporto.liveCardStart, context.sporto.liveCardEnd],
-        borderColor: cs.primary.withOpacity(.4),
+        borderColor: cs.primary.withValues(alpha: .4),
         padding: const EdgeInsets.all(10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -208,7 +208,7 @@ class SportoMatchCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.3),
+                  color: Colors.black.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(overLabel!,
@@ -405,7 +405,7 @@ class SportoMatchCard extends StatelessWidget {
     if (_isLive) {
       return SportoGradientCard(
         colors: gradientColors ?? const [Color(0xFF4A1515), Color(0xFF2A0A0A)],
-        borderColor: Colors.redAccent.withOpacity(0.3),
+        borderColor: Colors.redAccent.withValues(alpha: 0.3),
         padding: const EdgeInsets.all(16),
         child: content,
       );

@@ -25,7 +25,7 @@ class SportoSegmentedControl extends StatelessWidget {
     return Container(
       height: height,
       decoration: BoxDecoration(
-        color: SportoCard.defaultFill.withOpacity(0.6),
+        color: SportoCard.defaultFill.withValues(alpha: 0.6),
         borderRadius: BorderRadius.circular(height / 2),
         border: Border.all(color: SportoCard.defaultBorder),
       ),

@@ -100,7 +100,7 @@ class _SplashScreenState extends State<SplashScreen> {
                   Text(
                     'Powered by Sporto Engine',
                     style: textTheme.labelMedium?.copyWith(
-                      color: colorScheme.onSurfaceVariant.withOpacity(0.7),
+                      color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
                       fontWeight: FontWeight.w500,
                       letterSpacing: 1.0,
                     ),
@@ -109,7 +109,7 @@ class _SplashScreenState extends State<SplashScreen> {
                   Text(
                     'VERSION 1.0.0',
                     style: textTheme.labelSmall?.copyWith(
-                      color: colorScheme.onSurfaceVariant.withOpacity(0.4),
+                      color: colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
                       letterSpacing: 2.0,
                       fontWeight: FontWeight.w600,
                     ),

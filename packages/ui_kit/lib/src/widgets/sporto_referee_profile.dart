@@ -517,7 +517,7 @@ class SportoProfileBottomNav extends StatelessWidget {
         horizontal: 8 * scale,
       ),
       decoration: BoxDecoration(
-        color: const Color(0xFF1B1B1A).withOpacity(.92),
+        color: const Color(0xFF1B1B1A).withValues(alpha: .92),
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(20 * scale),
         ),

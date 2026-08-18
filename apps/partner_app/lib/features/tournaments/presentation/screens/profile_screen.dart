@@ -16,7 +16,6 @@ class PartnerProfileScreen extends StatelessWidget {
       phone: '+91 98765XXXXX',
       certificationLabel: 'Verified Partner',
       certificationTitle: 'Organizer',
-      avatarImage: const AssetImage('assets/images/profile_avatar.png'),
       stats: const [
         SportoProfileStatData(value: '12', label: 'Tournaments'),
         SportoProfileStatData(value: '48', label: 'Matches'),

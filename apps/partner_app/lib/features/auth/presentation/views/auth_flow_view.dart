@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:core/core.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:partner_data/partner_data.dart';
 import 'package:shared_domain/shared_domain.dart';
 import 'package:ui_kit/ui_kit.dart';
@@ -23,8 +24,6 @@ class AuthFlowView extends StatefulWidget {
 }
 
 class _AuthFlowViewState extends State<AuthFlowView> {
-  static const _partnerPermissionSetupDoneKey = 'partner_permission_setup_done';
-
   bool _splashFinished = false;
   Future<_ServerGateResult>? _serverGateFuture;
   String? _serverGateKey;
@@ -116,7 +115,11 @@ class _AuthFlowViewState extends State<AuthFlowView> {
             '[SportoApi] AUTH_GATE routing to onboarding step '
             '${result.initialStep}',
           );
-          return _buildOnboarding(result.user, initialStep: result.initialStep);
+          return _buildOnboarding(
+            result.user,
+            initialStep: result.initialStep,
+            initialData: result.initialData,
+          );
         }
 
         if (result.showApplicationStatus) {
@@ -132,7 +135,7 @@ class _AuthFlowViewState extends State<AuthFlowView> {
         }
 
         debugPrint(
-          '[SportoApi] AUTH_GATE routing to dashboard '
+          '[SportoApi] AUTH_GATE routing to permission setup gate '
           'status=${result.applicationStatusLabel ?? 'unknown'}',
         );
         return _buildPermissionSetupGate();
@@ -140,38 +143,70 @@ class _AuthFlowViewState extends State<AuthFlowView> {
     );
   }
 
+  bool _permissionSetupBypassed = false;
+
   Widget _buildPermissionSetupGate() {
-    return FutureBuilder<bool>(
-      future: _hasCompletedPartnerPermissionSetup(),
+    if (_permissionSetupBypassed) {
+      return PartnerMainScreen(initialIndex: widget.initialTabIndex);
+    }
+
+    return FutureBuilder<Map<String, bool>>(
+      future: _checkPartnerPermissions(),
       builder: (context, snapshot) {
         if (snapshot.connectionState != ConnectionState.done) {
           return const _PartnerGateLoadingScreen();
         }
 
-        final completed = snapshot.data ?? false;
-        if (completed) {
+        final permissions =
+            snapshot.data ?? {'location': false, 'notification': false};
+        final locationGranted = permissions['location'] ?? false;
+        final notificationGranted = permissions['notification'] ?? false;
+
+        // ONLY ROUTE TO MAIN SCREEN IF BOTH REAL SYSTEM PERMISSIONS ARE GRANTED
+        if (locationGranted && notificationGranted) {
           return PartnerMainScreen(initialIndex: widget.initialTabIndex);
         }
 
         return PartnerPermissionSetupScreen(
-          onContinue: () async {
-            await _markPartnerPermissionSetupComplete();
+          initialLocationGranted: locationGranted,
+          initialNotificationGranted: notificationGranted,
+          onPermissionsUpdated: () {
             if (!mounted) return;
-            setState(() {});
+            setState(() {
+              _permissionSetupBypassed = true;
+            });
           },
         );
       },
     );
   }
 
-  Future<bool> _hasCompletedPartnerPermissionSetup() async {
-    final value =
-        HiveService.authSessionBox.get(_partnerPermissionSetupDoneKey);
-    return value == true;
-  }
+  Future<Map<String, bool>> _checkPartnerPermissions() async {
+    try {
+      final locationStatus = await Permission.location.status;
+      final notificationStatus = await Permission.notification.status;
 
-  Future<void> _markPartnerPermissionSetupComplete() async {
-    await HiveService.authSessionBox.put(_partnerPermissionSetupDoneKey, true);
+      final locationGranted =
+          locationStatus.isGranted || locationStatus.isLimited;
+      final notificationGranted =
+          notificationStatus.isGranted || notificationStatus.isLimited;
+
+      debugPrint(
+        '[PermissionCheck] REAL OS STATUS: location=$locationStatus ($locationGranted), '
+        'notification=$notificationStatus ($notificationGranted)',
+      );
+
+      return {
+        'location': locationGranted,
+        'notification': notificationGranted,
+      };
+    } catch (e) {
+      debugPrint('[PermissionCheck] Error querying real OS permissions: $e');
+      return {
+        'location': false,
+        'notification': false,
+      };
+    }
   }
 
   Future<_ServerGateResult> _getServerGateFuture(String gateKey) {
@@ -211,11 +246,15 @@ class _AuthFlowViewState extends State<AuthFlowView> {
       final applicationNumber = application?.applicationNumber ??
           profile.application.applicationNumber;
       final personal = profile.personalInformation;
+      final storedUser = await AuthRepositoryImpl().getCurrentUser();
+      final mobileNumber = (personal.mobileNumber != null && personal.mobileNumber!.trim().isNotEmpty)
+          ? personal.mobileNumber!
+          : (storedUser?.mobileNumber ?? '');
       final user = UserEntity(
-        id: 'server-partner',
-        name: '${personal.firstName} ${personal.lastName}'.trim(),
-        email: personal.email,
-        mobileNumber: personal.mobileNumber ?? '',
+        id: storedUser?.id ?? 'server-partner',
+        name: '${personal.firstName ?? ''} ${personal.lastName ?? ''}'.trim(),
+        email: personal.email ?? '',
+        mobileNumber: mobileNumber,
         role: 'partner',
         dob: personal.dateOfBirth,
         gender: personal.gender,
@@ -223,6 +262,7 @@ class _AuthFlowViewState extends State<AuthFlowView> {
         state: profile.address.state,
         isProfileComplete: initialStep == null,
       );
+      final initialData = _buildInitialOnboardingData(profile, application);
       return _ServerGateResult(
         hasValidSession: true,
         needsOnboarding: initialStep != null,
@@ -232,6 +272,7 @@ class _AuthFlowViewState extends State<AuthFlowView> {
         applicationNumber: applicationNumber,
         applicationStatusLabel: workflowStatus.label,
         user: user,
+        initialData: initialData,
       );
     } on SportoApiException catch (error) {
       debugPrint(
@@ -241,6 +282,7 @@ class _AuthFlowViewState extends State<AuthFlowView> {
       if (error.statusCode == 401) {
         return _ServerGateResult.noSession();
       }
+      final storedUser = await AuthRepositoryImpl().getCurrentUser();
       return _ServerGateResult(
         hasValidSession: true,
         needsOnboarding: true,
@@ -248,11 +290,11 @@ class _AuthFlowViewState extends State<AuthFlowView> {
         showApplicationStatus: false,
         applicationNumber: null,
         applicationStatusLabel: null,
-        user: const UserEntity(
-          id: 'server-partner',
-          name: '',
-          email: '',
-          mobileNumber: '',
+        user: UserEntity(
+          id: storedUser?.id ?? 'server-partner',
+          name: storedUser?.name ?? '',
+          email: storedUser?.email ?? '',
+          mobileNumber: storedUser?.mobileNumber ?? '',
           role: 'partner',
         ),
       );
@@ -353,12 +395,19 @@ class _AuthFlowViewState extends State<AuthFlowView> {
         normalized == 'string null';
   }
 
-  Widget _buildOnboarding(UserEntity user, {required int initialStep}) {
+  Widget _buildOnboarding(
+    UserEntity user, {
+    required int initialStep,
+    InitialOnboardingData? initialData,
+  }) {
     return AutomatedOnboardingWizard(
       user: user,
       initialStep: initialStep,
+      initialData: initialData,
       onContinueStep: _continuePartnerOnboardingStep,
       onSubmitOnboarding: _submitPartnerOnboarding,
+      onPickDocument: _pickOnboardingFile,
+      onUploadDocumentFile: _uploadOnboardingFile,
       onUploadDocument: _pickAndUploadOnboardingFile,
       onComplete: (updatedUser) {
         _serverGateFuture = null;
@@ -520,7 +569,7 @@ class _AuthFlowViewState extends State<AuthFlowView> {
     }
   }
 
-  Future<String?> _pickAndUploadOnboardingFile(
+  Future<String?> _pickOnboardingFile(
     OnboardingUploadType type,
   ) async {
     final picked = await FilePicker.platform.pickFiles(
@@ -533,14 +582,28 @@ class _AuthFlowViewState extends State<AuthFlowView> {
       allowMultiple: false,
       withData: false,
     );
-    final filePath = picked?.files.single.path;
-    if (filePath == null) return null;
+    return picked?.files.single.path;
+  }
 
+  Future<String?> _uploadOnboardingFile(
+    OnboardingUploadType type,
+    String filePath,
+  ) async {
     final upload = await _commonRemoteDataSource.uploadFile(
       filePath: filePath,
       folder: _folderForUploadType(type),
     );
-    return upload.path;
+    return upload.url.isNotEmpty
+        ? upload.url
+        : (upload.path.isNotEmpty ? upload.path : filePath);
+  }
+
+  Future<String?> _pickAndUploadOnboardingFile(
+    OnboardingUploadType type,
+  ) async {
+    final filePath = await _pickOnboardingFile(type);
+    if (filePath == null) return null;
+    return _uploadOnboardingFile(type, filePath);
   }
 
   String _folderForUploadType(OnboardingUploadType type) {
@@ -563,6 +626,47 @@ class _AuthFlowViewState extends State<AuthFlowView> {
       return '${parts[2]}-${parts[1].padLeft(2, '0')}-${parts[0].padLeft(2, '0')}';
     }
     return trimmed;
+  }
+
+  InitialOnboardingData _buildInitialOnboardingData(
+    PartnerProfileResponseData profile,
+    PartnerApplicationStateResponse? application,
+  ) {
+    final docsMap = <String, String>{};
+    if (application?.documents != null) {
+      for (final doc in application!.documents) {
+        if (doc.documentPath.isNotEmpty) {
+          docsMap[doc.documentType] = doc.documentPath;
+        }
+      }
+    }
+
+    final sportsNames = <String>[];
+    int expYears = 0;
+    if (application?.sports != null && application!.sports.isNotEmpty) {
+      for (final sport in application.sports) {
+        if (sport.sportName != null && sport.sportName!.isNotEmpty) {
+          sportsNames.add(sport.sportName!);
+        }
+      }
+      expYears = application.sports.first.experienceYears;
+    }
+
+    return InitialOnboardingData(
+      addressLine1: profile.address.addressLine1 ?? application?.address.addressLine1,
+      addressLine2: profile.address.addressLine2 ?? application?.address.addressLine2,
+      city: profile.address.city ?? application?.address.city,
+      state: profile.address.state ?? application?.address.state,
+      pincode: profile.address.pincode ?? application?.address.pincode,
+      country: profile.address.country ?? application?.address.country,
+      highestQualification: profile.professionalInformation.highestQualification ??
+          application?.professionalInformation.highestQualification,
+      presentOccupation: profile.professionalInformation.presentOccupation ??
+          application?.professionalInformation.presentOccupation,
+      sports: sportsNames,
+      experienceYears: expYears,
+      documents: docsMap,
+    );
   }
 
   int? _sportIdForName(String sportName) {
@@ -597,6 +701,7 @@ class _ServerGateResult {
     required this.applicationNumber,
     required this.applicationStatusLabel,
     required this.user,
+    this.initialData,
   });
 
   const _ServerGateResult.noSession()
@@ -612,7 +717,8 @@ class _ServerGateResult {
           email: '',
           mobileNumber: '',
           role: 'partner',
-        );
+        ),
+        initialData = null;
 
   final bool hasValidSession;
   final bool needsOnboarding;
@@ -621,4 +727,5 @@ class _ServerGateResult {
   final String? applicationNumber;
   final String? applicationStatusLabel;
   final UserEntity user;
+  final InitialOnboardingData? initialData;
 }

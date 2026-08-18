@@ -59,7 +59,7 @@ class SportoDesignTokens extends ThemeExtension<SportoDesignTokens> {
 
     cardElevated: Color(0xFF1C2026),
 
-    field: Color(0xFF1C2026),
+    field: Color(0xFF1A1F24),
 
     fieldBorder: Color(0xFF35424E),
 
@@ -95,7 +95,7 @@ class SportoDesignTokens extends ThemeExtension<SportoDesignTokens> {
 
     primaryGradient: LinearGradient(
       colors: [
-        Color(0xFFFF4B00),
+        Color(0xFFED7B00),
         Color(0xFFCF9E24),
       ],
     ),
@@ -200,7 +200,7 @@ extension SportoThemeContext on BuildContext {
   double get sportoScale {
     final width = MediaQuery.sizeOf(this).width;
     if (width < 360) {
-      return (width / 360).clamp(0.96, 1.0);
+      return (width / 360).clamp(0.92, 1.0);
     }
     return (width / 390).clamp(1.0, 1.16);
   }

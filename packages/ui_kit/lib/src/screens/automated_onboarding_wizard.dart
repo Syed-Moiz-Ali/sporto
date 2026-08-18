@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'package:confetti/confetti.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_domain/shared_domain.dart';
@@ -56,17 +58,49 @@ class _ReviewCard extends StatelessWidget {
   }
 }
 
+class InitialOnboardingData {
+  final String? addressLine1;
+  final String? addressLine2;
+  final String? city;
+  final String? state;
+  final String? pincode;
+  final String? country;
+  final String? highestQualification;
+  final String? presentOccupation;
+  final List<String> sports;
+  final int experienceYears;
+  final Map<String, String> documents;
+
+  const InitialOnboardingData({
+    this.addressLine1,
+    this.addressLine2,
+    this.city,
+    this.state,
+    this.pincode,
+    this.country,
+    this.highestQualification,
+    this.presentOccupation,
+    this.sports = const [],
+    this.experienceYears = 0,
+    this.documents = const {},
+  });
+}
+
 // ============================================================
 // MAIN WIDGET
 // ============================================================
 class AutomatedOnboardingWizard extends StatefulWidget {
   final UserEntity user;
   final int initialStep;
+  final InitialOnboardingData? initialData;
   final Function(UserEntity updatedUser) onComplete;
   final Future<void> Function(OnboardingSubmission submission)?
       onSubmitOnboarding;
   final Future<void> Function(
       OnboardingSubmission submission, int completedStep)? onContinueStep;
+  final Future<String?> Function(OnboardingUploadType type)? onPickDocument;
+  final Future<String?> Function(OnboardingUploadType type, String filePath)?
+      onUploadDocumentFile;
   final Future<String?> Function(OnboardingUploadType type)? onUploadDocument;
   final VoidCallback? onTrackApplication;
   final VoidCallback? onGoHome;
@@ -75,9 +109,12 @@ class AutomatedOnboardingWizard extends StatefulWidget {
     super.key,
     required this.user,
     this.initialStep = 1,
+    this.initialData,
     required this.onComplete,
     this.onSubmitOnboarding,
     this.onContinueStep,
+    this.onPickDocument,
+    this.onUploadDocumentFile,
     this.onUploadDocument,
     this.onTrackApplication,
     this.onGoHome,
@@ -173,6 +210,75 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
     _dobController = TextEditingController(
       text: _normaliseDob(widget.user.dob),
     );
+    if (widget.user.gender != null && widget.user.gender!.isNotEmpty) {
+      _selectedGender = widget.user.gender;
+    }
+
+    final data = widget.initialData;
+    if (data != null) {
+      if (data.addressLine1 != null && data.addressLine1!.isNotEmpty) {
+        _addressLineController.text = data.addressLine1!;
+      }
+      if (data.addressLine2 != null && data.addressLine2!.isNotEmpty) {
+        // addressLine2 handled if needed
+      }
+      if (data.city != null && data.city!.isNotEmpty) {
+        _cityController.text = data.city!;
+      } else if (widget.user.city != null && widget.user.city!.isNotEmpty) {
+        _cityController.text = widget.user.city!;
+      }
+      if (data.state != null && data.state!.isNotEmpty) {
+        _stateController.text = data.state!;
+      } else if (widget.user.state != null && widget.user.state!.isNotEmpty) {
+        _stateController.text = widget.user.state!;
+      }
+      if (data.pincode != null && data.pincode!.isNotEmpty) {
+        _pinCodeController.text = data.pincode!;
+      }
+      if (data.country != null && data.country!.isNotEmpty) {
+        _countryController.text = data.country!;
+      }
+
+      if (data.highestQualification != null &&
+          data.highestQualification!.isNotEmpty) {
+        _qualificationController.text = data.highestQualification!;
+      }
+      if (data.presentOccupation != null && data.presentOccupation!.isNotEmpty) {
+        _occupationController.text = data.presentOccupation!;
+      }
+
+      if (data.sports.isNotEmpty) {
+        _selectedSports.addAll(data.sports);
+      }
+      if (data.experienceYears > 0) {
+        _experienceController.text = data.experienceYears.toString();
+      }
+
+      if (data.documents.containsKey('profile_photo')) {
+        _profilePhotoUploaded = true;
+        _profilePhotoPath = data.documents['profile_photo'];
+      }
+      if (data.documents.containsKey('government_id')) {
+        _govIdUploaded = true;
+        _governmentIdPath = data.documents['government_id'];
+      }
+      if (data.documents.containsKey('sports_certificate')) {
+        _sportsCertUploaded = true;
+        _sportsCertificatePath = data.documents['sports_certificate'];
+      }
+      if (data.documents.containsKey('resume')) {
+        _resumeUploaded = true;
+        _resumePath = data.documents['resume'];
+      }
+    } else {
+      if (widget.user.city != null && widget.user.city!.isNotEmpty) {
+        _cityController.text = widget.user.city!;
+      }
+      if (widget.user.state != null && widget.user.state!.isNotEmpty) {
+        _stateController.text = widget.user.state!;
+      }
+    }
+
     _confettiController =
         ConfettiController(duration: const Duration(seconds: 3));
   }
@@ -462,22 +568,68 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
     });
   }
 
-  // FIXED: Don't call onComplete here — defer to Track/Back buttons
+  bool _isLocalFile(String? path) {
+    if (path == null || path.trim().isEmpty) return false;
+    final trimmed = path.trim();
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) return false;
+    return true;
+  }
+
+  Future<void> _uploadPendingDocuments() async {
+    if (_profilePhotoUploaded && _isLocalFile(_profilePhotoPath)) {
+      final serverUrl = await _uploadSingleDocument(
+        OnboardingUploadType.profilePhoto,
+        _profilePhotoPath!,
+      );
+      if (serverUrl != null && serverUrl.isNotEmpty) {
+        _profilePhotoPath = serverUrl;
+      }
+    }
+    if (_govIdUploaded && _isLocalFile(_governmentIdPath)) {
+      final serverUrl = await _uploadSingleDocument(
+        OnboardingUploadType.governmentId,
+        _governmentIdPath!,
+      );
+      if (serverUrl != null && serverUrl.isNotEmpty) {
+        _governmentIdPath = serverUrl;
+      }
+    }
+    if (_sportsCertUploaded && _isLocalFile(_sportsCertificatePath)) {
+      final serverUrl = await _uploadSingleDocument(
+        OnboardingUploadType.sportsCertificate,
+        _sportsCertificatePath!,
+      );
+      if (serverUrl != null && serverUrl.isNotEmpty) {
+        _sportsCertificatePath = serverUrl;
+      }
+    }
+    if (_resumeUploaded && _isLocalFile(_resumePath)) {
+      final serverUrl = await _uploadSingleDocument(
+        OnboardingUploadType.resume,
+        _resumePath!,
+      );
+      if (serverUrl != null && serverUrl.isNotEmpty) {
+        _resumePath = serverUrl;
+      }
+    }
+  }
+
+  Future<String?> _uploadSingleDocument(
+    OnboardingUploadType type,
+    String localPath,
+  ) async {
+    if (widget.onUploadDocumentFile != null) {
+      return await widget.onUploadDocumentFile!(type, localPath);
+    }
+    if (widget.onUploadDocument != null) {
+      return await widget.onUploadDocument!(type);
+    }
+    return localPath;
+  }
+
   Future<void> _finishOnboarding() async {
     if (!_confirmAccuracy || _isSubmittingOnboarding) return;
     if (!_validateCurrentStep()) return;
-
-    final updatedUser = widget.user.copyWith(
-      name:
-          '${_firstNameController.text.trim()} ${_lastNameController.text.trim()}',
-      email: _emailController.text.trim(),
-      dob: _dobController.text.trim(),
-      gender: _selectedGender,
-      city: _cityController.text.trim(),
-      state: _stateController.text.trim(),
-      favoriteSports: _selectedSports.toList(),
-      isProfileComplete: true,
-    );
 
     setState(() {
       _isSubmittingOnboarding = true;
@@ -485,24 +637,35 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
     });
 
     try {
+      await _uploadPendingDocuments();
+
+      final updatedUser = widget.user.copyWith(
+        name:
+            '${_firstNameController.text.trim()} ${_lastNameController.text.trim()}',
+        email: _emailController.text.trim(),
+        dob: _dobController.text.trim(),
+        gender: _selectedGender,
+        city: _cityController.text.trim(),
+        state: _stateController.text.trim(),
+        favoriteSports: _selectedSports.toList(),
+        isProfileComplete: true,
+      );
+
       await widget.onSubmitOnboarding?.call(_buildSubmission(updatedUser));
+      _pendingUser = updatedUser;
+      if (!mounted) return;
+      setState(() {
+        _isSubmittingOnboarding = false;
+        _applicationSubmitted = true;
+      });
+      _confettiController.play();
     } catch (error) {
       if (!mounted) return;
       setState(() {
         _isSubmittingOnboarding = false;
         _submissionError = error.toString();
       });
-      return;
     }
-
-    _pendingUser = updatedUser;
-
-    if (!mounted) return;
-    setState(() {
-      _isSubmittingOnboarding = false;
-      _applicationSubmitted = true;
-    });
-    _confettiController.play();
   }
 
   OnboardingSubmission _buildSubmission(UserEntity updatedUser) {
@@ -540,41 +703,150 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
   Future<void> _uploadDocument(OnboardingUploadType type) async {
     if (_uploadingDocumentType != null) return;
     setState(() {
-      _uploadingDocumentType = type;
       _submissionError = null;
     });
     try {
-      final uploadedPath = await widget.onUploadDocument?.call(type);
-      if (uploadedPath == null || uploadedPath.isEmpty) {
-        if (!mounted) return;
-        setState(() => _uploadingDocumentType = null);
-        return;
-      }
+      final localPath = widget.onPickDocument != null
+          ? await widget.onPickDocument!.call(type)
+          : await widget.onUploadDocument?.call(type);
+      if (localPath == null || localPath.trim().isEmpty) return;
       if (!mounted) return;
       setState(() {
         switch (type) {
           case OnboardingUploadType.profilePhoto:
             _profilePhotoUploaded = true;
-            _profilePhotoPath = uploadedPath;
+            _profilePhotoPath = localPath;
           case OnboardingUploadType.governmentId:
             _govIdUploaded = true;
-            _governmentIdPath = uploadedPath;
+            _governmentIdPath = localPath;
             _fieldErrors.remove('governmentId');
           case OnboardingUploadType.sportsCertificate:
             _sportsCertUploaded = true;
-            _sportsCertificatePath = uploadedPath;
+            _sportsCertificatePath = localPath;
           case OnboardingUploadType.resume:
             _resumeUploaded = true;
-            _resumePath = uploadedPath;
+            _resumePath = localPath;
         }
-        _uploadingDocumentType = null;
       });
     } catch (error) {
       if (!mounted) return;
       setState(() {
-        _uploadingDocumentType = null;
         _submissionError = error.toString();
       });
+    }
+  }
+
+  Future<bool> _onBackRequested() async {
+    if (_currentStep > 1) {
+      final confirm = await showDialog<bool>(
+        context: context,
+        builder: (context) {
+          final theme = Theme.of(context);
+          final cs = theme.colorScheme;
+          final tt = theme.textTheme;
+          final scale = context.sportoScale;
+          return AlertDialog(
+            backgroundColor: cs.surface,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(18 * scale),
+              side: BorderSide(color: cs.outlineVariant),
+            ),
+            title: Text(
+              'Navigate Back?',
+              style: tt.titleLarge?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: cs.onSurface,
+                fontSize: 18 * scale,
+              ),
+            ),
+            content: Text(
+              'Going back will allow you to view or edit previous steps. Are you sure you want to go back?',
+              style: tt.bodyMedium?.copyWith(
+                color: cs.onSurfaceVariant,
+                fontSize: 14 * scale,
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: Text(
+                  'Cancel',
+                  style: TextStyle(color: cs.onSurfaceVariant),
+                ),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: Text(
+                  'Go Back',
+                  style: TextStyle(
+                    color: cs.tertiary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      );
+      if (confirm == true) {
+        setState(() => _currentStep--);
+      }
+      return false;
+    } else {
+      final confirm = await showDialog<bool>(
+        context: context,
+        builder: (context) {
+          final theme = Theme.of(context);
+          final cs = theme.colorScheme;
+          final tt = theme.textTheme;
+          final scale = context.sportoScale;
+          return AlertDialog(
+            backgroundColor: cs.surface,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(18 * scale),
+              side: BorderSide(color: cs.outlineVariant),
+            ),
+            title: Text(
+              'Leave Onboarding?',
+              style: tt.titleLarge?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: cs.onSurface,
+                fontSize: 18 * scale,
+              ),
+            ),
+            content: Text(
+              'Are you sure you want to exit the onboarding process?',
+              style: tt.bodyMedium?.copyWith(
+                color: cs.onSurfaceVariant,
+                fontSize: 14 * scale,
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: Text(
+                  'Cancel',
+                  style: TextStyle(color: cs.onSurfaceVariant),
+                ),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: Text(
+                  'Exit',
+                  style: TextStyle(
+                    color: cs.error,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      );
+      if (confirm == true) {
+        widget.onGoHome?.call();
+      }
+      return false;
     }
   }
 
@@ -594,41 +866,42 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
     final isLastStep = _currentStep == _totalSteps;
     final submitDisabled = isLastStep && !_confirmAccuracy;
 
-    return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
-      body: Stack(
-        children: [
-          Positioned.fill(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: context.sporto.authBackgroundGradient,
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) {
+          _onBackRequested();
+        }
+      },
+      child: Scaffold(
+        backgroundColor: theme.scaffoldBackgroundColor,
+        body: Stack(
+          children: [
+            Positioned.fill(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: context.sporto.authBackgroundGradient,
+                ),
               ),
             ),
-          ),
-          SafeArea(
-            bottom: false,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // App bar
-                Padding(
-                  padding: EdgeInsets.fromLTRB(
-                    scaled(16),
-                    scaled(20),
-                    scaled(16),
-                    0,
-                  ),
-                  child: Row(
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          if (_currentStep > 1) {
-                            setState(() => _currentStep--);
-                          } else {
-                            widget.onGoHome?.call();
-                          }
-                        },
-                        behavior: HitTestBehavior.opaque,
+            SafeArea(
+              bottom: false,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // App bar
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(
+                      scaled(16),
+                      scaled(20),
+                      scaled(16),
+                      0,
+                    ),
+                    child: Row(
+                      children: [
+                        GestureDetector(
+                          onTap: _onBackRequested,
+                          behavior: HitTestBehavior.opaque,
                         child: GlassContainer(
                           width: scaled(40),
                           height: scaled(40),
@@ -736,6 +1009,7 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
                                   _submissionError = null;
                                 });
                                 try {
+                                  await _uploadPendingDocuments();
                                   await widget.onContinueStep?.call(
                                     _buildSubmission(widget.user),
                                     _currentStep,
@@ -780,7 +1054,8 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
           ),
         ],
       ),
-    );
+    ),
+  );
   }
 
   // ============================================================
@@ -1087,6 +1362,7 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
         _buildUploadTile(
             label: 'Profile Photo',
             isUploaded: _profilePhotoUploaded,
+            uploadedPath: _profilePhotoPath,
             isUploading:
                 _uploadingDocumentType == OnboardingUploadType.profilePhoto,
             onUpload: () => _uploadDocument(OnboardingUploadType.profilePhoto),
@@ -1100,6 +1376,7 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
         _buildUploadTile(
             label: 'Government ID',
             isUploaded: _govIdUploaded,
+            uploadedPath: _governmentIdPath,
             isUploading:
                 _uploadingDocumentType == OnboardingUploadType.governmentId,
             onUpload: () => _uploadDocument(OnboardingUploadType.governmentId),
@@ -1116,6 +1393,7 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
         _buildUploadTile(
             label: 'Sports Certificate (Optional)',
             isUploaded: _sportsCertUploaded,
+            uploadedPath: _sportsCertificatePath,
             isUploading: _uploadingDocumentType ==
                 OnboardingUploadType.sportsCertificate,
             onUpload: () =>
@@ -1130,6 +1408,7 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
         _buildUploadTile(
             label: 'Resume (Optional)',
             isUploaded: _resumeUploaded,
+            uploadedPath: _resumePath,
             isUploading: _uploadingDocumentType == OnboardingUploadType.resume,
             onUpload: () => _uploadDocument(OnboardingUploadType.resume),
             onClear: () => setState(() {
@@ -1152,6 +1431,7 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
     required bool wide,
     required ColorScheme cs,
     required TextTheme tt,
+    String? uploadedPath,
   }) {
     final scale = context.sportoScale;
     final compactProfile = label == 'Profile Photo';
@@ -1164,7 +1444,7 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
       borderRadius: 14 * scale,
       blur: 16 * scale,
       borderWidth: scale,
-      borderColor: SportoCard.defaultBorder,
+      borderColor: isUploaded ? cs.secondary : SportoCard.defaultBorder,
       backgroundColor: cs.onSurface.withValues(alpha: 0.12),
       padding: EdgeInsets.zero,
       child: Center(
@@ -1178,8 +1458,13 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
                 ),
               )
             : isUploaded
-                ? Icon(Icons.check_rounded,
-                    color: cs.secondary, size: (wide ? 26 : 30) * scale)
+                ? _buildFilePreviewTile(
+                    uploadedPath: uploadedPath,
+                    wide: wide,
+                    cs: cs,
+                    tt: tt,
+                    scale: scale,
+                  )
                 : Text(
                     'Upload',
                     style: tt.bodyLarge?.copyWith(
@@ -1239,6 +1524,210 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
     );
   }
 
+  Widget _buildFilePreviewTile({
+    required String? uploadedPath,
+    required bool wide,
+    required ColorScheme cs,
+    required TextTheme tt,
+    required double scale,
+  }) {
+    final path = uploadedPath?.trim() ?? '';
+    final fileName = path.isEmpty ? 'Uploaded' : path.split(RegExp(r'[/\\]')).last;
+    final lower = path.toLowerCase();
+    final isImage = lower.endsWith('.png') ||
+        lower.endsWith('.jpg') ||
+        lower.endsWith('.jpeg') ||
+        lower.endsWith('.webp') ||
+        lower.endsWith('.gif') ||
+        lower.endsWith('.heic') ||
+        lower.startsWith('http') ||
+        lower.contains('users/documents/') ||
+        lower.contains('users/profile/');
+
+    if (wide) {
+      return Padding(
+        padding: EdgeInsets.symmetric(horizontal: 12 * scale),
+        child: Row(
+          children: [
+            Icon(
+              isImage ? Icons.image_rounded : Icons.insert_drive_file_rounded,
+              color: cs.secondary,
+              size: 20 * scale,
+            ),
+            SizedBox(width: 8 * scale),
+            Expanded(
+              child: Text(
+                fileName,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: tt.bodyMedium?.copyWith(
+                  color: cs.onSurface,
+                  fontSize: 13 * scale,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+            SizedBox(width: 6 * scale),
+            Icon(
+              Icons.check_circle_rounded,
+              color: cs.secondary,
+              size: 18 * scale,
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (isImage && path.isNotEmpty) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(14 * scale),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            _buildImageWidget(path, cs, tt, scale, fileName),
+            Positioned(
+              top: 6 * scale,
+              right: 6 * scale,
+              child: Container(
+                padding: EdgeInsets.all(2 * scale),
+                decoration: const BoxDecoration(
+                  color: Colors.black54,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.check_circle_rounded,
+                  color: cs.secondary,
+                  size: 18 * scale,
+                ),
+              ),
+            ),
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 6 * scale,
+                  vertical: 4 * scale,
+                ),
+                color: Colors.black.withValues(alpha: 0.65),
+                child: Text(
+                  fileName,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: tt.bodySmall?.copyWith(
+                    color: Colors.white,
+                    fontSize: 10 * scale,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Padding(
+      padding: EdgeInsets.all(8 * scale),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.insert_drive_file_rounded,
+                color: cs.secondary,
+                size: 24 * scale,
+              ),
+              SizedBox(width: 4 * scale),
+              Icon(
+                Icons.check_circle_rounded,
+                color: cs.secondary,
+                size: 16 * scale,
+              ),
+            ],
+          ),
+          SizedBox(height: 6 * scale),
+          Text(
+            fileName,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
+            style: tt.bodySmall?.copyWith(
+              color: cs.onSurface,
+              fontSize: 11 * scale,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildImageWidget(
+    String path,
+    ColorScheme cs,
+    TextTheme tt,
+    double scale,
+    String fileName,
+  ) {
+    String resolvedUrl = path.trim();
+    if (!resolvedUrl.startsWith('http://') &&
+        !resolvedUrl.startsWith('https://') &&
+        !resolvedUrl.startsWith('/') &&
+        !resolvedUrl.contains(':\\')) {
+      resolvedUrl =
+          'https://pub-c94d45e28dfa4bf08b2cd5d22adb73e6.r2.dev/$resolvedUrl';
+    }
+
+    if (resolvedUrl.startsWith('http://') || resolvedUrl.startsWith('https://')) {
+      return Image.network(
+        resolvedUrl,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) =>
+            _buildFallbackDocWidget(cs, tt, scale, fileName),
+      );
+    }
+    if (kIsWeb) {
+      return Image.network(
+        resolvedUrl,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) =>
+            _buildFallbackDocWidget(cs, tt, scale, fileName),
+      );
+    }
+    final file = File(path);
+    if (file.existsSync()) {
+      return Image.file(
+        file,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) =>
+            _buildFallbackDocWidget(cs, tt, scale, fileName),
+      );
+    }
+    return _buildFallbackDocWidget(cs, tt, scale, fileName);
+  }
+
+  Widget _buildFallbackDocWidget(
+    ColorScheme cs,
+    TextTheme tt,
+    double scale,
+    String fileName,
+  ) {
+    return Container(
+      color: cs.onSurface.withValues(alpha: 0.15),
+      child: Center(
+        child: Icon(
+          Icons.insert_drive_file_rounded,
+          color: cs.secondary,
+          size: 28 * scale,
+        ),
+      ),
+    );
+  }
+
   // --- STEP 6: REVIEW APPLICATION (Exact match to image 11) ---
   Widget _buildStep6Review(ColorScheme cs, TextTheme tt) {
     final fullName =
@@ -1251,6 +1740,11 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
         _govIdUploaded ||
         _sportsCertUploaded ||
         _resumeUploaded;
+    final displayMobile = widget.user.mobileNumber.trim().isNotEmpty
+        ? widget.user.mobileNumber
+        : (_emergencyContactController.text.trim().isNotEmpty
+            ? _emergencyContactController.text.trim()
+            : 'Not provided');
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1266,7 +1760,7 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
         _ReviewCard(value: fullName, sub: sports),
 
         // Labeled cards: gray label + blue value
-        _ReviewCard(label: 'Mobile', value: widget.user.mobileNumber),
+        _ReviewCard(label: 'Mobile', value: displayMobile),
         _ReviewCard(label: 'Email', value: _emailController.text.trim()),
         _ReviewCard(label: 'Experience', value: experience),
 

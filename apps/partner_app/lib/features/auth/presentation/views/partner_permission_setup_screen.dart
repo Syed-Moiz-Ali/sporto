@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:ui_kit/ui_kit.dart';
 
 class PartnerPermissionSetupScreen extends StatefulWidget {
-  final VoidCallback onContinue;
+  final VoidCallback onPermissionsUpdated;
+  final bool initialLocationGranted;
+  final bool initialNotificationGranted;
 
   const PartnerPermissionSetupScreen({
     super.key,
-    required this.onContinue,
+    required this.onPermissionsUpdated,
+    this.initialLocationGranted = false,
+    this.initialNotificationGranted = false,
   });
 
   @override
@@ -16,8 +21,109 @@ class PartnerPermissionSetupScreen extends StatefulWidget {
 
 class _PartnerPermissionSetupScreenState
     extends State<PartnerPermissionSetupScreen> {
-  bool _locationEnabled = true;
-  bool _notificationsEnabled = false;
+  late bool _locationEnabled;
+  late bool _notificationsEnabled;
+  bool _isRequesting = false;
+  String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _locationEnabled = widget.initialLocationGranted;
+    _notificationsEnabled = widget.initialNotificationGranted;
+    _refreshRealPermissions();
+  }
+
+  Future<void> _refreshRealPermissions() async {
+    try {
+      final loc = await Permission.location.status;
+      final notif = await Permission.notification.status;
+      if (!mounted) return;
+      setState(() {
+        _locationEnabled = loc.isGranted || loc.isLimited;
+        _notificationsEnabled = notif.isGranted || notif.isLimited;
+      });
+    } catch (e) {
+      debugPrint('[PermissionScreen] refresh error: $e');
+    }
+  }
+
+  Future<void> _toggleLocationPermission() async {
+    setState(() {
+      _locationEnabled = !_locationEnabled;
+      _errorMessage = null;
+    });
+
+    if (_locationEnabled) {
+      try {
+        final status = await Permission.location.request();
+        if (mounted && (status.isGranted || status.isLimited)) {
+          setState(() => _locationEnabled = true);
+        } else if (status.isPermanentlyDenied) {
+          openAppSettings();
+        }
+      } catch (e) {
+        debugPrint('[PermissionScreen] location error: $e');
+      }
+    }
+  }
+
+  Future<void> _toggleNotificationPermission() async {
+    setState(() {
+      _notificationsEnabled = !_notificationsEnabled;
+      _errorMessage = null;
+    });
+
+    if (_notificationsEnabled) {
+      try {
+        final status = await Permission.notification.request();
+        if (mounted && (status.isGranted || status.isLimited)) {
+          setState(() => _notificationsEnabled = true);
+        } else if (status.isPermanentlyDenied) {
+          openAppSettings();
+        }
+      } catch (e) {
+        debugPrint('[PermissionScreen] notification error: $e');
+      }
+    }
+  }
+
+  Future<void> _handleContinue() async {
+    if (_isRequesting) return;
+    setState(() {
+      _isRequesting = true;
+      _errorMessage = null;
+    });
+
+    try {
+      if (_locationEnabled) {
+        final status = await Permission.location.request();
+        if (status.isGranted || status.isLimited) {
+          _locationEnabled = true;
+        }
+      }
+      if (_notificationsEnabled) {
+        final status = await Permission.notification.request();
+        if (status.isGranted || status.isLimited) {
+          _notificationsEnabled = true;
+        }
+      }
+    } catch (e) {
+      debugPrint('[PermissionScreen] request error: $e');
+    }
+
+    if (!mounted) return;
+    setState(() => _isRequesting = false);
+
+    if (_locationEnabled && _notificationsEnabled) {
+      widget.onPermissionsUpdated();
+    } else {
+      setState(() {
+        _errorMessage =
+            'Please select and enable both Location and Notification permissions to continue.';
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +146,7 @@ class _PartnerPermissionSetupScreenState
               Row(
                 children: [
                   _BackButtonTile(
-                    onTap: widget.onContinue,
+                    onTap: _handleContinue,
                   ),
                   SizedBox(width: 12 * scale),
                   Text(
@@ -55,7 +161,7 @@ class _PartnerPermissionSetupScreenState
               ),
               SizedBox(height: 22 * scale),
               Text(
-                'Location',
+                'Permissions Required',
                 style: theme.textTheme.headlineSmall?.copyWith(
                   color: cs.onSurface,
                   fontSize: 22 * scale,
@@ -64,7 +170,7 @@ class _PartnerPermissionSetupScreenState
               ),
               SizedBox(height: 6 * scale),
               Text(
-                'Required to verify venue attendance.',
+                'Please enable location and notification permissions to continue.',
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: cs.onSurfaceVariant,
                   fontSize: 15 * scale,
@@ -76,27 +182,34 @@ class _PartnerPermissionSetupScreenState
                 title: 'Location',
                 subtitle: 'Required to verify venue attendance.',
                 selected: _locationEnabled,
-                onTap: () => setState(() {
-                  _locationEnabled = true;
-                }),
+                onTap: _toggleLocationPermission,
               ),
               SizedBox(height: 16 * scale),
               _PermissionOptionTile(
                 title: 'Notifications',
-                subtitle: 'Receive match assignments.',
+                subtitle: 'Receive match assignments and tournament updates.',
                 selected: _notificationsEnabled,
-                onTap: () => setState(() {
-                  _notificationsEnabled = !_notificationsEnabled;
-                }),
+                onTap: _toggleNotificationPermission,
               ),
-              SizedBox(height: 68 * scale),
+              if (_errorMessage != null) ...[
+                SizedBox(height: 20 * scale),
+                Text(
+                  _errorMessage!,
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: cs.error,
+                    fontSize: 13 * scale,
+                  ),
+                ),
+              ],
+              SizedBox(height: 48 * scale),
               Center(
                 child: PrimaryButton(
-                  label: 'Continue',
+                  label: _isRequesting ? 'Verifying...' : 'Continue',
                   width: 270 * scale,
                   height: 48 * scale,
                   radius: 14 * scale,
-                  onPressed: widget.onContinue,
+                  onPressed: _handleContinue,
                 ),
               ),
             ],

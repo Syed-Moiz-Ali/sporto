@@ -174,7 +174,7 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
                 child: Stack(
                   children: [
                     Positioned(
-                      top: scaled(88),
+                       top: scaled(88),
                       left: 0,
                       right: 0,
                       child: Transform.scale(
@@ -240,7 +240,7 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
               ),
               padding: EdgeInsets.fromLTRB(
                 scaled(spacing.space20),
-                scaled(spacing.space24),
+                 scaled(spacing.space24),
                 scaled(spacing.space20),
                 scaled(spacing.space20),
               ),
@@ -259,7 +259,7 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
                     'Welcome!',
                     style: tt.displayMedium?.copyWith(
                       color: cs.onSurface,
-                      fontSize: scaled(27),
+                       fontSize: scaled(27),
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -320,12 +320,7 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
                   SizedBox(
                     height: scaled(spacing.space30 + spacing.space10),
                   ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: scaled(spacing.space10),
-                    ),
-                    child: _buildTermsText(cs, tt),
-                  ),
+                   _buildTermsText(cs, tt),
                 ],
               ),
             ),

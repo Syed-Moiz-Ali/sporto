@@ -223,7 +223,7 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
     return Container(
       height: 48,
       decoration: BoxDecoration(
-        color: SportoCard.defaultFill.withOpacity(0.6),
+         color: SportoCard.defaultFill.withValues(alpha: 0.6),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: SportoCard.defaultBorder),
       ),
@@ -236,7 +236,8 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
           Expanded(
               child: Text(placeholder,
                   style:
-                      TextStyle(color: cs.onSurfaceVariant.withOpacity(0.6)))),
+                       TextStyle(
+                           color: cs.onSurfaceVariant.withValues(alpha: 0.6)))),
           Icon(Icons.sort_rounded, color: cs.onSurfaceVariant, size: 20),
         ],
       ),
