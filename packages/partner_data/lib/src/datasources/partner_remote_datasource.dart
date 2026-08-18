@@ -262,7 +262,9 @@ class PartnerRemoteDataSource {
   ) {
     return _postForm(
       SportoApiEndpoints.partnerTournaments.rules(tournamentId),
-      fields: request.toJson(),
+      fields: {
+        'rules': request.rules.map((r) => r.toJson()).toList(),
+      },
       methodOverride: 'PUT',
     );
   }
@@ -330,7 +332,12 @@ class PartnerRemoteDataSource {
   ) {
     return _postForm(
       SportoApiEndpoints.partnerTournaments.budget(tournamentId),
-      fields: request.toJson(),
+      fields: {
+        'registration_fee': request.registrationFee,
+        'currency': request.currency,
+        'prizes': request.prizes.map((p) => p.toJson()).toList(),
+        'sponsors': request.sponsors.map((s) => s.toJson()).toList(),
+      },
       methodOverride: 'PUT',
     );
   }

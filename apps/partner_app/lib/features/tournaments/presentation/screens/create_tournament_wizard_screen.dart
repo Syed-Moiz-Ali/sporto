@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -56,7 +57,9 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
   final _batsmanStrikeRateCtrl = TextEditingController();
   final _bowlerMostWicketsCtrl = TextEditingController();
   final _bowlerBestEconomyCtrl = TextEditingController();
-  final _audiencePrizeCtrl = TextEditingController();
+  final List<TextEditingController> _audiencePrizeCtrls = [
+    TextEditingController()
+  ];
 
   // State
   bool _isPaid = true;
@@ -106,7 +109,10 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
     'audiencePrize',
   };
 
-  int get _numberOfTeams => int.tryParse(_numberOfTeamsCtrl.text.trim()) ?? 0;
+  int get _numberOfTeams {
+    final teams = int.tryParse(_numberOfTeamsCtrl.text.trim()) ?? 0;
+    return teams > 0 ? teams : 16;
+  }
 
   bool get _hasValidTeamCount {
     final teams = _numberOfTeams;
@@ -137,12 +143,14 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
   }
 
   String _venueRoundLabelFor(int venueIndex) {
-    if (!_hasValidTeamCount) return 'Round TBD';
+    if (_venues.length <= 1) return 'All Tournament Rounds';
+    if (!_hasValidTeamCount) return 'Round ${venueIndex + 1}';
     final teamsForRound = _teamsForVenueRound(venueIndex);
-    return _roundLabelForTeams(teamsForRound);
+    return 'Round ${venueIndex + 1} (${_roundLabelForTeams(teamsForRound)})';
   }
 
   String _venueMatchesLabelFor(int venueIndex) {
+    if (_venues.length <= 1) return 'All Matches';
     if (!_hasValidTeamCount) return 'Matches TBD';
     final teamsForRound = _teamsForVenueRound(venueIndex);
     final matches = (teamsForRound / 2).ceil();
@@ -157,15 +165,16 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
     return teams < 2 ? 2 : teams;
   }
 
-  final List<Map<String, dynamic>> _venues = [
-    {'name': 'Venue 1'},
-  ];
+  final List<Map<String, dynamic>> _venues = [];
 
   @override
   void initState() {
     super.initState();
     _currentStep = widget.initialStep.clamp(0, _totalSteps - 1);
     _selectedSport = 'Mini Cricket - Super Over Challenge';
+    if (_numberOfTeamsCtrl.text.trim().isEmpty) {
+      _numberOfTeamsCtrl.text = '16';
+    }
     context.read<PartnerApiBloc>().add(const LoadTournamentConfigEvent());
   }
 
@@ -198,13 +207,32 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
     _batsmanStrikeRateCtrl.dispose();
     _bowlerMostWicketsCtrl.dispose();
     _bowlerBestEconomyCtrl.dispose();
-    _audiencePrizeCtrl.dispose();
+    _scrollController.dispose();
+    for (final ctrl in _audiencePrizeCtrls) {
+      ctrl.dispose();
+    }
     super.dispose();
   }
 
+  final ScrollController _scrollController = ScrollController();
+
+  void _goToStep(int step) {
+    setState(() => _currentStep = step.clamp(0, _totalSteps - 1));
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        0,
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeOut,
+      );
+    }
+  }
+
   void _clearFieldError(String field) {
-    if (!_fieldErrors.containsKey(field)) return;
-    setState(() => _fieldErrors.remove(field));
+    if (_fieldErrors.containsKey(field)) {
+      setState(() => _fieldErrors.remove(field));
+    } else {
+      setState(() {});
+    }
   }
 
   @override
@@ -213,51 +241,66 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
     final tt = Theme.of(context).textTheme;
     final scale = context.sportoScale;
 
-    return SportoScreenShell(
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new_rounded, color: cs.onSurface),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text('Create Tournament',
-            style: tt.titleLarge?.copyWith(
-                fontSize: 18 * scale,
-                fontWeight: FontWeight.w500,
-                color: cs.onSurface)),
-        bottom: PreferredSize(
-          preferredSize: Size.fromHeight(4 * scale),
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 18 * scale),
-            child: Row(
-              children: List.generate(
-                  _totalSteps,
-                  (i) => Expanded(
-                        child: Container(
-                          height: 3 * scale,
-                          margin: EdgeInsets.only(
-                              right: i == _totalSteps - 1 ? 0 : 4),
-                          decoration: BoxDecoration(
-                            color: i <= _currentStep
-                                ? cs.tertiary
-                                : cs.surfaceContainerHigh,
-                            borderRadius: BorderRadius.circular(2),
+    return PopScope(
+      canPop: _currentStep == 0,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop && _currentStep > 0) {
+          _goToStep(_currentStep - 1);
+        }
+      },
+      child: SportoScreenShell(
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back_ios_new_rounded, color: cs.onSurface),
+            onPressed: () {
+              if (_currentStep > 0) {
+                _goToStep(_currentStep - 1);
+              } else {
+                Navigator.pop(context);
+              }
+            },
+          ),
+          title: Text('Create Tournament',
+              style: tt.titleLarge?.copyWith(
+                  fontSize: 18 * scale,
+                  fontWeight: FontWeight.w500,
+                  color: cs.onSurface)),
+          bottom: PreferredSize(
+            preferredSize: Size.fromHeight(4 * scale),
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 18 * scale),
+              child: Row(
+                children: List.generate(
+                    _totalSteps,
+                    (i) => Expanded(
+                          child: Container(
+                            height: 3 * scale,
+                            margin: EdgeInsets.only(
+                                right: i == _totalSteps - 1 ? 0 : 4),
+                            decoration: BoxDecoration(
+                              color: i <= _currentStep
+                                  ? cs.tertiary
+                                  : cs.surfaceContainerHigh,
+                              borderRadius: BorderRadius.circular(2),
+                            ),
                           ),
-                        ),
-                      )),
+                        )),
+              ),
             ),
           ),
         ),
-      ),
-      body: SingleChildScrollView(
-        physics: const ClampingScrollPhysics(),
-        padding:
-            EdgeInsets.fromLTRB(20 * scale, 24 * scale, 20 * scale, 40 * scale),
-        child: AnimatedSwitcher(
-          key: Key('step_$_currentStep'),
-          duration: const Duration(milliseconds: 300),
-          child: _buildCurrentStep(cs),
+        body: SingleChildScrollView(
+          controller: _scrollController,
+          physics: const ClampingScrollPhysics(),
+          padding:
+              EdgeInsets.fromLTRB(20 * scale, 24 * scale, 20 * scale, 40 * scale),
+          child: AnimatedSwitcher(
+            key: Key('step_$_currentStep'),
+            duration: const Duration(milliseconds: 300),
+            child: _buildCurrentStep(cs),
+          ),
         ),
       ),
     );
@@ -326,7 +369,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                       gradient: context.sporto.primaryGradient,
                       filled: true,
                       height: 48,
-                      onTap: () => setState(() => _currentStep = 1))),
+                      onTap: () => _goToStep(1))),
             ],
           ),
         ),
@@ -608,7 +651,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
             label: 'Continue',
             onPressed: () {
               if (_validateTournamentDetailsFields()) {
-                setState(() => _currentStep = 3);
+                _goToStep(3);
               }
             }),
       ],
@@ -774,7 +817,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
               width: 270 * context.sportoScale,
               height: 48 * context.sportoScale,
               label: 'Continue',
-              onPressed: () => setState(() => _currentStep = 2)),
+              onPressed: () => _goToStep(2)),
         ),
       ],
     );
@@ -913,113 +956,185 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
         ),
         const SizedBox(height: 24),
 
-        // Tournament Format Section
-        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text('Tournament Format',
-                style: TextStyle(
-                    color: cs.onSurface,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600)),
-            Text('Single Venue',
-                style: TextStyle(color: cs.secondary, fontSize: 13)),
-          ]),
-          TextButton(
-              onPressed: () {},
-              child: Text('Change Venue ∨',
-                  style: TextStyle(color: cs.onTertiary, fontSize: 13))),
-        ]),
+        // Tournament Venues Section Header
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Tournament Venues',
+              style: TextStyle(
+                color: cs.onSurface,
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              _venues.length > 1
+                  ? 'Multi-Venue (${_venues.length} Venues)'
+                  : (_venues.length == 1
+                      ? 'Single Venue'
+                      : 'No Venues Selected'),
+              style: TextStyle(color: cs.secondary, fontSize: 13),
+            ),
+          ],
+        ),
         const SizedBox(height: 16),
 
-        // Venue List
-        ..._venues.asMap().entries.map((entry) => Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: SportoCard(
+        // Venue List & Empty State
+        if (_venues.isEmpty) ...[
+          SportoCard(
+            child: Column(
+              children: [
+                const SizedBox(height: 12),
+                Icon(Icons.location_off_rounded,
+                    size: 44, color: cs.onSurfaceVariant.withOpacity(0.6)),
+                const SizedBox(height: 12),
+                Text(
+                  'No Venues Added Yet',
+                  style: TextStyle(
+                      color: cs.onSurface,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Add at least one venue for your tournament matches.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13),
+                ),
+                const SizedBox(height: 20),
+                PrimaryButton(
+                  width: double.infinity,
+                  height: 48,
+                  label: 'Add Venue',
+                  onPressed: () => _showVenueModal(context),
+                ),
+                const SizedBox(height: 8),
+              ],
+            ),
+          ),
+        ] else ...[
+          ..._venues.asMap().entries.map((entry) {
+            final index = entry.key;
+            final venue = entry.value;
+            final displayName =
+                venue['name']?.toString().trim().isNotEmpty == true
+                    ? venue['name'].toString().trim()
+                    : 'Venue ${index + 1}';
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: SportoCard(
                 child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                  Text(entry.value['name'],
-                      style: TextStyle(
-                          color: cs.onTertiary,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600)),
-                  const SizedBox(height: 8),
-                  Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            displayName,
+                            style: TextStyle(
+                              color: cs.onTertiary,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.delete_outline_rounded,
+                              color: cs.error, size: 20),
+                          onPressed: () {
+                            setState(() => _venues.removeAt(index));
+                          },
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(_venueRoundLabelFor(entry.key),
-                                  style: TextStyle(
-                                      color: cs.onSurface,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500)),
-                              Text(_venueMatchesLabelFor(entry.key),
-                                  style: TextStyle(
-                                      color: cs.onSurfaceVariant,
-                                      fontSize: 12)),
-                            ]),
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(_venueRoundLabelFor(index),
+                                style: TextStyle(
+                                    color: cs.onSurface,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500)),
+                            Text(_venueMatchesLabelFor(index),
+                                style: TextStyle(
+                                    color: cs.onSurfaceVariant, fontSize: 12)),
+                          ],
+                        ),
                         TextButton(
-                            key: const Key('add_venue_details'),
-                            onPressed: () => _showVenueModal(
-                                context, entry.value['name'].toString()),
-                            child:
-                                Row(mainAxisSize: MainAxisSize.min, children: [
-                              Text('Add Venue Details',
+                          key: const Key('add_venue_details'),
+                          onPressed: () =>
+                              _showVenueModal(context, venueIndex: index),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text('Edit Details',
                                   style: TextStyle(
                                       color: cs.tertiary,
                                       fontSize: 13,
                                       fontWeight: FontWeight.w600)),
-                              const SizedBox(width: 5),
+                              const SizedBox(width: 4),
                               Icon(Icons.arrow_forward_ios_rounded,
-                                  color: cs.tertiary, size: 13),
-                            ])),
-                      ]),
-                ])))),
-
-        // Add Another Venue Button
-        Align(
-          alignment: Alignment.centerRight,
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: () {
-                final venueName = 'Venue ${_venues.length + 1}';
-                setState(() {
-                  _venues.add({
-                    'name': venueName,
-                  });
-                });
-                _showVenueModal(context, venueName);
-              },
-              borderRadius: BorderRadius.circular(20),
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: BoxDecoration(
-                    border: Border.all(
-                        color: cs.onTertiary.withOpacity(0.5),
-                        style: BorderStyle.solid),
-                    borderRadius: BorderRadius.circular(20)),
-                child: Row(mainAxisSize: MainAxisSize.min, children: [
-                  Icon(Icons.add, color: cs.onTertiary, size: 16),
-                  const SizedBox(width: 4),
-                  Text('Add another venue',
-                      style: TextStyle(color: cs.onTertiary, fontSize: 12))
-                ]),
+                                  color: cs.tertiary, size: 12),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }),
+          const SizedBox(height: 4),
+          Align(
+            alignment: Alignment.centerRight,
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () => _showVenueModal(context),
+                borderRadius: BorderRadius.circular(20),
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                      border: Border.all(
+                          color: cs.onTertiary.withOpacity(0.5),
+                          style: BorderStyle.solid),
+                      borderRadius: BorderRadius.circular(20)),
+                  child: Row(mainAxisSize: MainAxisSize.min, children: [
+                    Icon(Icons.add, color: cs.onTertiary, size: 16),
+                    const SizedBox(width: 4),
+                    Text('Add another venue',
+                        style: TextStyle(color: cs.onTertiary, fontSize: 12))
+                  ]),
+                ),
               ),
             ),
           ),
-        ),
-        const SizedBox(height: 32),
+        ],
+        const SizedBox(height: 24),
         PrimaryButton(
             width: double.infinity,
             height: 56,
             label: 'Continue',
             onPressed: () {
-              if (_validateVenueFields()) {
-                setState(() => _currentStep = 4);
+              if (_venues.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Please add at least one venue to continue.'),
+                    backgroundColor: Colors.redAccent,
+                  ),
+                );
+                _showVenueModal(context);
+              } else {
+                _goToStep(4);
               }
             }),
       ],
@@ -1027,8 +1142,23 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
   }
 
   // VENUE MODAL
-  void _showVenueModal(BuildContext context, String venueName) {
+  void _showVenueModal(BuildContext context, {int? venueIndex}) {
     final cs = Theme.of(context).colorScheme;
+    if (venueIndex != null && venueIndex < _venues.length) {
+      final v = _venues[venueIndex];
+      _venueNameCtrl.text = v['name']?.toString() ?? '';
+      _locationCtrl.text = v['location']?.toString() ?? '';
+      _capacityCtrl.text = v['capacity']?.toString() ?? '';
+      _venueDateCtrl.text = v['date']?.toString() ?? '';
+      _venueStartTimeCtrl.text = v['start_time']?.toString() ?? '';
+    } else {
+      _venueNameCtrl.clear();
+      _locationCtrl.clear();
+      _capacityCtrl.clear();
+      _venueDateCtrl.clear();
+      _venueStartTimeCtrl.clear();
+    }
+
     showModalBottomSheet(
         context: context,
         isScrollControlled: true,
@@ -1057,13 +1187,18 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        Text(venueName,
+                                        Text(
+                                            _venueNameCtrl.text.trim().isNotEmpty
+                                                ? _venueNameCtrl.text.trim()
+                                                : (venueIndex != null
+                                                    ? 'Edit Venue'
+                                                    : 'Add Venue Details'),
                                             style: TextStyle(
                                                 color: cs.onTertiary,
                                                 fontSize: 20,
                                                 fontWeight: FontWeight.w600)),
                                         Text(
-                                            '${_venueRoundLabelFor(0)} • ${_venueMatchesLabelFor(0)}',
+                                            '${_venueRoundLabelFor(venueIndex ?? _venues.length)} • ${_venueMatchesLabelFor(venueIndex ?? _venues.length)}',
                                             style: TextStyle(
                                                 color: cs.onSurfaceVariant,
                                                 fontSize: 13)),
@@ -1076,7 +1211,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                             const SizedBox(height: 24),
                             SportoTextField(
                                 label: 'Venue Name',
-                                hint: 'e.g. hyderabad ground',
+                                hint: 'e.g. Hyderabad Cricket Ground',
                                 controller: _venueNameCtrl,
                                 errorText: _fieldErrors['venueName'],
                                 onChanged: (_) {
@@ -1086,7 +1221,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                             const SizedBox(height: 20),
                             SportoTextField(
                                 label: 'Location',
-                                hint: 'e.g. Kondapur, hyderabad',
+                                hint: 'e.g. Kondapur, Hyderabad',
                                 controller: _locationCtrl,
                                 errorText: _fieldErrors['location'],
                                 onChanged: (_) {
@@ -1173,35 +1308,38 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                                       })),
                             ]),
                             const SizedBox(height: 32),
-                            Row(
-                              children: [
-                                Expanded(
-                                    child: SecondaryButton(
-                                        label: 'Save',
-                                        onPressed: () {
-                                          if (_validateVenueFields()) {
-                                            Navigator.pop(ctx);
-                                          } else {
-                                            sheetSetState(() {});
-                                          }
-                                        })),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  flex: 2,
-                                  child: PrimaryButton(
-                                      width: double.infinity,
-                                      height: 56,
-                                      label: 'Save & Add Next',
-                                      onPressed: () {
-                                        if (_validateVenueFields()) {
-                                          Navigator.pop(ctx);
-                                        } else {
-                                          sheetSetState(() {});
-                                        }
-                                      }),
-                                ),
-                              ],
-                            ),
+                            PrimaryButton(
+                                width: double.infinity,
+                                height: 56,
+                                label: 'Save Venue',
+                                onPressed: () {
+                                  if (_validateVenueFields()) {
+                                    final name = _venueNameCtrl
+                                            .text
+                                            .trim()
+                                            .isNotEmpty
+                                        ? _venueNameCtrl.text.trim()
+                                        : 'Venue ${(venueIndex ?? _venues.length) + 1}';
+                                    final vData = {
+                                      'name': name,
+                                      'location': _locationCtrl.text.trim(),
+                                      'capacity': _capacityCtrl.text.trim(),
+                                      'date': _venueDateCtrl.text.trim(),
+                                      'start_time': _venueStartTimeCtrl.text.trim(),
+                                    };
+                                    setState(() {
+                                      final idx = venueIndex;
+                                      if (idx != null && idx < _venues.length) {
+                                        _venues[idx] = vData;
+                                      } else {
+                                        _venues.add(vData);
+                                      }
+                                    });
+                                    Navigator.pop(ctx);
+                                  } else {
+                                    sheetSetState(() {});
+                                  }
+                                }),
                           ]),
                     ),
                   ),
@@ -1434,24 +1572,75 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                   fontSize: 14,
                   fontWeight: FontWeight.w600)),
           const SizedBox(height: 12),
-          SportoTextField(
-              label: 'Prize 1',
-              hint: 'e.g. ₹20,000',
-              controller: _audiencePrizeCtrl,
-              keyboardType: TextInputType.number,
-              inputFormatters: [
-                FilteringTextInputFormatter.digitsOnly,
+          for (var i = 0; i < _audiencePrizeCtrls.length; i++) ...[
+            if (i > 0) const SizedBox(height: 12),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Expanded(
+                  child: SportoTextField(
+                      label: 'Prize ${i + 1}',
+                      hint: 'e.g. ₹20,000',
+                      controller: _audiencePrizeCtrls[i],
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                      ],
+                      errorText: i == 0 ? _fieldErrors['audiencePrize'] : null,
+                      onChanged: (_) => _clearFieldError('audiencePrize')),
+                ),
+                if (i > 0) ...[
+                  const SizedBox(width: 8),
+                  IconButton(
+                    icon: Icon(Icons.delete_outline_rounded,
+                        color: cs.error, size: 22),
+                    onPressed: () {
+                      setState(() {
+                        _audiencePrizeCtrls[i].dispose();
+                        _audiencePrizeCtrls.removeAt(i);
+                      });
+                    },
+                  ),
+                ],
               ],
-              errorText: _fieldErrors['audiencePrize'],
-              onChanged: (_) => _clearFieldError('audiencePrize')),
-          const SizedBox(height: 12),
+            ),
+          ],
+          const SizedBox(height: 14),
           Align(
-              alignment: Alignment.centerRight,
-              child: TextButton.icon(
-                  onPressed: () {},
-                  icon: Icon(Icons.add, color: cs.onTertiary),
-                  label: Text('Add more',
-                      style: TextStyle(color: cs.onTertiary)))),
+            alignment: Alignment.centerRight,
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () {
+                setState(() {
+                  _audiencePrizeCtrls.add(TextEditingController());
+                });
+              },
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                decoration: BoxDecoration(
+                  color: cs.secondary.withOpacity(0.12),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: cs.secondary.withOpacity(0.4)),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.add_rounded, color: cs.secondary, size: 18),
+                    const SizedBox(width: 6),
+                    Text(
+                      'Add More',
+                      style: TextStyle(
+                        color: cs.secondary,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
         ])),
         const SizedBox(height: 16),
 
@@ -1486,7 +1675,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
             label: 'Continue',
             onPressed: () {
               if (_validateBudgetFields()) {
-                setState(() => _currentStep = 5);
+                _goToStep(5);
               }
             }),
       ],
@@ -1545,7 +1734,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
             Text('Tournament Details',
                 style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)),
             TextButton(
-                onPressed: () => setState(() => _currentStep = 2),
+                onPressed: () => _goToStep(2),
                 child: Row(mainAxisSize: MainAxisSize.min, children: [
                   Text('Edit',
                       style: TextStyle(
@@ -1586,7 +1775,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
             Text('Venue & Schedule (1 Venue)',
                 style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)),
             TextButton(
-                onPressed: () => setState(() => _currentStep = 3),
+                onPressed: () => _goToStep(3),
                 child: Row(mainAxisSize: MainAxisSize.min, children: [
                   Text('Edit',
                       style: TextStyle(
@@ -1673,7 +1862,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
           Expanded(
               child: SecondaryButton(
                   label: 'Back',
-                  onPressed: () => setState(() => _currentStep = 4))),
+                  onPressed: () => _goToStep(4))),
           const SizedBox(width: 12),
           Expanded(
               flex: 2,
@@ -1737,7 +1926,11 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
         TournamentRuleRequest(
           rules: [
             TournamentRuleValueRequest(
-              sportRuleFieldId: 1,
+              sportRuleFieldId: _selectedSportPreset == _TournamentSport.cricket
+                  ? 1
+                  : (_selectedSportPreset == _TournamentSport.badminton
+                      ? 2
+                      : 3),
               value: _selectedSportPreset == _TournamentSport.cricket
                   ? _miniOvers.toString()
                   : _playersPerTeam.toString(),
@@ -1746,35 +1939,31 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
         ),
       );
 
-      await remoteDataSource.storeTournamentVenueData(
-        draft.id,
-        TournamentVenueRequest(
-          venueId: 1,
-          venueName: _venueNameCtrl.text.trim().isEmpty
-              ? 'Main Ground'
-              : _venueNameCtrl.text.trim(),
-          notes: _locationCtrl.text.trim(),
-          location: _locationCtrl.text.trim(),
-          dailyMatchCapacity: int.tryParse(_capacityCtrl.text.trim()),
-          groundType: 'turf',
-          date: _venueDateCtrl.text.trim(),
-          startTime: _venueStartTimeCtrl.text.trim(),
-          roundName: _venueRoundLabelFor(0),
-        ),
-      );
+      for (var i = 0; i < _venues.length; i++) {
+        await remoteDataSource.storeTournamentVenueData(
+          draft.id,
+          TournamentVenueRequest(
+            venueId: i + 1,
+            venueName: _venueNameCtrl.text.trim().isEmpty
+                ? 'Venue ${i + 1}'
+                : _venueNameCtrl.text.trim(),
+            notes: _locationCtrl.text.trim(),
+            location: _locationCtrl.text.trim(),
+            dailyMatchCapacity: int.tryParse(_capacityCtrl.text.trim()),
+            groundType: 'turf',
+            date: _venueDateCtrl.text.trim(),
+            startTime: _venueStartTimeCtrl.text.trim(),
+            roundName: _venueRoundLabelFor(i),
+          ),
+        );
+      }
 
       await remoteDataSource.updateTournamentBudgetData(
         draft.id,
         TournamentBudgetRequest(
           registrationFee: int.tryParse(_entryFeeCtrl.text.trim()) ?? 0,
           currency: 'INR',
-          prizes: [
-            TournamentPrizeRequest(
-              title: 'Winner',
-              amount: int.tryParse(_winnerPrizeCtrl.text.trim()) ?? 0,
-              category: 'winner',
-            ),
-          ],
+          prizes: _buildPrizesList(),
           sponsors: const [],
         ),
       );
@@ -1793,7 +1982,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
           ),
         ),
       );
-      Navigator.pop(context);
+      Navigator.pop(context, true);
     } catch (error) {
       if (!mounted) return;
       setState(() => _submitError = _readableSubmitError(error));
@@ -1801,6 +1990,54 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
       if (!mounted) return;
       setState(() => _isSubmitting = false);
     }
+  }
+
+  List<TournamentPrizeRequest> _buildPrizesList() {
+    final prizes = <TournamentPrizeRequest>[];
+    void addPrize(String title, String text, String category) {
+      final amount = int.tryParse(text.trim());
+      if (amount != null && amount > 0) {
+        prizes.add(TournamentPrizeRequest(
+          title: title,
+          amount: amount,
+          category: category,
+        ));
+      }
+    }
+
+    addPrize('Winner', _winnerPrizeCtrl.text, 'winner');
+    addPrize('Runner-up', _runnerUpPrizeCtrl.text, 'runner_up');
+    addPrize('Semi-finalists', _semiFinalistPrizeCtrl.text, 'semi_finalist');
+    addPrize('Quarter-finalists', _quarterFinalistPrizeCtrl.text,
+        'quarter_finalist');
+    addPrize(
+        'Batsman - Most Runs', _batsmanMostRunsCtrl.text, 'batsman_most_runs');
+    addPrize('Batsman - More 4\'s', _batsmanMoreFoursCtrl.text,
+        'batsman_more_fours');
+    addPrize('Batsman - More 6\'s', _batsmanMoreSixesCtrl.text,
+        'batsman_more_sixes');
+    addPrize('Batsman - Strike Rate', _batsmanStrikeRateCtrl.text,
+        'batsman_strike_rate');
+    addPrize('Bowler - Most Wickets', _bowlerMostWicketsCtrl.text,
+        'bowler_most_wickets');
+    addPrize('Bowler - Best Economy', _bowlerBestEconomyCtrl.text,
+        'bowler_best_economy');
+    for (var i = 0; i < _audiencePrizeCtrls.length; i++) {
+      addPrize(
+        'Audience Prize ${i + 1}',
+        _audiencePrizeCtrls[i].text,
+        'audience_prize',
+      );
+    }
+
+    if (prizes.isEmpty) {
+      prizes.add(TournamentPrizeRequest(
+        title: 'Winner',
+        amount: int.tryParse(_winnerPrizeCtrl.text.trim()) ?? 0,
+        category: 'winner',
+      ));
+    }
+    return prizes;
   }
 
   String? _validateTournamentSubmission() {
@@ -1991,8 +2228,14 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
         _bowlerMostWicketsCtrl.text.trim(), 'Bowler most wickets prize');
     _validateAmountField(errors, 'bowlerBestEconomy',
         _bowlerBestEconomyCtrl.text.trim(), 'Bowler best economy prize');
-    _validateAmountField(errors, 'audiencePrize',
-        _audiencePrizeCtrl.text.trim(), 'Audience prize');
+    for (var i = 0; i < _audiencePrizeCtrls.length; i++) {
+      _validateAmountField(
+        errors,
+        i == 0 ? 'audiencePrize' : 'audiencePrize_$i',
+        _audiencePrizeCtrls[i].text.trim(),
+        'Audience prize ${i + 1}',
+      );
+    }
 
     final winnerPrize = int.tryParse(_winnerPrizeCtrl.text.trim()) ?? 0;
     final runnerPrize = int.tryParse(_runnerUpPrizeCtrl.text.trim()) ?? 0;
@@ -2255,7 +2498,14 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
 
   int get _estimatedCollection => _entryFee * _numberOfTeams;
 
-  int get _totalPrizeMoney => int.tryParse(_prizePoolCtrl.text.trim()) ?? 0;
+  int get _totalPrizeMoney {
+    final explicitPool = int.tryParse(_prizePoolCtrl.text.trim()) ?? 0;
+    var sumPrizes = 0;
+    for (final req in _buildPrizesList()) {
+      sumPrizes += req.amount;
+    }
+    return math.max(explicitPool, sumPrizes);
+  }
 
   int get _platformFee => (_estimatedCollection * 0.10).round();
 

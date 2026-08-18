@@ -103,26 +103,30 @@ class AuthRepositoryImpl implements IAuthRepository {
   @override
   Future<UserEntity> completeProfile(UserEntity updatedUser) async {
     if (updatedUser.role != SportoAppRole.partner.path) {
-      await apiClient.postJson(
-        '/v1/${updatedUser.role}/profile',
-        body: {
-          ...PartnerProfileRequest(
-            firstName: updatedUser.name.split(' ').first,
-            lastName: updatedUser.name.split(' ').skip(1).join(' '),
-            email: updatedUser.email,
-            dateOfBirth: updatedUser.dob ?? '',
-            gender: updatedUser.gender?.toLowerCase() ?? '',
-            addressLine1: '',
-            addressLine2: '',
-            city: updatedUser.city ?? '',
-            state: updatedUser.state ?? '',
-            country: '',
-            pincode: '',
-            highestQualification: '',
-            presentOccupation: '',
-          ).toJson(),
-        }..removeWhere((_, value) => value == ''),
-      );
+      try {
+        await apiClient.postJson(
+          '/v1/${updatedUser.role}/profile',
+          body: {
+            ...PartnerProfileRequest(
+              firstName: updatedUser.name.split(' ').first,
+              lastName: updatedUser.name.split(' ').skip(1).join(' '),
+              email: updatedUser.email,
+              dateOfBirth: updatedUser.dob ?? '',
+              gender: updatedUser.gender?.toLowerCase() ?? '',
+              addressLine1: '',
+              addressLine2: '',
+              city: updatedUser.city ?? '',
+              state: updatedUser.state ?? '',
+              country: '',
+              pincode: '',
+              highestQualification: '',
+              presentOccupation: '',
+            ).toJson(),
+          }..removeWhere((_, value) => value == ''),
+        );
+      } catch (_) {
+        // Local profile state persistence proceeds even if remote endpoint is unavailable
+      }
     }
     final completeUser = updatedUser.copyWith(isProfileComplete: true);
     final box = HiveService.pendingSyncBox;

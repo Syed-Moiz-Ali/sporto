@@ -28,7 +28,6 @@ class SportoApiClient {
               sendTimeout: const Duration(seconds: 20),
               headers: const {
                 'Accept': 'application/json',
-                'Content-Type': 'application/json',
               },
             )) {
     this.dio.interceptors.add(_SportoDioLogInterceptor());
@@ -86,7 +85,12 @@ class SportoApiClient {
       ..._flattenFormFields(fields),
     };
     return _request(
-        () => dio.post<Object?>(path, data: FormData.fromMap(data)));
+      () => dio.post<Object?>(
+        path,
+        data: FormData.fromMap(data),
+        options: Options(contentType: 'multipart/form-data'),
+      ),
+    );
   }
 
   Future<Map<String, dynamic>> uploadFile({
@@ -98,7 +102,13 @@ class SportoApiClient {
       'file': await MultipartFile.fromFile(filePath),
       'folder': folder,
     });
-    return _request(() => dio.post<Object?>(path, data: formData));
+    return _request(
+      () => dio.post<Object?>(
+        path,
+        data: formData,
+        options: Options(contentType: 'multipart/form-data'),
+      ),
+    );
   }
 
   Future<Map<String, dynamic>> _request(
@@ -127,21 +137,31 @@ class SportoApiClient {
 
     void write(String key, Object? value) {
       if (value == null) return;
-      if (value is Map) {
-        value.forEach((nestedKey, nestedValue) {
+      Object? actualValue = value;
+      if (actualValue is! Map &&
+          actualValue is! Iterable &&
+          actualValue is! String &&
+          actualValue is! num &&
+          actualValue is! bool) {
+        try {
+          actualValue = (actualValue as dynamic).toJson();
+        } catch (_) {}
+      }
+      if (actualValue is Map) {
+        actualValue.forEach((nestedKey, nestedValue) {
           write('$key[$nestedKey]', nestedValue);
         });
         return;
       }
-      if (value is Iterable && value is! String) {
+      if (actualValue is Iterable && actualValue is! String) {
         var index = 0;
-        for (final item in value) {
+        for (final item in actualValue) {
           write('$key[$index]', item);
           index++;
         }
         return;
       }
-      result[key] = value is bool ? (value ? 1 : 0) : value;
+      result[key] = actualValue is bool ? (actualValue ? 1 : 0) : actualValue;
     }
 
     fields.forEach(write);

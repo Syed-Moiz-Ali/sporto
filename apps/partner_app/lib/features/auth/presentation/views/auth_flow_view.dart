@@ -283,6 +283,7 @@ class _AuthFlowViewState extends State<AuthFlowView> {
         'message=${error.message}',
       );
       if (error.statusCode == 401) {
+        await AuthRepositoryImpl().logout();
         return _ServerGateResult.noSession();
       }
       final storedUser = await AuthRepositoryImpl().getCurrentUser();

@@ -114,8 +114,17 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
 
   void _verifyOtp() {
     final fullNumber = '$_countryCode${_phoneController.text.trim()}';
-    final code = _otpControllers.map((c) => c.text).join();
-    widget.onVerifyOtp(fullNumber, code.isEmpty ? '1234' : code);
+    final code = _otpControllers.map((c) => c.text.trim()).join();
+    if (code.length < 4) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Please enter all 4 digits of the OTP.'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
+      return;
+    }
+    widget.onVerifyOtp(fullNumber, code);
   }
 
   @override

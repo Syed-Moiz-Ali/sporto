@@ -306,7 +306,18 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
               width: tileWidth,
               asset: SportoAssets.addCircle,
               label: 'Create\nTournament',
-              onTap: () => context.push(AppRouter.createTournamentRoute),
+              onTap: () async {
+                final refreshed =
+                    await context.push<bool>(AppRouter.createTournamentRoute);
+                if (refreshed == true && mounted) {
+                  context
+                      .read<TournamentBloc>()
+                      .add(const LoadTournamentsEvent());
+                  context
+                      .read<PartnerApiBloc>()
+                      .add(const LoadPartnerApiBootstrapEvent());
+                }
+              },
             ),
             SizedBox(width: gap),
             SportoQuickAction(
