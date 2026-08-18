@@ -125,8 +125,14 @@ class _SportoTextFieldState extends State<SportoTextField> {
     final scale = _responsiveScale(context);
 
     return GestureDetector(
-      onTap: widget.readOnly ? widget.onTap : null,
-      behavior: HitTestBehavior.opaque,
+      onTap: () {
+        if (widget.readOnly) {
+          widget.onTap?.call();
+        } else {
+          _focusNode.requestFocus();
+        }
+      },
+      behavior: HitTestBehavior.translucent,
       child: _fieldSurface(
         context,
         height: widget.height ?? spacing.space24 * 2 * scale,
@@ -154,8 +160,14 @@ class _SportoTextFieldState extends State<SportoTextField> {
     final scale = _responsiveScale(context);
 
     return GestureDetector(
-      onTap: widget.readOnly ? widget.onTap : null,
-      behavior: HitTestBehavior.opaque,
+      onTap: () {
+        if (widget.readOnly) {
+          widget.onTap?.call();
+        } else {
+          _focusNode.requestFocus();
+        }
+      },
+      behavior: HitTestBehavior.translucent,
       child: _fieldSurface(
         context,
         constraints: BoxConstraints(minHeight: 62 * scale),

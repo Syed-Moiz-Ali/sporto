@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:core/core.dart';
 import 'package:partner_data/partner_data.dart';
 import 'package:ui_kit/ui_kit.dart';
+import '../../../partner_api/application/partner_api_bloc.dart';
 
 // ============================================================
 // MAIN WIZARD SCREEN
@@ -164,6 +166,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
     super.initState();
     _currentStep = widget.initialStep.clamp(0, _totalSteps - 1);
     _selectedSport = 'Mini Cricket - Super Over Challenge';
+    context.read<PartnerApiBloc>().add(const LoadTournamentConfigEvent());
   }
 
   @override

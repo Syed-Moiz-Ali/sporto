@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 
 import 'sporto_api_endpoints.dart';
 
@@ -210,8 +209,6 @@ class _SportoDioLogInterceptor extends Interceptor {
   }
 
   static void _log(String message) {
-    if (kDebugMode) {
-      debugPrint('[SportoApi] $message');
-    }
+    print('[SportoApi] $message');
   }
 }

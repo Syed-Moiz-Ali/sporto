@@ -26,7 +26,6 @@ class AuthFlowView extends StatefulWidget {
 class _AuthFlowViewState extends State<AuthFlowView> {
   bool _splashFinished = false;
   Future<_ServerGateResult>? _serverGateFuture;
-  String? _serverGateKey;
   late final PartnerRemoteDataSource _partnerRemoteDataSource =
       PartnerRemoteDataSource(
     apiClient: SportoApiClient(tokenProvider: AuthSessionStore().getToken),
@@ -55,7 +54,15 @@ class _AuthFlowViewState extends State<AuthFlowView> {
 
     return BlocConsumer<AuthBloc, AuthState>(
       listener: (context, state) {
+        print('[SportoApi] AUTH_FLOW state transition -> ${state.runtimeType}');
+        if (state is AuthenticatedState ||
+            state is NeedsOnboardingState ||
+            state is UnauthenticatedState) {
+          _permissionSetupBypassed = false;
+          _refreshServerGate();
+        }
         if (state is AuthErrorState) {
+          print('[SportoApi] AUTH_FLOW error: ${state.message}');
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
                 content: Text(state.message),
@@ -210,30 +217,26 @@ class _AuthFlowViewState extends State<AuthFlowView> {
   }
 
   Future<_ServerGateResult> _getServerGateFuture(String gateKey) {
-    if (_serverGateFuture == null || _serverGateKey != gateKey) {
-      _serverGateKey = gateKey;
-      _serverGateFuture = _checkServerTokenGate();
-    }
+    _serverGateFuture ??= _checkServerTokenGate();
     return _serverGateFuture!;
   }
 
   void _refreshServerGate() {
     setState(() {
-      _serverGateKey = null;
       _serverGateFuture = null;
     });
   }
 
   Future<_ServerGateResult> _checkServerTokenGate() async {
-    debugPrint('[SportoApi] SPLASH_GATE started partner profile check');
+    print('[SportoApi] SPLASH_GATE started partner profile check');
     final token = await AuthSessionStore().getToken();
     if (token == null || token.isEmpty) {
-      debugPrint('[SportoApi] SPLASH_GATE no stored token, showing login');
+      print('[SportoApi] SPLASH_GATE no stored token, showing login');
       return _ServerGateResult.noSession();
     }
 
     try {
-      debugPrint('[SportoApi] SPLASH_GATE stored token found, hitting profile');
+      print('[SportoApi] SPLASH_GATE stored token found, hitting profile');
       final profile = await _partnerRemoteDataSource.getProfileData();
       final application = await _tryGetApplicationForGate('SPLASH_GATE');
       final initialStep = application == null
@@ -417,7 +420,6 @@ class _AuthFlowViewState extends State<AuthFlowView> {
       },
       onGoHome: () {
         _serverGateFuture = null;
-        _serverGateKey = null;
         context.read<AuthBloc>().add(LogoutRequestedEvent());
       },
     );

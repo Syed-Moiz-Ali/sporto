@@ -13,6 +13,19 @@ class LoadPartnerApiBootstrapEvent extends PartnerApiEvent {
   const LoadPartnerApiBootstrapEvent();
 }
 
+class LoadTournamentConfigEvent extends PartnerApiEvent {
+  final int sportId;
+  final int sportFormatId;
+
+  const LoadTournamentConfigEvent({
+    this.sportId = 1,
+    this.sportFormatId = 1,
+  });
+
+  @override
+  List<Object?> get props => [sportId, sportFormatId];
+}
+
 class RefreshPartnerProfileEvent extends PartnerApiEvent {
   const RefreshPartnerProfileEvent();
 }
@@ -83,6 +96,7 @@ class PartnerApiBloc extends Bloc<PartnerApiEvent, PartnerApiState> {
       : _remoteDataSource = remoteDataSource,
         super(const PartnerApiInitialState()) {
     on<LoadPartnerApiBootstrapEvent>(_onLoadBootstrap);
+    on<LoadTournamentConfigEvent>(_onLoadTournamentConfig);
     on<RefreshPartnerProfileEvent>(_onRefreshProfile);
   }
 
@@ -95,26 +109,59 @@ class PartnerApiBloc extends Bloc<PartnerApiEvent, PartnerApiState> {
     emit(const PartnerApiLoadingState());
     try {
       final profile = await _remoteDataSource.getProfileData();
+      final application = await _remoteDataSource.getApplicationData();
+
+      emit(PartnerApiLoadedState(
+        profile: profile,
+        availableSports: const [],
+        selectedSports: const [],
+        documents: const [],
+        application: application,
+        tournamentTypes: const [],
+        tournamentSports: const [],
+        cricketFormats: const [],
+        cricketFormConfig: const [],
+      ));
+    } catch (error) {
+      emit(PartnerApiErrorState('Failed to load partner profile: $error'));
+    }
+  }
+
+  Future<void> _onLoadTournamentConfig(
+    LoadTournamentConfigEvent event,
+    Emitter<PartnerApiState> emit,
+  ) async {
+    final current = state;
+    late final PartnerProfileResponseData profile;
+    late final PartnerApplicationStateResponse application;
+
+    if (current is PartnerApiLoadedState) {
+      profile = current.profile;
+      application = current.application;
+    } else {
+      profile = await _remoteDataSource.getProfileData();
+      application = await _remoteDataSource.getApplicationData();
+    }
+
+    try {
       final availableSports = await _remoteDataSource.getAvailableSportsData();
       final selectedSports = await _remoteDataSource.getSelectedSportsData();
-      final documents = await _remoteDataSource.getDocumentsData();
-      final application = await _remoteDataSource.getApplicationData();
       final tournamentTypes = await _remoteDataSource.getTournamentTypesData();
       final tournamentSports =
           await _remoteDataSource.getTournamentSportsData();
       final cricketFormats =
-          await _remoteDataSource.getTournamentFormatsData(1);
+          await _remoteDataSource.getTournamentFormatsData(event.sportId);
       final cricketFormConfig =
           await _remoteDataSource.getTournamentFormConfigData(
-        sportId: 1,
-        sportFormatId: 1,
+        sportId: event.sportId,
+        sportFormatId: event.sportFormatId,
       );
 
       emit(PartnerApiLoadedState(
         profile: profile,
         availableSports: availableSports,
         selectedSports: selectedSports,
-        documents: documents,
+        documents: const [],
         application: application,
         tournamentTypes: tournamentTypes,
         tournamentSports: tournamentSports,
@@ -122,7 +169,7 @@ class PartnerApiBloc extends Bloc<PartnerApiEvent, PartnerApiState> {
         cricketFormConfig: cricketFormConfig,
       ));
     } catch (error) {
-      emit(PartnerApiErrorState('Failed to load partner APIs: $error'));
+      // Keep existing state if loading tournament config fails
     }
   }
 
