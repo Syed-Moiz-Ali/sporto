@@ -12,10 +12,26 @@ enum SportoCricketMatchState {
 
 class SportoCricketMatchCard extends StatelessWidget {
   final SportoCricketMatchState state;
+  final String? tournamentName;
+  final String? locationName;
+  final String? stageName;
+  final String? teamALabel;
+  final String? teamBLabel;
+  final String? statusLabel;
+  final String? timeLabel;
+  final VoidCallback? onTap;
 
   const SportoCricketMatchCard({
     super.key,
     required this.state,
+    this.tournamentName,
+    this.locationName,
+    this.stageName,
+    this.teamALabel,
+    this.teamBLabel,
+    this.statusLabel,
+    this.timeLabel,
+    this.onTap,
   });
 
   @override
@@ -24,46 +40,49 @@ class SportoCricketMatchCard extends StatelessWidget {
 
     final isLive = state == SportoCricketMatchState.live;
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: isLive ? null : sporto.cardElevated,
-        gradient: isLive
-            ? LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  sporto.liveCardStart,
-                  sporto.liveCardEnd,
-                ],
-              )
-            : null,
-        borderRadius: BorderRadius.circular(16),
-        border: isLive
-            ? Border.all(
-                color: const Color(0xFF7B2A16).withValues(
-                  alpha: .72,
-                ),
-                width: 1,
-              )
-            : null,
-        boxShadow: isLive
-            ? const [
-                BoxShadow(
-                  color: Color(0x24000000),
-                  blurRadius: 18,
-                  offset: Offset(0, 6),
-                ),
-              ]
-            : null,
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: isLive ? null : sporto.cardElevated,
+          gradient: isLive
+              ? LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    sporto.liveCardStart,
+                    sporto.liveCardEnd,
+                  ],
+                )
+              : null,
+          borderRadius: BorderRadius.circular(16),
+          border: isLive
+              ? Border.all(
+                  color: const Color(0xFF7B2A16).withValues(
+                    alpha: .72,
+                  ),
+                  width: 1,
+                )
+              : null,
+          boxShadow: isLive
+              ? const [
+                  BoxShadow(
+                    color: Color(0x24000000),
+                    blurRadius: 18,
+                    offset: Offset(0, 6),
+                  ),
+                ]
+              : null,
+        ),
+        child: switch (state) {
+          SportoCricketMatchState.live => _live(context),
+          SportoCricketMatchState.upcoming => _upcoming(context),
+          SportoCricketMatchState.completed => _completed(context),
+          SportoCricketMatchState.delayed => _delayed(context),
+        },
       ),
-      child: switch (state) {
-        SportoCricketMatchState.live => _live(context),
-        SportoCricketMatchState.upcoming => _upcoming(context),
-        SportoCricketMatchState.completed => _completed(context),
-        SportoCricketMatchState.delayed => _delayed(context),
-      },
     );
   }
 
@@ -82,7 +101,7 @@ class SportoCricketMatchCard extends StatelessWidget {
           children: [
             _badge(
               context,
-              'Final',
+              stageName ?? 'Final',
               sporto.assigned,
               filled: true,
               solidFill: true,
@@ -92,7 +111,7 @@ class SportoCricketMatchCard extends StatelessWidget {
             const Spacer(),
             _badge(
               context,
-              'Over - 2.1',
+              statusLabel ?? 'Over - 2.1',
               cs.onSurface,
               filled: true,
             ),
@@ -100,7 +119,7 @@ class SportoCricketMatchCard extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          'Jaipur Super Over',
+          tournamentName ?? 'Jaipur Super Over',
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 color: cs.tertiary,
                 fontSize: 16,
@@ -111,9 +130,9 @@ class SportoCricketMatchCard extends StatelessWidget {
         const SizedBox(height: 7),
         _teams(
           context,
-          left: 'Thunder Titans',
+          left: teamALabel ?? 'Thunder Titans',
           leftScore: '28/1',
-          right: 'Royal Strikers',
+          right: teamBLabel ?? 'Royal Strikers',
           rightScore: 'Yet to Bat',
         ),
         const SizedBox(height: 7),
@@ -175,9 +194,9 @@ class SportoCricketMatchCard extends StatelessWidget {
       children: [
         _header(
           context,
-          'Quarter Final',
-          'Today, 06:30 PM',
-          'Upcoming',
+          stageName ?? 'Quarter Final',
+          timeLabel ?? 'Today, 06:30 PM',
+          statusLabel ?? 'Upcoming',
           sporto.assigned,
           sporto.upcoming,
         ),
@@ -186,8 +205,8 @@ class SportoCricketMatchCard extends StatelessWidget {
         const SizedBox(height: 8),
         _teams(
           context,
-          left: 'Delhi Warriors',
-          right: 'Hyd Highlanders',
+          left: teamALabel ?? 'Delhi Warriors',
+          right: teamBLabel ?? 'Hyd Highlanders',
         ),
         const SizedBox(height: 10),
         FittedBox(
@@ -253,9 +272,9 @@ class SportoCricketMatchCard extends StatelessWidget {
       children: [
         _header(
           context,
-          'Final',
-          'Today, 10:30 AM',
-          'Completed',
+          stageName ?? 'Final',
+          timeLabel ?? 'Today, 10:30 AM',
+          statusLabel ?? 'Completed',
           sporto.assigned,
           sporto.info,
         ),
@@ -264,12 +283,13 @@ class SportoCricketMatchCard extends StatelessWidget {
         const SizedBox(height: 8),
         _teams(
           context,
-          left: 'Delhi Warriors',
+          left: teamALabel ?? 'Delhi Warriors',
           leftScore: '90/2',
-          right: 'Hyd Highlanders',
+          right: teamBLabel ?? 'Hyd Highlanders',
           rightScore: '85/3',
           leftScoreColor: sporto.assigned,
         ),
+
         const SizedBox(height: 8),
         const _DottedDivider(),
         const SizedBox(height: 7),
@@ -432,7 +452,7 @@ class SportoCricketMatchCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Asia Cup 2026',
+          tournamentName ?? 'Asia Cup 2026',
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -455,7 +475,7 @@ class SportoCricketMatchCard extends StatelessWidget {
         ),
         const SizedBox(width: 3),
         Text(
-          'Hyderabad',
+          locationName ?? 'Hyderabad',
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: cs.onSurfaceVariant,
                 fontSize: 12,
@@ -464,6 +484,7 @@ class SportoCricketMatchCard extends StatelessWidget {
       ],
     );
   }
+
 
   Widget _teams(
     BuildContext context, {

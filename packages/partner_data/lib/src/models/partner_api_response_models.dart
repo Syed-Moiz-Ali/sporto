@@ -26,6 +26,27 @@ Object? _readDocumentPath(Map json, String key) {
   return json['document_path'] ?? json['document_url'];
 }
 
+Object? _readRegisteredTeams(Map map, String key) {
+  if (map['registered_teams'] != null) return map['registered_teams'];
+  if (map['registration_summary'] is Map) {
+    return map['registration_summary']['registered_teams'];
+  }
+  return null;
+}
+
+Object? _readVenues(Map map, String key) {
+  return map['tournament_venues'] ?? map['venues'];
+}
+
+Object? _readPrizes(Map map, String key) {
+  return map['tournament_prizes'] ?? map['prizes'];
+}
+
+Object? _readSponsors(Map map, String key) {
+  return map['tournament_sponsors'] ?? map['sponsors'];
+}
+
+
 enum PartnerTournamentStatus {
   draft(1, 'Draft'),
   published(2, 'Published'),
@@ -46,6 +67,43 @@ enum PartnerTournamentStatus {
     return PartnerTournamentStatus.values.firstWhere(
       (status) => status.value == value,
       orElse: () => PartnerTournamentStatus.draft,
+    );
+  }
+}
+
+enum PartnerTournamentApprovalStatus {
+  pending(2, 'Pending Approval'),
+  approved(4, 'Approved'),
+  rejected(5, 'Rejected');
+
+  const PartnerTournamentApprovalStatus(this.value, this.label);
+
+  final int value;
+  final String label;
+
+  static PartnerTournamentApprovalStatus? fromValue(int? value) {
+    if (value == null) return null;
+    return PartnerTournamentApprovalStatus.values.firstWhere(
+      (status) => status.value == value,
+      orElse: () => PartnerTournamentApprovalStatus.pending,
+    );
+  }
+}
+
+enum PartnerTournamentVisibility {
+  public(1, 'Public'),
+  private(2, 'Private'),
+  inviteOnly(3, 'Invite Only');
+
+  const PartnerTournamentVisibility(this.value, this.label);
+
+  final int value;
+  final String label;
+
+  static PartnerTournamentVisibility fromValue(int? value) {
+    return PartnerTournamentVisibility.values.firstWhere(
+      (v) => v.value == value,
+      orElse: () => PartnerTournamentVisibility.public,
     );
   }
 }
@@ -341,19 +399,40 @@ class PartnerTournamentResponse with _$PartnerTournamentResponse {
     @JsonKey(name: 'created_at') String? createdAt,
     @JsonKey(name: 'updated_at') String? updatedAt,
     @JsonKey(name: 'deleted_at') String? deletedAt,
-    @JsonKey(name: 'tournament_venues')
+    @JsonKey(name: 'approval_status', fromJson: _nullableIntFromJson)
+    int? approvalStatus,
+    @JsonKey(
+      name: 'registered_teams',
+      readValue: _readRegisteredTeams,
+      fromJson: _nullableIntFromJson,
+    )
+    int? registeredTeams,
+    @JsonKey(name: 'total_prize_money', fromJson: _nullableStringFromJson)
+    String? totalPrizeMoney,
+    SportMasterResponse? sport,
+    @JsonKey(name: 'sport_format') SportFormatResponse? sportFormat,
+    @JsonKey(name: 'tournament_type') TournamentTypeResponse? tournamentType,
+    @JsonKey(name: 'tournament_venues', readValue: _readVenues)
     @Default([])
     List<PartnerTournamentVenueResponse> tournamentVenues,
-    @JsonKey(name: 'tournament_prizes')
+    @JsonKey(name: 'tournament_prizes', readValue: _readPrizes)
     @Default([])
     List<PartnerTournamentPrizeResponse> tournamentPrizes,
-    @JsonKey(name: 'tournament_sponsors')
+    @JsonKey(name: 'tournament_sponsors', readValue: _readSponsors)
     @Default([])
     List<PartnerTournamentSponsorResponse> tournamentSponsors,
   }) = _PartnerTournamentResponse;
 
   PartnerTournamentStatus get workflowStatus =>
       PartnerTournamentStatus.fromValue(status);
+
+  PartnerTournamentApprovalStatus? get parsedApprovalStatus =>
+      PartnerTournamentApprovalStatus.fromValue(approvalStatus);
+
+  PartnerTournamentVisibility get parsedVisibility =>
+      PartnerTournamentVisibility.fromValue(visibility);
+
+
 
   factory PartnerTournamentResponse.fromJson(Map<String, dynamic> json) =>
       _$PartnerTournamentResponseFromJson(json);
@@ -433,3 +512,37 @@ class PartnerTournamentSponsorResponse with _$PartnerTournamentSponsorResponse {
   ) =>
       _$PartnerTournamentSponsorResponseFromJson(json);
 }
+
+@freezed
+class PartnerTournamentReviewData with _$PartnerTournamentReviewData {
+  const factory PartnerTournamentReviewData({
+    required PartnerTournamentResponse tournament,
+    @JsonKey(name: 'financial_summary')
+    required PartnerFinancialSummary financialSummary,
+    @JsonKey(name: 'can_submit') required bool canSubmit,
+  }) = _PartnerTournamentReviewData;
+
+  factory PartnerTournamentReviewData.fromJson(Map<String, dynamic> json) =>
+      _$PartnerTournamentReviewDataFromJson(json);
+}
+
+@freezed
+class PartnerFinancialSummary with _$PartnerFinancialSummary {
+  const factory PartnerFinancialSummary({
+    @JsonKey(name: 'estimated_collection', fromJson: _intFromJson)
+    required int estimatedCollection,
+    @JsonKey(name: 'total_prize_money', fromJson: _stringFromJson)
+    required String totalPrizeMoney,
+    @JsonKey(name: 'platform_fee_percentage', fromJson: _intFromJson)
+    required int platformFeePercentage,
+    @JsonKey(name: 'platform_fee_amount', fromJson: _intFromJson)
+    required int platformFeeAmount,
+    @JsonKey(name: 'net_earnings', fromJson: _intFromJson)
+    required int netEarnings,
+    required String currency,
+  }) = _PartnerFinancialSummary;
+
+  factory PartnerFinancialSummary.fromJson(Map<String, dynamic> json) =>
+      _$PartnerFinancialSummaryFromJson(json);
+}
+

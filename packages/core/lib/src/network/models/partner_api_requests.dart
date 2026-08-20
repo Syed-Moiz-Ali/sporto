@@ -130,9 +130,21 @@ class TournamentDraftRequest with _$TournamentDraftRequest {
 
 @freezed
 class TournamentDetailsRequest with _$TournamentDetailsRequest {
+  @JsonSerializable(includeIfNull: false)
   const factory TournamentDetailsRequest({
-    required String name,
-    @JsonKey(name: 'registration_end_at') required String registrationEndAt,
+    String? name,
+    @JsonKey(name: 'registration_end_at') String? registrationEndAt,
+    @JsonKey(name: 'tournament_start_at') String? tournamentStartAt,
+    @JsonKey(name: 'tournament_end_at') String? tournamentEndAt,
+    @JsonKey(name: 'minimum_teams') int? minimumTeams,
+    @JsonKey(name: 'maximum_teams') int? maximumTeams,
+    int? visibility,
+    @JsonKey(name: 'contact_name') String? contactName,
+    @JsonKey(name: 'contact_email') String? contactEmail,
+    @JsonKey(name: 'contact_phone') String? contactPhone,
+    String? timezone,
+    String? code,
+    String? description,
   }) = _TournamentDetailsRequest;
 
   factory TournamentDetailsRequest.fromJson(Map<String, dynamic> json) =>

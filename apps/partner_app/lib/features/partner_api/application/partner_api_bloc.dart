@@ -2,6 +2,9 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:partner_data/partner_data.dart';
 
+// ============================================================
+// EVENTS
+// ============================================================
 abstract class PartnerApiEvent extends Equatable {
   const PartnerApiEvent();
 
@@ -30,6 +33,20 @@ class RefreshPartnerProfileEvent extends PartnerApiEvent {
   const RefreshPartnerProfileEvent();
 }
 
+/// Load (or refresh) the partner's tournament list with optional status filter.
+/// Pass [status] = null to load all tournaments.
+class LoadPartnerTournamentsEvent extends PartnerApiEvent {
+  final int? status;
+
+  const LoadPartnerTournamentsEvent({this.status});
+
+  @override
+  List<Object?> get props => [status];
+}
+
+// ============================================================
+// STATES
+// ============================================================
 abstract class PartnerApiState extends Equatable {
   const PartnerApiState();
 
@@ -56,6 +73,7 @@ class PartnerApiLoadedState extends PartnerApiState {
     required this.tournamentSports,
     required this.cricketFormats,
     required this.cricketFormConfig,
+    this.tournaments = const [],
   });
 
   final PartnerProfileResponseData profile;
@@ -68,6 +86,37 @@ class PartnerApiLoadedState extends PartnerApiState {
   final List<SportFormatResponse> cricketFormats;
   final List<TournamentFormConfigFieldResponse> cricketFormConfig;
 
+  /// All tournaments loaded from the API (across all statuses for home screen).
+  final List<PartnerTournamentResponse> tournaments;
+
+  // ── Computed helpers for the UI ──────────────────────────────────────────
+
+  /// Partner display name (first + last, falling back to mobile).
+  String get displayName {
+    final pi = profile.personalInformation;
+    final first = pi.firstName?.trim() ?? '';
+    final last = pi.lastName?.trim() ?? '';
+    final full = [first, last].where((s) => s.isNotEmpty).join(' ');
+    return full.isNotEmpty
+        ? full
+        : (pi.mobileNumber?.isNotEmpty == true ? pi.mobileNumber! : 'Partner');
+  }
+
+  String get mobileNumber =>
+      profile.personalInformation.mobileNumber ?? '';
+
+  /// Tournaments currently live (in-progress, status 6).
+  List<PartnerTournamentResponse> get liveTournaments =>
+      tournaments.where((t) => t.status == 6).toList();
+
+  /// Upcoming tournaments (published 2, registration open 3, closed 4, check-in 5).
+  List<PartnerTournamentResponse> get upcomingTournaments =>
+      tournaments.where((t) => t.status >= 2 && t.status <= 5).toList();
+
+  /// Completed tournaments.
+  List<PartnerTournamentResponse> get completedTournaments =>
+      tournaments.where((t) => t.status == 7).toList();
+
   @override
   List<Object?> get props => [
         profile,
@@ -79,6 +128,7 @@ class PartnerApiLoadedState extends PartnerApiState {
         tournamentSports,
         cricketFormats,
         cricketFormConfig,
+        tournaments,
       ];
 }
 
@@ -91,6 +141,9 @@ class PartnerApiErrorState extends PartnerApiState {
   List<Object?> get props => [message];
 }
 
+// ============================================================
+// BLOC
+// ============================================================
 class PartnerApiBloc extends Bloc<PartnerApiEvent, PartnerApiState> {
   PartnerApiBloc({required PartnerRemoteDataSource remoteDataSource})
       : _remoteDataSource = remoteDataSource,
@@ -98,6 +151,7 @@ class PartnerApiBloc extends Bloc<PartnerApiEvent, PartnerApiState> {
     on<LoadPartnerApiBootstrapEvent>(_onLoadBootstrap);
     on<LoadTournamentConfigEvent>(_onLoadTournamentConfig);
     on<RefreshPartnerProfileEvent>(_onRefreshProfile);
+    on<LoadPartnerTournamentsEvent>(_onLoadTournaments);
   }
 
   final PartnerRemoteDataSource _remoteDataSource;
@@ -111,6 +165,14 @@ class PartnerApiBloc extends Bloc<PartnerApiEvent, PartnerApiState> {
       final profile = await _remoteDataSource.getProfileData();
       final application = await _remoteDataSource.getApplicationData();
 
+      // Load all tournaments (no status filter) for home-screen stats.
+      List<PartnerTournamentResponse> tournaments = const [];
+      try {
+        tournaments = await _remoteDataSource.listTournamentsData();
+      } catch (_) {
+        // Non-fatal: home screen can still show with empty list.
+      }
+
       emit(PartnerApiLoadedState(
         profile: profile,
         availableSports: const [],
@@ -121,9 +183,10 @@ class PartnerApiBloc extends Bloc<PartnerApiEvent, PartnerApiState> {
         tournamentSports: const [],
         cricketFormats: const [],
         cricketFormConfig: const [],
+        tournaments: tournaments,
       ));
     } catch (error) {
-      emit(PartnerApiErrorState('Failed to load partner profile: $error'));
+      emit(PartnerApiErrorState('Failed to load partner data: $error'));
     }
   }
 
@@ -134,10 +197,12 @@ class PartnerApiBloc extends Bloc<PartnerApiEvent, PartnerApiState> {
     final current = state;
     late final PartnerProfileResponseData profile;
     late final PartnerApplicationStateResponse application;
+    var existingTournaments = <PartnerTournamentResponse>[];
 
     if (current is PartnerApiLoadedState) {
       profile = current.profile;
       application = current.application;
+      existingTournaments = current.tournaments;
     } else {
       profile = await _remoteDataSource.getProfileData();
       application = await _remoteDataSource.getApplicationData();
@@ -167,9 +232,10 @@ class PartnerApiBloc extends Bloc<PartnerApiEvent, PartnerApiState> {
         tournamentSports: tournamentSports,
         cricketFormats: cricketFormats,
         cricketFormConfig: cricketFormConfig,
+        tournaments: existingTournaments,
       ));
     } catch (error) {
-      // Keep existing state if loading tournament config fails
+      // Keep existing state if loading tournament config fails.
     }
   }
 
@@ -195,9 +261,38 @@ class PartnerApiBloc extends Bloc<PartnerApiEvent, PartnerApiState> {
         tournamentSports: current.tournamentSports,
         cricketFormats: current.cricketFormats,
         cricketFormConfig: current.cricketFormConfig,
+        tournaments: current.tournaments,
       ));
     } catch (error) {
       emit(PartnerApiErrorState('Failed to refresh profile: $error'));
+    }
+  }
+
+  Future<void> _onLoadTournaments(
+    LoadPartnerTournamentsEvent event,
+    Emitter<PartnerApiState> emit,
+  ) async {
+    final current = state;
+    if (current is! PartnerApiLoadedState) return;
+
+    try {
+      final tournaments = await _remoteDataSource.listTournamentsData(
+        status: event.status,
+      );
+      emit(PartnerApiLoadedState(
+        profile: current.profile,
+        availableSports: current.availableSports,
+        selectedSports: current.selectedSports,
+        documents: current.documents,
+        application: current.application,
+        tournamentTypes: current.tournamentTypes,
+        tournamentSports: current.tournamentSports,
+        cricketFormats: current.cricketFormats,
+        cricketFormConfig: current.cricketFormConfig,
+        tournaments: tournaments,
+      ));
+    } catch (_) {
+      // Silently ignore — keep existing tournament list.
     }
   }
 }

@@ -222,6 +222,54 @@ class PartnerRemoteDataSource {
     return PartnerTournamentResponse.fromJson(_mapData(response.data));
   }
 
+  Future<SportoApiResponse> listTournaments({
+    int? status,
+    String? search,
+    int page = 1,
+    int perPage = 50,
+  }) {
+    return _get(
+      SportoApiEndpoints.partnerTournaments.drafts,
+      queryParameters: {
+        if (status != null) 'status': status,
+        if (search != null && search.isNotEmpty) 'search': search,
+        'page': page,
+        'per_page': perPage,
+      },
+    );
+  }
+
+  Future<List<PartnerTournamentResponse>> listTournamentsData({
+    int? status,
+    String? search,
+    int page = 1,
+    int perPage = 50,
+  }) async {
+    final response = await listTournaments(
+      status: status,
+      search: search,
+      page: page,
+      perPage: perPage,
+    );
+    // API may return { data: [...] } paginated or data directly as a list
+    final raw = response.data;
+    if (raw is Map) {
+      // Paginated: { current_page, data: [...], total, ... }
+      final inner = raw['data'];
+      if (inner is List) {
+        return inner
+            .whereType<Map>()
+            .map((item) =>
+                PartnerTournamentResponse.fromJson(
+                    Map<String, dynamic>.from(item)))
+            .toList();
+      }
+    }
+    return _listData(response.data)
+        .map(PartnerTournamentResponse.fromJson)
+        .toList();
+  }
+
   Future<SportoApiResponse> showTournament(Object tournamentId) {
     return _get(SportoApiEndpoints.partnerTournaments.byId(tournamentId));
   }
@@ -353,6 +401,14 @@ class PartnerRemoteDataSource {
   Future<SportoApiResponse> reviewTournament(Object tournamentId) {
     return _get(SportoApiEndpoints.partnerTournaments.review(tournamentId));
   }
+
+  Future<PartnerTournamentReviewData> reviewTournamentData(
+    Object tournamentId,
+  ) async {
+    final response = await reviewTournament(tournamentId);
+    return PartnerTournamentReviewData.fromJson(_mapData(response.data));
+  }
+
 
   Future<SportoApiResponse> submitTournament(
     Object tournamentId,

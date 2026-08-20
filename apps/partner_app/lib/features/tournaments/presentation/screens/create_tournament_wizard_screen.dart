@@ -863,14 +863,36 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
       backgroundColor: Colors.transparent,
       builder: (sheetContext) {
         final theme = Theme.of(sheetContext);
-        final options = <(_TournamentSport, String)>[
-          (_TournamentSport.cricket, 'Mini Cricket - Super Over Challenge'),
-          (_TournamentSport.badminton, 'Badminton - Challenge'),
-          (
-            _TournamentSport.football,
-            'Mini Football - Goal Shootout Challenge'
-          ),
-        ];
+        // Use real sports from API if available, else fall back to defaults
+        final apiState = context.read<PartnerApiBloc>().state;
+        final apiSports = apiState is PartnerApiLoadedState
+            ? apiState.tournamentSports
+            : <SportMasterResponse>[];
+
+        // Map API sport to preset enum for state management
+        _TournamentSport _presetForSportId(int id) {
+          switch (id) {
+            case 1:
+              return _TournamentSport.cricket;
+            case 2:
+              return _TournamentSport.football;
+            case 5:
+              return _TournamentSport.badminton;
+            default:
+              return _TournamentSport.cricket;
+          }
+        }
+
+        final options = apiSports.isNotEmpty
+            ? apiSports
+                .map((s) => (_presetForSportId(s.id), s.name, s.id))
+                .toList()
+            : <(_TournamentSport, String, int)>[
+                (_TournamentSport.cricket, 'Mini Cricket - Super Over Challenge', 1),
+                (_TournamentSport.badminton, 'Badminton - Challenge', 5),
+                (_TournamentSport.football, 'Mini Football - Goal Shootout Challenge', 2),
+              ];
+
         return Container(
           padding: const EdgeInsets.fromLTRB(20, 20, 20, 28),
           decoration: BoxDecoration(
@@ -1918,6 +1940,12 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
           name: _tournamentNameCtrl.text.trim(),
           registrationEndAt:
               '${_registrationEndDateCtrl.text.trim()} ${_registrationEndTimeCtrl.text.trim()}:00',
+          tournamentStartAt: _tournamentStartDateCtrl.text.trim().isNotEmpty
+              ? '${_tournamentStartDateCtrl.text.trim()} ${_matchStartTimeCtrl.text.trim().isNotEmpty ? '${_matchStartTimeCtrl.text.trim()}:00' : '00:00:00'}'
+              : null,
+          minimumTeams: _numberOfTeams > 0 ? _numberOfTeams : null,
+          maximumTeams: _numberOfTeams > 0 ? _numberOfTeams : null,
+          visibility: 1, // Public
         ),
       );
 
@@ -1940,19 +1968,27 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
       );
 
       for (var i = 0; i < _venues.length; i++) {
+        final venueData = _venues[i];
+        final venueName = venueData['name']?.toString().trim();
+        final location = venueData['location']?.toString().trim() ?? '';
+        final capacity =
+            int.tryParse(venueData['capacity']?.toString().trim() ?? '');
+        final date = venueData['date']?.toString().trim() ?? '';
+        final startTime = venueData['start_time']?.toString().trim() ?? '';
+
         await remoteDataSource.storeTournamentVenueData(
           draft.id,
           TournamentVenueRequest(
             venueId: i + 1,
-            venueName: _venueNameCtrl.text.trim().isEmpty
-                ? 'Venue ${i + 1}'
-                : _venueNameCtrl.text.trim(),
-            notes: _locationCtrl.text.trim(),
-            location: _locationCtrl.text.trim(),
-            dailyMatchCapacity: int.tryParse(_capacityCtrl.text.trim()),
+            venueName: (venueName?.isNotEmpty == true)
+                ? venueName!
+                : 'Venue ${i + 1}',
+            notes: location,
+            location: location,
+            dailyMatchCapacity: capacity,
             groundType: 'turf',
-            date: _venueDateCtrl.text.trim(),
-            startTime: _venueStartTimeCtrl.text.trim(),
+            date: date,
+            startTime: startTime,
             roundName: _venueRoundLabelFor(i),
           ),
         );

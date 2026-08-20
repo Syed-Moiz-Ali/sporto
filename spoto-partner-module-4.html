@@ -1,0 +1,3279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Spoto Partner Console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&family=Roboto+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0A0E12; --ink2:#12181F; --ink3:#1B232C;
+    --turf:#1E8A4C; --turf-deep:#0F5C31;
+    --amber:#F4B41A; --amber-deep:#8a6a10;
+    --live:#E23744; --line:#232C36; --dim:#7C8894;
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  body{
+    background:#000; font-family:'Inter',sans-serif; -webkit-font-smoothing:antialiased;
+  }
+  .display{ font-family:'Anton',sans-serif; letter-spacing:.02em; }
+  .mono{ font-family:'Roboto Mono',monospace; }
+  .app-wrap{ min-height:100vh; display:flex; justify-content:center; }
+  .phone{
+    width:100%; max-width:430px; min-height:100vh; background:var(--ink);
+    position:relative; padding-bottom:78px;
+  }
+  .topbar{ padding:16px 16px 4px; display:flex; align-items:center; justify-content:space-between; }
+  .brand{ font-size:10px; letter-spacing:.15em; text-transform:uppercase; color:var(--amber); font-weight:700; }
+  .h1{ color:#fff; font-size:18px; font-weight:700; }
+  .h1.big{ font-size:22px; }
+  .sub{ color:var(--dim); font-size:11px; }
+  .content{ padding:16px; padding-top:8px; }
+  .row{ display:flex; align-items:center; }
+  .between{ justify-content:space-between; }
+  .gap2{ gap:8px; } .gap3{ gap:12px; }
+  .mb2{ margin-bottom:8px; } .mb3{ margin-bottom:12px; } .mb4{ margin-bottom:16px; }
+  .mt2{ margin-top:8px; } .mt3{ margin-top:12px; } .mt4{ margin-top:16px; }
+
+  .card{
+    background:var(--ink2); border:1px solid var(--line); border-radius:16px; padding:14px;
+  }
+  .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+
+  .btn{
+    border:none; border-radius:12px; font-weight:700; font-size:12px; cursor:pointer;
+    padding:10px 14px; display:inline-flex; align-items:center; justify-content:center; gap:6px;
+  }
+  .btn-amber{ background:var(--amber); color:#1a1200; }
+  .btn-turf{ background:var(--turf); color:#fff; }
+  .btn-ghost{ background:var(--ink3); color:#fff; }
+  .btn-outline-live{ background:var(--ink3); color:var(--live); }
+  .btn-block{ width:100%; }
+  .btn-round{
+    width:36px; height:36px; border-radius:999px; display:flex; align-items:center; justify-content:center;
+    background:var(--ink2); border:none; cursor:pointer;
+  }
+  .btn-round.amber{ background:var(--amber); }
+
+  .badge{
+    display:inline-flex; align-items:center; gap:4px; font-weight:700; font-size:9px;
+    text-transform:uppercase; letter-spacing:.03em; border-radius:999px; padding:3px 8px;
+  }
+  .badge-mega{ background:rgba(244,180,26,.18); color:var(--amber); }
+  .badge-local{ background:rgba(30,138,76,.18); color:var(--turf); }
+
+  .status{ font-weight:700; font-size:9px; text-transform:uppercase; border-radius:999px; padding:3px 8px; }
+  .status-pending{ background:rgba(244,180,26,.15); color:var(--amber); }
+  .status-approved{ background:rgba(30,138,76,.15); color:var(--turf); }
+  .status-live{ background:rgba(226,55,68,.15); color:var(--live); }
+  .status-done{ background:rgba(124,136,148,.15); color:var(--dim); }
+
+  .stat-label{ font-size:10px; color:var(--dim); }
+  .stat-value{ font-size:18px; font-weight:700; color:#fff; }
+  .stat-value.amber{ color:var(--amber); }
+  .stat-value.turf{ color:var(--turf); }
+
+  .list-item{ display:flex; align-items:center; justify-content:space-between; padding:8px 0; border-top:1px solid var(--line); }
+  .list-item:first-child{ border-top:none; }
+
+  .progress{ width:100%; height:6px; border-radius:999px; background:var(--ink3); overflow:hidden; }
+  .progress > div{ height:100%; }
+
+  .bottom-nav{
+    position:fixed; bottom:0; left:0; right:0; margin:0 auto; max-width:430px;
+    background:var(--ink2); border-top:1px solid var(--line);
+    display:flex; align-items:center; justify-content:space-around; padding:10px 0;
+  }
+  .nav-item{
+    background:none; border:none; cursor:pointer; display:flex; flex-direction:column;
+    align-items:center; gap:2px; color:var(--dim); padding:2px 10px;
+  }
+  .nav-item.active{ color:var(--amber); }
+  .nav-item span{ font-size:9px; font-weight:600; }
+
+  .field-label{ font-size:11px; color:var(--dim); margin-bottom:4px; }
+  .field{
+    background:var(--ink2); border:1px solid var(--line); border-radius:12px;
+    padding:11px 12px; display:flex; align-items:center; gap:8px; color:var(--dim); font-size:12px;
+    transition:border-color .2s ease, box-shadow .2s ease;
+  }
+  .field:focus-within{ border-color:var(--amber); box-shadow:0 0 0 3px rgba(244,180,26,.12); }
+
+  .login-wrap{
+    position:fixed; inset:0; max-width:430px; margin:0 auto; z-index:50; overflow-y:auto;
+    background:radial-gradient(circle at 15% -5%, rgba(30,138,76,.16) 0%, transparent 45%),
+               radial-gradient(circle at 100% 0%, rgba(244,180,26,.14) 0%, transparent 40%),
+               var(--ink);
+    padding:60px 24px 32px;
+  }
+  .login-crest{
+    width:56px; height:56px; border-radius:16px; display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(155deg, var(--amber), #B8830E); box-shadow:0 14px 30px rgba(244,180,26,.28);
+    margin-bottom:16px; animation:splashPop .5s cubic-bezier(.22,1,.36,1) both;
+  }
+  .trust-strip{
+    display:flex; align-items:center; gap:8px; margin-top:26px; padding:10px 12px; border-radius:12px;
+    background:rgba(30,138,76,.08); border:1px solid rgba(30,138,76,.25);
+  }
+
+  .stepper{ display:flex; align-items:center; gap:4px; padding:0 16px; margin-bottom:16px; }
+  .step-dot{
+    width:24px; height:24px; border-radius:999px; display:flex; align-items:center; justify-content:center;
+    font-size:10px; font-weight:700; background:var(--ink3); color:var(--dim); flex-shrink:0;
+  }
+  .step-dot.active{ background:var(--amber); color:#1a1200; }
+  .step-line{ flex:1; height:2px; background:var(--ink3); }
+  .step-line.active{ background:var(--amber); }
+
+  .sticky-footer{
+    position:fixed; bottom:0; left:0; right:0; margin:0 auto; max-width:430px;
+    background:var(--ink); border-top:1px solid var(--line); padding:16px; display:flex; gap:12px;
+  }
+
+  .tier-select{
+    border-radius:16px; padding:16px; text-align:left; cursor:pointer; border:1px solid var(--line); background:var(--ink2);
+  }
+  .tier-select.sel-local{ background:rgba(30,138,76,.15); border-color:var(--turf); }
+  .tier-select.sel-mega{ background:rgba(244,180,26,.15); border-color:var(--amber); }
+
+  .venue-row .field{ flex:1; padding:0 12px; }
+  .venue-input{
+    background:transparent; border:none; outline:none; color:#fff; font-size:12px;
+    flex:1; padding:11px 0; font-family:'Inter',sans-serif;
+  }
+  .venue-input::placeholder{ color:var(--dim); }
+  .remove-venue{
+    width:34px; height:34px; border-radius:10px; background:var(--ink3); border:none;
+    display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--live); flex-shrink:0;
+  }
+
+  .avatar{
+    width:36px; height:36px; border-radius:999px; background:var(--ink3); color:#fff;
+    display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700;
+  }
+
+  .icon{ width:16px; height:16px; flex-shrink:0; }
+  .fade-in{ animation:fadeIn .25s ease; }
+  @keyframes fadeIn{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+
+  /* ===== Splash & Onboarding ===== */
+  .splash{
+    position:fixed; inset:0; max-width:430px; margin:0 auto; z-index:50;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    background:radial-gradient(circle at 50% 30%, #16210f 0%, var(--ink) 65%);
+    overflow:hidden; text-align:center; padding:32px;
+  }
+  .splash::before, .splash::after{
+    content:''; position:absolute; border-radius:999px; filter:blur(2px); opacity:.18;
+  }
+  .splash::before{ width:280px; height:280px; background:var(--turf); top:-90px; left:-70px; }
+  .splash::after{ width:220px; height:220px; background:var(--amber); bottom:-80px; right:-60px; }
+  .splash-crest{
+    width:84px; height:84px; border-radius:22px; display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(155deg, var(--amber), #B8830E);
+    box-shadow:0 0 0 1px rgba(244,180,26,.35), 0 18px 40px rgba(244,180,26,.25);
+    animation:splashPop .7s cubic-bezier(.22,1,.36,1) both;
+    position:relative; z-index:1;
+  }
+  .splash-word{
+    font-family:'Anton',sans-serif; letter-spacing:.03em; color:#fff; font-size:30px;
+    margin-top:20px; opacity:0; animation:splashRise .6s ease .35s forwards; position:relative; z-index:1;
+  }
+  .splash-word span{ color:var(--amber); }
+  .splash-tag{
+    font-size:11px; letter-spacing:.22em; text-transform:uppercase; color:var(--dim); margin-top:8px;
+    opacity:0; animation:splashRise .6s ease .55s forwards; position:relative; z-index:1;
+  }
+  .splash-loader{
+    margin-top:44px; display:flex; gap:6px; opacity:0; animation:splashRise .6s ease .8s forwards; position:relative; z-index:1;
+  }
+  .splash-loader span{
+    width:7px; height:7px; border-radius:999px; background:var(--turf); animation:splashDot 1.1s ease infinite;
+  }
+  .splash-loader span:nth-child(2){ animation-delay:.15s; background:var(--amber); }
+  .splash-loader span:nth-child(3){ animation-delay:.3s; background:#5B8DEF; }
+  @keyframes splashPop{ 0%{opacity:0; transform:scale(.5) rotate(-8deg);} 100%{opacity:1; transform:scale(1) rotate(0);} }
+  @keyframes splashRise{ from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
+  @keyframes splashDot{ 0%,80%,100%{transform:scale(.6); opacity:.4;} 40%{transform:scale(1); opacity:1;} }
+  @keyframes transitionGlow{ 0%,100%{box-shadow:0 0 0 1px rgba(244,180,26,.35), 0 18px 40px rgba(244,180,26,.25);} 50%{box-shadow:0 0 0 6px rgba(244,180,26,.18), 0 22px 60px rgba(244,180,26,.4);} }
+
+  .splash.onb-mode{ align-items:stretch; justify-content:flex-start; padding-top:64px; }
+  .onb-slide{ animation:fadeIn .4s ease; position:relative; z-index:1; text-align:left; width:100%; max-width:300px; }
+  .onb-progress{ display:flex; gap:8px; justify-content:center; margin-top:26px; position:relative; z-index:1; }
+  .onb-pdot{ width:8px; height:8px; border-radius:999px; border:1.5px solid var(--ink3); background:transparent; transition:all .25s ease; cursor:pointer; }
+  .onb-pdot.done{ background:var(--turf); border-color:var(--turf); }
+  .onb-pdot.active{ background:var(--amber); border-color:var(--amber); transform:scale(1.3); }
+  .splash-skip{
+    position:absolute; top:20px; right:20px; z-index:2; background:none; border:none; color:var(--dim);
+    font-size:11px; font-weight:600; cursor:pointer;
+  }
+  .onb-back{
+    position:absolute; top:16px; left:16px; z-index:2; background:var(--ink2); border:1px solid var(--line); border-radius:999px;
+    width:30px; height:30px; display:flex; align-items:center; justify-content:center; color:var(--dim); cursor:pointer;
+  }
+  .floatcard{
+    background:var(--ink2); border:1px solid var(--line); border-radius:14px; padding:9px 13px; font-size:10px; font-weight:800;
+    color:#fff; box-shadow:0 12px 26px rgba(0,0,0,.4); display:inline-flex; align-items:center; gap:5px; white-space:nowrap;
+  }
+</style>
+</head>
+<body>
+
+
+<div class="app-wrap">
+  <div class="phone">
+    <div id="content"></div>
+    <div class="bottom-nav" id="bottomNav"></div>
+  </div>
+</div>
+
+<script>
+/* ================= ICONS (inline SVG, offline-safe) ================= */
+const ic = {
+  crown: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7Z"/><path d="M5 19h14"/></svg>`,
+  pin: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>`,
+  wallet: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>`,
+  trophy: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4Z"/><path d="M17 5h3a2 2 0 0 1 0 4h-1M7 5H4a2 2 0 0 0 0 4h1"/></svg>`,
+  users: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
+  calendar: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>`,
+  check: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>`,
+  plus: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>`,
+  chevronLeft: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>`,
+  chevronRight: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>`,
+  eye: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>`,
+  userCog: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="4"/><path d="M2 21v-1a6 6 0 0 1 9-5.2"/><circle cx="18" cy="17" r="3"/><path d="M18 14v.5M18 19.5v.5M21 17h-.5M15.5 17H15M20 14.5l-.35.35M16.35 19.15l-.35.35M20 19.5l-.35-.35M16.35 14.85l-.35-.35"/></svg>`,
+  target: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>`,
+  rupee: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12M6 8h12M6 13h3a4 4 0 0 0 0-8M6 13l8 8"/></svg>`,
+  home: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/><path d="M9 22V12h6v10"/></svg>`,
+  landmark: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 22h18M4 22V9M20 22V9M3 9l9-6 9 6M8 22v-7M12 22v-7M16 22v-7"/></svg>`,
+  bell: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>`,
+  x: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>`,
+  lock: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`,
+  send: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>`,
+  building: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="1"/><path d="M9 22v-4h6v4M8 6h.01M8 10h.01M8 14h.01M16 6h.01M16 10h.01M16 14h.01"/></svg>`,
+  clock: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>`,
+  hash: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h16M4 15h16M10 3 8 21M16 3l-2 18"/></svg>`,
+  megaphone: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 18-5v12L3 13v-2Z"/><path d="M11.6 16.8a3 3 0 0 1-5.8-1.6"/></svg>`,
+  chip: `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12" rx="1"/><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"/></svg>`,
+};
+
+/* ================= MOCK DATA ================= */
+const partnerTournaments = [
+  { id:'t1', tier:'local', name:'Gachibowli Super Over Qualifier', status:'live', teams:22, maxTeams:32, date:'Aug 3', venue:'GHMC Sports Complex', matchesDone:14, totalMatches:21, entryFee:400, startsInDays:0 },
+  { id:'t2', tier:'local', name:'Hitech City Super Over Cup', status:'approved', teams:41, maxTeams:64, date:'Aug 5', venue:'HITEC Box Cricket Arena', matchesDone:0, totalMatches:63, entryFee:500, startsInDays:1 },
+  { id:'t3', tier:'mega', name:'Telangana Super Over Premier League', status:'pending', teams:186, maxTeams:256, date:'Aug 15', venue:'Hyderabad · Warangal · Nizamabad', matchesDone:0, totalMatches:255, entryFee:1500, startsInDays:11 },
+];
+
+const settlementQueue = [
+  { id:'s1', tournament:'Gachibowli Super Over Qualifier', tier:'local', collection:20000, prize:15000, fee:2000, settlement:3000, prizeStatus:'pending', status:'pending' },
+  { id:'s2', tournament:'Telangana Super Over Premier League', tier:'mega', collection:384000, prize:250000, fee:38400, settlement:95600, prizeStatus:'disbursed', status:'pending' },
+  { id:'s3', tournament:'Hitech City Super Over Cup', tier:'local', collection:32000, prize:25000, fee:3200, settlement:3800, prizeStatus:'disbursed', status:'done' },
+];
+
+const refereesList = [
+  { id:'r1', name:'Kiran Kumar', matches:34, rating:4.8, available:true },
+  { id:'r2', name:'Sandeep Rao', matches:21, rating:4.6, available:true },
+  { id:'r3', name:'Divya Sri', matches:45, rating:4.9, available:false },
+];
+
+/* ---- Monitor flow mock data (keyed by tournament id) ---- */
+const monitorData = {
+  t1: {
+    liveMatches: [
+      { id:'m1', teamA:'Ember United', teamB:'Falcons XI', scoreA:'34/2', scoreB:'—', over:'2.2', stage:'Quarter-Final 3', referee:'Kiran Kumar', venue:'GHMC Ground A', balls:['1','4','W','0','6','2','1'] },
+      { id:'m2', teamA:'Strikers XI', teamB:'Nawabs CC', scoreA:'28/1', scoreB:'22/3', over:'3.1', stage:'Quarter-Final 4', referee:'Sandeep Rao', venue:'GHMC Ground B', balls:['0','2','1','4','W','1'] },
+    ],
+    upcoming: [
+      { id:'u1', teamA:'Cyber Panthers', teamB:'Galli Kings', time:'5:15 PM', stage:'Semifinal 1', referee:'Divya Sri', checkin:'both' },
+      { id:'u2', teamA:'Winner QF3', teamB:'Winner QF4', time:'6:00 PM', stage:'Semifinal 2', referee:'Unassigned', checkin:'pending' },
+    ],
+    teamsCheckedIn: 20, teamsTotal: 22,
+    matchesDone: 14, totalMatches: 21,
+    alerts: [
+      { level:'high', text:'Semifinal 2 has no referee assigned — starts in 90 mins', action:'Assign referee' },
+      { level:'med', text:'2 teams not yet checked in (Royal CC, Turf Titans)', action:'Send reminder' },
+      { level:'low', text:'Ground B floodlight complaint logged by referee', action:'Mark resolved' },
+    ],
+  },
+  t2: {
+    liveMatches: [],
+    upcoming: [
+      { id:'u3', teamA:'All teams', teamB:'', time:'Aug 5, 9:00 AM', stage:'Round of 64 begins', referee:'6 assigned', checkin:'pending' },
+    ],
+    teamsCheckedIn: 0, teamsTotal: 41,
+    matchesDone: 0, totalMatches: 63,
+    alerts: [
+      { level:'med', text:'23 registration slots still open — closes in 20 hours', action:'Boost listing' },
+      { level:'low', text:'Venue confirmation pending from HITEC Arena', action:'Call venue' },
+    ],
+  },
+  t3: {
+    liveMatches: [],
+    upcoming: [
+      { id:'u4', teamA:'Draw ceremony', teamB:'', time:'Aug 14, 6:00 PM', stage:'Bracket reveal', referee:'—', checkin:'pending' },
+    ],
+    teamsCheckedIn: 0, teamsTotal: 186,
+    matchesDone: 0, totalMatches: 255,
+    alerts: [
+      { level:'high', text:'Tournament pending admin approval — venues locked until approved', action:'View status' },
+    ],
+  },
+};
+
+const pastTournaments = [
+  { id:'p1', tier:'local', name:'Miyapur Weekend Cup', venue:'Miyapur Community Ground', completedDate:'Jul 14', teams:24, prize:12000, winner:'Ember United', runnerUp:'Falcons XI', finalScore:'42/5 vs 38/5' },
+  { id:'p2', tier:'mega', name:'Spoto Founders Cup', venue:'6 Cities', completedDate:'Jun 28', teams:298, prize:500000, winner:'Warangal Kings', runnerUp:'Nizam Titans', finalScore:'56/5 vs 51/5' },
+  { id:'p3', tier:'local', name:'Kondapur Summer Series', venue:'Kondapur Sports Turf', completedDate:'Jun 9', teams:19, prize:15000, winner:'Strikers XI', runnerUp:'Nawabs CC', finalScore:'39/5 vs 33/5' },
+  { id:'p4', tier:'local', name:'Madhapur Mini Clash', venue:'Cyber Towers Ground', completedDate:'May 22', teams:27, prize:10000, winner:'Cyber Panthers', runnerUp:'Ember United', finalScore:'44/5 vs 40/5' },
+];
+
+const availableMegaTournaments = [
+  { id:'am1', name:'Spoto National Super Over Cup', level:'National', sponsor:'Presented by Turf Energy', prize:1000000, citiesTarget:8, citiesJoined:['Hyderabad','Bengaluru','Chennai','Pune','Nagpur','Vizag'], deadline:'Aug 10' },
+  { id:'am2', name:'Telangana Super Over Premier League', level:'State', sponsor:'Presented by CoolBreeze', prize:250000, citiesTarget:3, citiesJoined:['Hyderabad','Warangal'], deadline:'Aug 5' },
+];
+
+/* ================= MEGA TOURNAMENT MODULE DATA ================= */
+const ORG = { name:'Spoto Organiser — Hyderabad Central', id:'SPT-ORG-000045' };
+
+const megaTournaments = [
+  {
+    id:'SPT-MEGA-2026-001', name:'Spoto Mega Cricket Championship 2026', sport:'Mini Cricket · Super Over', season:'2026',
+    prize:1000000, entryFee:1000, legs:24, teamsPerLeg:32, deadline:'Sep 15, 2026',
+    revenueShare:50, championBonus:25, slotsAvailable:7, location:'Pan-India · 24 Legs',
+    qualification:'1 Team per Organiser', leg:'Hyderabad Leg 07', legVenue:'GHMC Sports Complex, Gachibowli', legDate:'Oct 4–6, 2026',
+  },
+  {
+    id:'SPT-MEGA-2026-002', name:'Spoto Mega Football Penalty Cup 2026', sport:'Mini Football · Penalty Kickout', season:'2026',
+    prize:500000, entryFee:750, legs:16, teamsPerLeg:32, deadline:'Oct 1, 2026',
+    revenueShare:50, championBonus:25, slotsAvailable:11, location:'South India · 16 Legs',
+    qualification:'1 Team per Organiser', leg:null, legVenue:null, legDate:null,
+  },
+];
+
+const megaPlayers = [
+  { name:'Rahul Kumar', id:'SPT-PLY-004581', kyc:true, role:'Captain' },
+  { name:'Arjun Reddy', id:'SPT-PLY-004582', kyc:true, role:'Batter' },
+  { name:'Vijay Kumar', id:'SPT-PLY-004583', kyc:true, role:'Bowler' },
+  { name:'Sai Teja', id:'SPT-PLY-004584', kyc:true, role:'All-rounder' },
+  { name:'Mohan Rao', id:'SPT-PLY-004585', kyc:true, role:'Batter' },
+  { name:'Kiran Varma', id:'SPT-PLY-004586', kyc:true, role:'Bowler' },
+  { name:'Naveen Goud', id:'SPT-PLY-004587', kyc:true, role:'Wicket-keeper' },
+  { name:'Suresh Patel', id:'SPT-PLY-004588', kyc:true, role:'Batter' },
+];
+
+const megaTeams = [
+  { id:'SPT-TEAM-000128', name:'Team Titans', captain:'Rahul Kumar', players:megaPlayers, paid:true, rosterLocked:true },
+  { id:'SPT-TEAM-000131', name:'Deccan Chargers XI', captain:'Imran Ali', players:megaPlayers.map((p,i)=>({ ...p, name:['Imran Ali','Farhan K.','Ravi Teja','Anil D.','Prakash M.','Venu G.','Charan S.','Uday K.'][i], id:'SPT-PLY-00'+(4601+i) })), paid:true, rosterLocked:true },
+  { id:'SPT-TEAM-000144', name:'Kukatpally Kings', captain:'Santosh Rao', players:megaPlayers.slice(0,8).map((p,i)=>({ ...p, name:['Santosh Rao','Dinesh V.','Kartik P.','Rajesh N.','Bhanu T.','Vamsi K.','Girish L.','Harsha B.'][i], id:'SPT-PLY-00'+(4621+i), kyc: i!==5 })), paid:true, rosterLocked:false },
+  { id:'SPT-TEAM-000152', name:'Nizam Riders', captain:'Akbar Shaik', players:megaPlayers.map((p,i)=>({ ...p, name:['Akbar Shaik','Salman M.','Yusuf P.','Irfan Q.','Zaheer A.','Asif R.','Wasim N.','Junaid F.'][i], id:'SPT-PLY-00'+(4641+i) })), paid:false, rosterLocked:false },
+];
+
+const megaBracket = [
+  { round:'Round of 32', matches:16, done:16 },
+  { round:'Round of 16', matches:8, done:8 },
+  { round:'Quarter Final', matches:4, done:4 },
+  { round:'Semi Final', matches:2, done:2 },
+  { round:'Final', matches:1, done:0 },
+];
+
+const megaFinalMatch = {
+  id:'FIN-01', teamA:'Team Titans', teamAId:'SPT-TEAM-000128', teamB:'Deccan Chargers XI', teamBId:'SPT-TEAM-000131',
+  scoreA:'46/3', scoreB:'41/5', referee:'Kiran Kumar', refereeId:'SPT-REF-000112', time:'Oct 6 · 5:30 PM', venue:'GHMC Sports Complex',
+};
+
+const megaJourney = [
+  { stage:'Local Knockout · Hyderabad Leg 07', status:'won' },
+  { stage:'Zonal Championship · South Zone', status:'qualified' },
+  { stage:'State Championship', status:'upcoming' },
+  { stage:'National Championship', status:'locked' },
+  { stage:'Mega Grand Final', status:'locked' },
+];
+
+const myVenues = [
+  { id:'V1', name:'Spoto Sports Arena', address:'KPHB, Hyderabad', sports:'Cricket', capacity:100, verified:true },
+  { id:'V2', name:'KPHB Cricket Ground', address:'KPHB Phase 6, Hyderabad', sports:'Cricket · Football', capacity:150, verified:true },
+  { id:'V3', name:'Gachibowli Box Arena', address:'Gachibowli, Hyderabad', sports:'Cricket', capacity:60, verified:false },
+];
+
+/* ================= STATE ================= */
+function defaultVenueStages(){
+  return [
+    { key:'roundof1024', label:'Round of 1024', emoji:'🌐', matchesInStage:512, enabled:false, venues:[{name:'',location:'',maxMatches:512,matchDate:'',matchTime:''}] },
+    { key:'roundof512', label:'Round of 512', emoji:'🎡', matchesInStage:256, enabled:false, venues:[{name:'',location:'',maxMatches:256,matchDate:'',matchTime:''}] },
+    { key:'roundof256', label:'Round of 256', emoji:'🏟️', matchesInStage:128, enabled:false, venues:[{name:'',location:'',maxMatches:128,matchDate:'',matchTime:''}] },
+    { key:'roundof128', label:'Round of 128', emoji:'🎪', matchesInStage:64, enabled:false, venues:[{name:'',location:'',maxMatches:64,matchDate:'',matchTime:''}] },
+    { key:'roundof64', label:'Round of 64', emoji:'🎫', matchesInStage:32, enabled:false, venues:[{name:'',location:'',maxMatches:32,matchDate:'',matchTime:''}] },
+    { key:'roundof32', label:'Round of 32', emoji:'🎗️', matchesInStage:16, enabled:false, venues:[{name:'',location:'',maxMatches:16,matchDate:'',matchTime:''}] },
+    { key:'quarterfinals', label:'Quarter-Finals', emoji:'🎯', matchesInStage:4, enabled:true, venues:[{name:'',location:'',maxMatches:4,matchDate:'',matchTime:''}] },
+    { key:'semifinals', label:'Semifinals', emoji:'🔥', matchesInStage:2, enabled:true, venues:[{name:'',location:'',maxMatches:2,matchDate:'',matchTime:''}] },
+    { key:'finals', label:'Final', emoji:'🏆', matchesInStage:1, enabled:true, venues:[{name:'',location:'',maxMatches:1,matchDate:'',matchTime:''}] },
+  ];
+}
+
+/* Work out which knockout rounds are needed directly from the number of teams entered. */
+function bracketStagesForTeams(teams){
+  const n = Math.max(2, Number(teams) || 0);
+  const sizes = [2,4,8,16,32,64,128,256,512,1024];
+  let bracketSize = 1024;
+  for(const s of sizes){ if(n<=s){ bracketSize = s; break; } }
+  const thresholds = { roundof1024:1024, roundof512:512, roundof256:256, roundof128:128, roundof64:64, roundof32:32, quarterfinals:8, semifinals:4, finals:2 };
+  const map = {};
+  Object.keys(thresholds).forEach(k => { map[k] = bracketSize >= thresholds[k]; });
+  return { map, bracketSize };
+}
+function applyAutoStages(){
+  const knockoutTeams = state.matchStructure === 'league' ? state.leagueAdvanceTeams : state.totalTeams;
+  const { map } = bracketStagesForTeams(knockoutTeams);
+  state.venueStages.forEach(stage => { stage.enabled = !!map[stage.key]; });
+}
+function updateTeamCount(val){
+  state.totalTeams = val;
+  applyAutoStages();
+  render();
+}
+function updateLeagueAdvance(val){
+  state.leagueAdvanceTeams = val;
+  applyAutoStages();
+  render();
+}
+
+const ballTypes = ['Tennis Ball', 'Leather Ball', 'Rubber Ball', 'Wind Ball'];
+function selectBallType(type){
+  state.matchFormat.ballType = type;
+  render();
+}
+function updateFormatField(key, val){
+  state.matchFormat[key] = val;
+}
+
+function renderMatchFormat(){
+  const f = state.matchFormat;
+  return `
+    <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:8px;">Match Format</div>
+    <div class="card mb4" style="padding:12px;">
+      <div class="field-label" style="margin-top:0;">Ball type</div>
+      <div class="row gap2 mb3" style="flex-wrap:wrap;">
+        ${ballTypes.map(bt => `
+          <button onclick="selectBallType('${bt}')" class="btn" style="background:${f.ballType===bt?'var(--amber)':'var(--ink3)'};color:${f.ballType===bt?'#1a1200':'var(--dim)'};padding:8px 12px;">${bt}</button>
+        `).join('')}
+      </div>
+
+      <div class="grid2 mb2">
+        <div>
+          <div class="field-label">Total number of overs</div>
+          <div class="field" style="background:var(--ink3);">
+            ${ic.hash}<input type="number" min="1" value="${f.overs}" oninput="updateFormatField('overs', this.value)" class="venue-input" />
+          </div>
+        </div>
+        <div>
+          <div class="field-label">Balls per over</div>
+          <div class="field" style="background:var(--ink3);">
+            ${ic.hash}<input type="number" min="1" value="${f.ballsPerOver}" oninput="updateFormatField('ballsPerOver', this.value)" class="venue-input" />
+          </div>
+        </div>
+      </div>
+
+      <div class="field-label">Players per team</div>
+      <div class="field mb2" style="background:var(--ink3);">
+        ${ic.users}<input type="number" min="1" value="${f.players}" oninput="updateFormatField('players', this.value)" class="venue-input" />
+      </div>
+
+      <div class="field-label">Match duration</div>
+      <div class="field mb2" style="background:var(--ink3);">
+        ${ic.clock}<input type="number" min="1" value="${f.duration}" oninput="updateFormatField('duration', this.value)" class="venue-input" />
+        <span style="font-size:10px;color:var(--dim);flex-shrink:0;">mins</span>
+      </div>
+
+      <div class="field-label">Buffer time between each match</div>
+      <div class="field" style="background:var(--ink3);">
+        ${ic.clock}<input type="number" min="0" value="${f.bufferTime}" oninput="updateFormatField('bufferTime', this.value)" class="venue-input" />
+        <span style="font-size:10px;color:var(--dim);flex-shrink:0;">mins</span>
+      </div>
+    </div>
+  `;
+}
+
+const state = { splashPhase:'logo', onboardIndex:0, loginStep:'phone', loginPhone:'', otpValue:'', otpSecondsLeft:30, tab:'home', overlay:null, wizardStep:0, wizardTier:'local', totalTeams:8, matchStructure:'knockout', leagueAdvanceTeams:4, venueStages:defaultVenueStages(), leagueVenues:[{name:'',location:'',maxMatches:'',matchDate:'',matchTime:''}], tournamentsTab:'active', joinMegaId:null, monitorId:null, monitorTab:'live',
+  megaScreen:'list', megaAppsTab:'approved', megaAppStep:0, megaAgreed:false, megaAppStatus:'none', megaTeamId:null, megaMatchId:null, megaFinalDone:false, megaQualified:false,
+  megaVenueStatus:'none', /* none | draft | pending | changes | approved */
+  megaRegOpen:false, megaRegClosed:false, megaFixturesReady:false, megaRefsAssigned:false, megaRoundsDone:0,
+  megaSched:{ start:'2026-09-20', end:'2026-09-21', dayStart:'08:00', dayEnd:'20:00' }, megaMatchSchedule:[], notifSeen:0,
+  joinVenueForm:{name:'',location:'',maxMatches:8,maxDuration:30,matchDate:''},
+  matchFormat:{ ballType:'Tennis Ball', overs:3, players:5, ballsPerOver:3, duration:20, bufferTime:10 },
+  prizeStages:[
+    { key:'winner', label:'Winner', emoji:'🏆', enabled:true, amount:15000, teams:1, unit:'team' },
+    { key:'runnerUp', label:'Runner Up', emoji:'🥈', enabled:true, amount:7000, teams:1, unit:'team' },
+    { key:'semifinalists', label:'Semifinalists', emoji:'🎖️', enabled:false, amount:2000, teams:2, unit:'teams' },
+    { key:'quarterfinalists', label:'Quarterfinalists', emoji:'🏅', enabled:false, amount:1000, teams:4, unit:'teams' },
+    { key:'roundOf32', label:'Round of 32', emoji:'🎗️', enabled:false, amount:500, teams:16, unit:'teams' },
+    { key:'audienceLeaderboard', label:'Top 10 Audience Leaderboard', emoji:'📊', enabled:false, amount:200, teams:10, unit:'predictors' },
+  ]
+};
+
+const statusLabel = { pending:'Pending', approved:'Approved', live:'Live', done:'Completed' };
+const initials = (n) => n.split(' ').map(w=>w[0]).join('');
+const money = (n) => '₹' + n.toLocaleString('en-IN');
+const esc = (s) => (s===undefined||s===null?'':String(s)).replace(/"/g,'&quot;');
+
+function tierBadge(tier){
+  return tier==='mega'
+    ? `<span class="badge badge-mega">${ic.crown}Mega</span>`
+    : `<span class="badge badge-local">${ic.pin}Local</span>`;
+}
+function statusChip(s){ return `<span class="status status-${s}">${statusLabel[s]}</span>`; }
+
+/* ================= NAV ================= */
+const navItems = [
+  { key:'home', icon:ic.home, label:'Home' },
+  { key:'tournaments', icon:ic.trophy, label:'Tournaments' },
+  { key:'mega', icon:ic.crown, label:'Mega' },
+  { key:'finance', icon:ic.wallet, label:'Finance' },
+  { key:'referees', icon:ic.userCog, label:'Referees' },
+];
+
+function renderNav(){
+  const nav = document.getElementById('bottomNav');
+  if(state.overlay){ nav.style.display='none'; return; }
+  nav.style.display='flex';
+  nav.innerHTML = navItems.map(it => `
+    <button class="nav-item ${state.tab===it.key?'active':''}" onclick="setTab('${it.key}')">
+      ${it.icon}
+      <span>${it.label}</span>
+    </button>
+  `).join('');
+}
+
+function setTab(t){ state.tab=t; state.overlay=null; render(); }
+function openOverlay(name){
+  state.overlay=name;
+  if(name==='create'){
+    state.wizardStep=0; state.wizardTier='local';
+    state.totalTeams=8;
+    state.matchStructure='knockout';
+    state.leagueAdvanceTeams=4;
+    state.leagueVenues=[{name:'',location:'',maxMatches:'',matchDate:'',matchTime:''}];
+    state.matchFormat={ ballType:'Tennis Ball', overs:3, players:5, ballsPerOver:3, duration:20, bufferTime:10 };
+    state.venueStages=defaultVenueStages();
+    applyAutoStages();
+    state.prizeStages=[
+      { key:'winner', label:'Winner', emoji:'🏆', enabled:true, amount:15000, teams:1, unit:'team' },
+      { key:'runnerUp', label:'Runner Up', emoji:'🥈', enabled:true, amount:7000, teams:1, unit:'team' },
+      { key:'semifinalists', label:'Semifinalists', emoji:'🎖️', enabled:false, amount:2000, teams:2, unit:'teams' },
+      { key:'quarterfinalists', label:'Quarterfinalists', emoji:'🏅', enabled:false, amount:1000, teams:4, unit:'teams' },
+      { key:'roundOf32', label:'Round of 32', emoji:'🎗️', enabled:false, amount:500, teams:16, unit:'teams' },
+      { key:'audienceLeaderboard', label:'Top 10 Audience Leaderboard', emoji:'📊', enabled:false, amount:200, teams:10, unit:'predictors' },
+    ];
+  }
+  render();
+}
+function closeOverlay(){ state.overlay=null; render(); }
+
+function openMonitor(id){
+  state.monitorId = id;
+  state.monitorTab = 'live';
+  state.overlay = 'monitor';
+  render();
+}
+function setMonitorTab(tab){ state.monitorTab = tab; render(); }
+
+function openJoinVenueForm(id){
+  state.joinMegaId = id;
+  state.joinVenueForm = {name:'',location:'',maxMatches:8,maxDuration:30,matchDate:''};
+  state.overlay = 'joinMegaVenue';
+  render();
+}
+function submitJoinRequest(){ state.overlay = 'joinMegaDone'; render(); }
+
+/* ---- Mega module navigation ---- */
+function megaGo(screen){ state.tab='mega'; state.overlay=null; state.megaScreen=screen; render(); window.scrollTo(0,0); }
+function setMegaAppsTab(t){ state.megaAppsTab=t; render(); }
+function megaApplyStart(){ state.megaAppStep=0; state.megaAgreed=false; megaGo('apply'); }
+function megaApplyNext(){
+  if(state.megaAppStep<2){ state.megaAppStep++; render(); }
+  else { state.megaAppStatus='review'; megaGo('submitted'); }
+}
+function megaToggleAgree(){ state.megaAgreed=!state.megaAgreed; render(); }
+function megaSimulateApproval(){ state.megaAppStatus='approved'; megaGo('approved'); }
+
+/* Reuse the exact same "Add Venues" system as Regular Tournament creation (knockout-stage venue cards) */
+function megaOpenVenueFlow(){
+  state.megaAppStatus='approved'; /* reaching this always implies an approved organiser slot */
+  if(state.megaVenueStatus==='none'){
+    state.totalTeams = 32;
+    state.venueStages = defaultVenueStages();
+    state.megaMatchSchedule = [];
+    applyAutoStages();
+  }
+  if(state.megaVenueStatus==='changes') state.megaVenueStatus='draft';
+  megaGo('venueSelect');
+}
+function to12h(t){
+  let [h,m] = t.split(':').map(Number);
+  const ap = h>=12 ? 'PM' : 'AM';
+  h = h % 12; if(h===0) h = 12;
+  return h+':'+String(m).padStart(2,'0')+' '+ap;
+}
+function computeMegaMatchSchedule(){
+  const schedule = [];
+  const perMatchMins = Number(state.matchFormat.duration) + Number(state.matchFormat.bufferTime);
+  state.venueStages.filter(s=>s.enabled).forEach(stage => {
+    stage.venues.filter(v=>v.name && v.name.trim()).forEach(venue => {
+      const count = Number(venue.maxMatches) || 0;
+      if(!count) return;
+      let [h,m] = (venue.matchTime || '08:00').split(':').map(Number);
+      for(let i=1; i<=count; i++){
+        const timeStr = String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');
+        schedule.push({
+          stageLabel: stage.label, stageEmoji: stage.emoji,
+          venueName: venue.name, venueLocation: venue.location,
+          date: venue.matchDate || state.megaSched.start,
+          time: to12h(timeStr),
+          matchLabel: stage.label+' · Match '+i,
+        });
+        m += perMatchMins;
+        while(m>=60){ m-=60; h++; }
+      }
+    });
+  });
+  return schedule;
+}
+
+function megaSubmitSchedule(){
+  const s = state.megaSched;
+  if(s.end < s.start){ alert('End Date must be on or after Start Date.'); return; }
+  const anyVenueFilled = state.venueStages.some(stage => stage.enabled && stage.venues.some(v => v.name && v.name.trim()));
+  if(!anyVenueFilled){ alert('Add at least one venue to a knockout round before submitting.'); return; }
+  state.megaMatchSchedule = computeMegaMatchSchedule();
+  state.megaVenueStatus='pending'; megaGo('venuePending');
+}
+function megaVenueApprove(){ state.megaVenueStatus='approved'; state.megaRegOpen=false; megaGo('venueApproved'); }
+function megaVenueRequestChanges(){ state.megaVenueStatus='changes'; render(); }
+function megaOpenRegistration(){
+  state.megaRegOpen=true;
+  if(!state.megaMatchSchedule.length) state.megaMatchSchedule = computeMegaMatchSchedule();
+  megaGo('matchSchedule');
+}
+function megaCloseRegistration(){ state.megaRegClosed=true; render(); }
+function megaGenerateFixtures(){ state.megaFixturesReady=true; megaGo('fixtures'); }
+function megaAssignAllRefs(){ state.megaRefsAssigned=true; render(); }
+function megaPlayRound(){
+  if(!state.megaRefsAssigned) return;
+  if(state.megaRoundsDone<4){ state.megaRoundsDone++; render(); }
+}
+function megaOpenTeam(id){ state.megaTeamId=id; megaGo('teamDetail'); }
+function megaVerifyFinal(){
+  state.megaFinalDone=true;
+  if(!state.megaQualified){ state.megaQualified=true; megaGo('qualified'); }
+  else { megaGo('bracket'); }
+}
+
+/* ---- Notifications (derived live from state, matches Section 24/27 event list) ---- */
+function computeNotifications(){
+  const n = [];
+  if(state.megaAppStatus!=='none') n.push({ icon:ic.send, level:'low', text:'Your application for Hyderabad Leg 07 has been submitted for Spoto Admin review.' });
+  if(state.megaAppStatus==='approved') n.push({ icon:ic.check, level:'high', text:'Congratulations! You have been approved as a Spoto Mega Tournament Organiser.' });
+  if(state.megaAppStatus==='approved' && state.megaVenueStatus==='none') n.push({ icon:ic.pin, level:'med', text:'Add your venue and schedule to proceed with Hyderabad Leg 07.' });
+  if(state.megaVenueStatus==='pending') n.push({ icon:ic.clock, level:'low', text:'Your venue and schedule have been submitted to Spoto Admin.' });
+  if(state.megaVenueStatus==='changes') n.push({ icon:ic.x, level:'high', text:'Spoto Admin has requested changes to your tournament schedule.' });
+  if(state.megaVenueStatus==='approved') n.push({ icon:ic.check, level:'high', text:'Your venue and schedule have been approved.' });
+  if(state.megaMatchSchedule.length) n.push({ icon:ic.calendar, level:'med', text:'Your Match Schedule is ready — '+state.megaMatchSchedule.length+' matches scheduled across your knockout rounds.' });
+  if(state.megaRegOpen) n.push({ icon:ic.users, level:'low', text:'Your Mega Tournament registration is now open.' });
+  if(state.megaRegClosed) n.push({ icon:ic.check, level:'low', text:'Registration closed — 32/32 teams confirmed for Hyderabad Leg 07.' });
+  if(state.megaFixturesReady) n.push({ icon:ic.trophy, level:'low', text:'Knockout fixtures have been generated for Round of 32.' });
+  if(state.megaRefsAssigned) n.push({ icon:ic.userCog, level:'low', text:'Verified Spoto Referees assigned to all Round of 32 matches.' });
+  const roundNames = ['Round of 32','Round of 16','Quarter Final','Semi Final'];
+  for(let i=0;i<state.megaRoundsDone;i++) n.push({ icon:ic.check, level:'low', text:roundNames[i]+' completed — results verified by Referee App.' });
+  if(state.megaRoundsDone>=4 && !state.megaFinalDone) n.push({ icon:ic.crown, level:'med', text:'Knockout Final is scheduled. Verify the referee result when ready.' });
+  if(state.megaFinalDone) n.push({ icon:ic.trophy, level:'high', text:'Knockout Final completed — Team Titans won the match.' });
+  if(state.megaQualified) n.push({ icon:ic.crown, level:'high', text:'Congratulations! Team Titans has qualified for the next Spoto Mega Championship stage.' });
+  if(state.megaQualified) n.push({ icon:ic.lock, level:'low', text:'Your qualifying position for this Mega Tournament is now locked 🔒.' });
+  return n.map((x,i)=>({ ...x, id:i })).reverse(); /* most recent first */
+}
+function openNotifications(){
+  state.overlay='notifications';
+  state.notifSeen = computeNotifications().length;
+  render();
+}
+
+/* ================= SCREENS ================= */
+/* ---- Home dashboard charts ---- */
+function ringChart(pct, color, size, label, sub){
+  const r = (size/2) - 7;
+  const c = 2 * Math.PI * r;
+  const dash = Math.max(0, Math.min(100, pct)) / 100 * c;
+  return `
+  <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+    <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+      <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="var(--ink3)" stroke-width="9"/>
+      <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${color}" stroke-width="9"
+        stroke-linecap="round" stroke-dasharray="${dash} ${c}"
+        transform="rotate(-90 ${size/2} ${size/2})" style="transition:stroke-dasharray .6s ease;"/>
+      <text x="${size/2}" y="${size/2 - 2}" text-anchor="middle" font-family="'Roboto Mono',monospace" font-size="${size*0.2}" font-weight="700" fill="#fff">${Math.round(pct)}%</text>
+      <text x="${size/2}" y="${size/2 + 13}" text-anchor="middle" font-family="Inter,Arial" font-size="8" fill="var(--dim)">${sub||''}</text>
+    </svg>
+    <div style="font-size:9px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.05em;text-align:center;">${label}</div>
+  </div>`;
+}
+
+function tournamentInsightCard(t){
+  const feeTarget = t.maxTeams * t.entryFee;
+  const feeCollected = t.teams * t.entryFee;
+  const feePct = feeTarget ? (feeCollected / feeTarget) * 100 : 0;
+  const teamsPct = t.maxTeams ? (t.teams / t.maxTeams) * 100 : 0;
+  const compPct = t.totalMatches ? (t.matchesDone / t.totalMatches) * 100 : 0;
+  const compColor = t.status === 'live' ? 'var(--live)' : compPct >= 100 ? 'var(--turf)' : 'var(--dim)';
+  const countdown = t.startsInDays === 0
+    ? `<span style="color:var(--live);font-weight:800;">LIVE NOW</span>`
+    : t.startsInDays === 1
+      ? `<span style="color:var(--amber);font-weight:800;">Starts tomorrow</span>`
+      : `<span style="color:#fff;font-weight:800;">${t.startsInDays}</span> <span style="color:var(--dim);">days to start</span>`;
+  return `
+  <div class="card" style="min-width:290px;flex-shrink:0;cursor:pointer;" onclick="openMonitor('${t.id}')">
+    <div class="row between mb2">
+      ${tierBadge(t.tier)}
+      <span style="font-size:10px;">${countdown}</span>
+    </div>
+    <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:12px;">${t.name}</div>
+
+    <div class="row" style="justify-content:space-around;margin-bottom:12px;">
+      ${ringChart(compPct, compColor, 78, 'Tournament', `${t.matchesDone}/${t.totalMatches} matches`)}
+      ${ringChart(teamsPct, 'var(--turf)', 78, 'Teams Enrolled', `${t.teams}/${t.maxTeams}`)}
+      ${ringChart(feePct, 'var(--amber)', 78, 'Fees Collected', `₹${(feeCollected/1000).toFixed(0)}K`)}
+    </div>
+
+    <div style="font-size:10px;color:var(--dim);margin-bottom:4px;" class="row between">
+      <span>Registration fee collected</span>
+      <span style="color:var(--amber);font-weight:700;">₹${feeCollected.toLocaleString('en-IN')} / ₹${feeTarget.toLocaleString('en-IN')}</span>
+    </div>
+    <div class="progress"><div style="width:${Math.min(100,feePct)}%;background:var(--amber);"></div></div>
+  </div>`;
+}
+
+function renderHomeInsights(){
+  return `
+  <div class="mb4">
+    <div class="row between mb2">
+      <div class="h1" style="font-size:13px;">Tournament Insights</div>
+      <span style="font-size:9px;color:var(--dim);">swipe →</span>
+    </div>
+    <div style="display:flex;gap:12px;overflow-x:auto;padding-bottom:6px;margin:0 -16px;padding-left:16px;padding-right:16px;">
+      ${partnerTournaments.map(tournamentInsightCard).join('')}
+    </div>
+    ${renderCountdownStrip()}
+    ${renderComparisonBarChart()}
+  </div>`;
+}
+
+/* Countdown strip — days for upcoming tournaments to start */
+function renderCountdownStrip(){
+  return `
+  <div class="card mb3" style="padding:12px;">
+    <div style="font-size:11px;font-weight:700;color:#fff;margin-bottom:10px;">${ic.calendar} Upcoming starts</div>
+    <div class="row" style="gap:10px;">
+      ${partnerTournaments.map(t => {
+        const isLive = t.startsInDays === 0;
+        return `
+        <div style="flex:1;text-align:center;background:var(--ink3);border-radius:12px;padding:10px 6px;border:1px solid ${isLive?'rgba(226,55,68,.4)':'var(--line)'};">
+          <div class="display" style="font-size:22px;color:${isLive?'var(--live)':t.startsInDays<=2?'var(--amber)':'#fff'};">
+            ${isLive ? '●' : t.startsInDays}
+          </div>
+          <div style="font-size:8px;font-weight:700;color:${isLive?'var(--live)':'var(--dim)'};text-transform:uppercase;letter-spacing:.04em;margin-top:2px;">
+            ${isLive ? 'Live now' : t.startsInDays===1 ? 'day to go' : 'days to go'}
+          </div>
+          <div style="font-size:8px;color:var(--dim);margin-top:4px;line-height:1.3;">${t.name.split(' ').slice(0,2).join(' ')}</div>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>`;
+}
+
+/* Grouped bar chart — enrollment % vs fees collected % vs completion % per tournament */
+function renderComparisonBarChart(){
+  const metrics = partnerTournaments.map(t => ({
+    short: t.name.split(' ').slice(0,2).join(' '),
+    teamsPct: Math.min(100, Math.round((t.teams / t.maxTeams) * 100)),
+    feePct: Math.min(100, Math.round(((t.teams * t.entryFee) / (t.maxTeams * t.entryFee)) * 100)),
+    compPct: Math.min(100, t.totalMatches ? Math.round((t.matchesDone / t.totalMatches) * 100) : 0),
+  }));
+  const CHART_H = 90;
+  return `
+  <div class="card" style="padding:12px;">
+    <div style="font-size:11px;font-weight:700;color:#fff;margin-bottom:2px;">Tournaments compared</div>
+    <div style="font-size:9px;color:var(--dim);margin-bottom:12px;">Teams enrolled · Fees collected · Matches completed (%)</div>
+    <div class="row" style="align-items:flex-end;gap:18px;height:${CHART_H+4}px;justify-content:space-around;">
+      ${metrics.map(m => `
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+          <div class="row" style="align-items:flex-end;gap:5px;height:${CHART_H}px;">
+            <div style="width:14px;border-radius:4px 4px 0 0;background:var(--turf);height:${Math.max(3, m.teamsPct*CHART_H/100)}px;" title="Teams ${m.teamsPct}%"></div>
+            <div style="width:14px;border-radius:4px 4px 0 0;background:var(--amber);height:${Math.max(3, m.feePct*CHART_H/100)}px;" title="Fees ${m.feePct}%"></div>
+            <div style="width:14px;border-radius:4px 4px 0 0;background:var(--live);height:${Math.max(3, m.compPct*CHART_H/100)}px;opacity:.85;" title="Completed ${m.compPct}%"></div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+    <div class="row" style="justify-content:space-around;margin-top:6px;">
+      ${metrics.map(m => `<div style="font-size:8px;color:var(--dim);text-align:center;max-width:80px;line-height:1.3;">${m.short}</div>`).join('')}
+    </div>
+    <div class="row" style="gap:14px;justify-content:center;margin-top:12px;padding-top:10px;border-top:1px solid var(--line);">
+      <span class="row gap2" style="font-size:8.5px;color:var(--dim);"><span style="width:8px;height:8px;border-radius:2px;background:var(--turf);display:inline-block;"></span>Teams enrolled</span>
+      <span class="row gap2" style="font-size:8.5px;color:var(--dim);"><span style="width:8px;height:8px;border-radius:2px;background:var(--amber);display:inline-block;"></span>Fees collected</span>
+      <span class="row gap2" style="font-size:8.5px;color:var(--dim);"><span style="width:8px;height:8px;border-radius:2px;background:var(--live);display:inline-block;"></span>Completed</span>
+    </div>
+  </div>`;
+}
+
+function screenHome(){
+  const live = partnerTournaments.filter(t=>t.status==='live').length;
+  const totalReg = partnerTournaments.reduce((a,t)=>a+t.teams,0);
+  return `
+  <div class="content fade-in">
+    <div class="row between mb4">
+      <div>
+        <div class="h1 big">Turf Energy Sports</div>
+        <div class="sub">Partner Dashboard</div>
+      </div>
+      <button class="btn-round amber" onclick="openOverlay('create')">${ic.plus.replace('currentColor','#1a1200')}</button>
+    </div>
+
+    <div class="grid2 mb4">
+      <div class="card"><div class="stat-label">Wallet balance</div><div class="stat-value amber display">₹1.2L</div></div>
+      <div class="card"><div class="stat-label">Live tournaments</div><div class="stat-value mono">${live}</div></div>
+      <div class="card"><div class="stat-label">Total registrations</div><div class="stat-value mono">${totalReg}</div></div>
+      <div class="card"><div class="stat-label">Pending settlement</div><div class="stat-value turf mono">₹95.6K</div></div>
+    </div>
+
+    ${renderHomeInsights()}
+
+    <div class="row between mb2">
+      <div class="h1" style="font-size:13px;">🔥 Spoto Mega Tournaments</div>
+      <button class="btn" style="background:none;color:var(--amber);padding:0;font-size:11px;" onclick="megaGo('list')">View all</button>
+    </div>
+    <div class="card mb4" style="border-color:rgba(244,180,26,.4);cursor:pointer;overflow:hidden;" onclick="megaGo('${state.megaAppStatus==='approved'?'dashboard':'list'}')">
+      <div style="height:52px;margin:-14px -14px 12px;background:linear-gradient(135deg,var(--amber-deep),var(--ink) 70%);display:flex;align-items:flex-end;padding:8px 14px;">
+        <span class="badge badge-mega">${ic.crown}Admin-run Mega</span>
+      </div>
+      <div class="display" style="font-size:14px;color:#fff;">Spoto Mega Cricket Championship 2026</div>
+      <div class="row gap3 mt2" style="font-size:10px;color:var(--dim);flex-wrap:wrap;">
+        <span>Prize <b style="color:var(--amber);">₹10L</b></span>
+        <span>Entry <b style="color:#fff;">₹1,000</b></span>
+        <span>Revenue share <b style="color:var(--turf);">50%</b></span>
+        <span>Champion bonus <b style="color:var(--turf);">25%</b></span>
+      </div>
+      <div class="row between mt3">
+        <span style="font-size:10px;color:var(--dim);">${state.megaQualified?'🏆 Team Titans qualified · 🔒 Locked':state.megaAppStatus==='approved'?(state.megaRegOpen?'Leg 07 · 🟢 Registration open':state.megaVenueStatus==='approved'?'Leg 07 · Venue approved — open registration':state.megaVenueStatus==='pending'?'Leg 07 · 🟡 Venue pending admin review':state.megaVenueStatus==='changes'?'Leg 07 · 🟠 Changes required':'Leg 07 · Add venue & schedule'):state.megaAppStatus==='review'?'Application under review':'7 organiser slots open'}</span>
+        <span style="font-size:11px;font-weight:700;color:var(--amber);">${state.megaAppStatus==='none'?'Apply to Organise →':'Open →'}</span>
+      </div>
+    </div>
+
+    <div class="row between mb2">
+      <div class="h1" style="font-size:13px;">My Tournaments</div>
+      <button class="btn" style="background:none;color:var(--amber);padding:0;font-size:11px;" onclick="setTab('tournaments')">View all</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      ${partnerTournaments.map(tournamentMiniCard).join('')}
+    </div>
+
+    <div class="card mt4 row between" style="cursor:pointer;" onclick="openTournamentsTab('past')">
+      <div class="row gap3">
+        <div class="btn-round" style="background:var(--ink3);">${ic.trophy}</div>
+        <div>
+          <div style="font-size:12px;font-weight:600;color:#fff;">Tournament History</div>
+          <div style="font-size:10px;color:var(--dim);">${pastTournaments.length} completed tournaments</div>
+        </div>
+      </div>
+      ${ic.chevronRight}
+    </div>
+  </div>`;
+}
+
+function tournamentMiniCard(t){
+  const completionPct = t.totalMatches ? Math.round((t.matchesDone / t.totalMatches) * 100) : 0;
+  const enrollPct = Math.round((t.teams / t.maxTeams) * 100);
+  const feeCollected = t.teams * t.entryFee;
+  const feeTarget = t.maxTeams * t.entryFee;
+  const feePct = Math.round((feeCollected / feeTarget) * 100);
+  const fmtMoney = (n) => n >= 100000 ? '₹' + (n/100000).toFixed(1) + 'L' : '₹' + n.toLocaleString('en-IN');
+
+  const countdown = t.status === 'live'
+    ? `<span class="row gap2" style="font-size:9px;font-weight:800;color:var(--live);">${ic.clock} LIVE NOW</span>`
+    : t.startsInDays === 0
+      ? `<span class="row gap2" style="font-size:9px;font-weight:800;color:var(--amber);">${ic.clock} STARTS TODAY</span>`
+      : `<span class="row gap2" style="font-size:9px;font-weight:800;color:var(--amber);">${ic.clock} STARTS IN ${t.startsInDays} DAY${t.startsInDays>1?'S':''}</span>`;
+
+  const bar = (label, pct, valueText, color) => `
+    <div style="margin-top:8px;">
+      <div class="row between" style="margin-bottom:3px;">
+        <span style="font-size:9px;color:var(--dim);">${label}</span>
+        <span style="font-size:9px;font-weight:700;color:#fff;">${valueText} · <span style="color:${color};">${pct}%</span></span>
+      </div>
+      <div class="progress" style="height:5px;"><div style="width:${Math.min(pct,100)}%;background:${color};"></div></div>
+    </div>`;
+
+  return `
+  <div class="card">
+    <div class="row between mb2">
+      <div class="row gap2">${tierBadge(t.tier)}${statusChip(t.status)}</div>
+      ${countdown}
+    </div>
+    <div style="font-size:12px;font-weight:600;color:#fff;">${t.name}</div>
+    <div class="row between" style="margin-top:2px;font-size:10px;color:var(--dim);">
+      <span>${t.venue}</span><span>${t.date}</span>
+    </div>
+    ${t.status==='live' ? bar('Tournament completion', completionPct, `${t.matchesDone}/${t.totalMatches} matches`, 'var(--live)') : ''}
+    ${bar('Teams enrolled', enrollPct, `${t.teams}/${t.maxTeams}`, 'var(--turf)')}
+    ${bar('Registration fee collected', feePct, `${fmtMoney(feeCollected)} of ${fmtMoney(feeTarget)}`, 'var(--amber)')}
+  </div>`;
+}
+
+function openTournamentsTab(tab){ state.tournamentsTab=tab; setTab('tournaments'); }
+
+function screenTournaments(){
+  const activeBtn = (key,label) => `
+    <button class="btn" style="background:${state.tournamentsTab===key?'var(--amber)':'var(--ink3)'};color:${state.tournamentsTab===key?'#1a1200':'var(--dim)'};" onclick="state.tournamentsTab='${key}';render();">${label}</button>`;
+
+  const activeList = `
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      ${partnerTournaments.map(t => `
+        <div class="card">
+          <div class="row between mb2">${tierBadge(t.tier)}${statusChip(t.status)}</div>
+          <div style="font-size:12px;font-weight:600;color:#fff;">${t.name}</div>
+          <div style="font-size:10px;color:var(--dim);margin-top:2px;">${t.venue}</div>
+          <div class="row between mb3" style="margin-top:4px;font-size:10px;color:var(--dim);">
+            <span>${t.teams}/${t.maxTeams} teams</span><span>${t.date}</span>
+          </div>
+          <div class="progress mb3"><div style="width:${Math.round(t.teams/t.maxTeams*100)}%;background:${t.tier==='mega'?'var(--amber)':'var(--turf)'};"></div></div>
+          <div class="row gap2">
+            <button class="btn btn-ghost" style="flex:1;" onclick="openMonitor('${t.id}')">${ic.eye} Monitor</button>
+            <button class="btn btn-ghost" style="flex:1;" onclick="setTab('referees')">${ic.userCog} Referees</button>
+          </div>
+        </div>
+      `).join('')}
+    </div>`;
+
+  const pastList = `
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      ${pastTournaments.map(t => `
+        <div class="card">
+          <div class="row between mb2">${tierBadge(t.tier)}${statusChip('done')}</div>
+          <div style="font-size:12px;font-weight:600;color:#fff;">${t.name}</div>
+          <div style="font-size:10px;color:var(--dim);margin-top:2px;">${t.venue} · Completed ${t.completedDate}</div>
+          <div class="row between mt3" style="background:var(--ink3);border-radius:10px;padding:10px 12px;">
+            <div class="row gap2">
+              <div style="color:var(--amber);">${ic.trophy}</div>
+              <div>
+                <div style="font-size:11px;font-weight:700;color:#fff;">${t.winner}</div>
+                <div style="font-size:9px;color:var(--dim);">beat ${t.runnerUp} · ${t.finalScore}</div>
+              </div>
+            </div>
+          </div>
+          <div class="row between mt3" style="font-size:10px;color:var(--dim);">
+            <span>${t.teams} teams competed</span>
+            <span style="color:var(--amber);font-weight:700;">₹${t.prize.toLocaleString()} awarded</span>
+          </div>
+          <button class="btn btn-ghost btn-block mt3">${ic.eye} View Full Report</button>
+        </div>
+      `).join('')}
+    </div>`;
+
+  return `
+  <div class="content fade-in">
+    <div class="h1 mb2">My Tournaments</div>
+    <div class="row gap2 mb4">
+      ${activeBtn('active','Active ('+partnerTournaments.length+')')}
+      ${activeBtn('past','Past History ('+pastTournaments.length+')')}
+    </div>
+    ${state.tournamentsTab==='active' ? activeList : pastList}
+  </div>`;
+}
+
+function screenFinance(){
+  return `
+  <div class="content fade-in">
+    <div class="h1 mb4">Finance</div>
+    <div class="card mb4" style="background:linear-gradient(135deg,var(--amber),#B8830E);">
+      <div style="font-size:11px;color:rgba(26,18,0,.7);">Wallet balance</div>
+      <div class="display" style="font-size:24px;color:#1a1200;">₹1,20,400</div>
+      <button class="btn mt3" style="background:rgba(0,0,0,.15);color:#1a1200;">Withdraw to bank</button>
+    </div>
+
+    <div class="card mb4" style="background:rgba(244,180,26,.08);border-color:rgba(244,180,26,.3);">
+      <div class="row gap2">
+        ${ic.lock}
+        <div style="font-size:11px;font-weight:700;color:#fff;">Settlement releases after prize dispersal</div>
+      </div>
+      <div style="font-size:10px;color:var(--dim);margin-top:4px;">
+        Spoto first disburses prize money to the winning team, then releases your partner settlement for that tournament. Your payout stays locked until winners are paid.
+      </div>
+    </div>
+
+    <div class="card mb4">
+      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:8px;">Settlement formula</div>
+      ${row('Registration collection','₹3,84,000','#fff')}
+      ${row('Prize money → winners','-₹2,50,000','var(--dim)')}
+      ${row('Platform fee (10%)','-₹38,400','var(--dim)')}
+      <div class="row between mt2" style="padding-top:6px;border-top:1px solid var(--line);">
+        <span style="font-size:12px;font-weight:700;color:#fff;">Your settlement</span>
+        <span style="font-size:12px;font-weight:700;color:var(--turf);">₹95,600</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:10px;">Settlement pipeline</div>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        ${settlementQueue.map(settlementPipelineCard).join('')}
+      </div>
+    </div>
+  </div>`;
+}
+
+function settlementPipelineCard(s){
+  const prizeDone = s.prizeStatus === 'disbursed';
+  const settleDone = s.status === 'done';
+  const settleReady = prizeDone && !settleDone;
+  return `
+  <div style="border-top:1px solid var(--line);padding-top:12px;">
+    <div class="row between mb2">
+      <span style="font-size:11px;font-weight:600;color:#fff;">${s.tournament}</span>
+      ${tierBadge(s.tier)}
+    </div>
+    <div class="row gap2" style="align-items:flex-start;">
+      <div style="display:flex;flex-direction:column;align-items:center;">
+        <div style="width:22px;height:22px;border-radius:999px;display:flex;align-items:center;justify-content:center;background:${prizeDone?'rgba(30,138,76,.2)':'var(--ink3)'};color:${prizeDone?'var(--turf)':'var(--dim)'};">
+          ${prizeDone ? ic.check : ic.send}
+        </div>
+        <div style="width:2px;height:22px;background:${prizeDone?'var(--turf)':'var(--ink3)'};"></div>
+        <div style="width:22px;height:22px;border-radius:999px;display:flex;align-items:center;justify-content:center;background:${settleDone?'rgba(30,138,76,.2)':settleReady?'rgba(244,180,26,.2)':'var(--ink3)'};color:${settleDone?'var(--turf)':settleReady?'var(--amber)':'var(--dim)'};">
+          ${settleDone ? ic.check : ic.lock}
+        </div>
+      </div>
+      <div style="flex:1;">
+        <div style="margin-bottom:14px;">
+          <div style="font-size:10px;font-weight:700;color:${prizeDone?'#fff':'var(--dim)'};">Prize disbursed to winners</div>
+          <div style="font-size:9px;color:var(--dim);">₹${s.prize.toLocaleString()} ${prizeDone?'paid out':'awaiting payout'}</div>
+        </div>
+        <div>
+          <div style="font-size:10px;font-weight:700;color:${settleDone?'#fff':settleReady?'var(--amber)':'var(--dim)'};">
+            Partner settlement ${settleDone?'released':settleReady?'ready to release':'locked'}
+          </div>
+          <div style="font-size:9px;color:var(--dim);">₹${s.settlement.toLocaleString()} ${settleDone?'credited to wallet':settleReady?'pending Spoto release':'until prize dispersal completes'}</div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function row(label, value, color){
+  return `<div class="row between" style="padding:2px 0;font-size:11px;">
+    <span style="color:var(--dim);">${label}</span><span style="font-weight:600;color:${color};">${value}</span>
+  </div>`;
+}
+
+function screenReferees(){
+  return `
+  <div class="content fade-in">
+    <div class="h1">Referee Assignment</div>
+    <div class="sub mb4">Gachibowli Super Over Qualifier</div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      ${refereesList.map(r => `
+        <div class="card row between">
+          <div class="row gap3">
+            <div class="avatar">${initials(r.name)}</div>
+            <div>
+              <div style="font-size:12px;font-weight:600;color:#fff;">${r.name}</div>
+              <div style="font-size:10px;color:var(--dim);">${r.matches} matches · ★ ${r.rating}</div>
+            </div>
+          </div>
+          <button class="btn" style="background:${r.available?'var(--amber)':'var(--ink3)'};color:${r.available?'#1a1200':'var(--dim)'};" ${r.available?'':'disabled'}>
+            ${r.available?'Assign':'Busy'}
+          </button>
+        </div>
+      `).join('')}
+    </div>
+  </div>`;
+}
+
+/* ================= CREATE TOURNAMENT WIZARD ================= */
+const steps = ['Format','Details','Prize & Fees','Preview'];
+
+function selectTier(t){ state.wizardTier=t; render(); }
+function wizardNext(){ if(state.wizardStep<3){ state.wizardStep++; } else { closeOverlay(); return; } render(); }
+function wizardBack(){ if(state.wizardStep>0){ state.wizardStep--; render(); } }
+
+function addVenueToStage(stageIndex){
+  const stage = state.venueStages[stageIndex];
+  stage.venues.push({name:'',location:'',maxMatches:'',matchDate:'',matchTime:''});
+  render();
+}
+function removeVenueFromStage(stageIndex, vi){
+  const stage = state.venueStages[stageIndex];
+  if(stage.venues.length>1){ stage.venues.splice(vi,1); render(); }
+}
+function toggleVenueStage(stageIndex){
+  state.venueStages[stageIndex].enabled = !state.venueStages[stageIndex].enabled;
+  render();
+}
+
+/* ---- Prize structure ---- */
+function calcPrizeTotal(){
+  return state.prizeStages.filter(p=>p.enabled).reduce((sum,p)=> sum + (Number(p.amount)||0) * p.teams, 0);
+}
+function togglePrizeStage(key){
+  const p = state.prizeStages.find(p=>p.key===key);
+  p.enabled = !p.enabled;
+  render();
+}
+function updatePrizeAmount(key, val){
+  const p = state.prizeStages.find(p=>p.key===key);
+  p.amount = val;
+  const totalEl = document.getElementById('prizeTotalDisplay');
+  if(totalEl) totalEl.textContent = '₹' + calcPrizeTotal().toLocaleString('en-IN');
+  const sumEl = document.getElementById('prizeSummaryAmount');
+  if(sumEl) sumEl.textContent = '-₹' + calcPrizeTotal().toLocaleString('en-IN');
+}
+
+function prizeStageRow(p){
+  const stageTotal = (Number(p.amount)||0) * p.teams;
+  return `
+  <div class="row between" style="padding:10px 0;border-top:1px solid var(--line);opacity:${p.enabled?1:0.5};">
+    <div class="row gap2" style="flex:1;min-width:0;">
+      <button onclick="togglePrizeStage('${p.key}')" style="width:20px;height:20px;border-radius:6px;border:1.5px solid ${p.enabled?'var(--amber)':'var(--line)'};background:${p.enabled?'var(--amber)':'transparent'};display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;color:#1a1200;font-size:12px;font-weight:900;">${p.enabled?'✓':''}</button>
+      <div style="font-size:15px;flex-shrink:0;">${p.emoji}</div>
+      <div style="min-width:0;">
+        <div style="font-size:11px;font-weight:600;color:#fff;">${p.label}</div>
+        ${p.teams>1?`<div style="font-size:9px;color:var(--dim);">₹${(Number(p.amount)||0).toLocaleString('en-IN')} × ${p.teams} ${p.unit||'teams'} = ₹${stageTotal.toLocaleString('en-IN')}</div>`:''}
+      </div>
+    </div>
+    <div class="field" style="width:104px;flex-shrink:0;padding:6px 10px;">
+      ${ic.rupee}<input type="number" min="0" value="${p.amount}" ${p.enabled?'':'disabled'} oninput="updatePrizeAmount('${p.key}', this.value)" class="venue-input" style="text-align:right;" />
+    </div>
+  </div>`;
+}
+
+function renderPrizeStructure(){
+  return `
+  <div class="mb3">
+    <div class="field-label" style="margin-bottom:2px;">Prize structure</div>
+    <div style="font-size:10px;color:var(--dim);margin-bottom:8px;">Set a payout per team for each stage reached. Toggle off stages that don't apply.</div>
+    <div class="card" style="padding:12px;">
+      ${state.prizeStages.map(prizeStageRow).join('')}
+      <div class="row between mt3" style="padding-top:10px;border-top:1px solid var(--line);">
+        <span style="font-size:12px;font-weight:700;color:#fff;">Total prize pool</span>
+        <span id="prizeTotalDisplay" style="font-size:15px;font-weight:700;color:var(--amber);" class="mono">₹${calcPrizeTotal().toLocaleString('en-IN')}</span>
+      </div>
+    </div>
+  </div>`;
+}
+
+function venueAllocation(stage){
+  return stage.venues.reduce((sum,v)=> sum + (Number(v.maxMatches)||0), 0);
+}
+
+function renderVenueStage(stageIndex){
+  const stage = state.venueStages[stageIndex];
+  const allocated = venueAllocation(stage);
+  const ok = allocated === stage.matchesInStage;
+  return `
+    <div class="card mb3" style="padding:12px;opacity:${stage.enabled?1:0.55};">
+      <div class="row between mb2">
+        <div class="row gap2">
+          <button onclick="toggleVenueStage(${stageIndex})" style="width:20px;height:20px;border-radius:6px;border:1.5px solid ${stage.enabled?'var(--amber)':'var(--line)'};background:${stage.enabled?'var(--amber)':'transparent'};display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;color:#1a1200;font-size:12px;font-weight:900;">${stage.enabled?'✓':''}</button>
+          <span style="font-size:15px;">${stage.emoji}</span>
+          <span style="font-size:12px;font-weight:700;color:#fff;">${stage.label}</span>
+          <span class="badge" style="background:var(--ink3);color:var(--dim);">${stage.matchesInStage} match${stage.matchesInStage>1?'es':''}</span>
+        </div>
+        ${stage.enabled?`<span id="alloc-${stageIndex}" style="font-size:9px;font-weight:700;color:${ok?'var(--turf)':'var(--amber)'};">${allocated}/${stage.matchesInStage} allocated</span>`:''}
+      </div>
+
+      ${stage.enabled ? `
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        ${stage.venues.map((v,vi)=>`
+          <div style="background:var(--ink3);border-radius:12px;padding:10px;position:relative;">
+            ${stage.venues.length>1?`<button class="remove-venue" style="position:absolute;top:8px;right:8px;width:24px;height:24px;" onclick="removeVenueFromStage(${stageIndex},${vi})">${ic.x}</button>`:''}
+            <div class="field-label" style="margin-top:0;">Venue name</div>
+            <div class="field mb2" style="background:var(--ink2);${stage.venues.length>1?'padding-right:36px;':''}">
+              ${ic.building}<input type="text" value="${esc(v.name)}" placeholder="e.g. Miyapur Community Ground" oninput="state.venueStages[${stageIndex}].venues[${vi}].name=this.value" class="venue-input" />
+            </div>
+            <div class="field-label">Location</div>
+            <div class="field mb2" style="background:var(--ink2);">
+              ${ic.pin}<input type="text" value="${esc(v.location)}" placeholder="e.g. Miyapur, Hyderabad" oninput="state.venueStages[${stageIndex}].venues[${vi}].location=this.value" class="venue-input" />
+            </div>
+            <div class="mb2">
+              <div class="field-label">Total number of matches</div>
+              <div class="field" style="background:var(--ink2);">
+                ${ic.hash}<input type="number" min="0" max="${stage.matchesInStage}" value="${v.maxMatches}" oninput="state.venueStages[${stageIndex}].venues[${vi}].maxMatches=this.value;updateAllocationDisplay(${stageIndex});" class="venue-input" />
+                <span style="font-size:9px;color:var(--dim);flex-shrink:0;">of ${stage.matchesInStage} in ${stage.label}</span>
+              </div>
+            </div>
+            <div class="grid2">
+              <div>
+                <div class="field-label">Date of the match</div>
+                <div class="field" style="background:var(--ink2);">
+                  ${ic.calendar}<input type="date" value="${esc(v.matchDate)}" oninput="state.venueStages[${stageIndex}].venues[${vi}].matchDate=this.value" class="venue-input" />
+                </div>
+              </div>
+              <div>
+                <div class="field-label">Start time</div>
+                <div class="field" style="background:var(--ink2);">
+                  ${ic.clock}<input type="time" value="${esc(v.matchTime)}" oninput="state.venueStages[${stageIndex}].venues[${vi}].matchTime=this.value" class="venue-input" />
+                </div>
+              </div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+      <button class="btn btn-ghost btn-block mt3" onclick="addVenueToStage(${stageIndex})">${ic.plus} Add venue for ${stage.label}</button>
+      ` : `<div style="font-size:10px;color:var(--dim);padding:2px 0;">This stage is turned off — enable it to assign a venue.</div>`}
+    </div>`;
+}
+
+function updateAllocationDisplay(stageIndex){
+  const stage = state.venueStages[stageIndex];
+  const allocated = venueAllocation(stage);
+  const ok = allocated === stage.matchesInStage;
+  const el = document.getElementById('alloc-'+stageIndex);
+  if(el){
+    el.textContent = allocated + '/' + stage.matchesInStage + ' allocated';
+    el.style.color = ok ? 'var(--turf)' : 'var(--amber)';
+  }
+}
+
+function setMatchStructure(val){
+  state.matchStructure = val;
+  applyAutoStages();
+  render();
+}
+
+function renderTeamCountAndRounds(){
+  const isLeague = state.matchStructure === 'league';
+  const teams = Math.max(2, Number(state.totalTeams) || 2);
+
+  let summaryCard = '';
+  let advanceField = '';
+  if(isLeague){
+    const totalMatches = Math.round(teams * (teams - 1) / 2);
+    const { bracketSize } = bracketStagesForTeams(state.leagueAdvanceTeams);
+    const activeStages = state.venueStages.filter(s=>s.enabled).map(s=>s.label);
+    advanceField = `
+      <div class="mb2">
+        <div class="field-label">Teams advancing to knockout</div>
+        <div class="field">
+          ${ic.users}<input type="number" min="2" max="${teams}" value="${state.leagueAdvanceTeams}" oninput="updateLeagueAdvance(this.value)" class="venue-input" />
+        </div>
+      </div>
+    `;
+    summaryCard = `
+      <div class="card" style="background:rgba(244,180,26,.08);border-color:rgba(244,180,26,.3);padding:10px 12px;">
+        <div class="row between" style="margin-bottom:4px;">
+          <span style="font-size:10px;color:var(--dim);">League stage matches</span>
+          <span style="font-size:10px;color:#fff;font-weight:700;">${totalMatches}</span>
+        </div>
+        <div style="font-size:10px;color:var(--dim);margin-bottom:8px;">
+          Every team plays every other team once. Top <span style="color:var(--amber);font-weight:700;">${state.leagueAdvanceTeams}</span> on the points table advance.
+        </div>
+        <div class="row between" style="margin-bottom:4px;padding-top:8px;border-top:1px solid var(--line);">
+          <span style="font-size:10px;color:var(--dim);">Knockout bracket size</span>
+          <span style="font-size:10px;color:#fff;font-weight:700;">${bracketSize} teams</span>
+        </div>
+        <div class="row between" style="margin-bottom:4px;">
+          <span style="font-size:10px;color:var(--dim);">Knockout rounds</span>
+          <span style="font-size:10px;color:#fff;font-weight:700;">${activeStages.length || 0}</span>
+        </div>
+        <div style="font-size:10px;color:var(--dim);margin-top:4px;">
+          Rounds: <span style="color:var(--amber);font-weight:700;">${activeStages.length ? activeStages.join(' → ') : 'None'}</span>
+        </div>
+      </div>
+    `;
+  } else {
+    const { bracketSize } = bracketStagesForTeams(state.totalTeams);
+    const activeStages = state.venueStages.filter(s=>s.enabled).map(s=>s.label);
+    summaryCard = `
+      <div class="card" style="background:rgba(244,180,26,.08);border-color:rgba(244,180,26,.3);padding:10px 12px;">
+        <div class="row between" style="margin-bottom:4px;">
+          <span style="font-size:10px;color:var(--dim);">Bracket size</span>
+          <span style="font-size:10px;color:#fff;font-weight:700;">${bracketSize} teams</span>
+        </div>
+        <div class="row between" style="margin-bottom:4px;">
+          <span style="font-size:10px;color:var(--dim);">Number of rounds</span>
+          <span style="font-size:10px;color:#fff;font-weight:700;">${activeStages.length || 0}</span>
+        </div>
+        <div style="font-size:10px;color:var(--dim);margin-top:4px;">
+          Rounds: <span style="color:var(--amber);font-weight:700;">${activeStages.length ? activeStages.join(' → ') : 'None'}</span>
+        </div>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="mb3">
+      <div class="field-label" style="margin-top:0;">Number of teams</div>
+      <div class="field mb2">
+        ${ic.users}<input type="number" min="2" value="${state.totalTeams}" oninput="updateTeamCount(this.value)" class="venue-input" />
+      </div>
+      ${advanceField}
+      ${summaryCard}
+    </div>
+  `;
+}
+
+function renderVenueStagesOnly(){
+  const tier = state.wizardTier;
+  const isLeague = state.matchStructure === 'league';
+  return `
+    <div class="mb3">
+      <div class="field-label" style="margin-bottom:2px;">${isLeague ? 'Add venues for the knockout stage' : 'Add venues for each round'}</div>
+      <div style="font-size:10px;color:var(--dim);margin-bottom:10px;">
+        ${isLeague
+          ? `Rounds above are auto-selected from the ${state.leagueAdvanceTeams} teams advancing out of the league stage — toggle any round on or off if you need to override it.`
+          : 'Rounds above are auto-selected from your team count — toggle any round on or off if you need to override it.'}
+        ${tier==='mega' ? ' Mega championships often use a different city for each stage.' : ' Split a stage across more than one venue if needed.'}
+      </div>
+      ${state.venueStages.map((s,i)=>renderVenueStage(i)).join('')}
+    </div>
+  `;
+}
+
+function addLeagueVenue(){
+  state.leagueVenues.push({name:'',location:'',maxMatches:'',matchDate:'',matchTime:''});
+  render();
+}
+function removeLeagueVenue(vi){
+  if(state.leagueVenues.length>1){ state.leagueVenues.splice(vi,1); render(); }
+}
+function leagueAllocation(){
+  return state.leagueVenues.reduce((sum,v)=> sum + (Number(v.maxMatches)||0), 0);
+}
+function updateLeagueAllocationDisplay(){
+  const teams = Math.max(2, Number(state.totalTeams) || 2);
+  const totalMatches = Math.round(teams * (teams - 1) / 2);
+  const allocated = leagueAllocation();
+  const el = document.getElementById('league-alloc');
+  if(el){
+    const ok = allocated === totalMatches;
+    el.textContent = allocated + '/' + totalMatches + ' allocated';
+    el.style.color = ok ? 'var(--turf)' : 'var(--amber)';
+  }
+}
+
+function renderLeagueVenuesOnly(){
+  const teams = Math.max(2, Number(state.totalTeams) || 2);
+  const totalMatches = Math.round(teams * (teams - 1) / 2);
+  const allocated = leagueAllocation();
+  const ok = allocated === totalMatches;
+  return `
+    <div class="mb3">
+      <div class="field-label" style="margin-bottom:2px;">Add venues for league (group) stage matches</div>
+      <div style="font-size:10px;color:var(--dim);margin-bottom:10px;">
+        League matches aren't tied to knockout rounds — add one or more venues and split the ${totalMatches} round-robin matches across them. Knockout-stage venues are set up separately below once the top ${state.leagueAdvanceTeams} teams are known.
+      </div>
+      <div class="card mb3" style="padding:12px;">
+        <div class="row between mb2">
+          <div class="row gap2">
+            ${ic.landmark}
+            <span style="font-size:12px;font-weight:700;color:#fff;">League Matches</span>
+            <span class="badge" style="background:var(--ink3);color:var(--dim);">${totalMatches} total</span>
+          </div>
+          <span id="league-alloc" style="font-size:9px;font-weight:700;color:${ok?'var(--turf)':'var(--amber)'};">${allocated}/${totalMatches} allocated</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          ${state.leagueVenues.map((v,vi)=>`
+            <div style="background:var(--ink3);border-radius:12px;padding:10px;position:relative;">
+              ${state.leagueVenues.length>1?`<button class="remove-venue" style="position:absolute;top:8px;right:8px;width:24px;height:24px;" onclick="removeLeagueVenue(${vi})">${ic.x}</button>`:''}
+              <div class="field-label" style="margin-top:0;">Venue name</div>
+              <div class="field mb2" style="background:var(--ink2);${state.leagueVenues.length>1?'padding-right:36px;':''}">
+                ${ic.building}<input type="text" value="${esc(v.name)}" placeholder="e.g. Miyapur Community Ground" oninput="state.leagueVenues[${vi}].name=this.value" class="venue-input" />
+              </div>
+              <div class="field-label">Location</div>
+              <div class="field mb2" style="background:var(--ink2);">
+                ${ic.pin}<input type="text" value="${esc(v.location)}" placeholder="e.g. Miyapur, Hyderabad" oninput="state.leagueVenues[${vi}].location=this.value" class="venue-input" />
+              </div>
+              <div class="mb2">
+                <div class="field-label">Total number of matches</div>
+                <div class="field" style="background:var(--ink2);">
+                  ${ic.hash}<input type="number" min="0" max="${totalMatches}" value="${v.maxMatches}" oninput="state.leagueVenues[${vi}].maxMatches=this.value;updateLeagueAllocationDisplay();" class="venue-input" />
+                  <span style="font-size:9px;color:var(--dim);flex-shrink:0;">of ${totalMatches} league matches</span>
+                </div>
+              </div>
+              <div class="grid2">
+                <div>
+                  <div class="field-label">Date of the match</div>
+                  <div class="field" style="background:var(--ink2);">
+                    ${ic.calendar}<input type="date" value="${esc(v.matchDate)}" oninput="state.leagueVenues[${vi}].matchDate=this.value" class="venue-input" />
+                  </div>
+                </div>
+                <div>
+                  <div class="field-label">Start time</div>
+                  <div class="field" style="background:var(--ink2);">
+                    ${ic.clock}<input type="time" value="${esc(v.matchTime)}" oninput="state.leagueVenues[${vi}].matchTime=this.value" class="venue-input" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+        <button class="btn btn-ghost btn-block mt3" onclick="addLeagueVenue()">${ic.plus} Add another venue</button>
+      </div>
+    </div>
+  `;
+}
+
+function field(label, placeholder, icon){
+  return `<div class="mb3">
+    <div class="field-label">${label}</div>
+    <div class="field">${icon?icon:''}<span>${placeholder}</span></div>
+  </div>`;
+}
+
+function screenCreateWizard(){
+  const s = state.wizardStep;
+  const tier = state.wizardTier;
+  let body = '';
+
+  if(s===0){
+    body = `
+      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:8px;">Tournament tier</div>
+      <div class="grid2 mb4">
+        <div class="tier-select sel-local">
+          ${ic.pin.replace('currentColor','#1E8A4C')}
+          <div style="font-size:12px;font-weight:700;color:#fff;margin-top:8px;">Local Qualifier</div>
+          <div style="font-size:10px;color:var(--dim);margin-top:4px;">Single venue, quick setup, up to 64 teams</div>
+          <div class="row gap2 mt2" style="color:var(--turf);font-size:9px;font-weight:700;">${ic.check} You can create this</div>
+        </div>
+        <div class="tier-select" style="cursor:pointer;" onclick="megaGo('list');">
+          ${ic.crown}
+          <div style="font-size:12px;font-weight:700;color:#fff;margin-top:8px;">Mega Championship</div>
+          <div style="font-size:10px;color:var(--dim);margin-top:4px;">Multi-venue, sponsor branding, streaming</div>
+          <div class="row gap2 mt2" style="color:var(--amber);font-size:9px;font-weight:700;">${ic.chevronRight} Join as host venue</div>
+        </div>
+      </div>
+      <div class="card mb4" style="background:rgba(244,180,26,.08);border-color:rgba(244,180,26,.3);">
+        <div class="row gap2">
+          ${ic.crown}
+          <div>
+            <div style="font-size:11px;font-weight:700;color:#fff;">Mega Championships are created by Spoto Admin</div>
+            <div style="font-size:10px;color:var(--dim);margin-top:2px;">As a partner you can request to host a venue inside an existing Mega Championship — you can't create one directly.</div>
+          </div>
+        </div>
+        <button class="btn btn-ghost btn-block mt3" onclick="megaGo('list');">${ic.crown} Browse Mega Championships</button>
+      </div>
+      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:8px;">Sport</div>
+      <div class="field mb4" style="border-color:var(--turf);">
+        ${ic.target.replace('currentColor','#1E8A4C')}<span style="color:#fff;">Mini Cricket — Super Over Challenge</span>
+        <span style="margin-left:auto;color:var(--turf);">${ic.check}</span>
+      </div>
+
+      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:8px;">Match format</div>
+      <div class="grid2 mb4">
+        <div class="tier-select ${state.matchStructure==='knockout'?'sel-local':''}" style="cursor:pointer;" onclick="setMatchStructure('knockout')">
+          ${ic.trophy}
+          <div style="font-size:12px;font-weight:700;color:#fff;margin-top:8px;">Knockout</div>
+          <div style="font-size:10px;color:var(--dim);margin-top:4px;">Single elimination — lose once, you're out. Bracket rounds down to a Final.</div>
+        </div>
+        <div class="tier-select ${state.matchStructure==='league'?'sel-mega':''}" style="cursor:pointer;" onclick="setMatchStructure('league')">
+          ${ic.landmark}
+          <div style="font-size:12px;font-weight:700;color:#fff;margin-top:8px;">League + Knockout</div>
+          <div style="font-size:10px;color:var(--dim);margin-top:4px;">Round robin group stage first, then top teams advance into a knockout bracket for the title.</div>
+        </div>
+      </div>
+
+      ${renderMatchFormat()}`;
+  } else if(s===1){
+    body = `
+      ${renderTeamCountAndRounds()}
+      ${field('Tournament name','e.g. Miyapur Super Over Cup')}
+      ${field('Title sponsor (optional)','e.g. CoolBreeze Beverages', ic.crown)}
+      ${field('Registration fee per team','₹400', ic.rupee)}
+      ${state.matchStructure==='league' ? (renderLeagueVenuesOnly() + renderVenueStagesOnly()) : renderVenueStagesOnly()}
+      ${field('Registration deadline','Select date', ic.calendar)}
+      ${field('Match schedule starts','Select date', ic.calendar)}
+    `;
+  } else if(s===2){
+    body = `
+      ${renderPrizeStructure()}
+      <div class="card">
+        <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:6px;">Estimated financial summary</div>
+        ${row(`Est. collection (${state.totalTeams} teams)`, `₹${(state.totalTeams*400).toLocaleString('en-IN')}`, '#fff')}
+        <div class="row between" style="padding:2px 0;font-size:11px;">
+          <span style="color:var(--dim);">Prize money</span>
+          <span id="prizeSummaryAmount" style="font-weight:600;color:#fff;">-₹${calcPrizeTotal().toLocaleString('en-IN')}</span>
+        </div>
+        ${row('Platform fee (10%)','₹1,280','#fff')}
+      </div>`;
+  } else {
+    const isLeague = state.matchStructure === 'league';
+    const leagueVenuesFilled = state.leagueVenues.filter(v => v.name && v.name.trim());
+    const stagesWithVenues = state.venueStages
+      .filter(stage => stage.enabled)
+      .map(stage => ({ ...stage, venues: stage.venues.filter(v => v.name && v.name.trim()) }))
+      .filter(stage => stage.venues.length);
+    const knockoutVenueCount = stagesWithVenues.reduce((n,s)=>n+s.venues.length,0);
+    const totalVenues = (isLeague ? leagueVenuesFilled.length : 0) + knockoutVenueCount;
+    const nameParts = [];
+    if(isLeague && leagueVenuesFilled.length) nameParts.push(leagueVenuesFilled.map(v=>v.name).join(', '));
+    if(knockoutVenueCount) nameParts.push(stagesWithVenues.map(s => s.venues.map(v=>v.name).join(', ')).join(' · '));
+    const venueSummary = nameParts.length ? nameParts.join(' · ') : 'Miyapur Community Ground';
+    body = `
+      <div class="card">
+        ${tierBadge(tier)}
+        <div class="display" style="color:#fff;font-size:15px;margin-top:8px;">Miyapur Super Over Cup</div>
+        <div style="font-size:10px;color:var(--amber);font-weight:600;margin-top:2px;">Presented by CoolBreeze Beverages</div>
+        <div style="font-size:9px;color:var(--dim);margin-top:4px;text-transform:uppercase;letter-spacing:.04em;">${isLeague?'League + Knockout':'Knockout · Single Elimination'}</div>
+        <div style="font-size:11px;color:var(--dim);margin-top:4px;">${venueSummary}</div>
+        ${totalVenues>1?`<div style="font-size:10px;color:var(--amber);font-weight:700;margin-top:4px;">${totalVenues} venue${totalVenues>1?'s':''} confirmed${isLeague?` (${leagueVenuesFilled.length} league · ${knockoutVenueCount} knockout)`:` across ${stagesWithVenues.length} knockout stage${stagesWithVenues.length>1?'s':''}`}</div>`:''}
+
+        ${isLeague && leagueVenuesFilled.length ? `
+          <div class="mt3">
+            <div style="font-size:10px;font-weight:700;color:var(--amber);margin-bottom:4px;">${ic.landmark} League Stage</div>
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              ${leagueVenuesFilled.map(v => `
+                <div style="background:var(--ink3);border-radius:10px;padding:8px 10px;">
+                  <div style="font-size:11px;font-weight:600;color:#fff;">${v.name}${v.location?' · '+v.location:''}</div>
+                  <div class="row gap3 mt2" style="font-size:9px;color:var(--dim);flex-wrap:wrap;">
+                    <span class="row gap2">${ic.hash} ${v.maxMatches||0} match${(v.maxMatches||0)==1?'':'es'}</span>
+                    ${v.matchDate?`<span class="row gap2">${ic.calendar} ${v.matchDate}</span>`:''}
+                    ${v.matchTime?`<span class="row gap2">${ic.clock} ${v.matchTime}</span>`:''}
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>` : ''}
+
+        ${knockoutVenueCount ? `
+          <div class="mt3" style="display:flex;flex-direction:column;gap:8px;">
+            ${stagesWithVenues.map(stage => `
+              <div>
+                <div style="font-size:10px;font-weight:700;color:var(--amber);margin-bottom:4px;">${stage.emoji} ${stage.label}</div>
+                <div style="display:flex;flex-direction:column;gap:6px;">
+                  ${stage.venues.map(v => `
+                    <div style="background:var(--ink3);border-radius:10px;padding:8px 10px;">
+                      <div style="font-size:11px;font-weight:600;color:#fff;">${v.name}${v.location?' · '+v.location:''}</div>
+                      <div class="row gap3 mt2" style="font-size:9px;color:var(--dim);flex-wrap:wrap;">
+                        <span class="row gap2">${ic.hash} ${v.maxMatches||0} match${(v.maxMatches||0)==1?'':'es'}</span>
+                        ${v.matchDate?`<span class="row gap2">${ic.calendar} ${v.matchDate}</span>`:''}
+                        ${v.matchTime?`<span class="row gap2">${ic.clock} ${v.matchTime}</span>`:''}
+                      </div>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            `).join('')}
+          </div>` : ''}
+        <div class="row between mt3" style="padding-top:8px;border-top:1px solid var(--line);">
+          <span style="font-size:10px;color:var(--dim);">Format</span>
+          <span style="font-size:10px;color:#fff;font-weight:600;">${state.matchFormat.ballType} · ${state.matchFormat.overs} overs · ${state.matchFormat.ballsPerOver} balls/over · ${state.matchFormat.players}/team · ${state.matchFormat.duration} mins match · ${state.matchFormat.bufferTime} mins buffer</span>
+        </div>
+        ${row('Prize pool','₹' + calcPrizeTotal().toLocaleString('en-IN'),'var(--amber)')}
+        ${row('Entry fee','₹400','#fff')}
+        <div class="mt2" style="display:flex;flex-direction:column;gap:4px;">
+          ${state.prizeStages.filter(p=>p.enabled).map(p => `
+            <div class="row between" style="font-size:10px;">
+              <span style="color:var(--dim);">${p.emoji} ${p.label}${p.teams>1?` (${p.teams} ${p.unit||'teams'})`:''}</span>
+              <span style="color:#fff;font-weight:600;">₹${(Number(p.amount)||0).toLocaleString('en-IN')}${p.teams>1?' each':''}</span>
+            </div>
+          `).join('')}
+        </div>
+        <div class="row gap2 mt3" style="color:var(--turf);font-size:11px;">${ic.check} Ready to submit for admin approval</div>
+      </div>`;
+  }
+
+  return `
+  <div class="fade-in">
+    <div class="row gap2" style="padding:16px 16px 4px;">
+      <button class="btn-round" onclick="closeOverlay()">${ic.chevronLeft}</button>
+      <div class="h1">Create Tournament</div>
+    </div>
+    <div class="stepper">
+      ${steps.map((label,i)=>`
+        <div class="step-dot ${i<=s?'active':''}">${i+1}</div>
+        ${i<steps.length-1?`<div class="step-line ${i<s?'active':''}"></div>`:''}
+      `).join('')}
+    </div>
+    <div class="content" style="padding-top:0;">${body}</div>
+    <div class="sticky-footer">
+      ${s>0?`<button class="btn btn-ghost" style="flex:1;" onclick="wizardBack()">Back</button>`:''}
+      <button class="btn btn-amber" style="flex:1;" onclick="wizardNext()">${s<3?'Continue':'Submit for Approval'}</button>
+    </div>
+  </div>`;
+}
+
+/* ================= JOIN A MEGA CHAMPIONSHIP ================= */
+function screenJoinMega(){
+  return `
+  <div class="fade-in">
+    <div class="row gap2" style="padding:16px 16px 4px;">
+      <button class="btn-round" onclick="openOverlay('create')">${ic.chevronLeft}</button>
+      <div>
+        <div class="h1">Join a Mega Championship</div>
+        <div class="sub">Request to host a venue in an admin-run championship</div>
+      </div>
+    </div>
+    <div class="content" style="padding-top:8px;display:flex;flex-direction:column;gap:12px;">
+      ${availableMegaTournaments.map(m => `
+        <div class="card" style="border-color:rgba(244,180,26,.35);">
+          <div class="row between mb2">
+            <span class="badge badge-mega">${ic.crown}${m.level}</span>
+            <span style="font-size:9px;color:var(--dim);">Closes ${m.deadline}</span>
+          </div>
+          <div class="display" style="font-size:14px;color:#fff;">${m.name}</div>
+          <div style="font-size:10px;color:var(--dim);margin-top:2px;">${m.sponsor}</div>
+          <div class="row between mt3">
+            <div>
+              <div style="font-size:9px;color:var(--dim);">Prize pool</div>
+              <div style="font-size:14px;font-weight:700;color:var(--amber);">₹${(m.prize/100000).toFixed(1)}L</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:9px;color:var(--dim);">Host cities</div>
+              <div style="font-size:12px;font-weight:600;color:#fff;">${m.citiesJoined.length}/${m.citiesTarget} confirmed</div>
+            </div>
+          </div>
+          <div class="progress mt2 mb3"><div style="width:${Math.round(m.citiesJoined.length/m.citiesTarget*100)}%;background:var(--amber);"></div></div>
+          <div style="font-size:9px;color:var(--dim);margin-bottom:10px;">Already hosting: ${m.citiesJoined.join(', ')}</div>
+          <button class="btn btn-amber btn-block" onclick="openJoinVenueForm('${m.id}')">${ic.plus} Request to Host a Venue</button>
+        </div>
+      `).join('')}
+    </div>
+  </div>`;
+}
+
+function screenJoinMegaVenue(){
+  const mega = availableMegaTournaments.find(m => m.id === state.joinMegaId);
+  const v = state.joinVenueForm;
+  return `
+  <div class="fade-in">
+    <div class="row gap2" style="padding:16px 16px 4px;">
+      <button class="btn-round" onclick="openOverlay('joinMega')">${ic.chevronLeft}</button>
+      <div class="h1">Host Venue Request</div>
+    </div>
+    <div class="content" style="padding-top:8px;">
+      <div class="card mb4" style="background:rgba(244,180,26,.08);border-color:rgba(244,180,26,.3);">
+        <span class="badge badge-mega">${ic.crown}${mega.level}</span>
+        <div style="font-size:13px;font-weight:700;color:#fff;margin-top:6px;">${mega.name}</div>
+        <div style="font-size:10px;color:var(--dim);">${mega.sponsor}</div>
+      </div>
+
+      <div class="card" style="padding:12px;">
+        <div class="field-label" style="margin-top:0;">Venue name</div>
+        <div class="field mb2">
+          ${ic.building}<input type="text" value="${esc(v.name)}" placeholder="e.g. Miyapur Community Ground" oninput="state.joinVenueForm.name=this.value" class="venue-input" />
+        </div>
+        <div class="field-label">Location</div>
+        <div class="field mb2">
+          ${ic.pin}<input type="text" value="${esc(v.location)}" placeholder="e.g. Miyapur, Hyderabad" oninput="state.joinVenueForm.location=this.value" class="venue-input" />
+        </div>
+        <div class="grid2 mb2">
+          <div>
+            <div class="field-label">Max matches at venue</div>
+            <div class="field">
+              ${ic.hash}<input type="number" min="1" value="${v.maxMatches}" oninput="state.joinVenueForm.maxMatches=this.value" class="venue-input" />
+            </div>
+          </div>
+          <div>
+            <div class="field-label">Max match duration</div>
+            <div class="field">
+              ${ic.clock}<input type="number" min="1" value="${v.maxDuration}" oninput="state.joinVenueForm.maxDuration=this.value" class="venue-input" />
+              <span style="font-size:10px;color:var(--dim);flex-shrink:0;">mins</span>
+            </div>
+          </div>
+        </div>
+        <div class="field-label">Date of the match</div>
+        <div class="field">
+          ${ic.calendar}<input type="date" value="${esc(v.matchDate)}" oninput="state.joinVenueForm.matchDate=this.value" class="venue-input" />
+        </div>
+      </div>
+    </div>
+    <div class="sticky-footer">
+      <button class="btn btn-ghost" style="flex:1;" onclick="openOverlay('joinMega')">Cancel</button>
+      <button class="btn btn-amber" style="flex:1;" onclick="submitJoinRequest()">Submit Request</button>
+    </div>
+  </div>`;
+}
+
+function screenJoinMegaDone(){
+  const mega = availableMegaTournaments.find(m => m.id === state.joinMegaId);
+  const v = state.joinVenueForm;
+  return `
+  <div class="content fade-in" style="padding-top:60px;text-align:center;">
+    <div style="width:56px;height:56px;border-radius:999px;background:rgba(30,138,76,.15);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;color:var(--turf);">
+      ${ic.check}
+    </div>
+    <div class="display" style="font-size:18px;color:#fff;">Request Submitted</div>
+    <div style="font-size:11px;color:var(--dim);margin-top:6px;max-width:280px;margin-left:auto;margin-right:auto;">
+      Your request to host <b style="color:#fff;">${esc(v.name) || 'your venue'}</b> for <b style="color:#fff;">${mega ? mega.name : 'this championship'}</b> has been sent to Spoto Admin for approval.
+    </div>
+    <div class="card mt4" style="text-align:left;">
+      ${row('Venue', esc(v.name) || '—', '#fff')}
+      ${row('Location', esc(v.location) || '—', '#fff')}
+      ${row('Max matches', v.maxMatches, '#fff')}
+      ${row('Match date', v.matchDate || '—', '#fff')}
+      ${row('Status', 'Pending admin review', 'var(--amber)')}
+    </div>
+    <button class="btn btn-amber btn-block mt4" onclick="closeOverlay();setTab('tournaments');">Done</button>
+  </div>`;
+}
+
+/* ================= MONITOR FLOW ================= */
+function screenMonitor(){
+  const t = partnerTournaments.find(x => x.id === state.monitorId);
+  const m = monitorData[state.monitorId] || { liveMatches:[], upcoming:[], alerts:[], teamsCheckedIn:0, teamsTotal:0, matchesDone:0, totalMatches:0 };
+  const compPct = m.totalMatches ? Math.round((m.matchesDone/m.totalMatches)*100) : 0;
+  const highAlerts = m.alerts.filter(a=>a.level==='high').length;
+
+  const tabBtn = (key,label,badge) => `
+    <button class="btn" style="flex:1;background:${state.monitorTab===key?'var(--amber)':'var(--ink3)'};color:${state.monitorTab===key?'#1a1200':'var(--dim)'};padding:8px 4px;font-size:10px;position:relative;" onclick="setMonitorTab('${key}')">
+      ${label}${badge?`<span style="position:absolute;top:-4px;right:2px;background:var(--live);color:#fff;font-size:8px;font-weight:800;border-radius:999px;padding:1px 5px;">${badge}</span>`:''}
+    </button>`;
+
+  let body = '';
+  if(state.monitorTab==='live') body = monitorLiveTab(m);
+  else if(state.monitorTab==='schedule') body = monitorScheduleTab(m);
+  else if(state.monitorTab==='teams') body = monitorTeamsTab(m);
+  else body = monitorAlertsTab(m);
+
+  return `
+  <div class="fade-in">
+    <div class="row gap2" style="padding:16px 16px 4px;">
+      <button class="btn-round" onclick="closeOverlay()">${ic.chevronLeft}</button>
+      <div style="min-width:0;">
+        <div class="h1" style="font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${t ? t.name : 'Tournament'}</div>
+        <div class="sub">${t ? t.venue : ''} · Live Monitor</div>
+      </div>
+    </div>
+
+    <div class="content" style="padding-top:10px;">
+      <!-- top status strip -->
+      <div class="card mb3" style="padding:12px;">
+        <div class="row between mb2">
+          <span style="font-size:10px;font-weight:700;color:${m.liveMatches.length?'var(--live)':'var(--dim)'};">
+            ${m.liveMatches.length ? '● '+m.liveMatches.length+' MATCH'+(m.liveMatches.length>1?'ES':'')+' LIVE' : 'NO MATCHES LIVE'}
+          </span>
+          <span style="font-size:10px;color:var(--dim);">Auto-refreshing</span>
+        </div>
+        <div class="row between" style="font-size:10px;color:var(--dim);margin-bottom:4px;">
+          <span>Tournament progress</span>
+          <span style="color:#fff;font-weight:700;">${m.matchesDone}/${m.totalMatches} matches · ${compPct}%</span>
+        </div>
+        <div class="progress"><div style="width:${compPct}%;background:${compPct>=100?'var(--turf)':'var(--live)'};"></div></div>
+      </div>
+
+      <div class="row gap2 mb3">
+        ${tabBtn('live','Live', m.liveMatches.length||'')}
+        ${tabBtn('schedule','Schedule','')}
+        ${tabBtn('teams','Teams','')}
+        ${tabBtn('alerts','Alerts', highAlerts||'')}
+      </div>
+
+      ${body}
+    </div>
+  </div>`;
+}
+
+function monitorLiveTab(m){
+  if(!m.liveMatches.length){
+    return `<div class="card" style="text-align:center;padding:28px 16px;">
+      <div style="font-size:22px;margin-bottom:8px;">🏏</div>
+      <div style="font-size:12px;font-weight:700;color:#fff;">No matches live right now</div>
+      <div style="font-size:10px;color:var(--dim);margin-top:4px;">Upcoming fixtures are in the Schedule tab.</div>
+    </div>`;
+  }
+  return `<div style="display:flex;flex-direction:column;gap:12px;">
+    ${m.liveMatches.map(match => `
+      <div class="card" style="border-color:rgba(226,55,68,.4);">
+        <div class="row between mb2">
+          <span style="font-size:9px;font-weight:800;color:var(--live);">● LIVE · ${match.stage}</span>
+          <span style="font-size:9px;color:var(--dim);">${match.venue}</span>
+        </div>
+        <div class="row between mb1" style="margin-bottom:4px;">
+          <span style="font-size:12px;font-weight:700;color:#fff;">${match.teamA}</span>
+          <span class="mono" style="font-size:13px;font-weight:700;color:#fff;">${match.scoreA}</span>
+        </div>
+        <div class="row between" style="margin-bottom:10px;">
+          <span style="font-size:12px;font-weight:700;color:#fff;">${match.teamB}</span>
+          <span class="mono" style="font-size:13px;font-weight:700;color:${match.scoreB==='—'?'var(--dim)':'#fff'};">${match.scoreB}</span>
+        </div>
+        <div class="row gap2 mb2" style="flex-wrap:wrap;">
+          ${match.balls.map(b => `
+            <div class="mono" style="width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;background:${b==='W'?'var(--live)':(b==='4'||b==='6')?'var(--amber)':'var(--ink3)'};color:${(b==='4'||b==='6')?'#1a1200':'#fff'};">${b}</div>
+          `).join('')}
+          <span style="font-size:9px;color:var(--dim);align-self:center;">Over ${match.over}</span>
+        </div>
+        <div class="row between" style="padding-top:8px;border-top:1px solid var(--line);">
+          <span style="font-size:9px;color:var(--dim);">${ic.userCog} Referee: <span style="color:#fff;font-weight:600;">${match.referee}</span></span>
+          <button class="btn btn-ghost" style="padding:6px 10px;font-size:9px;">${ic.eye} Watch Feed</button>
+        </div>
+      </div>
+    `).join('')}
+  </div>`;
+}
+
+function monitorScheduleTab(m){
+  return `<div style="display:flex;flex-direction:column;gap:10px;">
+    ${m.upcoming.map(u => `
+      <div class="card" style="padding:12px;">
+        <div class="row between mb2">
+          <span style="font-size:9px;font-weight:700;color:var(--amber);">${u.stage}</span>
+          <span style="font-size:10px;font-weight:700;color:#fff;">${ic.clock} ${u.time}</span>
+        </div>
+        <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:6px;">${u.teamA}${u.teamB?' vs '+u.teamB:''}</div>
+        <div class="row between">
+          <span style="font-size:9px;color:${u.referee==='Unassigned'?'var(--live)':'var(--dim)'};">
+            ${ic.userCog} ${u.referee==='Unassigned'?'⚠ No referee assigned':'Referee: '+u.referee}
+          </span>
+          <span style="font-size:9px;color:${u.checkin==='both'?'var(--turf)':'var(--amber)'};">
+            ${u.checkin==='both'?'✓ Both teams checked in':'Check-in pending'}
+          </span>
+        </div>
+        ${u.referee==='Unassigned'?`<button class="btn btn-amber btn-block mt2" style="padding:8px;font-size:10px;" onclick="setTab('referees')">Assign Referee Now</button>`:''}
+      </div>
+    `).join('')}
+  </div>`;
+}
+
+function monitorTeamsTab(m){
+  const pct = m.teamsTotal ? Math.round((m.teamsCheckedIn/m.teamsTotal)*100) : 0;
+  return `
+    <div class="card mb3" style="text-align:center;padding:18px;">
+      <div class="display" style="font-size:30px;color:${pct===100?'var(--turf)':'var(--amber)'};">${m.teamsCheckedIn}<span style="color:var(--dim);font-size:18px;">/${m.teamsTotal}</span></div>
+      <div style="font-size:10px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.05em;margin-top:2px;">Teams checked in</div>
+      <div class="progress mt3"><div style="width:${pct}%;background:${pct===100?'var(--turf)':'var(--amber)'};"></div></div>
+    </div>
+    <div class="card">
+      <div style="font-size:11px;font-weight:700;color:#fff;margin-bottom:8px;">Check-in status</div>
+      ${[['Ember United','in'],['Falcons XI','in'],['Strikers XI','in'],['Cyber Panthers','in'],['Royal CC','pending'],['Turf Titans','pending']].map(([name,st]) => `
+        <div class="list-item">
+          <span style="font-size:11px;color:#fff;">${name}</span>
+          <span style="font-size:9px;font-weight:700;color:${st==='in'?'var(--turf)':'var(--amber)'};">${st==='in'?'✓ Checked in':'Pending'}</span>
+        </div>
+      `).join('')}
+      <button class="btn btn-ghost btn-block mt3" style="font-size:10px;">Send reminder to pending teams</button>
+    </div>`;
+}
+
+function monitorAlertsTab(m){
+  if(!m.alerts.length){
+    return `<div class="card" style="text-align:center;padding:24px;">
+      <div style="font-size:12px;font-weight:700;color:var(--turf);">✓ All clear</div>
+      <div style="font-size:10px;color:var(--dim);margin-top:4px;">No issues need your attention.</div>
+    </div>`;
+  }
+  const colors = { high:'var(--live)', med:'var(--amber)', low:'var(--dim)' };
+  const labels = { high:'URGENT', med:'ATTENTION', low:'INFO' };
+  return `<div style="display:flex;flex-direction:column;gap:10px;">
+    ${m.alerts.map(a => `
+      <div class="card" style="padding:12px;border-left:3px solid ${colors[a.level]};">
+        <div class="row between mb1" style="margin-bottom:4px;">
+          <span style="font-size:8px;font-weight:800;color:${colors[a.level]};letter-spacing:.06em;">${labels[a.level]}</span>
+        </div>
+        <div style="font-size:11px;color:#fff;line-height:1.5;margin-bottom:8px;">${a.text}</div>
+        <button class="btn" style="background:${a.level==='high'?'var(--amber)':'var(--ink3)'};color:${a.level==='high'?'#1a1200':'#fff'};padding:7px 12px;font-size:10px;">${a.action}</button>
+      </div>
+    `).join('')}
+  </div>`;
+}
+
+/* ================= MEGA TOURNAMENT MODULE SCREENS ================= */
+function megaHeader(title, backScreen){
+  return `
+  <div class="row gap2" style="padding:16px 16px 4px;">
+    ${backScreen?`<button class="btn-round" onclick="megaGo('${backScreen}')">${ic.chevronLeft}</button>`:''}
+    <div style="min-width:0;">
+      <div class="brand">🔥 Spoto Mega Tournaments</div>
+      <div class="h1" style="font-size:16px;">${title}</div>
+    </div>
+  </div>`;
+}
+
+function megaIdChip(id){
+  return `<span class="mono" style="font-size:9px;color:var(--dim);background:var(--ink3);border-radius:6px;padding:2px 6px;">${id}</span>`;
+}
+
+function megaStatusBadge(){
+  if(state.megaAppStatus==='none') return '';
+  if(state.megaAppStatus==='review') return `<span class="status status-pending">Under Review</span>`;
+  return `<span class="status status-approved">Approved</span>`;
+}
+
+/* ---- 1. Mega list ---- */
+function megaApplicationsData(){
+  const apps = [];
+  if(state.megaAppStatus!=='none'){
+    const vs = state.megaVenueStatus;
+    const regOpen = vs==='approved' && state.megaRegOpen;
+    let screen, note, noteColor, action;
+    if(state.megaAppStatus!=='approved'){
+      screen='submitted'; note='Awaiting Spoto Admin review of your organiser application.'; noteColor='var(--dim)'; action='View Application';
+    } else if(vs==='none'||vs==='draft'){
+      screen='venueSelect'; note='Approved — add your venue & schedule to proceed.'; noteColor='var(--amber)'; action='Add Venue & Schedule →';
+    } else if(vs==='pending'){
+      screen='venuePending'; note='Venue & schedule submitted — pending admin review.'; noteColor='var(--amber)'; action='View Status';
+    } else if(vs==='changes'){
+      screen='venuePending'; note='Spoto Admin requested changes to your schedule.'; noteColor='#F3801C'; action='Edit Venue & Schedule';
+    } else if(vs==='approved' && !regOpen){
+      screen='venueApproved'; note='Venue approved — open registration to proceed.'; noteColor='var(--turf)'; action='Open Registration →';
+    } else {
+      screen='dashboard'; note='Ready to conduct — tap to open leg dashboard.'; noteColor='var(--turf)'; action='Open Dashboard';
+    }
+    apps.push({ tournament: megaTournaments[0], leg:'Hyderabad Leg 07', status: state.megaAppStatus==='approved'?'approved':'pending', screen, note, noteColor, action });
+  }
+  /* Demo second application to illustrate a Pending state alongside a live Approved one */
+  apps.push({ tournament: megaTournaments[1], leg:'Chennai Leg 03', status:'pending', screen:null, note:'Awaiting Spoto Admin review — application not yet started for this leg.', noteColor:'var(--dim)', action:null });
+  /* Demo already-approved leg so the Approved tab always has something clickable to try Add Venues. Hidden once the live application above also becomes approved (they'd otherwise share the same venue data and look duplicated). */
+  if(state.megaAppStatus!=='approved'){
+    apps.push({ tournament: megaTournaments[0], leg:'Warangal Leg 09', status:'approved', screen:'venueSelect', note:'Approved — add your venue & schedule to proceed.', noteColor:'var(--amber)', action:'Add Venue & Schedule →' });
+  }
+  return apps;
+}
+
+function screenMegaList(){
+  const apps = megaApplicationsData();
+  const approvedApps = apps.filter(a=>a.status==='approved');
+  const pendingApps = apps.filter(a=>a.status==='pending');
+  const shown = state.megaAppsTab==='approved' ? approvedApps : pendingApps;
+  return `
+  ${megaHeader('Championships')}
+  <div class="content" style="padding-top:8px;display:flex;flex-direction:column;gap:12px;">
+    ${state.megaQualified ? `
+    <div class="card row between" style="border-color:var(--turf);background:rgba(30,138,76,.08);cursor:pointer;" onclick="megaGo('journey')">
+      <div>
+        <div style="font-size:11px;font-weight:700;color:var(--turf);">🏆 Team Titans — Qualification Locked 🔒</div>
+        <div style="font-size:9px;color:var(--dim);margin-top:2px;">Track your qualified team's championship journey</div>
+      </div>
+      ${ic.chevronRight}
+    </div>`:''}
+
+    <div>
+      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:8px;">My Organiser Applications</div>
+      <div class="row gap2 mb3">
+        <button class="btn" style="flex:1;background:${state.megaAppsTab==='approved'?'var(--amber)':'var(--ink3)'};color:${state.megaAppsTab==='approved'?'#1a1200':'var(--dim)'};" onclick="setMegaAppsTab('approved')">🟢 Approved (${approvedApps.length})</button>
+        <button class="btn" style="flex:1;background:${state.megaAppsTab==='pending'?'var(--amber)':'var(--ink3)'};color:${state.megaAppsTab==='pending'?'#1a1200':'var(--dim)'};" onclick="setMegaAppsTab('pending')">🟡 Pending (${pendingApps.length})</button>
+      </div>
+      ${shown.length===0 ? `
+        <div class="card" style="text-align:center;padding:20px 12px;">
+          <div style="font-size:10px;color:var(--dim);">No ${state.megaAppsTab} applications yet.</div>
+        </div>`
+      : shown.map(a => `
+        <div class="card mb2" style="${a.screen?'cursor:pointer;':''}" ${a.screen?`onclick="${a.screen==='venueSelect'?'megaOpenVenueFlow()':`megaGo('${a.screen}')`}"`:''}>
+          <div class="row between mb2">
+            <span class="badge badge-mega">${ic.crown}${a.leg}</span>
+            <span class="status ${a.status==='approved'?'status-approved':'status-pending'}">${a.status==='approved'?'🟢 Approved':'🟡 Pending'}</span>
+          </div>
+          <div style="font-size:12px;font-weight:700;color:#fff;">${a.tournament.name}</div>
+          <div class="mt2">${megaIdChip(a.tournament.id)}</div>
+          <div style="font-size:9px;color:${a.noteColor};margin-top:6px;font-weight:${a.status==='approved'?'700':'400'};">${a.note}</div>
+          ${a.action?`<div style="font-size:10px;font-weight:700;color:var(--amber);margin-top:6px;">${a.action}</div>`:''}
+        </div>`).join('')}
+    </div>
+
+    <div style="font-size:12px;font-weight:700;color:#fff;margin-top:4px;">All Mega Championships</div>
+    ${megaTournaments.map(m => {
+      const isApplied = m.id==='SPT-MEGA-2026-001' && state.megaAppStatus!=='none';
+      return `
+      <div class="card" style="border-color:rgba(244,180,26,.4);overflow:hidden;position:relative;">
+        <div style="height:64px;margin:-14px -14px 12px;background:linear-gradient(135deg,var(--amber-deep),var(--ink) 70%);display:flex;align-items:flex-end;padding:10px 14px;">
+          <span class="badge badge-mega">${ic.crown}Admin-run Mega</span>
+        </div>
+        <div class="display" style="font-size:15px;color:#fff;">${m.name}</div>
+        <div style="font-size:10px;color:var(--dim);margin-top:2px;">${m.sport} · ${m.location}</div>
+        <div class="mt2">${megaIdChip(m.id)}</div>
+        <div class="grid2 mt3" style="gap:8px;">
+          <div><div class="stat-label">Prize pool</div><div style="font-size:14px;font-weight:800;color:var(--amber);">₹${(m.prize/100000).toFixed(0)}L</div></div>
+          <div><div class="stat-label">Team entry</div><div style="font-size:14px;font-weight:800;color:#fff;">₹${m.entryFee.toLocaleString('en-IN')}</div></div>
+          <div><div class="stat-label">Organiser revenue share</div><div style="font-size:12px;font-weight:700;color:var(--turf);">${m.revenueShare}% of registrations</div></div>
+          <div><div class="stat-label">Champion bonus</div><div style="font-size:12px;font-weight:700;color:var(--turf);">${m.championBonus}% of prize</div></div>
+        </div>
+        <div class="row between mt3" style="font-size:10px;color:var(--dim);">
+          <span>${m.slotsAvailable} organiser slots open</span>
+          <span>Qualification: <b style="color:#fff;">1 team</b></span>
+        </div>
+        <div class="row gap2 mt3">
+          <button class="btn btn-ghost" style="flex:1;" onclick="megaGo('detail')">Details</button>
+          ${isApplied
+            ? `<button class="btn ${state.megaAppStatus==='approved'?'btn-turf':'btn-ghost'}" style="flex:1;" onclick="megaGo('${state.megaAppStatus==='approved'?'dashboard':'submitted'}')">${state.megaAppStatus==='approved'?'Open Dashboard':'View Application'}</button>`
+            : `<button class="btn btn-amber" style="flex:1;" onclick="megaApplyStart()">Apply to Organise</button>`}
+        </div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+/* ---- 2. Detail ---- */
+function screenMegaDetail(){
+  const m = megaTournaments[0];
+  return `
+  ${megaHeader('Tournament Details','list')}
+  <div class="content" style="padding-top:8px;display:flex;flex-direction:column;gap:12px;">
+    <div class="card" style="border-color:rgba(244,180,26,.4);">
+      <span class="badge badge-mega">${ic.crown}Season ${m.season}</span>
+      <div class="display" style="font-size:16px;color:#fff;margin-top:8px;">${m.name}</div>
+      <div class="mt2">${megaIdChip(m.id)}</div>
+      ${row('Sport', m.sport, '#fff')}
+      ${row('Prize pool', '₹'+m.prize.toLocaleString('en-IN'), 'var(--amber)')}
+      ${row('Qualification legs', String(m.legs), '#fff')}
+      ${row('Teams per leg', String(m.teamsPerLeg), '#fff')}
+      ${row('Entry fee per team', '₹'+m.entryFee.toLocaleString('en-IN'), '#fff')}
+      ${row('Registration deadline', m.deadline, '#fff')}
+    </div>
+
+    <div class="card" style="background:rgba(30,138,76,.08);border-color:var(--turf);">
+      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:8px;">Organiser benefits</div>
+      ${row('Registration revenue share', m.revenueShare+'%', 'var(--turf)')}
+      ${row('Champion bonus (if your team wins)', m.championBonus+'% of prize = ₹'+(m.prize*m.championBonus/100).toLocaleString('en-IN'), 'var(--turf)')}
+      <div style="font-size:10px;color:var(--dim);margin-top:6px;">Champion bonus is auto-linked through your team's Qualification ID.</div>
+    </div>
+
+    <div class="card" style="background:rgba(244,180,26,.08);border-color:rgba(244,180,26,.3);">
+      <div class="row gap2">${ic.lock}<div style="font-size:11px;font-weight:700;color:#fff;">One Organiser = One Qualified Team</div></div>
+      <div style="font-size:10px;color:var(--dim);margin-top:4px;">The winner of your knockout leg becomes your one and only qualified team. Even if you run multiple legs for this Mega, max qualified teams per organiser = 1.</div>
+    </div>
+
+    <div class="card">
+      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:8px;">Tournament path</div>
+      ${['Local Knockout (your leg)','Next Leg — Admin controlled','Championship','Semi Final','Grand Final'].map((s,i)=>`
+        <div class="row gap2" style="padding:4px 0;">
+          <span style="font-size:10px;color:var(--amber);font-weight:700;">${i+1}</span>
+          <span style="font-size:11px;color:${i===0?'#fff':'var(--dim)'};">${s}</span>
+        </div>`).join('')}
+      <div style="font-size:9px;color:var(--dim);margin-top:6px;">Stages after your leg are created and controlled exclusively by Spoto Admin.</div>
+    </div>
+
+    ${state.megaAppStatus==='none'
+      ? `<button class="btn btn-amber btn-block" onclick="megaApplyStart()">Apply for Organiser Slot</button>`
+      : `<button class="btn btn-turf btn-block" onclick="megaGo('${state.megaAppStatus==='approved'?'dashboard':'submitted'}')">${state.megaAppStatus==='approved'?'Open Leg Dashboard':'View Application Status'}</button>`}
+  </div>`;
+}
+
+/* ---- 3. Application flow ---- */
+function screenMegaApply(){
+  const m = megaTournaments[0];
+  const s = state.megaAppStep;
+  const steps=['Select Leg','Commercial Terms','Agreement'];
+  let body='';
+  if(s===0){
+    body = `
+      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:8px;">Select available location / leg</div>
+      ${[['Hyderabad Leg 07','GHMC Sports Complex, Gachibowli','Oct 4–6', true],['Warangal Leg 09','Warangal Stadium','Oct 11–12', false],['Vizag Leg 12','Beach Road Arena','Oct 18–19', false]].map(([leg,venue,date,sel])=>`
+        <div class="card mb2 row between" style="padding:12px;border-color:${sel?'var(--amber)':'var(--line)'};${sel?'background:rgba(244,180,26,.08);':''}">
+          <div>
+            <div style="font-size:12px;font-weight:700;color:#fff;">${leg}</div>
+            <div style="font-size:10px;color:var(--dim);">${venue} · ${date}</div>
+          </div>
+          ${sel?`<span style="color:var(--amber);">${ic.check}</span>`:''}
+        </div>`).join('')}`;
+  } else if(s===1){
+    body = `
+      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:8px;">Review commercial terms</div>
+      <div class="card mb3">
+        ${row('Teams capacity', '32', '#fff')}
+        ${row('Registration fee', '₹1,000 / team', '#fff')}
+        ${row('Max registration revenue', '₹32,000', '#fff')}
+        ${row('Your share (50%)', '₹16,000', 'var(--turf)')}
+        ${row('Spoto share (50%)', '₹16,000', 'var(--dim)')}
+        <div style="font-size:9px;color:var(--dim);margin-top:6px;">Subject to applicable taxes, gateway charges, refunds and the commercial agreement.</div>
+      </div>
+      <div class="card" style="background:rgba(30,138,76,.08);border-color:var(--turf);">
+        ${row('Champion bonus', '25% of ₹10,00,000', 'var(--turf)')}
+        ${row('Potential bonus', '₹2,50,000', 'var(--turf)')}
+      </div>`;
+  } else {
+    body = `
+      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:8px;">Spoto Organiser Agreement</div>
+      <div class="card mb3" style="max-height:180px;overflow-y:auto;">
+        ${['Only Spoto Admin creates and controls Mega Tournaments.','You may conduct only your assigned knockout leg.','One Organiser can qualify only ONE team per Mega Tournament.','All participating players must be KYC verified — no override.','Official results come only from the authorized Spoto Referee.','Financial calculations are system-generated.','Champion Bonus attribution uses the original Qualification ID.'].map((r,i)=>`
+          <div class="row gap2" style="padding:4px 0;align-items:flex-start;">
+            <span style="font-size:9px;color:var(--amber);font-weight:700;flex-shrink:0;">${i+1}.</span>
+            <span style="font-size:10px;color:var(--dim);line-height:1.5;">${r}</span>
+          </div>`).join('')}
+      </div>
+      <div class="row gap2" style="cursor:pointer;" onclick="megaToggleAgree()">
+        <div style="width:20px;height:20px;border-radius:6px;border:1.5px solid ${state.megaAgreed?'var(--amber)':'var(--line)'};background:${state.megaAgreed?'var(--amber)':'transparent'};display:flex;align-items:center;justify-content:center;color:#1a1200;font-size:12px;font-weight:900;flex-shrink:0;">${state.megaAgreed?'✓':''}</div>
+        <span style="font-size:11px;color:#fff;">I accept the Spoto Organiser Agreement on behalf of ${ORG.name} (${ORG.id})</span>
+      </div>`;
+  }
+  return `
+  ${megaHeader('Apply to Organise','detail')}
+  <div class="stepper" style="margin-top:8px;">
+    ${steps.map((label,i)=>`
+      <div class="step-dot ${i<=s?'active':''}">${i+1}</div>
+      ${i<steps.length-1?`<div class="step-line ${i<s?'active':''}"></div>`:''}`).join('')}
+  </div>
+  <div class="content" style="padding-top:0;">
+    <div class="card mb3" style="padding:10px 12px;background:rgba(244,180,26,.08);border-color:rgba(244,180,26,.3);">
+      <div style="font-size:11px;font-weight:700;color:#fff;">${m.name}</div>
+      <div class="mt2">${megaIdChip(m.id)} ${megaIdChip(ORG.id)}</div>
+    </div>
+    ${body}
+  </div>
+  <div class="sticky-footer">
+    ${s>0?`<button class="btn btn-ghost" style="flex:1;" onclick="state.megaAppStep--;render();">Back</button>`:''}
+    <button class="btn btn-amber" style="flex:1;${s===2&&!state.megaAgreed?'opacity:.4;pointer-events:none;':''}" onclick="megaApplyNext()">${s<2?'Continue':'Submit Application'}</button>
+  </div>`;
+}
+
+/* ---- 4. Submitted / review ---- */
+function screenMegaSubmitted(){
+  return `
+  ${megaHeader('Application Status','list')}
+  <div class="content" style="padding-top:40px;text-align:center;">
+    <div style="width:56px;height:56px;border-radius:999px;background:rgba(244,180,26,.15);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;color:var(--amber);">${ic.clock}</div>
+    <div class="display" style="font-size:18px;color:#fff;">Application Under Review</div>
+    <div style="font-size:11px;color:var(--dim);margin-top:6px;max-width:280px;margin-left:auto;margin-right:auto;">Spoto Admin is reviewing your application for <b style="color:#fff;">Hyderabad Leg 07</b>.</div>
+    <div class="card mt4" style="text-align:left;">
+      ${row('Mega Tournament', 'SPT-MEGA-2026-001', '#fff')}
+      ${row('Organiser', ORG.id, '#fff')}
+      ${row('Requested leg', 'Hyderabad Leg 07', '#fff')}
+      ${row('Status', 'UNDER REVIEW', 'var(--amber)')}
+    </div>
+    <button class="btn btn-turf btn-block mt4" onclick="megaSimulateApproval()">${ic.check} Simulate Admin Approval (demo)</button>
+  </div>`;
+}
+
+/* ---- 5. Leg dashboard ---- */
+function screenMegaDashboard(){
+  const m = megaTournaments[0];
+  const vs = state.megaVenueStatus;
+  const regOpen = vs==='approved' && state.megaRegOpen;
+  const regClosed = state.megaRegClosed;
+  const registered = regClosed ? 32 : (regOpen ? 18 : 0), capacity = 32;
+  const revenue = registered * m.entryFee;
+  const venues = megaVenuesSummaryList();
+  const statusChipHtml = state.megaQualified ? `<span class="status status-done">🏆 Leg Complete</span>`
+    : state.megaFixturesReady ? `<span class="status status-live">⚡ Knockout In Progress</span>`
+    : regClosed ? `<span class="status status-pending">Registration Closed</span>`
+    : regOpen ? `<span class="status status-approved">🟢 Registration Open</span>`
+    : vs==='approved' ? `<span class="status status-approved">🟢 Venue Approved</span>`
+    : vs==='pending' ? `<span class="status status-pending">🟡 Pending Admin Review</span>`
+    : vs==='changes' ? `<span class="status" style="background:rgba(243,128,28,.15);color:#F3801C;">🟠 Changes Required</span>`
+    : `<span class="status status-pending">Venue Setup Needed</span>`;
+  return `
+  ${megaHeader('Leg Dashboard','list')}
+  ${megaContextStrip()}
+  <div class="content" style="padding-top:0;display:flex;flex-direction:column;gap:12px;">
+    <div class="card" style="border-color:rgba(244,180,26,.4);">
+      <div class="row between">
+        <span class="badge badge-mega">${ic.crown}${m.leg}</span>
+        ${statusChipHtml}
+      </div>
+      <div class="display" style="font-size:14px;color:#fff;margin-top:8px;">${m.name}</div>
+      <div class="mt2">${megaIdChip(m.id)} ${megaIdChip(ORG.id)} ${megaIdChip('SPT-LEG-000007')}</div>
+      ${venues.length?`<div style="font-size:10px;color:var(--dim);margin-top:4px;">${venues.map(v=>v.name).join(' · ')} · ${state.megaSched.start} → ${state.megaSched.end}</div>`:''}
+      ${regOpen?`
+      <div class="progress mt3"><div style="width:${registered/capacity*100}%;background:var(--amber);"></div></div>
+      <div class="row between mt2" style="font-size:10px;color:var(--dim);">
+        <span>Registered: <b style="color:#fff;">${registered}/${capacity}</b></span>
+        <span>Revenue: <b style="color:var(--amber);">₹${revenue.toLocaleString('en-IN')}</b> · Your 50%: <b style="color:var(--turf);">₹${(revenue/2).toLocaleString('en-IN')}</b></span>
+      </div>`:''}
+    </div>
+
+    ${vs==='none'||vs==='draft' ? `
+    <div class="card" style="background:rgba(244,180,26,.08);border-color:rgba(244,180,26,.3);">
+      <div class="row gap2">${ic.lock}<div style="font-size:11px;font-weight:700;color:#fff;">REGISTRATION LOCKED 🔒</div></div>
+      <div style="font-size:10px;color:var(--dim);margin-top:4px;">Registration will open after your venue and schedule are approved by Spoto Admin.</div>
+      <button class="btn btn-amber btn-block mt3" onclick="megaOpenVenueFlow()">${ic.pin} Add Venue & Schedule</button>
+    </div>` : ''}
+
+    ${vs==='pending' ? `
+    <div class="card" style="cursor:pointer;" onclick="megaGo('venuePending')">
+      <div class="row gap2">${ic.clock}<div style="font-size:11px;font-weight:700;color:var(--amber);">🟡 Venue & schedule pending admin review</div></div>
+      <div style="font-size:10px;color:var(--dim);margin-top:4px;">Registration locked 🔒 · Editing locked while under review · Tap to view</div>
+    </div>` : ''}
+
+    ${vs==='changes' ? `
+    <div class="card" style="background:rgba(243,128,28,.08);border-color:#F3801C;cursor:pointer;" onclick="megaGo('venuePending')">
+      <div style="font-size:11px;font-weight:700;color:#F3801C;">🟠 Spoto Admin requested changes to your schedule</div>
+      <div style="font-size:10px;color:var(--dim);margin-top:4px;">Tap to view the admin message and edit your venue & schedule</div>
+    </div>` : ''}
+
+    ${vs==='approved' && !regOpen ? `
+    <div class="card" style="background:rgba(30,138,76,.08);border-color:var(--turf);">
+      <div class="row gap2">${ic.check}<div style="font-size:11px;font-weight:700;color:var(--turf);">Venue & Schedule Approved ✅</div></div>
+      <div style="font-size:10px;color:var(--dim);margin-top:4px;">Your knockout leg is ready. Open registration to start accepting teams.</div>
+      <button class="btn btn-amber btn-block mt3" onclick="megaOpenRegistration()">Open Registration</button>
+    </div>` : ''}
+
+    ${regOpen && !state.megaQualified ? `
+    <div class="card">
+      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:8px;">Conduct your knockout leg</div>
+      ${!regClosed ? `
+        <div style="font-size:10px;color:var(--dim);margin-bottom:8px;">Registration is live (18/32 teams). Close it once full to generate fixtures. (Demo: closing fills to 32.)</div>
+        <button class="btn btn-amber btn-block" onclick="megaCloseRegistration()">Close Registration (32/32)</button>`
+      : !state.megaFixturesReady ? `
+        <div class="row gap2 mb2" style="color:var(--turf);font-size:11px;">${ic.check} Registration closed — 32 eligible teams</div>
+        <button class="btn btn-amber btn-block" onclick="megaGenerateFixtures()">Generate Knockout Fixtures</button>`
+      : `
+        <div class="row gap2 mb2" style="color:var(--turf);font-size:11px;">${ic.check} Fixtures generated — knockout in progress</div>
+        <div class="row gap2">
+          <button class="btn btn-ghost" style="flex:1;" onclick="megaGo('fixtures')">Fixtures & Referees</button>
+          <button class="btn btn-amber" style="flex:1;" onclick="megaGo('bracket')">Knockout Bracket</button>
+        </div>`}
+    </div>` : ''}
+
+    ${state.megaQualified ? `
+    <div class="card" style="background:rgba(30,138,76,.08);border-color:var(--turf);">
+      <div style="font-size:12px;font-weight:800;color:var(--turf);">🏆 QUALIFIED TEAM — LOCKED 🔒</div>
+      <div style="font-size:12px;font-weight:700;color:#fff;margin-top:4px;">Team Titans</div>
+      <div class="mt2">${megaIdChip('SPT-TEAM-000128')} ${megaIdChip('SPT-QUAL-000784')}</div>
+      <div style="font-size:10px;color:var(--dim);margin-top:6px;">Your qualifying position for this Mega Tournament is already locked. You cannot qualify another team.</div>
+    </div>`:`
+    <div class="card">
+      ${row('Qualified team', 'NOT YET QUALIFIED', 'var(--amber)')}
+      ${row('Champion bonus potential', '₹2,50,000', 'var(--turf)')}
+    </div>`}
+
+    <div class="grid2">
+      ${[['Match Schedule','matchSchedule',ic.calendar,true],['Team Registrations','teams',ic.users,true],['Knockout Bracket','bracket',ic.trophy,true],['Championship Journey','journey',ic.pin,false],['Mega Earnings','earnings',ic.wallet,false]].map(([label,scr,icon,needsReg])=>{
+        const locked = needsReg && !regOpen;
+        return `
+        <div class="card" style="cursor:${locked?'default':'pointer'};text-align:center;padding:16px 10px;opacity:${locked?0.45:1};" ${locked?'':`onclick="megaGo('${scr}')"`}>
+          <div style="color:${locked?'var(--dim)':'var(--amber)'};display:flex;justify-content:center;margin-bottom:6px;">${locked?ic.lock:icon}</div>
+          <div style="font-size:11px;font-weight:700;color:#fff;">${label}</div>
+          ${locked?`<div style="font-size:8px;color:var(--dim);margin-top:2px;">Opens after registration</div>`:''}
+        </div>`;
+      }).join('')}
+    </div>
+  </div>`;
+}
+
+/* ---- 6. Teams list ---- */
+function screenMegaTeams(){
+  return `
+  ${megaHeader('Team Registrations','dashboard')}
+  ${megaContextStrip()}
+  <div class="content" style="padding-top:0;display:flex;flex-direction:column;gap:10px;">
+    ${megaTeams.map(t => {
+      const verified = t.players.filter(p=>p.kyc).length;
+      const allKyc = verified === t.players.length;
+      const eligible = allKyc && t.paid;
+      return `
+      <div class="card" style="cursor:pointer;" onclick="megaOpenTeam('${t.id}')">
+        <div class="row between mb2">
+          <div style="font-size:12px;font-weight:700;color:#fff;">${t.name}</div>
+          ${eligible?`<span class="status status-approved">✅ Eligible</span>`:`<span class="status status-pending">⚠️ Not Eligible</span>`}
+        </div>
+        <div class="mb2">${megaIdChip(t.id)}</div>
+        <div class="row gap3" style="font-size:10px;color:var(--dim);flex-wrap:wrap;">
+          <span>Captain: <b style="color:#fff;">${t.captain}</b></span>
+          <span>${t.players.length} players</span>
+          <span>KYC: <b style="color:${allKyc?'var(--turf)':'var(--live)'};">${verified}/${t.players.length}</b></span>
+          <span>Payment: <b style="color:${t.paid?'var(--turf)':'var(--live)'};">${t.paid?'PAID':'PENDING'}</b></span>
+        </div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+/* ---- 7. Team detail + KYC + roster ---- */
+function screenMegaTeamDetail(){
+  const t = megaTeams.find(x=>x.id===state.megaTeamId) || megaTeams[0];
+  const verified = t.players.filter(p=>p.kyc).length;
+  const allKyc = verified === t.players.length;
+  return `
+  ${megaHeader(t.name,'teams')}
+  ${megaContextStrip()}
+  <div class="content" style="padding-top:0;display:flex;flex-direction:column;gap:12px;">
+    <div class="card">
+      <div class="row between">
+        <div>${megaIdChip(t.id)}</div>
+        <span class="status ${t.rosterLocked?'status-done':'status-approved'}">${t.rosterLocked?'🔒 Roster Locked':'Roster Open'}</span>
+      </div>
+      <div style="font-size:9px;color:var(--dim);margin-top:6px;">${t.rosterLocked?'Team roster is locked after the first official match. Exceptional changes require Spoto Admin approval.':'Roster locks automatically after the first official match of the team.'}</div>
+    </div>
+
+    <div class="card">
+      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:8px;">Players & KYC</div>
+      ${t.players.map((p,i)=>`
+        <div class="row between" style="padding:8px 0;border-top:1px solid var(--line);">
+          <div>
+            <div style="font-size:11px;font-weight:600;color:#fff;">${i+1}. ${p.name} <span style="font-size:9px;color:var(--dim);">· ${p.role}</span></div>
+            <div class="mt2">${megaIdChip(p.id)}</div>
+          </div>
+          ${p.kyc?`<span style="font-size:10px;font-weight:700;color:var(--turf);">KYC ✅</span>`:`<span style="font-size:10px;font-weight:700;color:var(--live);">KYC ❌</span>`}
+        </div>`).join('')}
+      ${allKyc
+        ?`<div class="row gap2 mt3" style="color:var(--turf);font-size:11px;">${ic.check} All players verified — team is eligible</div>`
+        :`<div class="card mt3" style="background:rgba(226,55,68,.08);border-color:var(--live);padding:10px;">
+            <div style="font-size:11px;font-weight:700;color:var(--live);">⚠️ NOT ELIGIBLE</div>
+            <div style="font-size:10px;color:var(--dim);margin-top:2px;">Players with unverified KYC cannot be confirmed. KYC cannot be overridden by the Organiser.</div>
+          </div>`}
+    </div>
+  </div>`;
+}
+
+/* ---- 8. Bracket ---- */
+function screenMegaBracket(){
+  const rounds = [
+    { round:'Round of 32', matches:16 },
+    { round:'Round of 16', matches:8 },
+    { round:'Quarter Final', matches:4 },
+    { round:'Semi Final', matches:2 },
+  ];
+  const done = state.megaRoundsDone;
+  const allRoundsDone = done>=4;
+  const nextRound = rounds[done] ? rounds[done].round : null;
+  return `
+  ${megaHeader('Knockout Bracket','dashboard')}
+  ${megaContextStrip()}
+  <div class="content" style="padding-top:0;display:flex;flex-direction:column;gap:12px;">
+    ${!state.megaRefsAssigned ? `
+    <div class="card" style="background:rgba(244,180,26,.08);border-color:rgba(244,180,26,.3);">
+      <div class="row gap2">${ic.lock}<div style="font-size:11px;font-weight:700;color:#fff;">Referees not assigned</div></div>
+      <div style="font-size:10px;color:var(--dim);margin-top:2px;">Matches cannot start until every fixture has a verified Spoto Referee.</div>
+      <button class="btn btn-amber btn-block mt3" onclick="megaGo('fixtures')">Assign Referees</button>
+    </div>`:''}
+
+    <div class="card">
+      ${rounds.map((r,i)=>{
+        const complete = i<done;
+        const isNext = i===done && !allRoundsDone;
+        return `
+        <div class="row between" style="padding:8px 0;${i>0?'border-top:1px solid var(--line);':''}">
+          <div class="row gap2">
+            <span style="font-size:11px;font-weight:700;color:${complete?'var(--turf)':isNext?'var(--amber)':'var(--dim)'};">${r.round}</span>
+            ${complete?`<span style="color:var(--turf);">${ic.check}</span>`:''}
+          </div>
+          <span style="font-size:10px;color:var(--dim);">${complete?r.matches:0}/${r.matches} played</span>
+        </div>`;
+      }).join('')}
+      <div class="row between" style="padding:8px 0;border-top:1px solid var(--line);">
+        <span style="font-size:11px;font-weight:700;color:${allRoundsDone?'var(--amber)':'var(--dim)'};">Final</span>
+        <span style="font-size:10px;color:var(--dim);">${state.megaFinalDone?'1/1':'0/1'} played</span>
+      </div>
+      ${!allRoundsDone && state.megaRefsAssigned ? `
+      <button class="btn btn-amber btn-block mt3" onclick="megaPlayRound()">▶ Simulate ${nextRound} Results (Referee App)</button>
+      <div style="font-size:9px;color:var(--dim);margin-top:6px;text-align:center;">Results flow in from the Referee App as each match completes.</div>`:''}
+    </div>
+
+    ${allRoundsDone ? `
+    <div class="card" style="border-color:rgba(244,180,26,.4);">
+      <div class="row between mb2">
+        <span class="badge badge-mega">${ic.crown}FINAL</span>
+        <span class="status ${state.megaFinalDone?'status-done':'status-live'}">${state.megaFinalDone?'Completed':'Result Pending'}</span>
+      </div>
+      <div class="row between" style="text-align:center;">
+        <div style="flex:1;">
+          <div style="font-size:12px;font-weight:700;color:#fff;">${megaFinalMatch.teamA}</div>
+          <div class="mono" style="font-size:16px;font-weight:700;color:var(--amber);">${megaFinalMatch.scoreA}</div>
+        </div>
+        <div style="font-size:9px;color:var(--dim);padding:0 8px;">VS</div>
+        <div style="flex:1;">
+          <div style="font-size:12px;font-weight:700;color:#fff;">${megaFinalMatch.teamB}</div>
+          <div class="mono" style="font-size:16px;font-weight:700;color:#fff;">${megaFinalMatch.scoreB}</div>
+        </div>
+      </div>
+      <div class="row between mt3" style="font-size:9px;color:var(--dim);">
+        <span>Referee: ${megaFinalMatch.referee} · ${megaFinalMatch.refereeId}</span>
+        <span>${megaFinalMatch.time}</span>
+      </div>
+      <div style="font-size:9px;color:var(--dim);margin-top:2px;">${megaFinalMatch.venue} · Result recorded via Referee App — cannot be altered by Organiser</div>
+      ${!state.megaFinalDone
+        ?`<button class="btn btn-amber btn-block mt3" onclick="megaVerifyFinal()">${ic.check} Verify Referee Result & Process Qualification</button>`
+        :`<div class="row gap2 mt3" style="color:var(--turf);font-size:11px;">${ic.check} Winner verified: <b>Team Titans</b> — qualification processed</div>`}
+    </div>`
+    : `<div style="font-size:10px;color:var(--dim);text-align:center;">The Final unlocks after all earlier rounds are complete.</div>`}
+  </div>`;
+}
+
+/* ---- 9. Qualification celebration ---- */
+function screenMegaQualified(){
+  return `
+  <div class="content fade-in" style="padding-top:36px;text-align:center;position:relative;overflow:hidden;">
+    <div style="font-size:40px;letter-spacing:8px;">🎉🏆🎉</div>
+    <div class="display" style="font-size:26px;color:var(--amber);margin-top:8px;">QUALIFIED!</div>
+    <div style="font-size:12px;color:#fff;margin-top:10px;">Your team</div>
+    <div class="display" style="font-size:20px;color:#fff;">TEAM TITANS</div>
+    <div class="mt2">${megaIdChip('SPT-TEAM-000128')}</div>
+    <div style="font-size:12px;color:#fff;margin-top:10px;">has qualified for</div>
+    <div style="font-size:13px;font-weight:800;color:var(--amber);">SPOTO MEGA CRICKET CHAMPIONSHIP 2026</div>
+    <div class="card mt4" style="text-align:left;">
+      ${row('Qualified by', ORG.name, '#fff')}
+      ${row('Organiser ID', ORG.id, '#fff')}
+      ${row('Qualification ID', 'SPT-QUAL-000784', 'var(--amber)')}
+      ${row('Qualification leg', 'Hyderabad Leg 07', '#fff')}
+      ${row('Status', 'VERIFIED & LOCKED 🔒', 'var(--turf)')}
+    </div>
+    <div class="card mt3" style="background:rgba(244,180,26,.08);border-color:rgba(244,180,26,.3);text-align:left;">
+      <div style="font-size:10px;color:var(--dim);">Your qualifying position for this Mega Tournament is now <b style="color:#fff;">locked</b>. One Organiser = One Qualified Team.</div>
+    </div>
+    <div class="row gap2 mt4">
+      <button class="btn btn-ghost" style="flex:1;" onclick="megaGo('journey')">Championship Path</button>
+      <button class="btn btn-amber" style="flex:1;" onclick="megaGo('dashboard')">Dashboard</button>
+    </div>
+  </div>`;
+}
+
+/* ---- 10. Championship journey ---- */
+function screenMegaJourney(){
+  const cfg = { won:['✅ WON','var(--turf)'], done:['✅ DONE','var(--turf)'], qualified:['✅ QUALIFIED','var(--turf)'], current:['🟡 CURRENT','var(--amber)'], upcoming:['🔴 UPCOMING','var(--amber)'], locked:['⚪ LOCKED','var(--dim)'] };
+  const vs = state.megaVenueStatus;
+  const steps = [
+    { stage:'Organiser Approved', status: state.megaAppStatus==='approved'?'done':'current' },
+    { stage:'Venue & Schedule Approved', status: vs==='approved'?'done': (state.megaAppStatus==='approved'?'current':'locked') },
+    { stage:'Registration Completed', status: state.megaRegOpen?(state.megaQualified?'done':'current'):'locked' },
+    { stage:'Knockout Conducted · Hyderabad Leg 07', status: state.megaFinalDone?'done':(state.megaRegOpen?'current':'locked') },
+    { stage:'🏆 Team Qualified — Team Titans', status: state.megaQualified?'qualified':'locked' },
+    { stage:'Qualification Locked 🔒', status: state.megaQualified?'done':'locked' },
+    { stage:'Next Leg — Admin Controlled', status: state.megaQualified?'current':'locked' },
+    { stage:'Semi Final', status:'locked' },
+    { stage:'Grand Final', status:'locked' },
+  ];
+  return `
+  ${megaHeader('Championship Journey','dashboard')}
+  ${megaContextStrip()}
+  <div class="content" style="padding-top:0;">
+    ${state.megaQualified?`
+    <div class="card mb3" style="background:rgba(30,138,76,.08);border-color:var(--turf);">
+      <div style="font-size:12px;font-weight:700;color:#fff;">🏆 Team Titans</div>
+      <div class="mt2">${megaIdChip('SPT-TEAM-000128')} ${megaIdChip('SPT-QUAL-000784')}</div>
+      <div style="font-size:9px;color:var(--dim);margin-top:4px;">Stages beyond your leg are controlled by Spoto Admin — you can only view progression.</div>
+    </div>`:''}
+    <div class="card">
+      ${steps.map((j,i)=>{
+        const [label,color] = cfg[j.status];
+        const done = j.status==='done'||j.status==='won'||j.status==='qualified';
+        return `
+        <div class="row gap3" style="align-items:flex-start;">
+          <div style="display:flex;flex-direction:column;align-items:center;">
+            <div style="width:22px;height:22px;border-radius:999px;background:${done?'rgba(30,138,76,.2)':'var(--ink3)'};display:flex;align-items:center;justify-content:center;color:${color};font-size:10px;">${done?'✓':i+1}</div>
+            ${i<steps.length-1?`<div style="width:2px;height:24px;background:${done?'var(--turf)':'var(--ink3)'};"></div>`:''}
+          </div>
+          <div style="padding-bottom:10px;">
+            <div style="font-size:11px;font-weight:700;color:${j.status==='locked'?'var(--dim)':'#fff'};">${j.stage}</div>
+            <div style="font-size:9px;font-weight:700;color:${color};margin-top:2px;">${label}</div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>`;
+}
+
+/* ---- 11. Earnings + Champion bonus ---- */
+function screenMegaEarnings(){
+  return `
+  ${megaHeader('Mega Earnings','dashboard')}
+  ${megaContextStrip()}
+  <div class="content" style="padding-top:0;display:flex;flex-direction:column;gap:12px;">
+    <div class="card" style="background:linear-gradient(135deg,var(--amber),#B8830E);">
+      <div style="font-size:11px;color:rgba(26,18,0,.7);">Total potential earnings — Hyderabad Leg 07</div>
+      <div class="display" style="font-size:24px;color:#1a1200;">₹2,66,000</div>
+      <div style="font-size:10px;color:rgba(26,18,0,.7);margin-top:2px;">₹16,000 revenue share + ₹2,50,000 champion bonus potential</div>
+    </div>
+
+    <div class="card">
+      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:8px;">Registration revenue (32 teams × ₹1,000)</div>
+      ${row('Total collected', '₹32,000', '#fff')}
+      ${row('Your share (50%)', '₹16,000', 'var(--turf)')}
+      ${row('Spoto share (50%)', '₹16,000', 'var(--dim)')}
+      <div class="row gap2 mt3" style="flex-wrap:wrap;">
+        ${[['AVAILABLE','₹12,000','var(--turf)'],['PENDING','₹4,000','var(--amber)'],['PROCESSING','₹0','var(--dim)'],['PAID','₹0','var(--dim)']].map(([l,v,c])=>`
+          <div style="flex:1;min-width:70px;background:var(--ink3);border-radius:10px;padding:8px;text-align:center;">
+            <div style="font-size:8px;font-weight:800;color:${c};letter-spacing:.05em;">${l}</div>
+            <div class="mono" style="font-size:12px;font-weight:700;color:#fff;margin-top:2px;">${v}</div>
+          </div>`).join('')}
+      </div>
+    </div>
+
+    <div class="card" style="border-color:rgba(244,180,26,.4);">
+      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:8px;">🏆 Champion Bonus Ledger</div>
+      ${row('Qualified team', 'Team Titans', '#fff')}
+      ${row('Team ID', 'SPT-TEAM-000128', '#fff')}
+      ${row('Qualified by', ORG.id, '#fff')}
+      ${row('Mega Tournament prize', '₹10,00,000', '#fff')}
+      ${row('Organiser bonus', '25%', 'var(--amber)')}
+      ${row('Potential bonus', '₹2,50,000', 'var(--turf)')}
+      ${row('Current status', state.megaQualified?'PENDING — awaiting championship result':'—', 'var(--amber)')}
+      <div style="font-size:9px;color:var(--dim);margin-top:6px;">Bonus attribution is locked to Qualification ID SPT-QUAL-000784. If Team Titans wins the Mega Final: Processing → Approved → Paid.</div>
+    </div>
+
+    <div class="card">
+      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:8px;">Organiser performance</div>
+      ${row('Mega tournaments joined', '1', '#fff')}
+      ${row('Qualification legs conducted', '1', '#fff')}
+      ${row('Teams registered', '24', '#fff')}
+      ${row('Qualified teams', state.megaQualified?'1 (Team Titans)':'0', '#fff')}
+      ${row('Mega champions produced', '0', '#fff')}
+      ${row('Champion bonuses earned', '₹0', '#fff')}
+    </div>
+  </div>`;
+}
+
+/* ---- Mega context strip (always-visible context per spec) ---- */
+function megaContextStrip(){
+  return `
+  <div style="margin:0 16px 10px;background:rgba(244,180,26,.08);border:1px solid rgba(244,180,26,.3);border-radius:10px;padding:8px 12px;">
+    <div style="font-size:8px;font-weight:800;letter-spacing:.08em;color:var(--amber);">SPOTO MEGA TOURNAMENT</div>
+    <div style="font-size:11px;font-weight:700;color:#fff;">Spoto Mega Cricket Championship 2026 · LEG 07</div>
+  </div>`;
+}
+
+/* ---- 12. Organiser Approved celebration ---- */
+function screenMegaApproved(){
+  const m = megaTournaments[0];
+  return `
+  <div class="content fade-in" style="padding-top:36px;text-align:center;">
+    <div style="font-size:38px;">🎉</div>
+    <div class="display" style="font-size:24px;color:var(--turf);margin-top:8px;">You're Approved!</div>
+    <div style="font-size:11px;color:var(--dim);margin-top:6px;max-width:290px;margin-left:auto;margin-right:auto;">You have been approved to conduct a Knockout Leg of this Spoto Mega Tournament.</div>
+    <div class="card mt4" style="text-align:left;">
+      ${row('Mega Tournament', m.name, '#fff')}
+      ${row('Mega Tournament ID', m.id, '#fff')}
+      ${row('Organiser ID', ORG.id, '#fff')}
+      ${row('Assigned leg', 'HYDERABAD LEG 07', 'var(--amber)')}
+      ${row('Registration fee', '₹1,000 / team', '#fff')}
+      ${row('Revenue share', '50%', 'var(--turf)')}
+      ${row('Champion bonus', '25%', 'var(--turf)')}
+    </div>
+    <div class="card mt3" style="background:rgba(244,180,26,.08);border-color:rgba(244,180,26,.3);text-align:left;">
+      <div class="row gap2">${ic.lock}<div style="font-size:11px;font-weight:700;color:#fff;">Registration locked</div></div>
+      <div style="font-size:10px;color:var(--dim);margin-top:2px;">Team registration opens only after your venue & schedule are approved by Spoto Admin.</div>
+    </div>
+    <button class="btn btn-amber btn-block mt4" onclick="megaOpenVenueFlow()">${ic.pin} Add Venue & Schedule</button>
+    <button class="btn btn-ghost btn-block mt2" onclick="megaGo('detail')">View Tournament Details</button>
+  </div>`;
+}
+
+/* ---- 13. Venue selection (reuses organiser's saved venues) ---- */
+function megaVenuesSummaryList(){
+  return state.venueStages
+    .filter(s => s.enabled)
+    .flatMap(s => s.venues.filter(v => v.name && v.name.trim()).map(v => ({ ...v, stageLabel: s.label, stageEmoji: s.emoji })));
+}
+function megaTotalMatchesNeeded(){
+  return state.venueStages.filter(s=>s.enabled).reduce((sum,s)=>sum+s.matchesInStage,0);
+}
+
+function screenMegaVenueSelect(){
+  const filled = megaVenuesSummaryList();
+  const totalNeeded = megaTotalMatchesNeeded();
+  return `
+  ${megaHeader('Add Venues & Schedule','list')}
+  ${megaContextStrip()}
+  <div class="content" style="padding-top:0;display:flex;flex-direction:column;gap:10px;">
+    <div style="font-size:10px;color:var(--dim);">Same "Add Venues" system used when creating a Regular Spoto Tournament — set your team count, then assign a venue to each knockout round needed for this Mega leg.</div>
+    ${renderTeamCountAndRounds()}
+    ${renderVenueStagesOnly()}
+
+    <div class="field-label" style="margin-top:4px;">Overall leg schedule</div>
+    <div class="grid2">
+      <div>
+        <div class="field-label">Start date</div>
+        <div class="field">${ic.calendar}<input type="date" value="${state.megaSched.start}" oninput="state.megaSched.start=this.value;render();" class="venue-input" /></div>
+      </div>
+      <div>
+        <div class="field-label">End date</div>
+        <div class="field" style="${state.megaSched.end<state.megaSched.start?'border-color:var(--live);':''}">${ic.calendar}<input type="date" value="${state.megaSched.end}" oninput="state.megaSched.end=this.value;render();" class="venue-input" /></div>
+      </div>
+    </div>
+    ${state.megaSched.end<state.megaSched.start?`<div style="font-size:10px;color:var(--live);font-weight:700;">End Date must be on or after Start Date.</div>`:''}
+    <div class="grid2">
+      <div>
+        <div class="field-label">Daily start time</div>
+        <div class="field">${ic.clock}<input type="time" value="${state.megaSched.dayStart}" oninput="state.megaSched.dayStart=this.value" class="venue-input" /></div>
+      </div>
+      <div>
+        <div class="field-label">Daily end time</div>
+        <div class="field">${ic.clock}<input type="time" value="${state.megaSched.dayEnd}" oninput="state.megaSched.dayEnd=this.value" class="venue-input" /></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:8px;">Feasibility (from your Regular Tournament format)</div>
+      ${row('Match duration', state.matchFormat.duration+' mins', '#fff')}
+      ${row('Buffer between matches', state.matchFormat.bufferTime+' mins', '#fff')}
+      ${row('Matches required', String(totalNeeded), '#fff')}
+      ${row('Venues added', String(filled.length), '#fff')}
+      ${(()=>{
+        const perMatch = Number(state.matchFormat.duration)+Number(state.matchFormat.bufferTime);
+        const multiDay = state.megaSched.end > state.megaSched.start;
+        const days = multiDay?2:1;
+        const [sh,sm]=state.megaSched.dayStart.split(':').map(Number); const [eh,em]=state.megaSched.dayEnd.split(':').map(Number);
+        const minsPerDay = Math.max(0,(eh*60+em)-(sh*60+sm));
+        const capacity = Math.floor(minsPerDay/Math.max(1,perMatch))*days*Math.max(1,filled.length);
+        return capacity>=totalNeeded && totalNeeded>0
+          ?`<div class="row gap2 mt2" style="color:var(--turf);font-size:11px;">${ic.check} Feasible — capacity for ${capacity} match slots vs ${totalNeeded} needed</div>`
+          :`<div class="card mt2" style="background:rgba(226,55,68,.08);border-color:var(--live);padding:10px;">
+              <div style="font-size:11px;font-weight:700;color:var(--live);">⚠️ SCHEDULE CONFLICT</div>
+              <div style="font-size:10px;color:var(--dim);margin-top:2px;">Your venues and schedule can't accommodate all planned matches (${capacity}/${totalNeeded} slots). Increase duration, extend daily hours, add another venue, or reduce match intervals.</div>
+            </div>`;
+      })()}
+    </div>
+  </div>
+  <div class="sticky-footer">
+    <button class="btn btn-amber" style="flex:1;${filled.length && state.megaSched.end>=state.megaSched.start?'':'opacity:.4;pointer-events:none;'}" onclick="megaGo('schedSummary')">Review Summary · ${filled.length} venue${filled.length===1?'':'s'} added</button>
+  </div>`;
+}
+
+/* ---- 15. Schedule summary + submit ---- */
+function screenMegaSchedSummary(){
+  const s = state.megaSched;
+  const filled = megaVenuesSummaryList();
+  return `
+  ${megaHeader('Venue & Schedule Summary','venueSelect')}
+  ${megaContextStrip()}
+  <div class="content" style="padding-top:0;display:flex;flex-direction:column;gap:12px;">
+    <div class="card">
+      ${row('Mega Tournament', 'Spoto Mega Cricket Championship 2026', '#fff')}
+      ${row('Leg', 'HYDERABAD LEG 07', 'var(--amber)')}
+      ${row('Start date', s.start, '#fff')}
+      ${row('End date', s.end, '#fff')}
+      ${row('Daily timing', s.dayStart+' – '+s.dayEnd, '#fff')}
+      ${row('Expected teams', String(state.totalTeams), '#fff')}
+      ${row('Format', 'Knockout', '#fff')}
+      ${row('Matches required', String(megaTotalMatchesNeeded()), '#fff')}
+    </div>
+    <div class="card">
+      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:8px;">Venues by knockout round</div>
+      ${filled.length===0 ? `<div style="font-size:10px;color:var(--live);">No venues added yet.</div>` : filled.map(v=>`
+        <div style="background:var(--ink3);border-radius:10px;padding:8px 10px;margin-bottom:6px;">
+          <div style="font-size:10px;font-weight:700;color:var(--amber);">${v.stageEmoji} ${v.stageLabel}</div>
+          <div style="font-size:11px;font-weight:600;color:#fff;margin-top:2px;">${v.name}${v.location?' · '+v.location:''}</div>
+          <div class="row gap3 mt2" style="font-size:9px;color:var(--dim);flex-wrap:wrap;">
+            <span>${ic.hash} ${v.maxMatches||0} matches</span>
+            ${v.matchDate?`<span>${ic.calendar} ${v.matchDate}</span>`:''}
+            ${v.matchTime?`<span>${ic.clock} ${v.matchTime}</span>`:''}
+          </div>
+        </div>`).join('')}
+    </div>
+    <div style="font-size:10px;color:var(--dim);">On submission, your venue & schedule go to Spoto Admin for verification. You cannot open registration, accept teams or generate fixtures until approved.</div>
+  </div>
+  <div class="sticky-footer">
+    <button class="btn btn-amber" style="flex:1;" onclick="megaSubmitSchedule()">Submit for Admin Approval</button>
+  </div>`;
+}
+
+/* ---- 16. Pending / changes-requested states ---- */
+function screenMegaVenuePending(){
+  const changes = state.megaVenueStatus==='changes';
+  return `
+  ${megaHeader('Venue & Schedule Status','dashboard')}
+  ${megaContextStrip()}
+  <div class="content" style="padding-top:0;text-align:center;">
+    ${changes?`
+    <div style="width:56px;height:56px;border-radius:999px;background:rgba(243,128,28,.15);display:flex;align-items:center;justify-content:center;margin:20px auto 16px;color:#F3801C;">${ic.x}</div>
+    <div class="display" style="font-size:18px;color:#F3801C;">🟠 Changes Required</div>
+    <div class="card mt4" style="text-align:left;background:rgba(243,128,28,.08);border-color:#F3801C;">
+      <div style="font-size:10px;font-weight:800;color:#F3801C;letter-spacing:.05em;">ADMIN MESSAGE</div>
+      <div style="font-size:11px;color:#fff;margin-top:4px;line-height:1.5;">"Please provide an updated schedule. The current schedule does not provide sufficient time between matches."</div>
+    </div>
+    <button class="btn btn-amber btn-block mt4" onclick="megaOpenVenueFlow()">Edit Venue & Schedule</button>
+    `:`
+    <div style="width:56px;height:56px;border-radius:999px;background:rgba(244,180,26,.15);display:flex;align-items:center;justify-content:center;margin:20px auto 16px;color:var(--amber);">${ic.clock}</div>
+    <div class="display" style="font-size:18px;color:#fff;">Venue & Schedule Submitted</div>
+    <div style="font-size:11px;color:var(--dim);margin-top:6px;max-width:280px;margin-left:auto;margin-right:auto;">Your venue and tournament schedule have been submitted to Spoto Admin for approval. Editing is locked while under review.</div>
+    <div class="card mt4" style="text-align:left;">
+      ${row('Status', '🟡 PENDING ADMIN APPROVAL', 'var(--amber)')}
+      ${row('Registration', 'LOCKED 🔒', 'var(--dim)')}
+    </div>
+    <div class="row gap2 mt4">
+      <button class="btn btn-ghost" style="flex:1;" onclick="megaVenueRequestChanges()">Simulate: Request Changes</button>
+      <button class="btn btn-turf" style="flex:1;" onclick="megaVenueApprove()">Simulate: Approve</button>
+    </div>
+    `}
+  </div>`;
+}
+
+/* ---- 17. Venue approved ---- */
+function screenMegaVenueApproved(){
+  const s = state.megaSched;
+  const venues = megaVenuesSummaryList();
+  return `
+  ${megaHeader('Venue & Schedule Approved','dashboard')}
+  ${megaContextStrip()}
+  <div class="content" style="padding-top:0;text-align:center;">
+    <div style="width:56px;height:56px;border-radius:999px;background:rgba(30,138,76,.15);display:flex;align-items:center;justify-content:center;margin:16px auto;color:var(--turf);">${ic.check}</div>
+    <div class="display" style="font-size:18px;color:var(--turf);">Venue & Schedule Approved ✅</div>
+    <div style="font-size:11px;color:var(--dim);margin-top:6px;">Your Mega Tournament Knockout Leg is ready for registration.</div>
+    <div class="card mt4" style="text-align:left;">
+      ${venues.map(v=>row(v.stageLabel, v.name, '#fff')).join('')}
+      ${row('Schedule', s.start+' → '+s.end, '#fff')}
+      ${row('Daily timing', s.dayStart+' – '+s.dayEnd, '#fff')}
+      ${row('Registration opens', 'Immediately on your action', '#fff')}
+      ${row('Registration closes', 'Sep 18, 2026', '#fff')}
+      ${row('Team capacity', String(state.totalTeams), '#fff')}
+      ${row('Entry fee', '₹1,000', '#fff')}
+    </div>
+    <button class="btn btn-amber btn-block mt4" onclick="megaOpenRegistration()">Open Registration</button>
+  </div>`;
+}
+
+/* ---- 18. Fixtures & Referee assignment ---- */
+function screenMegaFixtures(){
+  const assigned = state.megaRefsAssigned;
+  const fixtures = [
+    { id:'M01', teamA:'Team Titans', teamB:'Nizam Riders', time:'8:00 AM', venue:'Spoto Sports Arena' },
+    { id:'M02', teamA:'Deccan Chargers XI', teamB:'Kukatpally Kings', time:'8:35 AM', venue:'Spoto Sports Arena' },
+    { id:'M03', teamA:'Gachibowli Gladiators', teamB:'Miyapur Mavericks', time:'9:10 AM', venue:'Spoto Sports Arena' },
+    { id:'M04', teamA:'Hitech Hawks', teamB:'Kondapur Knights', time:'9:45 AM', venue:'Spoto Sports Arena' },
+  ];
+  const refs = ['Kiran Kumar · SPT-REF-000112','Sandeep Rao · SPT-REF-000118','Divya Sri · SPT-REF-000121'];
+  return `
+  ${megaHeader('Fixtures & Referees','dashboard')}
+  ${megaContextStrip()}
+  <div class="content" style="padding-top:0;display:flex;flex-direction:column;gap:12px;">
+    <div class="card" style="padding:10px 12px;">
+      <div class="row between">
+        <span style="font-size:11px;font-weight:700;color:#fff;">Round of 32 · Day 1 · ${state.megaSched.dayStart}</span>
+        <span style="font-size:10px;color:var(--dim);">31 matches total</span>
+      </div>
+    </div>
+
+    ${!assigned ? `
+    <div class="card" style="background:rgba(244,180,26,.08);border-color:rgba(244,180,26,.3);">
+      <div style="font-size:11px;font-weight:700;color:#fff;">Assign verified Spoto Referees</div>
+      <div style="font-size:10px;color:var(--dim);margin-top:2px;">Matches cannot start without an assigned verified referee. Results are recorded only via the Referee App.</div>
+      ${refs.map(r=>`
+        <div class="row between" style="padding:6px 0;border-top:1px solid var(--line);">
+          <span style="font-size:11px;color:#fff;">${r}</span>
+          <span class="status status-approved">✅ Verified</span>
+        </div>`).join('')}
+      <button class="btn btn-amber btn-block mt3" onclick="megaAssignAllRefs()">Auto-Assign Referees to All Matches</button>
+    </div>`
+    : `<div class="row gap2" style="color:var(--turf);font-size:11px;padding:0 2px;">${ic.check} All 31 matches have verified referees assigned</div>`}
+
+    ${fixtures.map((f,i)=>`
+      <div class="card" style="padding:12px;">
+        <div class="row between mb2">
+          <span class="mono" style="font-size:9px;color:var(--dim);">${f.id}</span>
+          ${assigned?`<span style="font-size:9px;color:var(--turf);font-weight:700;">Ref: ${refs[i%3].split(' · ')[0]}</span>`:`<span class="status status-pending">No referee</span>`}
+        </div>
+        <div class="row between" style="text-align:center;">
+          <span style="flex:1;font-size:11px;font-weight:700;color:#fff;">${f.teamA}</span>
+          <span style="font-size:9px;color:var(--dim);padding:0 6px;">VS</span>
+          <span style="flex:1;font-size:11px;font-weight:700;color:#fff;">${f.teamB}</span>
+        </div>
+        <div class="row between mt2" style="font-size:9px;color:var(--dim);">
+          <span>${f.venue}</span><span>${f.time}</span>
+        </div>
+      </div>`).join('')}
+    <div style="font-size:9px;color:var(--dim);text-align:center;">+ 12 more Round of 32 fixtures…</div>
+    <button class="btn btn-amber btn-block" onclick="megaGo('bracket')" style="${assigned?'':'opacity:.4;pointer-events:none;'}">Go to Knockout Bracket</button>
+  </div>`;
+}
+
+function screenNotifications(){
+  const notifs = computeNotifications();
+  const colors = { high:'var(--live)', med:'var(--amber)', low:'var(--turf)' };
+  return `
+  <div class="row gap2" style="padding:16px 16px 4px;">
+    <button class="btn-round" onclick="closeOverlay()">${ic.chevronLeft}</button>
+    <div class="h1">Notifications</div>
+  </div>
+  <div class="content" style="padding-top:8px;display:flex;flex-direction:column;gap:10px;">
+    ${notifs.length===0 ? `
+      <div style="text-align:center;padding-top:60px;">
+        <div style="color:var(--dim);display:flex;justify-content:center;margin-bottom:10px;">${ic.bell}</div>
+        <div style="font-size:11px;color:var(--dim);">No notifications yet — start your Mega Tournament application to see updates here.</div>
+      </div>`
+    : notifs.map(n => `
+      <div class="card" style="padding:12px;border-left:3px solid ${colors[n.level]};display:flex;gap:10px;align-items:flex-start;">
+        <div style="color:${colors[n.level]};flex-shrink:0;margin-top:1px;">${n.icon}</div>
+        <div style="font-size:11px;color:#fff;line-height:1.5;">${n.text}</div>
+      </div>`).join('')}
+  </div>`;
+}
+
+/* ---- 19. Match Schedule (generated from the venues added) ---- */
+function screenMegaMatchSchedule(){
+  const schedule = state.megaMatchSchedule.length ? state.megaMatchSchedule : computeMegaMatchSchedule();
+  const grouped = [];
+  schedule.forEach(m => {
+    let g = grouped.find(x=>x.label===m.stageLabel);
+    if(!g){ g = { label:m.stageLabel, emoji:m.stageEmoji, items:[] }; grouped.push(g); }
+    g.items.push(m);
+  });
+  return `
+  ${megaHeader('Match Schedule','dashboard')}
+  ${megaContextStrip()}
+  <div class="content" style="padding-top:0;">
+    <div class="card mb3" style="background:rgba(30,138,76,.08);border-color:var(--turf);">
+      <div class="row gap2">${ic.check}<div style="font-size:11px;font-weight:700;color:#fff;">🗓️ Your Match Schedule is ready</div></div>
+      <div style="font-size:10px;color:var(--dim);margin-top:2px;">${schedule.length} matches scheduled across ${grouped.length} knockout round${grouped.length===1?'':'s'}, generated from the venues you added.</div>
+    </div>
+    ${grouped.length===0 ? `
+      <div class="card" style="text-align:center;padding:20px 12px;">
+        <div style="font-size:10px;color:var(--dim);">No schedule yet — add venues to a knockout round first.</div>
+      </div>`
+    : grouped.map(g => `
+      <div class="card mb2">
+        <div style="font-size:11px;font-weight:700;color:var(--amber);margin-bottom:8px;">${g.emoji} ${g.label} · ${g.items.length} match${g.items.length===1?'':'es'}</div>
+        ${g.items.map((m,i) => `
+          <div class="row between" style="padding:6px 0;${i>0?'border-top:1px solid var(--line);':''}">
+            <div>
+              <div style="font-size:11px;font-weight:600;color:#fff;">${m.matchLabel}</div>
+              <div style="font-size:9px;color:var(--dim);">${m.venueName}${m.venueLocation?' · '+m.venueLocation:''}</div>
+            </div>
+            <div style="text-align:right;">
+              <div class="mono" style="font-size:10px;color:#fff;font-weight:700;">${m.time}</div>
+              <div style="font-size:9px;color:var(--dim);">${m.date}</div>
+            </div>
+          </div>`).join('')}
+      </div>`).join('')}
+  </div>
+  <div class="sticky-footer">
+    <button class="btn btn-amber" style="flex:1;" onclick="megaGo('dashboard')">Continue to Dashboard</button>
+  </div>`;
+}
+
+function renderMegaTab(){
+  const map = {
+    list:screenMegaList, detail:screenMegaDetail, apply:screenMegaApply, submitted:screenMegaSubmitted,
+    approved:screenMegaApproved, venueSelect:screenMegaVenueSelect,
+    schedSummary:screenMegaSchedSummary, venuePending:screenMegaVenuePending, venueApproved:screenMegaVenueApproved,
+    dashboard:screenMegaDashboard, teams:screenMegaTeams, teamDetail:screenMegaTeamDetail, fixtures:screenMegaFixtures,
+    matchSchedule:screenMegaMatchSchedule,
+    bracket:screenMegaBracket, qualified:screenMegaQualified, journey:screenMegaJourney, earnings:screenMegaEarnings,
+  };
+  /* Guard 1: everything past the application requires organiser approval */
+  const needsApproval = ['approved','venueSelect','schedSummary','venuePending','venueApproved','dashboard','teams','teamDetail','fixtures','matchSchedule','bracket','journey','earnings'];
+  if(needsApproval.includes(state.megaScreen) && state.megaAppStatus!=='approved') state.megaScreen='list';
+  /* Guard 2: registration-dependent screens require venue+schedule approval AND open registration */
+  const needsRegistration = ['teams','teamDetail','fixtures','matchSchedule','bracket'];
+  if(needsRegistration.includes(state.megaScreen) && !(state.megaVenueStatus==='approved' && state.megaRegOpen)) state.megaScreen='dashboard';
+  return (map[state.megaScreen] || screenMegaList)();
+}
+
+/* ================= SPLASH & ONBOARDING ================= */
+function onbLogoHeader(){
+  return `
+  <div style="display:flex;align-items:center;gap:7px;position:relative;z-index:2;margin-bottom:22px;">
+    <div style="width:26px;height:26px;border-radius:8px;background:linear-gradient(155deg,var(--amber),#B8830E);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+      ${ic.crown.replace('class="icon"','class="icon" style="width:14px;height:14px;color:#1a1200;"')}
+    </div>
+    <span style="font-family:'Anton',sans-serif;font-size:13px;letter-spacing:.04em;color:#fff;">SPOTO</span>
+  </div>`;
+}
+
+/* ---- Per-slide visual concepts ---- */
+function onbVisualWelcome(){
+  return `
+  <div style="position:relative;width:210px;height:210px;margin:6px auto 0;display:flex;align-items:center;justify-content:center;">
+    <div style="position:absolute;inset:0;border-radius:999px;background:radial-gradient(circle, rgba(244,180,26,.28), transparent 70%);"></div>
+    <div style="position:absolute;width:164px;height:164px;border-radius:999px;border:1.5px dashed rgba(244,180,26,.35);"></div>
+    <div style="width:92px;height:92px;border-radius:999px;background:linear-gradient(155deg,var(--amber),#B8830E);display:flex;align-items:center;justify-content:center;box-shadow:0 22px 50px rgba(244,180,26,.32);">
+      ${ic.trophy.replace('class="icon"','class="icon" style="width:42px;height:42px;color:#1a1200;"')}
+    </div>
+    <div style="position:absolute;top:2px;right:14px;width:38px;height:38px;border-radius:12px;background:var(--ink2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;">
+      ${ic.target.replace('class="icon"','class="icon" style="width:18px;height:18px;color:var(--turf);"')}
+    </div>
+    <div style="position:absolute;bottom:6px;left:6px;width:38px;height:38px;border-radius:12px;background:var(--ink2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;">
+      ${ic.users.replace('class="icon"','class="icon" style="width:18px;height:18px;color:#5B8DEF;"')}
+    </div>
+  </div>`;
+}
+function onbVisualCreate(){
+  return `
+  <div style="position:relative;height:172px;width:100%;max-width:270px;margin:10px auto 0;">
+    <div class="floatcard" style="position:absolute;top:0;left:6px;transform:rotate(-4deg);">${ic.target.replace('class="icon"','class="icon" style="width:12px;height:12px;color:var(--turf);"')} CRICKET</div>
+    <div class="floatcard" style="position:absolute;top:36px;right:2px;transform:rotate(3deg);color:var(--amber);">${ic.users.replace('class="icon"','class="icon" style="width:12px;height:12px;"')} 32 TEAMS</div>
+    <div class="floatcard" style="position:absolute;top:86px;left:0;transform:rotate(-2deg);color:var(--amber);">${ic.rupee.replace('class="icon"','class="icon" style="width:12px;height:12px;"')} ₹1,00,000 PRIZE</div>
+    <div class="floatcard" style="position:absolute;top:132px;right:10px;transform:rotate(4deg);">${ic.trophy.replace('class="icon"','class="icon" style="width:12px;height:12px;color:var(--amber);"')} KNOCKOUT</div>
+  </div>`;
+}
+function onbVisualManage(){
+  return `
+  <div style="max-width:270px;margin:12px auto 0;">
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;">
+      ${[['Teams',ic.users],['Fixtures',ic.calendar],['Venues',ic.pin],['Matches',ic.trophy],['Results',ic.check]].map(([l,i])=>`
+        <div style="background:var(--ink2);border:1px solid var(--line);border-radius:10px;padding:9px 3px;text-align:center;">
+          <div style="color:var(--amber);display:flex;justify-content:center;">${i.replace('class="icon"','class="icon" style="width:14px;height:14px;"')}</div>
+          <div style="font-size:7px;color:var(--dim);margin-top:4px;font-weight:600;">${l}</div>
+        </div>`).join('')}
+    </div>
+    <div class="card mt3" style="text-align:left;padding:10px 12px;">
+      <div style="font-size:9px;color:var(--dim);font-weight:600;">Live Knockout Bracket</div>
+      <div class="row" style="align-items:center;gap:5px;margin-top:8px;">
+        <div style="width:7px;height:7px;border-radius:999px;background:var(--turf);flex-shrink:0;"></div>
+        <div style="flex:1;height:2px;background:var(--ink3);"></div>
+        <div style="width:7px;height:7px;border-radius:999px;background:var(--amber);flex-shrink:0;"></div>
+        <div style="flex:1;height:2px;background:var(--ink3);"></div>
+        <div style="width:7px;height:7px;border-radius:999px;background:var(--ink3);flex-shrink:0;"></div>
+      </div>
+    </div>
+  </div>`;
+}
+function onbVisualConduct(){
+  return `
+  <div style="max-width:270px;margin:10px auto 0;">
+    <div class="card" style="text-align:left;">
+      <div class="row gap2" style="color:var(--live);font-size:9px;font-weight:800;">
+        <span style="width:6px;height:6px;border-radius:999px;background:var(--live);animation:splashDot 1.1s ease infinite;"></span> LIVE
+      </div>
+      <div class="row between mt2">
+        <div><div style="font-size:11px;font-weight:700;color:#fff;">Ember United</div><div class="mono" style="font-size:19px;font-weight:800;color:var(--amber);">42/3</div></div>
+        <div style="font-size:9px;color:var(--dim);">VS</div>
+        <div style="text-align:right;"><div style="font-size:11px;font-weight:700;color:#fff;">Falcons XI</div><div class="mono" style="font-size:19px;font-weight:800;color:#fff;">—</div></div>
+      </div>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:12px;">
+      ${['LIVE SCORE','PLAYER STATS','LEADERBOARDS','MATCH RESULTS','BRACKET'].map(t=>`<span style="font-size:8px;font-weight:700;color:var(--amber);background:rgba(244,180,26,.12);border:1px solid rgba(244,180,26,.3);padding:4px 9px;border-radius:999px;">${t}</span>`).join('')}
+    </div>
+  </div>`;
+}
+function onbVisualLegacy(){
+  const steps = ['Local Tournament','City Championship','District Championship','State Championship','National Championship'];
+  return `
+  <div style="max-width:230px;margin:10px auto 0;text-align:left;">
+    ${steps.map((l,i,arr)=>{
+      const isLast = i===arr.length-1;
+      return `
+      <div class="row gap3" style="align-items:center;">
+        <div style="width:26px;height:26px;border-radius:999px;background:${isLast?'linear-gradient(155deg,var(--amber),#B8830E)':'var(--ink3)'};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:${isLast?'#1a1200':'var(--dim)'};flex-shrink:0;">${isLast?'🏆':i+1}</div>
+        <span style="font-size:11px;color:${isLast?'#fff':'var(--dim)'};font-weight:${isLast?700:500};">${l}</span>
+      </div>
+      ${!isLast?`<div style="width:2px;height:18px;background:var(--ink3);margin-left:12px;"></div>`:''}`;
+    }).join('')}
+  </div>`;
+}
+
+function onbVisualPartner(){
+  const items = [
+    { icon:ic.megaphone, label:'You Organise,\nWe Market' },
+    { icon:ic.users, label:'Attract Teams,\nEngage Audience' },
+    { icon:ic.chip, label:'Digitalise\nSporting' },
+    { icon:ic.target, label:'Add Tech To\nYour Tournaments' },
+  ];
+  return `
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:280px;margin:14px auto 0;">
+    ${items.map(it=>`
+      <div style="background:var(--ink2);border:1px solid var(--line);border-radius:14px;padding:14px 10px;text-align:center;">
+        <div style="width:36px;height:36px;border-radius:10px;background:rgba(244,180,26,.12);display:flex;align-items:center;justify-content:center;margin:0 auto 8px;color:var(--amber);">
+          ${it.icon.replace('class="icon"','class="icon" style="width:18px;height:18px;"')}
+        </div>
+        <div style="font-size:10px;font-weight:700;color:#fff;white-space:pre-line;line-height:1.35;">${it.label}</div>
+      </div>`).join('')}
+  </div>`;
+}
+
+const onboardSlides = [
+  { kicker:null, title:'POWER SPORTS.\nCREATE CHAMPIONS.',
+    desc:'Join Spoto and become a trusted sports tournament partner. Create, manage and conduct professional sports tournaments through one powerful platform.',
+    visual:onbVisualWelcome, cta:'Get Started' },
+  { kicker:'WHY PARTNER WITH SPOTO', title:'YOU ORGANISE.\nWE MARKET.',
+    desc:'Focus on running a great tournament. Spoto helps you attract teams, engage your audience, digitalise sporting, and add real technology to every match.',
+    visual:onbVisualPartner, cta:'See How It Works' },
+  { kicker:'CREATE TOURNAMENTS', title:'YOUR TOURNAMENT.\nYOUR STAGE.',
+    desc:'Create tournaments in a few steps — choose your sport, format, entry fee, number of teams, prize money, rules and match format.',
+    visual:onbVisualCreate, cta:'Create Tournaments' },
+  { kicker:'MANAGE EVERYTHING', title:'ONE APP.\nCOMPLETE CONTROL.',
+    desc:'Manage your entire tournament from registration to final whistle — players, teams, fixtures, venues, payments and results.',
+    visual:onbVisualManage, cta:'Manage With Ease' },
+  { kicker:'CONDUCT LIKE A PRO', title:'MAKE EVERY MATCH\nCOUNT.',
+    desc:'Deliver a professional tournament experience with live match updates, transparent results, player statistics and leaderboards.',
+    visual:onbVisualConduct, cta:'Run Professional Tournaments' },
+  { kicker:'BUILD YOUR LEGACY', title:'FROM LOCAL GAMES\nTO BIGGER CHAMPIONSHIPS.',
+    desc:'Grow with the Spoto ecosystem. Help players move from a Local Tournament all the way to the National Championship.',
+    visual:onbVisualLegacy, cta:'Become a Spoto Partner', tagline:'Create. Conduct. Champion.' },
+];
+
+let splashTimer = null;
+function clearSplashTimer(){ if(splashTimer){ clearTimeout(splashTimer); splashTimer=null; } }
+
+/* ---- Boot flash (brief) ---- */
+function screenSplashLogo(){
+  clearSplashTimer();
+  splashTimer = setTimeout(()=>{ state.splashPhase='onboard'; state.onboardIndex=0; render(); }, 1500);
+  return `
+  <div class="splash">
+    <div class="splash-crest">${ic.crown.replace('class="icon"','class="icon" style="width:38px;height:38px;"').replace('currentColor','#1a1200')}</div>
+    <div class="splash-word">SPOTO</div>
+    <div class="splash-tag">Partner Console</div>
+    <div class="splash-loader"><span></span><span></span><span></span></div>
+  </div>`;
+}
+
+/* ---- 5-screen onboarding carousel ---- */
+function goOnboardSlide(i){
+  if(i<0 || i>onboardSlides.length-1) return;
+  clearSplashTimer();
+  state.onboardIndex = i;
+  render();
+  scheduleOnboardAdvance();
+}
+function scheduleOnboardAdvance(){
+  clearSplashTimer();
+  if(state.onboardIndex < onboardSlides.length-1){
+    splashTimer = setTimeout(()=>{ state.onboardIndex++; render(); scheduleOnboardAdvance(); }, 3200);
+  }
+}
+function skipOnboarding(){ clearSplashTimer(); startTransition(); }
+function loginShortcut(){ clearSplashTimer(); openLogin(); }
+
+/* ================= LOGIN (Phone + OTP) ================= */
+let otpTimerId = null;
+function clearOtpTimer(){ if(otpTimerId){ clearInterval(otpTimerId); otpTimerId=null; } }
+
+function openLogin(){
+  state.splashPhase='login';
+  state.loginStep='phone';
+  state.loginPhone='';
+  state.otpValue='';
+  render();
+}
+function backToOnboarding(){
+  clearOtpTimer();
+  state.splashPhase='onboard';
+  state.onboardIndex = onboardSlides.length-1;
+  render();
+  scheduleOnboardAdvance();
+}
+function updatePhone(el){
+  el.value = el.value.replace(/\D/g,'').slice(0,10);
+  state.loginPhone = el.value;
+  const btn = document.getElementById('sendOtpBtn');
+  if(btn){ const ok = state.loginPhone.length===10; btn.style.opacity = ok?'1':'.45'; btn.style.pointerEvents = ok?'auto':'none'; }
+}
+function sendOtp(){
+  if(state.loginPhone.length!==10) return;
+  state.loginStep='otp';
+  state.otpValue='';
+  render();
+  startOtpTimer();
+}
+function startOtpTimer(){
+  clearOtpTimer();
+  state.otpSecondsLeft = 30;
+  otpTimerId = setInterval(()=>{
+    state.otpSecondsLeft--;
+    const el = document.getElementById('otpTimerText');
+    if(!el){ clearOtpTimer(); return; }
+    if(state.otpSecondsLeft<=0){
+      clearOtpTimer();
+      el.outerHTML = `<button style="background:none;border:none;color:var(--amber);font-weight:700;font-size:11px;cursor:pointer;" onclick="resendOtp()">Resend OTP</button>`;
+    } else {
+      el.textContent = 'Resend OTP in 0:'+String(state.otpSecondsLeft).padStart(2,'0');
+    }
+  }, 1000);
+}
+function resendOtp(){ state.otpValue=''; render(); startOtpTimer(); }
+function backToPhoneStep(){ clearOtpTimer(); state.loginStep='phone'; render(); }
+function updateOtp(el){
+  el.value = el.value.replace(/\D/g,'').slice(0,4);
+  state.otpValue = el.value;
+  const btn = document.getElementById('verifyOtpBtn');
+  if(btn){ const ok = state.otpValue.length===4; btn.style.opacity = ok?'1':'.45'; btn.style.pointerEvents = ok?'auto':'none'; }
+}
+function verifyOtp(){
+  if(state.otpValue.length!==4) return;
+  clearOtpTimer();
+  startTransition();
+}
+
+function screenLoginPhone(){
+  const valid = state.loginPhone.length===10;
+  return `
+  <div class="login-wrap">
+    <button class="onb-back" onclick="backToOnboarding()">${ic.chevronLeft}</button>
+    <div class="login-crest">${ic.trophy.replace('class="icon"','class="icon" style="width:26px;height:26px;color:#1a1200;"')}</div>
+    ${onbLogoHeader()}
+    <div class="display" style="font-size:26px;color:#fff;margin-top:4px;line-height:1.15;">Welcome Back,<br/>Partner.</div>
+    <div style="font-size:12px;color:var(--dim);margin-top:8px;line-height:1.6;max-width:280px;">Enter your registered mobile number to receive a one-time password.</div>
+
+    <div class="field-label" style="margin-top:30px;">Mobile number</div>
+    <div class="field" style="padding:4px 12px;">
+      <span style="font-size:13px;font-weight:700;color:#fff;border-right:1px solid var(--line);padding-right:10px;margin-right:4px;flex-shrink:0;">🇮🇳 +91</span>
+      <input type="tel" inputmode="numeric" maxlength="10" placeholder="98765 43210" value="${esc(state.loginPhone)}" oninput="updatePhone(this)" class="venue-input" style="font-size:15px;padding:12px 0;letter-spacing:.5px;" autofocus />
+    </div>
+
+    <button id="sendOtpBtn" class="btn btn-amber btn-block" style="margin-top:20px;padding:14px;font-size:13px;${valid?'':'opacity:.45;pointer-events:none;'}" onclick="sendOtp()">Send OTP ${ic.chevronRight.replace('class="icon"','class="icon" style="width:14px;height:14px;"')}</button>
+
+    <div class="row gap2" style="margin:24px 0;align-items:center;">
+      <div style="flex:1;height:1px;background:var(--line);"></div>
+      <span style="font-size:10px;color:var(--dim);">or continue with</span>
+      <div style="flex:1;height:1px;background:var(--line);"></div>
+    </div>
+
+    <div class="row gap2">
+      <button class="btn btn-ghost" style="flex:1;gap:8px;padding:12px;">
+        <span style="width:18px;height:18px;border-radius:999px;background:#fff;color:#1a1200;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;">G</span>
+        Google
+      </button>
+      <button class="btn btn-ghost" style="flex:1;gap:8px;padding:12px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M16.365 1.43c0 1.14-.463 2.15-1.15 2.91-.75.84-1.97 1.49-3.02 1.4-.13-1.09.44-2.24 1.14-2.96.78-.82 2.11-1.44 3.03-1.35zM20.5 17.2c-.5 1.15-1.09 2.27-1.98 3.34-.85 1.02-1.83 2.28-3.27 2.29-1.27.01-1.68-.8-3.14-.8-1.46 0-1.92.79-3.13.82-1.4.05-2.5-1.27-3.36-2.29-1.84-2.24-3.24-6.33-1.36-9.09.94-1.38 2.6-2.25 4.36-2.28 1.31-.02 2.55.88 3.35.88.8 0 2.31-1.09 3.9-.93.66.03 2.52.27 3.72 2.01-.1.06-2.22 1.3-2.2 3.86.03 3.06 2.7 4.08 2.73 4.09z"/></svg>
+        Apple
+      </button>
+    </div>
+
+    <div class="trust-strip">
+      ${ic.check.replace('class="icon"','class="icon" style="width:16px;height:16px;color:var(--turf);flex-shrink:0;"')}
+      <span style="font-size:10px;color:var(--dim);line-height:1.5;">Trusted by <b style="color:#fff;">500+ organisers</b> running professional tournaments on Spoto.</span>
+    </div>
+
+    <div style="text-align:center;margin-top:22px;font-size:11px;color:var(--dim);">
+      New to Spoto? <span style="color:var(--amber);font-weight:700;cursor:pointer;" onclick="backToOnboarding()">Become a Partner</span>
+    </div>
+    <div style="text-align:center;margin-top:16px;font-size:9px;color:var(--dim);line-height:1.6;">
+      By continuing, you agree to Spoto's <span style="color:#fff;">Terms of Service</span> and <span style="color:#fff;">Privacy Policy</span>.
+    </div>
+  </div>`;
+}
+
+function screenLoginOtp(){
+  const valid = state.otpValue.length===4;
+  const maskedPhone = '+91 '+state.loginPhone.slice(0,5)+' '+state.loginPhone.slice(5);
+  return `
+  <div class="login-wrap">
+    <button class="onb-back" onclick="backToPhoneStep()">${ic.chevronLeft}</button>
+    <div class="login-crest">${ic.lock.replace('class="icon"','class="icon" style="width:24px;height:24px;color:#1a1200;"')}</div>
+    ${onbLogoHeader()}
+    <div class="display" style="font-size:26px;color:#fff;margin-top:4px;">Verify OTP</div>
+    <div style="font-size:12px;color:var(--dim);margin-top:8px;line-height:1.6;max-width:280px;">
+      Enter the 4-digit code sent to <b style="color:#fff;">${maskedPhone}</b> ·
+      <span style="color:var(--amber);font-weight:700;cursor:pointer;" onclick="backToPhoneStep()">Change</span>
+    </div>
+
+    <div class="field-label" style="margin-top:30px;">One-Time Password</div>
+    <div class="field" style="padding:6px 14px;">
+      ${ic.lock.replace('class="icon"','class="icon" style="width:16px;height:16px;"')}
+      <input type="tel" inputmode="numeric" maxlength="4" placeholder="• • • •" value="${esc(state.otpValue)}" oninput="updateOtp(this)" class="venue-input mono" style="font-size:20px;letter-spacing:10px;padding:12px 0;" autofocus />
+    </div>
+    <div style="font-size:9px;color:var(--dim);margin-top:8px;">Demo OTP: <span class="mono" style="color:var(--amber);font-weight:700;">1234</span></div>
+
+    <button id="verifyOtpBtn" class="btn btn-amber btn-block" style="margin-top:22px;padding:14px;font-size:13px;${valid?'':'opacity:.45;pointer-events:none;'}" onclick="verifyOtp()">Verify & Continue</button>
+
+    <div style="text-align:center;margin-top:20px;font-size:11px;">
+      <span id="otpTimerText" style="color:var(--dim);">Resend OTP in 0:30</span>
+    </div>
+
+    <div class="trust-strip">
+      ${ic.lock.replace('class="icon"','class="icon" style="width:16px;height:16px;color:var(--turf);flex-shrink:0;"')}
+      <span style="font-size:10px;color:var(--dim);line-height:1.5;">Your number is only used for account verification and secure login.</span>
+    </div>
+  </div>`;
+}
+
+function screenSplashOnboard(){
+  const i = state.onboardIndex;
+  const s = onboardSlides[i];
+  const last = i === onboardSlides.length-1;
+  const first = i === 0;
+  if(!splashTimer) scheduleOnboardAdvance();
+  return `
+  <div class="splash onb-mode" data-onboard="1">
+    ${!first?`<button class="onb-back" onclick="goOnboardSlide(${i-1})">${ic.chevronLeft}</button>`:''}
+    <button class="splash-skip" onclick="skipOnboarding()">Skip</button>
+
+    <div class="onb-slide">
+      ${onbLogoHeader()}
+      ${s.kicker?`<div style="font-size:10px;letter-spacing:.18em;color:var(--turf);font-weight:800;margin-bottom:6px;position:relative;z-index:1;">${s.kicker}</div>`:''}
+      <div class="splash-word" style="font-size:23px;opacity:1;animation:none;white-space:pre-line;line-height:1.22;text-align:left;">${s.title}</div>
+      <div style="font-size:12px;color:var(--dim);margin-top:10px;max-width:280px;line-height:1.6;text-align:left;position:relative;z-index:1;">${s.desc}</div>
+      ${s.visual()}
+    </div>
+
+    <div class="onb-progress">
+      ${onboardSlides.map((_,idx)=>`<div class="onb-pdot ${idx===i?'active':idx<i?'done':''}" onclick="goOnboardSlide(${idx})"></div>`).join('')}
+    </div>
+
+    <button class="btn btn-amber btn-block" style="margin-top:20px;padding:13px 20px;position:relative;z-index:1;" onclick="${last?'startTransition()':`goOnboardSlide(${i+1})`}">${s.cta}</button>
+    ${s.tagline?`<div style="font-size:10px;color:var(--dim);margin-top:8px;letter-spacing:.05em;position:relative;z-index:1;">${s.tagline}</div>`:''}
+    ${first?`<button style="background:none;border:none;color:var(--dim);font-size:11px;font-weight:600;margin-top:14px;position:relative;z-index:1;cursor:pointer;" onclick="loginShortcut()">LOGIN</button>`:''}
+    ${last?`<button style="background:none;border:none;color:var(--dim);font-size:11px;font-weight:600;margin-top:10px;position:relative;z-index:1;cursor:pointer;" onclick="loginShortcut()">I already have an account</button>`:''}
+  </div>`;
+}
+
+/* ---- Final branded transition (post-onboarding, pre-Home) ---- */
+function startTransition(){
+  clearSplashTimer();
+  state.splashPhase='transition';
+  render();
+  splashTimer = setTimeout(()=>{ finishSplash(); }, 2600);
+}
+function finishSplash(){
+  clearSplashTimer();
+  state.splashPhase='done';
+  render();
+}
+function screenSplashTransition(){
+  if(!splashTimer) splashTimer = setTimeout(()=>{ finishSplash(); }, 2600);
+  return `
+  <div class="splash">
+    <div class="splash-crest" style="animation:splashPop .6s cubic-bezier(.22,1,.36,1) both, transitionGlow 2s ease-in-out infinite;">
+      ${ic.trophy.replace('class="icon"','class="icon" style="width:38px;height:38px;color:#1a1200;"')}
+    </div>
+    <div class="splash-word" style="font-size:34px;">SPOTO</div>
+    <div class="splash-tag" style="letter-spacing:.3em;">PLAY. COMPETE. BECOME.</div>
+    <div style="font-size:11px;color:#fff;font-weight:700;margin-top:26px;opacity:0;animation:splashRise .6s ease 1s forwards;position:relative;z-index:1;max-width:260px;line-height:1.6;">
+      WELCOME TO THE<br/><span style="color:var(--amber);">SPOTO PARTNER NETWORK</span>
+    </div>
+    <div class="splash-loader" style="margin-top:30px;"><span></span><span></span><span></span></div>
+  </div>`;
+}
+
+/* ---- Swipe gesture support for onboarding ---- */
+(function initSwipe(){
+  let touchX = null;
+  document.addEventListener('touchstart', (e)=>{
+    const el = e.target.closest('.splash[data-onboard="1"]');
+    if(!el) return;
+    touchX = e.touches[0].clientX;
+  }, { passive:true });
+  document.addEventListener('touchend', (e)=>{
+    if(touchX===null) return;
+    const dx = e.changedTouches[0].clientX - touchX;
+    touchX = null;
+    if(Math.abs(dx) < 40) return;
+    if(dx < 0) goOnboardSlide(state.onboardIndex+1);
+    else goOnboardSlide(state.onboardIndex-1);
+  }, { passive:true });
+})();
+
+/* ================= RENDER ================= */
+function bellButton(){
+  const unread = Math.max(0, computeNotifications().length - state.notifSeen);
+  return `
+    <button class="btn-round" style="position:relative;" onclick="openNotifications()">
+      ${ic.bell}
+      ${unread>0?`<span style="position:absolute;top:2px;right:2px;width:8px;height:8px;border-radius:999px;background:var(--live);border:1.5px solid var(--ink2);"></span>`:''}
+    </button>`;
+}
+function render(){
+  const content = document.getElementById('content');
+  if(state.splashPhase!=='done'){
+    document.getElementById('bottomNav').style.display='none';
+    content.innerHTML = state.splashPhase==='logo' ? screenSplashLogo()
+      : state.splashPhase==='onboard' ? screenSplashOnboard()
+      : state.splashPhase==='login' ? (state.loginStep==='otp' ? screenLoginOtp() : screenLoginPhone())
+      : screenSplashTransition();
+    return;
+  }
+  if(state.overlay==='create'){
+    content.innerHTML = screenCreateWizard();
+  } else if(state.overlay==='monitor'){
+    content.innerHTML = screenMonitor();
+  } else if(state.overlay==='joinMega'){
+    content.innerHTML = screenJoinMega();
+  } else if(state.overlay==='joinMegaVenue'){
+    content.innerHTML = screenJoinMegaVenue();
+  } else if(state.overlay==='joinMegaDone'){
+    content.innerHTML = screenJoinMegaDone();
+  } else if(state.overlay==='notifications'){
+    content.innerHTML = screenNotifications();
+  } else {
+    if(state.tab==='mega'){
+      content.innerHTML = `
+        <div class="topbar">
+          <div class="brand">Spoto</div>
+          ${bellButton()}
+        </div>
+        <div class="fade-in">${renderMegaTab()}</div>`;
+      renderNav();
+      return;
+    }
+    let inner = '';
+    if(state.tab==='home') inner = screenHome();
+    else if(state.tab==='tournaments') inner = screenTournaments();
+    else if(state.tab==='finance') inner = screenFinance();
+    else if(state.tab==='referees') inner = screenReferees();
+    content.innerHTML = `
+      <div class="topbar">
+        <div class="brand">Spoto</div>
+        ${bellButton()}
+      </div>
+      ${inner}
+    `;
+  }
+  renderNav();
+}
+
+applyAutoStages();
+render();
+</script>
+</body>
+</html>

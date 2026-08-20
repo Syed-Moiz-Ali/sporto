@@ -49,6 +49,7 @@ export 'src/widgets/sporto_conduct_toss.dart';
 export 'src/widgets/sporto_result_submitted.dart';
 export 'src/widgets/sporto_referee_profile.dart';
 export 'src/widgets/sporto_profile_tab.dart';
+export 'src/widgets/sporto_shimmer.dart';
 
 // Screens (Mobile OTP & Onboarding)
 export 'src/screens/splash_screen.dart';

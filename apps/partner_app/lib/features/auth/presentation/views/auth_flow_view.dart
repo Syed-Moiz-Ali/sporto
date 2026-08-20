@@ -151,14 +151,17 @@ class _AuthFlowViewState extends State<AuthFlowView> {
   }
 
   bool _permissionSetupBypassed = false;
+  Future<Map<String, bool>>? _permissionCheckFuture;
 
   Widget _buildPermissionSetupGate() {
     if (_permissionSetupBypassed) {
       return PartnerMainScreen(initialIndex: widget.initialTabIndex);
     }
 
+    _permissionCheckFuture ??= _checkPartnerPermissions();
+
     return FutureBuilder<Map<String, bool>>(
-      future: _checkPartnerPermissions(),
+      future: _permissionCheckFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState != ConnectionState.done) {
           return const _PartnerGateLoadingScreen();
@@ -171,6 +174,7 @@ class _AuthFlowViewState extends State<AuthFlowView> {
 
         // ONLY ROUTE TO MAIN SCREEN IF BOTH REAL SYSTEM PERMISSIONS ARE GRANTED
         if (locationGranted && notificationGranted) {
+          _permissionSetupBypassed = true;
           return PartnerMainScreen(initialIndex: widget.initialTabIndex);
         }
 
@@ -181,12 +185,14 @@ class _AuthFlowViewState extends State<AuthFlowView> {
             if (!mounted) return;
             setState(() {
               _permissionSetupBypassed = true;
+              _permissionCheckFuture = null;
             });
           },
         );
       },
     );
   }
+
 
   Future<Map<String, bool>> _checkPartnerPermissions() async {
     try {

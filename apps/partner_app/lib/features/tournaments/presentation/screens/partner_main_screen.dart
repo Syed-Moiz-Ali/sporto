@@ -13,6 +13,7 @@ import 'schedule_screen.dart';
 
 class PartnerMainScreen extends StatefulWidget {
   final int initialIndex;
+  static int activeTabIndex = 0;
 
   const PartnerMainScreen({
     super.key,
@@ -27,6 +28,9 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
   @override
   void initState() {
     super.initState();
+    if (widget.initialIndex != 0) {
+      PartnerMainScreen.activeTabIndex = widget.initialIndex;
+    }
     context.read<TournamentBloc>().add(const LoadTournamentsEvent());
     context.read<PartnerApiBloc>().add(const LoadPartnerApiBootstrapEvent());
   }
@@ -34,13 +38,17 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
   @override
   Widget build(BuildContext context) {
     return SportoBottomTabShell(
-      initialIndex: widget.initialIndex,
+      initialIndex: PartnerMainScreen.activeTabIndex,
+      onIndexChanged: (index) {
+        PartnerMainScreen.activeTabIndex = index;
+      },
       tabs: [
         _buildHomeTab(context),
         const MatchHistoryScreen(embedded: true),
         const ScheduleScreen(embedded: true),
         const PartnerProfileScreen(),
       ],
+
       items: const [
         SportoNavItem.asset(
           asset: SportoAssets.home,
@@ -80,97 +88,115 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
                 context.sportoResponsive.horizontalPadding,
                 8 * scale,
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Shrvn's Sporto",
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: theme.textTheme.titleLarge?.copyWith(
-                            fontSize: 18 * scale,
-                            fontWeight: FontWeight.w600,
-                            color: colorScheme.onSurface,
-                          ),
-                        ),
-                        Text(
-                          'Good Morning',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 13 * scale,
-                            color: colorScheme.tertiary,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(width: 8 * scale),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
+              child: BlocBuilder<PartnerApiBloc, PartnerApiState>(
+                builder: (context, state) {
+                  final loaded = state is PartnerApiLoadedState ? state : null;
+                  final name = loaded?.displayName;
+                  final greeting = _greeting();
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      IconButton(
-                        padding: EdgeInsets.all(6 * scale),
-                        constraints: BoxConstraints.tightFor(
-                          width: 36 * scale,
-                          height: 36 * scale,
-                        ),
-                        icon: Icon(
-                          Icons.notifications_none_rounded,
-                          color: colorScheme.onSurface,
-                          size: 22 * scale,
-                        ),
-                        onPressed: () {},
-                      ),
-                      SizedBox(width: 4 * scale),
-                      SportoCard(
-                        radius: 7 * scale,
-                        blur: 10 * scale,
-                        padding: EdgeInsets.fromLTRB(
-                          8 * scale,
-                          3 * scale,
-                          2 * scale,
-                          3 * scale,
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            if (name != null)
+                              Text(
+                                name,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: theme.textTheme.titleLarge?.copyWith(
+                                  fontSize: 18 * scale,
+                                  fontWeight: FontWeight.w600,
+                                  color: colorScheme.onSurface,
+                                ),
+                              )
+                            else
+                              Padding(
+                                padding: EdgeInsets.symmetric(vertical: 2 * scale),
+                                child: SportoShimmer(
+                                  width: 140 * scale,
+                                  height: 20 * scale,
+                                  borderRadius: 4 * scale,
+                                ),
+                              ),
                             Text(
-                              'Rs 500',
+                              greeting,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: theme.textTheme.titleMedium?.copyWith(
-                                color: colorScheme.onSurface,
-                                fontSize: 14 * scale,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            SizedBox(width: 5 * scale),
-                            Container(
-                              width: 22 * scale,
-                              height: 22 * scale,
-                              decoration: BoxDecoration(
+                              style: TextStyle(
+                                fontSize: 13 * scale,
                                 color: colorScheme.tertiary,
-                                borderRadius: BorderRadius.circular(5 * scale),
-                              ),
-                              alignment: Alignment.center,
-                              child: Icon(
-                                Icons.add_rounded,
-                                color: Colors.black,
-                                size: 16 * scale,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                           ],
                         ),
                       ),
+                      SizedBox(width: 8 * scale),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            padding: EdgeInsets.all(6 * scale),
+                            constraints: BoxConstraints.tightFor(
+                              width: 36 * scale,
+                              height: 36 * scale,
+                            ),
+                            icon: Icon(
+                              Icons.notifications_none_rounded,
+                              color: colorScheme.onSurface,
+                              size: 22 * scale,
+                            ),
+                            onPressed: () {},
+                          ),
+                          SizedBox(width: 4 * scale),
+                          SportoCard(
+                            radius: 7 * scale,
+                            blur: 10 * scale,
+                            padding: EdgeInsets.fromLTRB(
+                              8 * scale,
+                              3 * scale,
+                              2 * scale,
+                              3 * scale,
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  'Rs 500',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: theme.textTheme.titleMedium?.copyWith(
+                                    color: colorScheme.onSurface,
+                                    fontSize: 14 * scale,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                SizedBox(width: 5 * scale),
+                                Container(
+                                  width: 22 * scale,
+                                  height: 22 * scale,
+                                  decoration: BoxDecoration(
+                                    color: colorScheme.tertiary,
+                                    borderRadius:
+                                        BorderRadius.circular(5 * scale),
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: Icon(
+                                    Icons.add_rounded,
+                                    color: Colors.black,
+                                    size: 16 * scale,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
-                  ),
-                ],
+                  );
+                },
               ),
             ),
             Expanded(
@@ -183,21 +209,27 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
                   context.sportoResponsive.bottomContentPadding(context) +
                       16 * scale,
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildOverviewSection(colorScheme),
-                    SizedBox(height: 20 * scale),
-                    _buildQuickActions(colorScheme),
-                    SizedBox(height: 12 * scale),
-                    _buildAnnouncementsBanner(colorScheme),
-                    SizedBox(height: 22 * scale),
-                    _buildLiveTournaments(colorScheme),
-                    SizedBox(height: 20 * scale),
-                    _buildTodaysSchedule(colorScheme),
-                    SizedBox(height: 20 * scale),
-                    _buildAdsBanner(colorScheme),
-                  ],
+                child: BlocBuilder<PartnerApiBloc, PartnerApiState>(
+                  builder: (context, state) {
+                    final loaded =
+                        state is PartnerApiLoadedState ? state : null;
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildOverviewSection(colorScheme, loaded),
+                        SizedBox(height: 20 * scale),
+                        _buildQuickActions(colorScheme),
+                        SizedBox(height: 12 * scale),
+                        _buildAnnouncementsBanner(colorScheme),
+                        SizedBox(height: 22 * scale),
+                        _buildLiveTournaments(colorScheme, loaded),
+                        SizedBox(height: 20 * scale),
+                        _buildTodaysSchedule(colorScheme, loaded),
+                        SizedBox(height: 20 * scale),
+                        _buildAdsBanner(colorScheme),
+                      ],
+                    );
+                  },
                 ),
               ),
             ),
@@ -207,8 +239,23 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
     );
   }
 
-  Widget _buildOverviewSection(ColorScheme cs) {
+  String _greeting() {
+    final hour = DateTime.now().hour;
+    if (hour < 12) return 'Good Morning';
+    if (hour < 17) return 'Good Afternoon';
+    return 'Good Evening';
+  }
+
+  Widget _buildOverviewSection(
+      ColorScheme cs, PartnerApiLoadedState? loaded) {
     final scale = context.sportoScale;
+    final isLoading = loaded == null;
+    final tournaments = loaded?.tournaments ?? [];
+    final live = tournaments.where((t) => t.status == 6).length;
+    final active = tournaments.where((t) => t.status >= 1 && t.status <= 6).length;
+    final players = tournaments.fold<int>(
+        0, (sum, t) => sum + (t.registeredTeams ?? 0));
+
     final availableWidth = (context.sportoResponsive.contentMaxWidth -
             context.sportoResponsive.horizontalPadding * 2)
         .clamp(280.0, double.infinity)
@@ -223,62 +270,79 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
                 fontSize: 13 * scale,
                 fontWeight: FontWeight.w500)),
         SizedBox(height: 12 * scale),
-        GridView.count(
-          crossAxisCount: 2,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          mainAxisSpacing: 12 * scale,
-          crossAxisSpacing: 12 * scale,
-          childAspectRatio: tileWidth / (61 * scale),
-          children: [
-            SportoStatCard(
-              label: 'Revenue',
-              value: 'Rs 12,850',
-              highlight: true,
-              highlightColor: cs.tertiary,
-              fontSize: 16 * scale,
-              labelSize: 11 * scale,
-              alignment: CrossAxisAlignment.start,
-              padding: EdgeInsets.symmetric(
-                horizontal: 14 * scale,
-                vertical: 8 * scale,
+        if (isLoading)
+          GridView.count(
+            crossAxisCount: 2,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            mainAxisSpacing: 12 * scale,
+            crossAxisSpacing: 12 * scale,
+            childAspectRatio: tileWidth / (61 * scale),
+            children: [
+              for (var i = 0; i < 4; i++)
+                SportoSkeletonCard(
+                  height: 61 * scale,
+                  borderRadius: 12 * scale,
+                ),
+            ],
+          )
+        else
+          GridView.count(
+            crossAxisCount: 2,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            mainAxisSpacing: 12 * scale,
+            crossAxisSpacing: 12 * scale,
+            childAspectRatio: tileWidth / (61 * scale),
+            children: [
+              SportoStatCard(
+                label: 'Revenue',
+                value: 'Rs 0',
+                highlight: true,
+                highlightColor: cs.tertiary,
+                fontSize: 16 * scale,
+                labelSize: 11 * scale,
+                alignment: CrossAxisAlignment.start,
+                padding: EdgeInsets.symmetric(
+                  horizontal: 14 * scale,
+                  vertical: 8 * scale,
+                ),
               ),
-            ),
-            SportoStatCard(
-              label: 'Live Tournaments',
-              value: '2',
-              fontSize: 16 * scale,
-              labelSize: 11 * scale,
-              alignment: CrossAxisAlignment.start,
-              padding: EdgeInsets.symmetric(
-                horizontal: 14 * scale,
-                vertical: 8 * scale,
+              SportoStatCard(
+                label: 'Live Tournaments',
+                value: '$live',
+                fontSize: 16 * scale,
+                labelSize: 11 * scale,
+                alignment: CrossAxisAlignment.start,
+                padding: EdgeInsets.symmetric(
+                  horizontal: 14 * scale,
+                  vertical: 8 * scale,
+                ),
               ),
-            ),
-            SportoStatCard(
-              label: 'Registered Players',
-              value: '50',
-              fontSize: 16 * scale,
-              labelSize: 11 * scale,
-              alignment: CrossAxisAlignment.start,
-              padding: EdgeInsets.symmetric(
-                horizontal: 14 * scale,
-                vertical: 8 * scale,
+              SportoStatCard(
+                label: 'Registered Players',
+                value: '$players',
+                fontSize: 16 * scale,
+                labelSize: 11 * scale,
+                alignment: CrossAxisAlignment.start,
+                padding: EdgeInsets.symmetric(
+                  horizontal: 14 * scale,
+                  vertical: 8 * scale,
+                ),
               ),
-            ),
-            SportoStatCard(
-              label: 'Active Tournaments',
-              value: '10',
-              fontSize: 16 * scale,
-              labelSize: 11 * scale,
-              alignment: CrossAxisAlignment.start,
-              padding: EdgeInsets.symmetric(
-                horizontal: 14 * scale,
-                vertical: 8 * scale,
+              SportoStatCard(
+                label: 'Active Tournaments',
+                value: '$active',
+                fontSize: 16 * scale,
+                labelSize: 11 * scale,
+                alignment: CrossAxisAlignment.start,
+                padding: EdgeInsets.symmetric(
+                  horizontal: 14 * scale,
+                  vertical: 8 * scale,
+                ),
               ),
-            ),
-          ],
-        ),
+            ],
+          ),
       ],
     );
   }
@@ -348,8 +412,6 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // SportoAssetIcon(SportoAssets.announcement,
-          //     color: cs.onSurfaceVariant, size: 14 * scale),
           Icon(Icons.campaign_rounded,
               color: cs.onSurfaceVariant, size: 18 * scale),
           SizedBox(width: 5 * scale),
@@ -409,8 +471,12 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
     );
   }
 
-  Widget _buildLiveTournaments(ColorScheme cs) {
+  Widget _buildLiveTournaments(
+      ColorScheme cs, PartnerApiLoadedState? loaded) {
     final scale = context.sportoScale;
+    final isLoading = loaded == null;
+    final liveTournaments = loaded?.liveTournaments ?? [];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -430,38 +496,68 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
           ],
         ),
         SizedBox(height: 12 * scale),
-        LiveTournamentCard(
-          name: 'Hyderabad Super Cup',
-          stage: 'Quarter Final',
-          sport: 'Cricket',
-          teams: '128 Teams',
-          liveNow: true,
-          onViewTournament: () => context
-              .push(AppRouter.tournamentDetailRoute('t-hyderabad-super-cup')),
-        ),
-        SizedBox(height: 12 * scale),
-        LiveTournamentCard(
-          name: 'Royal Smashers',
-          stage: 'Final',
-          sport: 'Cricket',
-          teams: '18 Teams',
-          liveNow: true,
-          onViewTournament: () =>
-              context.push(AppRouter.tournamentDetailRoute('t-royal-smashers')),
-        ),
+        if (isLoading)
+          SportoSkeletonCard(height: 120 * scale)
+        else if (liveTournaments.isNotEmpty)
+          ...liveTournaments.map((t) => Padding(
+                padding: EdgeInsets.only(bottom: 12 * scale),
+                child: LiveTournamentCard(
+                  name: t.name,
+                  stage: t.tournamentVenues.isNotEmpty
+                      ? (t.tournamentVenues.first.roundName ?? 'Ongoing')
+                      : 'Ongoing',
+                  sport: _sportName(t.sportId),
+                  teams: t.maximumTeams != null
+                      ? '${t.maximumTeams} Teams'
+                      : 'TBD',
+                  liveNow: true,
+                  onViewTournament: () => context
+                      .push(AppRouter.tournamentDetailRoute('${t.id}')),
+                ),
+              ))
+        else
+          SportoCard(
+            padding: EdgeInsets.symmetric(vertical: 20 * scale),
+            child: Center(
+              child: Text(
+                'No live tournaments currently',
+                style: TextStyle(
+                  color: cs.onSurfaceVariant,
+                  fontSize: 13 * scale,
+                ),
+              ),
+            ),
+          ),
       ],
     );
   }
 
-  Widget _buildTodaysSchedule(ColorScheme cs) {
+  String _sportName(int sportId) {
+    switch (sportId) {
+      case 1:
+        return 'Cricket';
+      case 2:
+        return 'Football';
+      case 5:
+        return 'Badminton';
+      default:
+        return 'Sport';
+    }
+  }
+
+  Widget _buildTodaysSchedule(
+      ColorScheme cs, PartnerApiLoadedState? loaded) {
     final scale = context.sportoScale;
+    final isLoading = loaded == null;
+    final upcoming = loaded?.upcomingTournaments ?? [];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text("Today's Schedule (4)",
+            Text("Today's Schedule",
                 style: TextStyle(
                     color: cs.onSurfaceVariant,
                     fontSize: 13 * scale,
@@ -485,17 +581,141 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
           ],
         ),
         SizedBox(height: 12 * scale),
-        _ScheduleCard(time: '10:00 AM, 26 July 2026', startIn: '25 mins'),
-        SizedBox(height: 12 * scale),
-        _ScheduleCard(time: '10:00 AM, 26 July 2026', startIn: '25 mins'),
+        if (isLoading)
+          SportoSkeletonCard(height: 100 * scale)
+        else if (upcoming.isNotEmpty)
+          ...upcoming.take(2).map((t) {
+            final venue = t.tournamentVenues.isNotEmpty
+                ? t.tournamentVenues.first
+                : null;
+            final timeStr = _formatScheduleDateTime(
+                t.tournamentStartAt, venue?.startTime, venue?.date);
+            final startInStr = _calculateStartIn(t.tournamentStartAt);
+
+            return Padding(
+              padding: EdgeInsets.only(bottom: 12 * scale),
+              child: _ScheduleCard(
+                time: timeStr,
+                startIn: startInStr,
+                tournamentName: t.name,
+                sportName: _sportName(t.sportId),
+                teamsCount: t.maximumTeams != null
+                    ? '${t.maximumTeams} Teams'
+                    : '18 Teams',
+                onTap: () => context
+                    .push(AppRouter.tournamentDetailRoute('${t.id}')),
+              ),
+            );
+          })
+        else
+          SportoCard(
+            padding: EdgeInsets.symmetric(vertical: 20 * scale),
+            child: Center(
+              child: Text(
+                'No scheduled matches today',
+                style: TextStyle(
+                  color: cs.onSurfaceVariant,
+                  fontSize: 13 * scale,
+                ),
+              ),
+            ),
+          ),
       ],
     );
   }
 
-  Widget _ScheduleCard({required String time, required String startIn}) {
+  String _formatScheduleDateTime(
+      String? rawTournamentStart, String? venueStartTime, String? venueDate) {
+    if (venueStartTime != null && venueStartTime.isNotEmpty) {
+      final formattedTime = _formatTimeOnly(venueStartTime);
+      final formattedDate =
+          venueDate != null ? _formatDateOnly(venueDate) : 'Today';
+      return '$formattedTime, $formattedDate';
+    }
+    if (rawTournamentStart != null && rawTournamentStart.isNotEmpty) {
+      try {
+        final dt = DateTime.parse(rawTournamentStart).toLocal();
+        const months = [
+          'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+          'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+        ];
+        final hour =
+            dt.hour == 0 ? 12 : (dt.hour > 12 ? dt.hour - 12 : dt.hour);
+        final period = dt.hour >= 12 ? 'PM' : 'AM';
+        final minuteStr = dt.minute.toString().padLeft(2, '0');
+        final timeFormatted =
+            '${hour.toString().padLeft(2, '0')}:$minuteStr $period';
+        final dateFormatted = '${dt.day} ${months[dt.month - 1]} ${dt.year}';
+        return '$timeFormatted, $dateFormatted';
+      } catch (_) {
+        return rawTournamentStart;
+      }
+    }
+    return '10:00 AM, 26 July 2026';
+  }
+
+  String _formatTimeOnly(String raw) {
+    try {
+      final dt = DateTime.parse(raw).toLocal();
+      final hour = dt.hour == 0 ? 12 : (dt.hour > 12 ? dt.hour - 12 : dt.hour);
+      final period = dt.hour >= 12 ? 'PM' : 'AM';
+      final minuteStr = dt.minute.toString().padLeft(2, '0');
+      return '${hour.toString().padLeft(2, '0')}:$minuteStr $period';
+    } catch (_) {
+      if (raw.contains(':')) {
+        final parts = raw.split(':');
+        final h = int.tryParse(parts[0]) ?? 0;
+        final period = h >= 12 ? 'PM' : 'AM';
+        final displayHour = h == 0 ? 12 : (h > 12 ? h - 12 : h);
+        return '${displayHour.toString().padLeft(2, '0')}:${parts[1].padLeft(2, '0')} $period';
+      }
+      return raw;
+    }
+  }
+
+  String _formatDateOnly(String raw) {
+    try {
+      final dt = DateTime.parse(raw);
+      const months = [
+        'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      ];
+      return '${dt.day} ${months[dt.month - 1]} ${dt.year}';
+    } catch (_) {
+      return raw;
+    }
+  }
+
+  String _calculateStartIn(String? rawStartAt) {
+    if (rawStartAt == null || rawStartAt.isEmpty) return '25 mins';
+    try {
+      final dt = DateTime.parse(rawStartAt);
+      final diff = dt.difference(DateTime.now());
+      if (diff.isNegative) return 'Started';
+      if (diff.inDays > 0) return '${diff.inDays} days';
+      if (diff.inHours > 0) return '${diff.inHours} hrs';
+      return '${diff.inMinutes.clamp(1, 59)} mins';
+    } catch (_) {
+      return '25 mins';
+    }
+  }
+
+
+  Widget _ScheduleCard({
+    required String time,
+    required String startIn,
+    String? tournamentName,
+    String? sportName,
+    String? teamsCount,
+    VoidCallback? onTap,
+  }) {
     return Builder(builder: (context) {
       final cs = Theme.of(context).colorScheme;
       final scale = context.sportoScale;
+      final tName = tournamentName ?? 'Hyderabad Super Cup';
+      final sName = sportName ?? 'Cricket';
+      final teams = teamsCount ?? '18 Teams';
+
       return Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16 * scale),
@@ -509,6 +729,7 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
           ],
         ),
         child: SportoCard(
+          onTap: onTap,
           padding: EdgeInsets.all(10 * scale),
           backgroundColor: cs.surfaceContainerHigh.withValues(alpha: .86),
           borderColor: cs.secondary.withValues(alpha: .16),
@@ -533,7 +754,7 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
                       borderRadius: BorderRadius.circular(10 * scale),
                     ),
                     alignment: Alignment.center,
-                    child: Text('HS',
+                    child: Text(_initials(tName),
                         style: TextStyle(
                             color: cs.secondary,
                             fontSize: 24 * scale,
@@ -544,7 +765,7 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Hyderabad Super Cup',
+                        Text(tName,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
@@ -559,12 +780,12 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
                             style: TextStyle(fontSize: 11 * scale),
                             children: [
                               TextSpan(
-                                  text: 'Cricket - ',
+                                  text: '$sName - ',
                                   style: TextStyle(
                                       color: cs.tertiary,
                                       fontWeight: FontWeight.w700)),
                               TextSpan(
-                                  text: '18 Teams',
+                                  text: teams,
                                   style: TextStyle(
                                       color: cs.secondary,
                                       fontWeight: FontWeight.w600)),
@@ -603,23 +824,20 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
                       ),
                     ),
                   ),
-                  GestureDetector(
-                    onTap: () {},
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text('View Tournament',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                                color: cs.onSurfaceVariant,
-                                fontSize: 11 * scale,
-                                fontWeight: FontWeight.w600)),
-                        SizedBox(width: 4 * scale),
-                        Icon(Icons.arrow_forward_rounded,
-                            color: cs.onSurfaceVariant, size: 16 * scale),
-                      ],
-                    ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text('View Tournament',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                              color: cs.onSurfaceVariant,
+                              fontSize: 11 * scale,
+                              fontWeight: FontWeight.w600)),
+                      SizedBox(width: 4 * scale),
+                      Icon(Icons.arrow_forward_rounded,
+                          color: cs.onSurfaceVariant, size: 16 * scale),
+                    ],
                   ),
                 ],
               ),
@@ -628,5 +846,15 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
         ),
       );
     });
+  }
+
+  String _initials(String name) {
+    final words = name.trim().split(' ').where((w) => w.isNotEmpty).toList();
+    if (words.length >= 2) {
+      return (words[0][0] + words[1][0]).toUpperCase();
+    }
+    return name.isNotEmpty
+        ? name.substring(0, name.length.clamp(0, 2)).toUpperCase()
+        : 'HS';
   }
 }
