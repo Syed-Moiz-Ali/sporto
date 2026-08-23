@@ -73,6 +73,7 @@ class PartnerApiLoadedState extends PartnerApiState {
     required this.tournamentSports,
     required this.cricketFormats,
     required this.cricketFormConfig,
+    required this.prizeCategories,
     this.tournaments = const [],
   });
 
@@ -85,6 +86,7 @@ class PartnerApiLoadedState extends PartnerApiState {
   final List<SportMasterResponse> tournamentSports;
   final List<SportFormatResponse> cricketFormats;
   final List<TournamentFormConfigFieldResponse> cricketFormConfig;
+  final List<TournamentPrizeCategoryResponse> prizeCategories;
 
   /// All tournaments loaded from the API (across all statuses for home screen).
   final List<PartnerTournamentResponse> tournaments;
@@ -102,8 +104,7 @@ class PartnerApiLoadedState extends PartnerApiState {
         : (pi.mobileNumber?.isNotEmpty == true ? pi.mobileNumber! : 'Partner');
   }
 
-  String get mobileNumber =>
-      profile.personalInformation.mobileNumber ?? '';
+  String get mobileNumber => profile.personalInformation.mobileNumber ?? '';
 
   /// Tournaments currently live (in-progress, status 6).
   List<PartnerTournamentResponse> get liveTournaments =>
@@ -128,6 +129,7 @@ class PartnerApiLoadedState extends PartnerApiState {
         tournamentSports,
         cricketFormats,
         cricketFormConfig,
+        prizeCategories,
         tournaments,
       ];
 }
@@ -183,6 +185,7 @@ class PartnerApiBloc extends Bloc<PartnerApiEvent, PartnerApiState> {
         tournamentSports: const [],
         cricketFormats: const [],
         cricketFormConfig: const [],
+        prizeCategories: const [],
         tournaments: tournaments,
       ));
     } catch (error) {
@@ -221,6 +224,8 @@ class PartnerApiBloc extends Bloc<PartnerApiEvent, PartnerApiState> {
         sportId: event.sportId,
         sportFormatId: event.sportFormatId,
       );
+      final prizeCategories =
+          await _remoteDataSource.getTournamentPrizeCategoriesData();
 
       emit(PartnerApiLoadedState(
         profile: profile,
@@ -232,6 +237,7 @@ class PartnerApiBloc extends Bloc<PartnerApiEvent, PartnerApiState> {
         tournamentSports: tournamentSports,
         cricketFormats: cricketFormats,
         cricketFormConfig: cricketFormConfig,
+        prizeCategories: prizeCategories,
         tournaments: existingTournaments,
       ));
     } catch (error) {
@@ -261,6 +267,7 @@ class PartnerApiBloc extends Bloc<PartnerApiEvent, PartnerApiState> {
         tournamentSports: current.tournamentSports,
         cricketFormats: current.cricketFormats,
         cricketFormConfig: current.cricketFormConfig,
+        prizeCategories: current.prizeCategories,
         tournaments: current.tournaments,
       ));
     } catch (error) {
@@ -289,6 +296,7 @@ class PartnerApiBloc extends Bloc<PartnerApiEvent, PartnerApiState> {
         tournamentSports: current.tournamentSports,
         cricketFormats: current.cricketFormats,
         cricketFormConfig: current.cricketFormConfig,
+        prizeCategories: current.prizeCategories,
         tournaments: tournaments,
       ));
     } catch (_) {

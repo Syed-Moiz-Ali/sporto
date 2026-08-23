@@ -1,0 +1,28 @@
+<svg viewBox="0 0 260 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      text{ font-family:Arial, Helvetica, sans-serif; font-weight:800; font-size:11px; fill:#fff; }
+      .card{ animation:float 3.6s ease-in-out infinite; transform-box:fill-box; transform-origin:center; }
+      .c1{ animation-delay:0s; --r:-4deg; } .c2{ animation-delay:.5s; --r:3deg; }
+      .c3{ animation-delay:1s; --r:-2deg; } .c4{ animation-delay:1.5s; --r:4deg; }
+      @keyframes float{ 0%,100%{ transform:translateY(0) rotate(var(--r)); } 50%{ transform:translateY(-8px) rotate(var(--r)); } }
+      .bg{ fill:#12181F; stroke:#232C36; }
+    </style>
+  </defs>
+  <g class="card c1">
+    <rect class="bg" x="10" y="10" width="100" height="30" rx="12"/>
+    <text x="24" y="29" fill="#1E8A4C">🏏</text><text x="42" y="29">CRICKET</text>
+  </g>
+  <g class="card c2">
+    <rect class="bg" x="150" y="44" width="100" height="30" rx="12"/>
+    <text x="160" y="63" fill="#F4B41A">32 TEAMS</text>
+  </g>
+  <g class="card c3">
+    <rect class="bg" x="10" y="102" width="150" height="30" rx="12"/>
+    <text x="24" y="121" fill="#F4B41A">₹1,00,000 PRIZE</text>
+  </g>
+  <g class="card c4">
+    <rect class="bg" x="150" y="142" width="100" height="30" rx="12"/>
+    <text x="164" y="161" fill="#F4B41A">🏆</text><text x="182" y="161">KNOCKOUT</text>
+  </g>
+</svg>

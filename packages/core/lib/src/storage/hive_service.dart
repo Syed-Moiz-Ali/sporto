@@ -20,6 +20,21 @@ class HiveService {
   static Box get pendingSyncBox => Hive.box(pendingSyncBoxName);
   static Box get authSessionBox => Hive.box(authSessionBoxName);
 
+  static const String onboardingCompletedKey = 'has_seen_onboarding';
+
+  static bool hasSeenOnboarding() {
+    try {
+      final val = authSessionBox.get(onboardingCompletedKey);
+      return val is bool ? val : false;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  static Future<void> setHasSeenOnboarding(bool seen) async {
+    await authSessionBox.put(onboardingCompletedKey, seen);
+  }
+
   static Future<void> addToSyncQueue(SyncQueueItem item) async {
     await pendingSyncBox.put(item.actionId, item.toJson());
   }

@@ -1,0 +1,16 @@
+<svg viewBox="0 0 190 20" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .dot{ fill:none; stroke:#1B232C; stroke-width:1.5; }
+    .fill{ fill:#F4B41A; opacity:0; animation:cycle 7.2s steps(1) infinite; }
+    .fill.d0{ animation-delay:0s; }   .fill.d1{ animation-delay:1.2s; }
+    .fill.d2{ animation-delay:2.4s; } .fill.d3{ animation-delay:3.6s; }
+    .fill.d4{ animation-delay:4.8s; } .fill.d5{ animation-delay:6s; }
+    @keyframes cycle{ 0%{opacity:0;} 2%{opacity:1;} 16%{opacity:1;} 18%{opacity:0;} 100%{opacity:0;} }
+  </style>
+  <circle class="dot" cx="10" cy="10" r="4"/><circle class="fill d0" cx="10" cy="10" r="4"/>
+  <circle class="dot" cx="46" cy="10" r="4"/><circle class="fill d1" cx="46" cy="10" r="4"/>
+  <circle class="dot" cx="82" cy="10" r="4"/><circle class="fill d2" cx="82" cy="10" r="4"/>
+  <circle class="dot" cx="118" cy="10" r="4"/><circle class="fill d3" cx="118" cy="10" r="4"/>
+  <circle class="dot" cx="154" cy="10" r="4"/><circle class="fill d4" cx="154" cy="10" r="4"/>
+  <circle class="dot" cx="180" cy="10" r="4"/><circle class="fill d5" cx="180" cy="10" r="4"/>
+</svg>

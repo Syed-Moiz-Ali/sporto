@@ -73,6 +73,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
   int _playersPerTeam = 5;
   bool _isSubmitting = false;
   String? _submitError;
+  final Map<String, String> _selectedPrizeCategories = {};
   final Map<String, String> _fieldErrors = {};
   static const _detailsFieldKeys = {
     'tournamentName',
@@ -96,6 +97,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
   static const _budgetFieldKeys = {
     'entryFee',
     'prizePool',
+    'prizeCategories',
     'winnerPrize',
     'runnerUpPrize',
     'semiFinalistPrize',
@@ -294,8 +296,8 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
         body: SingleChildScrollView(
           controller: _scrollController,
           physics: const ClampingScrollPhysics(),
-          padding:
-              EdgeInsets.fromLTRB(20 * scale, 24 * scale, 20 * scale, 40 * scale),
+          padding: EdgeInsets.fromLTRB(
+              20 * scale, 24 * scale, 20 * scale, 40 * scale),
           child: AnimatedSwitcher(
             key: Key('step_$_currentStep'),
             duration: const Duration(milliseconds: 300),
@@ -888,9 +890,17 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                 .map((s) => (_presetForSportId(s.id), s.name, s.id))
                 .toList()
             : <(_TournamentSport, String, int)>[
-                (_TournamentSport.cricket, 'Mini Cricket - Super Over Challenge', 1),
+                (
+                  _TournamentSport.cricket,
+                  'Mini Cricket - Super Over Challenge',
+                  1
+                ),
                 (_TournamentSport.badminton, 'Badminton - Challenge', 5),
-                (_TournamentSport.football, 'Mini Football - Goal Shootout Challenge', 2),
+                (
+                  _TournamentSport.football,
+                  'Mini Football - Goal Shootout Challenge',
+                  2
+                ),
               ];
 
         return Container(
@@ -1210,7 +1220,9 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                            _venueNameCtrl.text.trim().isNotEmpty
+                                            _venueNameCtrl.text
+                                                    .trim()
+                                                    .isNotEmpty
                                                 ? _venueNameCtrl.text.trim()
                                                 : (venueIndex != null
                                                     ? 'Edit Venue'
@@ -1336,8 +1348,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                                 label: 'Save Venue',
                                 onPressed: () {
                                   if (_validateVenueFields()) {
-                                    final name = _venueNameCtrl
-                                            .text
+                                    final name = _venueNameCtrl.text
                                             .trim()
                                             .isNotEmpty
                                         ? _venueNameCtrl.text.trim()
@@ -1347,7 +1358,8 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                                       'location': _locationCtrl.text.trim(),
                                       'capacity': _capacityCtrl.text.trim(),
                                       'date': _venueDateCtrl.text.trim(),
-                                      'start_time': _venueStartTimeCtrl.text.trim(),
+                                      'start_time':
+                                          _venueStartTimeCtrl.text.trim(),
                                     };
                                     setState(() {
                                       final idx = venueIndex;
@@ -1416,6 +1428,13 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
 
         // Prize Pool Section
         SportoSectionTitle(title: 'Prize Pool'),
+        if (_fieldErrors['prizeCategories'] != null) ...[
+          const SizedBox(height: 8),
+          Text(
+            _fieldErrors['prizeCategories']!,
+            style: TextStyle(color: cs.error, fontSize: 13),
+          ),
+        ],
         SportoCard(
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -1461,6 +1480,24 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                     errorText: _fieldErrors['runnerUpPrize'],
                     onChanged: (_) => _clearFieldError('runnerUpPrize')))
           ]),
+          const SizedBox(height: 10),
+          Row(children: [
+            Expanded(
+              child: _buildPrizeCategoryPicker(
+                cs,
+                fieldKey: 'winnerPrize',
+                preferredSlugs: const ['trophy', 'cash-prize'],
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildPrizeCategoryPicker(
+                cs,
+                fieldKey: 'runnerUpPrize',
+                preferredSlugs: const ['medal', 'trophy'],
+              ),
+            ),
+          ]),
           const SizedBox(height: 16),
           Row(children: [
             Expanded(
@@ -1487,6 +1524,24 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                     errorText: _fieldErrors['quarterFinalistPrize'],
                     onChanged: (_) => _clearFieldError('quarterFinalistPrize')))
           ]),
+          const SizedBox(height: 10),
+          Row(children: [
+            Expanded(
+              child: _buildPrizeCategoryPicker(
+                cs,
+                fieldKey: 'semiFinalistPrize',
+                preferredSlugs: const ['cash-prize', 'trophy'],
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildPrizeCategoryPicker(
+                cs,
+                fieldKey: 'quarterFinalistPrize',
+                preferredSlugs: const ['cash-prize', 'medal'],
+              ),
+            ),
+          ]),
         ])),
         const SizedBox(height: 16),
 
@@ -1510,6 +1565,12 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
               ],
               errorText: _fieldErrors['batsmanMostRuns'],
               onChanged: (_) => _clearFieldError('batsmanMostRuns')),
+          const SizedBox(height: 10),
+          _buildPrizeCategoryPicker(
+            cs,
+            fieldKey: 'batsmanMostRuns',
+            preferredSlugs: const ['performance-award', 'player-award'],
+          ),
           const SizedBox(height: 16),
           Row(children: [
             Expanded(
@@ -1536,6 +1597,24 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                     errorText: _fieldErrors['batsmanMoreSixes'],
                     onChanged: (_) => _clearFieldError('batsmanMoreSixes')))
           ]),
+          const SizedBox(height: 10),
+          Row(children: [
+            Expanded(
+              child: _buildPrizeCategoryPicker(
+                cs,
+                fieldKey: 'batsmanMoreFours',
+                preferredSlugs: const ['performance-award', 'player-award'],
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildPrizeCategoryPicker(
+                cs,
+                fieldKey: 'batsmanMoreSixes',
+                preferredSlugs: const ['performance-award', 'player-award'],
+              ),
+            ),
+          ]),
           const SizedBox(height: 16),
           SportoTextField(
               label: 'Batsman - Highest Strike Rate',
@@ -1547,6 +1626,12 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
               ],
               errorText: _fieldErrors['batsmanStrikeRate'],
               onChanged: (_) => _clearFieldError('batsmanStrikeRate')),
+          const SizedBox(height: 10),
+          _buildPrizeCategoryPicker(
+            cs,
+            fieldKey: 'batsmanStrikeRate',
+            preferredSlugs: const ['performance-award', 'player-award'],
+          ),
         ])),
         const SizedBox(height: 16),
 
@@ -1570,6 +1655,12 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
               ],
               errorText: _fieldErrors['bowlerMostWickets'],
               onChanged: (_) => _clearFieldError('bowlerMostWickets')),
+          const SizedBox(height: 10),
+          _buildPrizeCategoryPicker(
+            cs,
+            fieldKey: 'bowlerMostWickets',
+            preferredSlugs: const ['performance-award', 'player-award'],
+          ),
           const SizedBox(height: 16),
           SportoTextField(
               label: 'Bowler Best Economy',
@@ -1581,6 +1672,12 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
               ],
               errorText: _fieldErrors['bowlerBestEconomy'],
               onChanged: (_) => _clearFieldError('bowlerBestEconomy')),
+          const SizedBox(height: 10),
+          _buildPrizeCategoryPicker(
+            cs,
+            fieldKey: 'bowlerBestEconomy',
+            preferredSlugs: const ['performance-award', 'player-award'],
+          ),
         ])),
         const SizedBox(height: 16),
 
@@ -1620,11 +1717,33 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                       setState(() {
                         _audiencePrizeCtrls[i].dispose();
                         _audiencePrizeCtrls.removeAt(i);
+                        for (var index = i;
+                            index < _audiencePrizeCtrls.length;
+                            index++) {
+                          final next = _selectedPrizeCategories[
+                              'audiencePrize_${index + 1}'];
+                          if (next == null) {
+                            _selectedPrizeCategories
+                                .remove('audiencePrize_$index');
+                          } else {
+                            _selectedPrizeCategories['audiencePrize_$index'] =
+                                next;
+                          }
+                        }
+                        _selectedPrizeCategories.remove(
+                          'audiencePrize_${_audiencePrizeCtrls.length}',
+                        );
                       });
                     },
                   ),
                 ],
               ],
+            ),
+            const SizedBox(height: 10),
+            _buildPrizeCategoryPicker(
+              cs,
+              fieldKey: 'audiencePrize_$i',
+              preferredSlugs: const ['special-award', 'individual-award'],
             ),
           ],
           const SizedBox(height: 14),
@@ -1883,8 +2002,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
         Row(children: [
           Expanded(
               child: SecondaryButton(
-                  label: 'Back',
-                  onPressed: () => _goToStep(4))),
+                  label: 'Back', onPressed: () => _goToStep(4))),
           const SizedBox(width: 12),
           Expanded(
               flex: 2,
@@ -1980,9 +2098,8 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
           draft.id,
           TournamentVenueRequest(
             venueId: i + 1,
-            venueName: (venueName?.isNotEmpty == true)
-                ? venueName!
-                : 'Venue ${i + 1}',
+            venueName:
+                (venueName?.isNotEmpty == true) ? venueName! : 'Venue ${i + 1}',
             notes: location,
             location: location,
             dailyMatchCapacity: capacity,
@@ -2030,39 +2147,63 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
 
   List<TournamentPrizeRequest> _buildPrizesList() {
     final prizes = <TournamentPrizeRequest>[];
-    void addPrize(String title, String text, String category) {
+    void addPrize(
+      String fieldKey,
+      String title,
+      String text,
+      List<String> preferredCategorySlugs,
+    ) {
       final amount = int.tryParse(text.trim());
       if (amount != null && amount > 0) {
         prizes.add(TournamentPrizeRequest(
           title: title,
           amount: amount,
-          category: category,
+          category: _prizeCategoryName(fieldKey, preferredCategorySlugs) ?? '',
         ));
       }
     }
 
-    addPrize('Winner', _winnerPrizeCtrl.text, 'winner');
-    addPrize('Runner-up', _runnerUpPrizeCtrl.text, 'runner_up');
-    addPrize('Semi-finalists', _semiFinalistPrizeCtrl.text, 'semi_finalist');
-    addPrize('Quarter-finalists', _quarterFinalistPrizeCtrl.text,
-        'quarter_finalist');
+    addPrize('winnerPrize', 'Winner', _winnerPrizeCtrl.text,
+        const ['trophy', 'cash-prize']);
+    addPrize('runnerUpPrize', 'Runner-up', _runnerUpPrizeCtrl.text,
+        const ['medal', 'trophy']);
+    addPrize('semiFinalistPrize', 'Semi-finalists', _semiFinalistPrizeCtrl.text,
+        const ['cash-prize', 'trophy']);
+    addPrize('quarterFinalistPrize', 'Quarter-finalists',
+        _quarterFinalistPrizeCtrl.text, const ['cash-prize', 'medal']);
+    addPrize('batsmanMostRuns', 'Batsman - Most Runs',
+        _batsmanMostRunsCtrl.text, const ['performance-award', 'player-award']);
     addPrize(
-        'Batsman - Most Runs', _batsmanMostRunsCtrl.text, 'batsman_most_runs');
-    addPrize('Batsman - More 4\'s', _batsmanMoreFoursCtrl.text,
-        'batsman_more_fours');
-    addPrize('Batsman - More 6\'s', _batsmanMoreSixesCtrl.text,
-        'batsman_more_sixes');
-    addPrize('Batsman - Strike Rate', _batsmanStrikeRateCtrl.text,
-        'batsman_strike_rate');
-    addPrize('Bowler - Most Wickets', _bowlerMostWicketsCtrl.text,
-        'bowler_most_wickets');
-    addPrize('Bowler - Best Economy', _bowlerBestEconomyCtrl.text,
-        'bowler_best_economy');
+        'batsmanMoreFours',
+        'Batsman - More 4\'s',
+        _batsmanMoreFoursCtrl.text,
+        const ['performance-award', 'player-award']);
+    addPrize(
+        'batsmanMoreSixes',
+        'Batsman - More 6\'s',
+        _batsmanMoreSixesCtrl.text,
+        const ['performance-award', 'player-award']);
+    addPrize(
+        'batsmanStrikeRate',
+        'Batsman - Strike Rate',
+        _batsmanStrikeRateCtrl.text,
+        const ['performance-award', 'player-award']);
+    addPrize(
+        'bowlerMostWickets',
+        'Bowler - Most Wickets',
+        _bowlerMostWicketsCtrl.text,
+        const ['performance-award', 'player-award']);
+    addPrize(
+        'bowlerBestEconomy',
+        'Bowler - Best Economy',
+        _bowlerBestEconomyCtrl.text,
+        const ['performance-award', 'player-award']);
     for (var i = 0; i < _audiencePrizeCtrls.length; i++) {
       addPrize(
+        'audiencePrize_$i',
         'Audience Prize ${i + 1}',
         _audiencePrizeCtrls[i].text,
-        'audience_prize',
+        const ['special-award', 'individual-award'],
       );
     }
 
@@ -2070,10 +2211,79 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
       prizes.add(TournamentPrizeRequest(
         title: 'Winner',
         amount: int.tryParse(_winnerPrizeCtrl.text.trim()) ?? 0,
-        category: 'winner',
+        category: _prizeCategoryName(
+              'winnerPrize',
+              const ['trophy', 'cash-prize'],
+            ) ??
+            '',
       ));
     }
     return prizes;
+  }
+
+  String? _prizeCategoryName(
+    String fieldKey,
+    List<String> preferredSlugs,
+  ) {
+    final state = context.read<PartnerApiBloc>().state;
+    if (state is! PartnerApiLoadedState || state.prizeCategories.isEmpty) {
+      return null;
+    }
+
+    final selected = _selectedPrizeCategories[fieldKey];
+    if (selected != null &&
+        state.prizeCategories.any((category) => category.name == selected)) {
+      return selected;
+    }
+
+    for (final slug in preferredSlugs) {
+      for (final category in state.prizeCategories) {
+        if (category.slug.toLowerCase() == slug) return category.name;
+      }
+    }
+
+    for (final category in state.prizeCategories) {
+      if (category.slug.toLowerCase() != 'test') return category.name;
+    }
+    return state.prizeCategories.first.name;
+  }
+
+  Widget _buildPrizeCategoryPicker(
+    ColorScheme cs, {
+    required String fieldKey,
+    required List<String> preferredSlugs,
+  }) {
+    final state = context.watch<PartnerApiBloc>().state;
+    final categories = state is PartnerApiLoadedState
+        ? state.prizeCategories
+        : const <TournamentPrizeCategoryResponse>[];
+    final selected = _prizeCategoryName(fieldKey, preferredSlugs);
+
+    return DropdownButtonFormField<String>(
+      value: selected,
+      isExpanded: true,
+      decoration: InputDecoration(
+        labelText: 'Prize Category',
+        filled: true,
+        fillColor: cs.surfaceContainerHighest.withOpacity(0.35),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      ),
+      hint: Text(categories.isEmpty ? 'Loading categories...' : 'Select'),
+      items: categories
+          .map((category) => DropdownMenuItem<String>(
+                value: category.name,
+                child: Text(category.name, overflow: TextOverflow.ellipsis),
+              ))
+          .toList(),
+      onChanged: categories.isEmpty
+          ? null
+          : (value) {
+              if (value == null) return;
+              setState(() => _selectedPrizeCategories[fieldKey] = value);
+            },
+    );
   }
 
   String? _validateTournamentSubmission() {
@@ -2225,6 +2435,13 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
     final prizePoolText = _prizePoolCtrl.text.trim();
     final entryFee = int.tryParse(entryFeeText);
     final prizePool = int.tryParse(prizePoolText);
+
+    final apiState = context.read<PartnerApiBloc>().state;
+    if (apiState is! PartnerApiLoadedState ||
+        apiState.prizeCategories.isEmpty) {
+      errors['prizeCategories'] =
+          'Prize categories could not be loaded. Please try again.';
+    }
 
     if (_isPaid) {
       if (entryFeeText.isEmpty) {

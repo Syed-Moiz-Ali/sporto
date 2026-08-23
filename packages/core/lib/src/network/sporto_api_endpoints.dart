@@ -79,6 +79,7 @@ class PartnerTournamentApiEndpoints {
   String formats(Object sportId) =>
       '/v1/partner/tournaments/sports/$sportId/formats';
   String get formConfig => '/v1/partner/tournaments/form-config';
+  String get prizeCategories => '/v1/partner/tournaments/prize-categories';
   String get drafts => '/v1/partner/tournaments/';
   String byId(Object tournamentId) => '/v1/partner/tournaments/$tournamentId';
   String rules(Object tournamentId) =>

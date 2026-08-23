@@ -39,9 +39,12 @@ class _AuthFlowViewState extends State<AuthFlowView> {
   // (with an in-button spinner) while auth operations are in flight.
   AuthState? _lastScreenState;
 
+  bool _onboardingCompleted = false;
+
   @override
   void initState() {
     super.initState();
+    _onboardingCompleted = HiveService.hasSeenOnboarding();
     _serverGateFuture = _getServerGateFuture('startup');
   }
 
@@ -113,7 +116,19 @@ class _AuthFlowViewState extends State<AuthFlowView> {
 
         final result = snapshot.data;
         if (result == null || !result.hasValidSession) {
-          debugPrint('[SportoApi] AUTH_GATE routing to login');
+          debugPrint('[SportoApi] AUTH_GATE routing to onboarding / login');
+          if (!_onboardingCompleted) {
+            return OnboardingScreen(
+              onGetStarted: () async {
+                await HiveService.setHasSeenOnboarding(true);
+                if (mounted) {
+                  setState(() {
+                    _onboardingCompleted = true;
+                  });
+                }
+              },
+            );
+          }
           return loginScreen;
         }
 

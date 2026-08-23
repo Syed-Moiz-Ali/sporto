@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Spoto — Animated SVG Components</title>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{ --ink:#0A0E12; --ink2:#12181F; --line:#232C36; --amber:#F4B41A; --dim:#7C8894; }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:var(--ink); font-family:'Inter',sans-serif; color:#fff; padding:32px 20px 60px; }
+  h1{ font-family:'Anton',sans-serif; font-size:26px; letter-spacing:.02em; }
+  p.sub{ color:var(--dim); font-size:13px; margin-top:6px; max-width:520px; line-height:1.6; }
+  .grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:16px; margin-top:32px; }
+  .tile{ background:var(--ink2); border:1px solid var(--line); border-radius:16px; padding:18px; }
+  .tile .stage{ height:150px; display:flex; align-items:center; justify-content:center; }
+  .tile img{ max-width:100%; max-height:100%; }
+  .tile .name{ font-size:12px; font-weight:700; margin-top:12px; }
+  .tile .file{ font-size:10px; color:var(--dim); font-family:monospace; margin-top:2px; }
+</style>
+</head>
+<body>
+  <h1>Spoto — Animated SVG Components</h1>
+  <p class="sub">Standalone animated SVGs extracted from the Partner App onboarding prototype. Each file is self-contained (CSS animation embedded inline) — open individually or embed anywhere.</p>
+
+  <div class="grid">
+    <div class="tile"><div class="stage"><img src="01-splash-crest.svg"></div><div class="name">Splash Crest</div><div class="file">01-splash-crest.svg</div></div>
+    <div class="tile"><div class="stage"><img src="02-loading-dots.svg"></div><div class="name">Loading Dots</div><div class="file">02-loading-dots.svg</div></div>
+    <div class="tile"><div class="stage"><img src="03-trophy-hero.svg"></div><div class="name">Welcome Trophy Hero</div><div class="file">03-trophy-hero.svg</div></div>
+    <div class="tile"><div class="stage"><img src="04-live-pulse.svg"></div><div class="name">Live Pulse Dot</div><div class="file">04-live-pulse.svg</div></div>
+    <div class="tile"><div class="stage"><img src="05-transition-glow.svg"></div><div class="name">Transition Glow Crest</div><div class="file">05-transition-glow.svg</div></div>
+    <div class="tile"><div class="stage"><img src="06-progress-dots.svg"></div><div class="name">Progress Dots (6-step)</div><div class="file">06-progress-dots.svg</div></div>
+    <div class="tile"><div class="stage"><img src="07-championship-ladder.svg"></div><div class="name">Championship Ladder</div><div class="file">07-championship-ladder.svg</div></div>
+    <div class="tile"><div class="stage"><img src="08-floating-cards.svg"></div><div class="name">Floating Stat Cards</div><div class="file">08-floating-cards.svg</div></div>
+  </div>
+</body>
+</html>

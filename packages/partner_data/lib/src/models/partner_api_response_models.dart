@@ -46,7 +46,6 @@ Object? _readSponsors(Map map, String key) {
   return map['tournament_sponsors'] ?? map['sponsors'];
 }
 
-
 enum PartnerTournamentStatus {
   draft(1, 'Draft'),
   published(2, 'Published'),
@@ -180,8 +179,7 @@ class PartnerAddress with _$PartnerAddress {
 @freezed
 class PartnerProfessionalInformation with _$PartnerProfessionalInformation {
   const factory PartnerProfessionalInformation({
-    @JsonKey(name: 'highest_qualification')
-    String? highestQualification,
+    @JsonKey(name: 'highest_qualification') String? highestQualification,
     @JsonKey(name: 'present_occupation') String? presentOccupation,
   }) = _PartnerProfessionalInformation;
 
@@ -355,6 +353,34 @@ class TournamentFormConfigFieldResponse
       _$TournamentFormConfigFieldResponseFromJson(json);
 }
 
+class TournamentPrizeCategoryResponse {
+  const TournamentPrizeCategoryResponse({
+    required this.id,
+    required this.name,
+    required this.slug,
+    this.description,
+    required this.displayOrder,
+  });
+
+  final int id;
+  final String name;
+  final String slug;
+  final String? description;
+  final int displayOrder;
+
+  factory TournamentPrizeCategoryResponse.fromJson(
+    Map<String, dynamic> json,
+  ) {
+    return TournamentPrizeCategoryResponse(
+      id: _intFromJson(json['id']),
+      name: _stringFromJson(json['name']),
+      slug: _stringFromJson(json['slug']),
+      description: _nullableStringFromJson(json['description']),
+      displayOrder: _intFromJson(json['display_order']),
+    );
+  }
+}
+
 @freezed
 class PartnerTournamentResponse with _$PartnerTournamentResponse {
   const PartnerTournamentResponse._();
@@ -431,8 +457,6 @@ class PartnerTournamentResponse with _$PartnerTournamentResponse {
 
   PartnerTournamentVisibility get parsedVisibility =>
       PartnerTournamentVisibility.fromValue(visibility);
-
-
 
   factory PartnerTournamentResponse.fromJson(Map<String, dynamic> json) =>
       _$PartnerTournamentResponseFromJson(json);
@@ -545,4 +569,3 @@ class PartnerFinancialSummary with _$PartnerFinancialSummary {
   factory PartnerFinancialSummary.fromJson(Map<String, dynamic> json) =>
       _$PartnerFinancialSummaryFromJson(json);
 }
-

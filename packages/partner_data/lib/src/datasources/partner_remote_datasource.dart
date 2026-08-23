@@ -206,6 +206,19 @@ class PartnerRemoteDataSource {
         .toList();
   }
 
+  Future<SportoApiResponse> getTournamentPrizeCategories() {
+    return _get(SportoApiEndpoints.partnerTournaments.prizeCategories);
+  }
+
+  Future<List<TournamentPrizeCategoryResponse>>
+      getTournamentPrizeCategoriesData() async {
+    final response = await getTournamentPrizeCategories();
+    return _listData(response.data)
+        .map(TournamentPrizeCategoryResponse.fromJson)
+        .toList()
+      ..sort((a, b) => a.displayOrder.compareTo(b.displayOrder));
+  }
+
   Future<SportoApiResponse> storeTournamentDraft(
     TournamentDraftRequest request,
   ) {
@@ -259,9 +272,8 @@ class PartnerRemoteDataSource {
       if (inner is List) {
         return inner
             .whereType<Map>()
-            .map((item) =>
-                PartnerTournamentResponse.fromJson(
-                    Map<String, dynamic>.from(item)))
+            .map((item) => PartnerTournamentResponse.fromJson(
+                Map<String, dynamic>.from(item)))
             .toList();
       }
     }
@@ -384,7 +396,8 @@ class PartnerRemoteDataSource {
         'registration_fee': request.registrationFee,
         'currency': request.currency,
         'prizes': request.prizes.map((p) => p.toJson()).toList(),
-        'sponsors': request.sponsors.map((s) => s.toJson()).toList(),
+        if (request.sponsors.isNotEmpty)
+          'sponsors': request.sponsors.map((s) => s.toJson()).toList(),
       },
       methodOverride: 'PUT',
     );
@@ -408,7 +421,6 @@ class PartnerRemoteDataSource {
     final response = await reviewTournament(tournamentId);
     return PartnerTournamentReviewData.fromJson(_mapData(response.data));
   }
-
 
   Future<SportoApiResponse> submitTournament(
     Object tournamentId,
