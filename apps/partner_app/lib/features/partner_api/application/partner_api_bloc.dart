@@ -74,6 +74,8 @@ class PartnerApiLoadedState extends PartnerApiState {
     required this.cricketFormats,
     required this.cricketFormConfig,
     required this.prizeCategories,
+    required this.configSportId,
+    required this.configSportFormatId,
     this.tournaments = const [],
   });
 
@@ -87,6 +89,8 @@ class PartnerApiLoadedState extends PartnerApiState {
   final List<SportFormatResponse> cricketFormats;
   final List<TournamentFormConfigFieldResponse> cricketFormConfig;
   final List<TournamentPrizeCategoryResponse> prizeCategories;
+  final int configSportId;
+  final int configSportFormatId;
 
   /// All tournaments loaded from the API (across all statuses for home screen).
   final List<PartnerTournamentResponse> tournaments;
@@ -130,6 +134,8 @@ class PartnerApiLoadedState extends PartnerApiState {
         cricketFormats,
         cricketFormConfig,
         prizeCategories,
+        configSportId,
+        configSportFormatId,
         tournaments,
       ];
 }
@@ -186,6 +192,8 @@ class PartnerApiBloc extends Bloc<PartnerApiEvent, PartnerApiState> {
         cricketFormats: const [],
         cricketFormConfig: const [],
         prizeCategories: const [],
+        configSportId: 1,
+        configSportFormatId: 1,
         tournaments: tournaments,
       ));
     } catch (error) {
@@ -219,10 +227,16 @@ class PartnerApiBloc extends Bloc<PartnerApiEvent, PartnerApiState> {
           await _remoteDataSource.getTournamentSportsData();
       final cricketFormats =
           await _remoteDataSource.getTournamentFormatsData(event.sportId);
+      if (cricketFormats.isEmpty) return;
+      final resolvedSportFormatId = cricketFormats.any(
+        (format) => format.id == event.sportFormatId,
+      )
+          ? event.sportFormatId
+          : cricketFormats.first.id;
       final cricketFormConfig =
           await _remoteDataSource.getTournamentFormConfigData(
         sportId: event.sportId,
-        sportFormatId: event.sportFormatId,
+        sportFormatId: resolvedSportFormatId,
       );
       final prizeCategories =
           await _remoteDataSource.getTournamentPrizeCategoriesData();
@@ -238,6 +252,8 @@ class PartnerApiBloc extends Bloc<PartnerApiEvent, PartnerApiState> {
         cricketFormats: cricketFormats,
         cricketFormConfig: cricketFormConfig,
         prizeCategories: prizeCategories,
+        configSportId: event.sportId,
+        configSportFormatId: resolvedSportFormatId,
         tournaments: existingTournaments,
       ));
     } catch (error) {
@@ -268,6 +284,8 @@ class PartnerApiBloc extends Bloc<PartnerApiEvent, PartnerApiState> {
         cricketFormats: current.cricketFormats,
         cricketFormConfig: current.cricketFormConfig,
         prizeCategories: current.prizeCategories,
+        configSportId: current.configSportId,
+        configSportFormatId: current.configSportFormatId,
         tournaments: current.tournaments,
       ));
     } catch (error) {
@@ -297,6 +315,8 @@ class PartnerApiBloc extends Bloc<PartnerApiEvent, PartnerApiState> {
         cricketFormats: current.cricketFormats,
         cricketFormConfig: current.cricketFormConfig,
         prizeCategories: current.prizeCategories,
+        configSportId: current.configSportId,
+        configSportFormatId: current.configSportFormatId,
         tournaments: tournaments,
       ));
     } catch (_) {

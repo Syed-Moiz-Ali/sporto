@@ -67,10 +67,10 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
   late String _selectedSport;
   _TournamentSport _selectedSportPreset = _TournamentSport.cricket;
   String _selectedFormat = 'Knockout';
-  String _selectedBallType = 'Tennis Ball';
   int _miniOvers = 3;
   int _ballsPerOver = 3;
   int _playersPerTeam = 5;
+  String _selectedGroundType = 'indoor';
   bool _isSubmitting = false;
   String? _submitError;
   final Map<String, String> _selectedPrizeCategories = {};
@@ -406,7 +406,15 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                   color: cs.secondary,
                   filled: true,
                   height: 48,
-                  onTap: () {},
+                  onTap: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'Championship hosting requests are not available yet.',
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ),
             ],
@@ -694,6 +702,50 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                   fontSize: 14,
                   fontWeight: FontWeight.w500)),
         ),
+        const SizedBox(height: 16),
+        BlocBuilder<PartnerApiBloc, PartnerApiState>(
+          builder: (context, state) {
+            final loaded = state is PartnerApiLoadedState &&
+                state.configSportId == _sportId;
+            final formats =
+                loaded ? state.cricketFormats : const <SportFormatResponse>[];
+            final selectedFormatId = loaded &&
+                    formats.any(
+                      (format) => format.id == state.configSportFormatId,
+                    )
+                ? state.configSportFormatId
+                : null;
+
+            return DropdownButtonFormField<int>(
+              value: selectedFormatId,
+              isExpanded: true,
+              decoration: InputDecoration(
+                labelText: 'Sport Format',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              hint: Text(formats.isEmpty ? 'Loading formats...' : 'Select'),
+              items: formats
+                  .map((format) => DropdownMenuItem<int>(
+                        value: format.id,
+                        child: Text(format.name),
+                      ))
+                  .toList(),
+              onChanged: formats.isEmpty
+                  ? null
+                  : (formatId) {
+                      if (formatId == null) return;
+                      context.read<PartnerApiBloc>().add(
+                            LoadTournamentConfigEvent(
+                              sportId: _sportId,
+                              sportFormatId: formatId,
+                            ),
+                          );
+                    },
+            );
+          },
+        ),
         const SizedBox(height: 24),
 
         // Tournament Format
@@ -730,88 +782,46 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
         Text('Match Settings',
             style: TextStyle(color: cs.onSurface, fontSize: 18)),
         const SizedBox(height: 20),
-        if (_selectedSportPreset == _TournamentSport.cricket) ...[
-          Text('Ball type',
-              style: TextStyle(
-                  color: cs.onSurface,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500)),
-          const SizedBox(height: 12),
-          Wrap(spacing: 8, runSpacing: 8, children: [
-            SportoFilterChip(
-                type: SportoFilterChipType.pill,
-                inactiveFill: true,
-                label: 'Tennis Ball',
-                active: _selectedBallType == 'Tennis Ball',
-                hasCheck: true,
-                onTap: () => setState(() => _selectedBallType = 'Tennis Ball')),
-            SportoFilterChip(
-                type: SportoFilterChipType.pill,
-                inactiveFill: true,
-                label: 'Leather Ball',
-                hasCheck: true,
-                active: _selectedBallType == 'Leather Ball',
-                onTap: () =>
-                    setState(() => _selectedBallType = 'Leather Ball')),
-            SportoFilterChip(
-                type: SportoFilterChipType.pill,
-                inactiveFill: true,
-                label: 'Rubber Ball',
-                hasCheck: true,
-                active: _selectedBallType == 'Rubber Ball',
-                onTap: () => setState(() => _selectedBallType = 'Rubber Ball')),
-            SportoFilterChip(
-                type: SportoFilterChipType.pill,
-                inactiveFill: true,
-                label: 'Wind Ball',
-                hasCheck: true,
-                active: _selectedBallType == 'Wind Ball',
-                onTap: () => setState(() => _selectedBallType = 'Wind Ball')),
-          ]),
-          const SizedBox(height: 24),
+        if (_selectedSportPreset != _TournamentSport.football) ...[
+          SportoCounterRow(
+              label: _selectedSportPreset == _TournamentSport.cricket
+                  ? 'Overs Per Innings'
+                  : 'No. of Points per Set',
+              value: _selectedSportPreset == _TournamentSport.cricket
+                  ? '$_miniOvers Overs'
+                  : '$_miniOvers',
+              onMinus: () => setState(() {
+                    if (_miniOvers > 1) _miniOvers--;
+                  }),
+              onPlus: () => setState(() => _miniOvers++)),
+          const SizedBox(height: 16),
         ],
 
-        // Mini Overs Per Innings
-        SportoCounterRow(
-            label: switch (_selectedSportPreset) {
-              _TournamentSport.cricket => 'Mini Overs Per Innings',
-              _TournamentSport.badminton => 'No. of Points per set',
-              _TournamentSport.football => 'No. of Goals per round',
-            },
-            value: _selectedSportPreset == _TournamentSport.cricket
-                ? '$_miniOvers Overs'
-                : '$_miniOvers',
-            onMinus: () => setState(() {
-                  if (_miniOvers > 1) _miniOvers--;
-                }),
-            onPlus: () => setState(() => _miniOvers++)),
-        const SizedBox(height: 16),
-
-        // Balls Per Over
-        SportoCounterRow(
-            label: switch (_selectedSportPreset) {
-              _TournamentSport.cricket => 'Balls Per Over',
-              _TournamentSport.badminton => 'No. of Sets',
-              _TournamentSport.football => 'No. of Rounds',
-            },
-            value: _selectedSportPreset == _TournamentSport.cricket
-                ? '$_ballsPerOver Balls'
-                : '$_ballsPerOver',
-            onMinus: () => setState(() {
-                  if (_ballsPerOver > 1) _ballsPerOver--;
-                }),
-            onPlus: () => setState(() => _ballsPerOver++)),
-        const SizedBox(height: 16),
+        if (_selectedSportPreset != _TournamentSport.cricket) ...[
+          SportoCounterRow(
+              label: _selectedSportPreset == _TournamentSport.badminton
+                  ? 'No. of Sets'
+                  : 'No. of Halves',
+              value: '$_ballsPerOver',
+              onMinus: () => setState(() {
+                    if (_ballsPerOver > 1) _ballsPerOver--;
+                  }),
+              onPlus: () => setState(() => _ballsPerOver++)),
+          const SizedBox(height: 16),
+        ],
 
         // Players Per Team
-        SportoCounterRow(
-            label: 'Players Per Team',
-            value: '$_playersPerTeam Players',
-            onMinus: () => setState(() {
-                  if (_playersPerTeam > 1) _playersPerTeam--;
-                }),
-            onPlus: () => setState(() => _playersPerTeam++)),
-        const SizedBox(height: 32),
+        if (_selectedSportPreset != _TournamentSport.badminton) ...[
+          SportoCounterRow(
+              label: 'Players Per Team',
+              value: '$_playersPerTeam Players',
+              onMinus: () => setState(() {
+                    if (_playersPerTeam > 1) _playersPerTeam--;
+                  }),
+              onPlus: () => setState(() => _playersPerTeam++)),
+          const SizedBox(height: 32),
+        ] else
+          const SizedBox(height: 16),
 
         Align(
           alignment: Alignment.center,
@@ -819,7 +829,15 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
               width: 270 * context.sportoScale,
               height: 48 * context.sportoScale,
               label: 'Continue',
-              onPressed: () => _goToStep(2)),
+              onPressed: () {
+                if (_sportFormatId == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Select a sport format.')),
+                  );
+                  return;
+                }
+                _goToStep(2);
+              }),
         ),
       ],
     );
@@ -930,11 +948,22 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                         setState(() {
                           _selectedSportPreset = option.$1;
                           _selectedSport = option.$2;
-                          _miniOvers = 3;
-                          _ballsPerOver = 3;
-                          _playersPerTeam =
-                              option.$1 == _TournamentSport.badminton ? 2 : 5;
+                          _miniOvers =
+                              option.$1 == _TournamentSport.badminton ? 21 : 20;
+                          _ballsPerOver =
+                              option.$1 == _TournamentSport.football ? 2 : 3;
+                          _playersPerTeam = switch (option.$1) {
+                            _TournamentSport.cricket => 11,
+                            _TournamentSport.football => 11,
+                            _TournamentSport.badminton => 2,
+                          };
                         });
+                        context.read<PartnerApiBloc>().add(
+                              LoadTournamentConfigEvent(
+                                sportId: option.$3,
+                                sportFormatId: 0,
+                              ),
+                            );
                         Navigator.pop(sheetContext);
                       },
                       child: Text(option.$2,
@@ -1183,12 +1212,14 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
       _capacityCtrl.text = v['capacity']?.toString() ?? '';
       _venueDateCtrl.text = v['date']?.toString() ?? '';
       _venueStartTimeCtrl.text = v['start_time']?.toString() ?? '';
+      _selectedGroundType = v['ground_type']?.toString() ?? 'indoor';
     } else {
       _venueNameCtrl.clear();
       _locationCtrl.clear();
       _capacityCtrl.clear();
       _venueDateCtrl.clear();
       _venueStartTimeCtrl.clear();
+      _selectedGroundType = 'indoor';
     }
 
     showModalBottomSheet(
@@ -1288,16 +1319,24 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                                   type: SportoFilterChipType.pill,
                                   inactiveFill: true,
                                   label: 'Indoor',
-                                  active: true,
+                                  active: _selectedGroundType == 'indoor',
                                   hasCheck: true,
-                                  onTap: () {}),
+                                  onTap: () {
+                                    setState(
+                                        () => _selectedGroundType = 'indoor');
+                                    sheetSetState(() {});
+                                  }),
                               const SizedBox(width: 12),
                               SportoFilterChip(
                                   type: SportoFilterChipType.pill,
                                   inactiveFill: true,
                                   label: 'Outdoor',
-                                  active: false,
-                                  onTap: () {}),
+                                  active: _selectedGroundType == 'outdoor',
+                                  onTap: () {
+                                    setState(
+                                        () => _selectedGroundType = 'outdoor');
+                                    sheetSetState(() {});
+                                  }),
                             ]),
                             const SizedBox(height: 20),
                             Row(children: [
@@ -1360,6 +1399,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                                       'date': _venueDateCtrl.text.trim(),
                                       'start_time':
                                           _venueStartTimeCtrl.text.trim(),
+                                      'ground_type': _selectedGroundType,
                                     };
                                     setState(() {
                                       final idx = venueIndex;
@@ -1894,7 +1934,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                   fontSize: 14,
                   fontWeight: FontWeight.w500)),
           Text(
-              '$_selectedBallType - $_miniOvers overs - $_ballsPerOver balls/over - $_playersPerTeam players - ${_matchDurationCtrl.text.trim()} mins match - ${_breakBetweenMatchesCtrl.text.trim()} mins break',
+              '${_rulesSummaryText()} - ${_matchDurationCtrl.text.trim()} mins match - ${_breakBetweenMatchesCtrl.text.trim()} mins break',
               style: TextStyle(
                   color: cs.onSurfaceVariant, fontSize: 12, height: 1.5)),
           const SizedBox(height: 12),
@@ -2044,10 +2084,19 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
     );
 
     try {
+      final configState = context.read<PartnerApiBloc>().state;
+      if (configState is! PartnerApiLoadedState ||
+          configState.configSportId != _sportId ||
+          _sportFormatId == null) {
+        throw const SportoApiException(
+          'Sport configuration is still loading. Please try again.',
+        );
+      }
+
       final draft = await remoteDataSource.storeTournamentDraftData(
         TournamentDraftRequest(
           sportId: _sportId,
-          sportFormatId: _sportFormatId,
+          sportFormatId: _sportFormatId!,
           tournamentTypeId: _tournamentTypeId,
         ),
       );
@@ -2070,18 +2119,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
       await remoteDataSource.updateTournamentRulesData(
         draft.id,
         TournamentRuleRequest(
-          rules: [
-            TournamentRuleValueRequest(
-              sportRuleFieldId: _selectedSportPreset == _TournamentSport.cricket
-                  ? 1
-                  : (_selectedSportPreset == _TournamentSport.badminton
-                      ? 2
-                      : 3),
-              value: _selectedSportPreset == _TournamentSport.cricket
-                  ? _miniOvers.toString()
-                  : _playersPerTeam.toString(),
-            ),
-          ],
+          rules: _buildTournamentRules(configState.cricketFormConfig),
         ),
       );
 
@@ -2103,7 +2141,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
             notes: location,
             location: location,
             dailyMatchCapacity: capacity,
-            groundType: 'turf',
+            groundType: venueData['ground_type']?.toString() ?? 'indoor',
             date: date,
             startTime: startTime,
             roundName: _venueRoundLabelFor(i),
@@ -2114,7 +2152,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
       await remoteDataSource.updateTournamentBudgetData(
         draft.id,
         TournamentBudgetRequest(
-          registrationFee: int.tryParse(_entryFeeCtrl.text.trim()) ?? 0,
+          registrationFee: _entryFee,
           currency: 'INR',
           prizes: _buildPrizesList(),
           sponsors: const [],
@@ -2131,7 +2169,10 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Tournament ${submitted.workflowStatus.label.toLowerCase()} successfully.',
+            submitted.parsedApprovalStatus ==
+                    PartnerTournamentApprovalStatus.pending
+                ? 'Tournament submitted for approval successfully.'
+                : 'Tournament submitted successfully.',
           ),
         ),
       );
@@ -2219,6 +2260,31 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
       ));
     }
     return prizes;
+  }
+
+  List<TournamentRuleValueRequest> _buildTournamentRules(
+    List<TournamentFormConfigFieldResponse> fields,
+  ) {
+    String valueFor(TournamentFormConfigFieldResponse field) {
+      return switch (field.key) {
+        'overs' => _miniOvers.toString(),
+        'minimum_players_per_team' => _playersPerTeam.toString(),
+        'halves' || 'sets' => _ballsPerOver.toString(),
+        'half_duration' => _matchDurationCtrl.text.trim().isNotEmpty
+            ? _matchDurationCtrl.text.trim()
+            : (field.masterDefaultValue ?? ''),
+        'points_per_set' => _miniOvers.toString(),
+        _ => field.masterDefaultValue ?? '',
+      };
+    }
+
+    return fields
+        .map((field) => TournamentRuleValueRequest(
+              sportRuleFieldId: field.sportRuleFieldId,
+              value: valueFor(field),
+            ))
+        .where((rule) => rule.value.isNotEmpty)
+        .toList();
   }
 
   String? _prizeCategoryName(
@@ -2765,6 +2831,17 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
   int get _netEarnings =>
       _estimatedCollection - _totalPrizeMoney - _platformFee;
 
+  String _rulesSummaryText() {
+    return switch (_selectedSportPreset) {
+      _TournamentSport.cricket =>
+        '$_miniOvers overs - $_playersPerTeam players',
+      _TournamentSport.football =>
+        '$_ballsPerOver halves - $_playersPerTeam players',
+      _TournamentSport.badminton =>
+        '$_ballsPerOver sets - $_miniOvers points per set',
+    };
+  }
+
   int get _sportId {
     return switch (_selectedSportPreset) {
       _TournamentSport.cricket => 1,
@@ -2773,7 +2850,13 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
     };
   }
 
-  int get _sportFormatId => 1;
+  int? get _sportFormatId {
+    final state = context.read<PartnerApiBloc>().state;
+    if (state is PartnerApiLoadedState && state.configSportId == _sportId) {
+      return state.configSportFormatId;
+    }
+    return null;
+  }
 
   int get _tournamentTypeId {
     return switch (_selectedFormat) {
