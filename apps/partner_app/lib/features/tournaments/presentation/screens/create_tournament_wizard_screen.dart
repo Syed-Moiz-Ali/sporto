@@ -6,6 +6,7 @@ import 'package:core/core.dart';
 import 'package:partner_data/partner_data.dart';
 import 'package:ui_kit/ui_kit.dart';
 import '../../../partner_api/application/partner_api_bloc.dart';
+import 'venue_location_picker_screen.dart';
 
 // ============================================================
 // MAIN WIZARD SCREEN
@@ -71,6 +72,8 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
   int _ballsPerOver = 3;
   int _playersPerTeam = 5;
   String _selectedGroundType = 'indoor';
+  double? _selectedVenueLatitude;
+  double? _selectedVenueLongitude;
   bool _isSubmitting = false;
   String? _submitError;
   final Map<String, String> _selectedPrizeCategories = {};
@@ -1209,6 +1212,8 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
       final v = _venues[venueIndex];
       _venueNameCtrl.text = v['name']?.toString() ?? '';
       _locationCtrl.text = v['location']?.toString() ?? '';
+      _selectedVenueLatitude = (v['latitude'] as num?)?.toDouble();
+      _selectedVenueLongitude = (v['longitude'] as num?)?.toDouble();
       _capacityCtrl.text = v['capacity']?.toString() ?? '';
       _venueDateCtrl.text = v['date']?.toString() ?? '';
       _venueStartTimeCtrl.text = v['start_time']?.toString() ?? '';
@@ -1216,6 +1221,8 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
     } else {
       _venueNameCtrl.clear();
       _locationCtrl.clear();
+      _selectedVenueLatitude = null;
+      _selectedVenueLongitude = null;
       _capacityCtrl.clear();
       _venueDateCtrl.clear();
       _venueStartTimeCtrl.clear();
@@ -1285,14 +1292,35 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                                 }),
                             const SizedBox(height: 20),
                             SportoTextField(
-                                label: 'Location',
-                                hint: 'e.g. Kondapur, Hyderabad',
-                                controller: _locationCtrl,
-                                errorText: _fieldErrors['location'],
-                                onChanged: (_) {
-                                  _clearFieldError('location');
-                                  sheetSetState(() {});
-                                }),
+                              label: 'Location',
+                              hint: 'Search and select on map',
+                              controller: _locationCtrl,
+                              readOnly: true,
+                              suffixIcon: Icon(Icons.map_outlined,
+                                  color: cs.primary, size: 20),
+                              onTap: () async {
+                                final selection = await Navigator.of(context)
+                                    .push<VenueLocationSelection>(
+                                  MaterialPageRoute(
+                                    builder: (_) => VenueLocationPickerScreen(
+                                      initialAddress: _locationCtrl.text.trim(),
+                                      initialLatitude: _selectedVenueLatitude,
+                                      initialLongitude: _selectedVenueLongitude,
+                                    ),
+                                  ),
+                                );
+                                if (selection == null || !mounted) return;
+                                setState(() {
+                                  _locationCtrl.text = selection.address;
+                                  _selectedVenueLatitude = selection.latitude;
+                                  _selectedVenueLongitude = selection.longitude;
+                                  _fieldErrors.remove('location');
+                                  _submitError = null;
+                                });
+                                sheetSetState(() {});
+                              },
+                              errorText: _fieldErrors['location'],
+                            ),
                             const SizedBox(height: 20),
                             SportoTextField(
                                 label: 'Daily Match Capacity',
@@ -1395,6 +1423,8 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                                     final vData = {
                                       'name': name,
                                       'location': _locationCtrl.text.trim(),
+                                      'latitude': _selectedVenueLatitude,
+                                      'longitude': _selectedVenueLongitude,
                                       'capacity': _capacityCtrl.text.trim(),
                                       'date': _venueDateCtrl.text.trim(),
                                       'start_time':

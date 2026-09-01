@@ -28,7 +28,7 @@ abstract final class AppRouter {
         name: 'home',
         builder: (context, state) => AuthFlowView(
           initialTabIndex:
-              state.uri.queryParameters['tab'] == 'profile' ? 3 : 0,
+              state.uri.queryParameters['tab'] == 'profile' ? 4 : 0,
         ),
       ),
       GoRoute(

@@ -22,6 +22,7 @@ class SportoFilterChip extends StatelessWidget {
   final bool inactiveFill;
   final SportoFilterChipType type;
   final Color? activeColor;
+  final double? height;
 
   const SportoFilterChip({
     super.key,
@@ -33,6 +34,7 @@ class SportoFilterChip extends StatelessWidget {
     this.inactiveFill = false,
     this.type = SportoFilterChipType.filter,
     this.activeColor,
+    this.height,
   });
 
   @override
@@ -51,6 +53,7 @@ class SportoFilterChip extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
+        height: height,
         padding: padding,
         decoration: BoxDecoration(
           color: active

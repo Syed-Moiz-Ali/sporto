@@ -117,18 +117,22 @@ class SportoBottomNav extends StatelessWidget {
                             color: isActive ? cs.tertiary : cs.onSurfaceVariant,
                             size: iconSize),
                       SizedBox(height: 3 * scale),
-                      Text(
-                        item.label,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              color:
-                                  isActive ? cs.tertiary : cs.onSurfaceVariant,
-                              fontSize: labelSize,
-                              fontWeight: isActive
-                                  ? FontWeight.w500
-                                  : FontWeight.normal,
-                            ),
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          item.label,
+                          maxLines: 1,
+                          style:
+                              Theme.of(context).textTheme.labelSmall?.copyWith(
+                                    color: isActive
+                                        ? cs.tertiary
+                                        : cs.onSurfaceVariant,
+                                    fontSize: labelSize,
+                                    fontWeight: isActive
+                                        ? FontWeight.w500
+                                        : FontWeight.normal,
+                                  ),
+                        ),
                       ),
                       if (isActive)
                         Container(

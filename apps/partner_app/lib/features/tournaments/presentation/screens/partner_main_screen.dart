@@ -9,6 +9,7 @@ import '../../application/tournament_bloc.dart';
 import '../widgets/live_tournament_card.dart';
 import 'match_history_screen.dart';
 import 'profile_screen.dart';
+import 'referee_management_screen.dart';
 import 'schedule_screen.dart';
 
 class PartnerMainScreen extends StatefulWidget {
@@ -46,9 +47,9 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
         _buildHomeTab(context),
         const MatchHistoryScreen(embedded: true),
         const ScheduleScreen(embedded: true),
+        const RefereeManagementScreen(),
         const PartnerProfileScreen(),
       ],
-
       items: const [
         SportoNavItem.asset(
           asset: SportoAssets.home,
@@ -61,6 +62,10 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
         SportoNavItem.asset(
           asset: SportoAssets.matches,
           label: 'Schedules',
+        ),
+        SportoNavItem(
+          Icons.sports_rounded,
+          'Referees',
         ),
         SportoNavItem.asset(
           asset: SportoAssets.profile,
@@ -113,7 +118,8 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
                               )
                             else
                               Padding(
-                                padding: EdgeInsets.symmetric(vertical: 2 * scale),
+                                padding:
+                                    EdgeInsets.symmetric(vertical: 2 * scale),
                                 child: SportoShimmer(
                                   width: 140 * scale,
                                   height: 20 * scale,
@@ -246,15 +252,15 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
     return 'Good Evening';
   }
 
-  Widget _buildOverviewSection(
-      ColorScheme cs, PartnerApiLoadedState? loaded) {
+  Widget _buildOverviewSection(ColorScheme cs, PartnerApiLoadedState? loaded) {
     final scale = context.sportoScale;
     final isLoading = loaded == null;
     final tournaments = loaded?.tournaments ?? [];
     final live = tournaments.where((t) => t.status == 6).length;
-    final active = tournaments.where((t) => t.status >= 1 && t.status <= 6).length;
-    final players = tournaments.fold<int>(
-        0, (sum, t) => sum + (t.registeredTeams ?? 0));
+    final active =
+        tournaments.where((t) => t.status >= 1 && t.status <= 6).length;
+    final players =
+        tournaments.fold<int>(0, (sum, t) => sum + (t.registeredTeams ?? 0));
 
     final availableWidth = (context.sportoResponsive.contentMaxWidth -
             context.sportoResponsive.horizontalPadding * 2)
@@ -471,8 +477,7 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
     );
   }
 
-  Widget _buildLiveTournaments(
-      ColorScheme cs, PartnerApiLoadedState? loaded) {
+  Widget _buildLiveTournaments(ColorScheme cs, PartnerApiLoadedState? loaded) {
     final scale = context.sportoScale;
     final isLoading = loaded == null;
     final liveTournaments = loaded?.liveTournaments ?? [];
@@ -511,8 +516,8 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
                       ? '${t.maximumTeams} Teams'
                       : 'TBD',
                   liveNow: true,
-                  onViewTournament: () => context
-                      .push(AppRouter.tournamentDetailRoute('${t.id}')),
+                  onViewTournament: () =>
+                      context.push(AppRouter.tournamentDetailRoute('${t.id}')),
                 ),
               ))
         else
@@ -545,8 +550,7 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
     }
   }
 
-  Widget _buildTodaysSchedule(
-      ColorScheme cs, PartnerApiLoadedState? loaded) {
+  Widget _buildTodaysSchedule(ColorScheme cs, PartnerApiLoadedState? loaded) {
     final scale = context.sportoScale;
     final isLoading = loaded == null;
     final upcoming = loaded?.upcomingTournaments ?? [];
@@ -585,9 +589,8 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
           SportoSkeletonCard(height: 100 * scale)
         else if (upcoming.isNotEmpty)
           ...upcoming.take(2).map((t) {
-            final venue = t.tournamentVenues.isNotEmpty
-                ? t.tournamentVenues.first
-                : null;
+            final venue =
+                t.tournamentVenues.isNotEmpty ? t.tournamentVenues.first : null;
             final timeStr = _formatScheduleDateTime(
                 t.tournamentStartAt, venue?.startTime, venue?.date);
             final startInStr = _calculateStartIn(t.tournamentStartAt);
@@ -602,8 +605,8 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
                 teamsCount: t.maximumTeams != null
                     ? '${t.maximumTeams} Teams'
                     : '18 Teams',
-                onTap: () => context
-                    .push(AppRouter.tournamentDetailRoute('${t.id}')),
+                onTap: () =>
+                    context.push(AppRouter.tournamentDetailRoute('${t.id}')),
               ),
             );
           })
@@ -636,8 +639,18 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
       try {
         final dt = DateTime.parse(rawTournamentStart).toLocal();
         const months = [
-          'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-          'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+          'Jan',
+          'Feb',
+          'Mar',
+          'Apr',
+          'May',
+          'Jun',
+          'Jul',
+          'Aug',
+          'Sep',
+          'Oct',
+          'Nov',
+          'Dec'
         ];
         final hour =
             dt.hour == 0 ? 12 : (dt.hour > 12 ? dt.hour - 12 : dt.hour);
@@ -677,8 +690,18 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
     try {
       final dt = DateTime.parse(raw);
       const months = [
-        'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec'
       ];
       return '${dt.day} ${months[dt.month - 1]} ${dt.year}';
     } catch (_) {
@@ -699,7 +722,6 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
       return '25 mins';
     }
   }
-
 
   Widget _ScheduleCard({
     required String time,
