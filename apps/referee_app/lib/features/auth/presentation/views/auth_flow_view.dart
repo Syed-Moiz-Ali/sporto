@@ -19,13 +19,29 @@ class AuthFlowView extends StatefulWidget {
 
 class _AuthFlowViewState extends State<AuthFlowView> {
   bool _splashFinished = false;
+  bool _onboardingCompleted = false;
   AuthState? _lastScreenState;
+
+  @override
+  void initState() {
+    super.initState();
+    _onboardingCompleted = HiveService.hasSeenOnboarding();
+  }
 
   @override
   Widget build(BuildContext context) {
     if (!_splashFinished) {
       return SplashScreen(
         onFinish: () => setState(() => _splashFinished = true),
+      );
+    }
+
+    if (!_onboardingCompleted) {
+      return RefereeOnboardingScreen(
+        onGetStarted: () async {
+          await HiveService.setHasSeenOnboarding(true);
+          if (mounted) setState(() => _onboardingCompleted = true);
+        },
       );
     }
 

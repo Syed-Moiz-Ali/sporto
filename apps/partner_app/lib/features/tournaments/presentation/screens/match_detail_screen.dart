@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:partner_data/partner_data.dart';
 import 'package:ui_kit/ui_kit.dart';
 
+import 'assign_referee_screen.dart';
 import 'team_details_screen.dart';
 
 // ============================================================
@@ -24,6 +25,39 @@ class TournamentDetailScreen extends StatefulWidget {
 
 class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
   late int _selectedTabIndex;
+  int _refereeAssignmentTab = 0;
+  final Map<String, String> _assignedReferees = <String, String>{
+    'round-64': 'Rohit Sharma',
+    'quarter-final': 'Rohit Sharma',
+  };
+  static const _refereeMatches = <_RefereeMatch>[
+    _RefereeMatch(
+      id: 'round-64',
+      round: 'Round of 64',
+      ground: 'Ground A',
+      time: '15 July, 10:00 AM',
+    ),
+    _RefereeMatch(
+      id: 'quarter-final',
+      badge: 'Quarter Final',
+      round: 'Round of 18',
+      ground: 'Ground A',
+      time: '',
+    ),
+    _RefereeMatch(
+      id: 'pending-64',
+      round: 'Round of 64',
+      ground: 'Ground A',
+      time: '15 July, 10:00 AM',
+    ),
+    _RefereeMatch(
+      id: 'pending-final',
+      badge: 'Final',
+      round: 'Round of 1',
+      ground: 'Ground A',
+      time: '15 July, 10:00 AM',
+    ),
+  ];
   final List<String> _tabs = [
     'Overview',
     'Teams',
@@ -87,7 +121,9 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
 
     final name = _tournament?.name ?? 'Hyderabad Super Cup';
     final code = _tournament?.code ??
-        (widget.tournamentId != null ? 'SPT-${widget.tournamentId}' : 'SPT-20481');
+        (widget.tournamentId != null
+            ? 'SPT-${widget.tournamentId}'
+            : 'SPT-20481');
 
     return SportoScreenShell(
       appBar: AppBar(
@@ -129,7 +165,11 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
       body: SingleChildScrollView(
         physics: const ClampingScrollPhysics(),
         padding: EdgeInsets.fromLTRB(
-            20 * scale, 0, 20 * scale, 100 * scale),
+          20 * scale,
+          _selectedTabIndex == 2 ? 24 * scale : 0,
+          20 * scale,
+          100 * scale,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -219,7 +259,7 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
 
   Widget _buildSummaryCard(ColorScheme cs, TextTheme tt) {
     final statusLabel = _tournament?.workflowStatus.label ?? 'Live Matches';
-    final isLive = _tournament?.status == 6;
+    final isLive = _tournament == null || _tournament?.status == 6;
     final registered = _tournament?.registeredTeams ?? 64;
     final maxTeams = _tournament?.maximumTeams ?? 127;
 
@@ -249,8 +289,8 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
               const SizedBox(width: 6),
               Text(
                 statusLabel,
-                style: TextStyle(
-                    color: cs.onSurface, fontWeight: FontWeight.w500),
+                style:
+                    TextStyle(color: cs.onSurface, fontWeight: FontWeight.w500),
               ),
             ],
           ),
@@ -259,9 +299,11 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                _tournament?.sport?.name ?? 'Cricket',
-                style: TextStyle(
-                    color: cs.secondary, fontWeight: FontWeight.w500),
+                _selectedTabIndex == 2
+                    ? 'Round of 128'
+                    : _tournament?.sport?.name ?? 'Cricket',
+                style:
+                    TextStyle(color: cs.secondary, fontWeight: FontWeight.w500),
               ),
               Expanded(
                 child: RichText(
@@ -321,8 +363,8 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
           Expanded(
             child: Text(
               placeholder,
-              style: TextStyle(
-                  color: cs.onSurfaceVariant.withValues(alpha: 0.6)),
+              style:
+                  TextStyle(color: cs.onSurfaceVariant.withValues(alpha: 0.6)),
             ),
           ),
           Icon(Icons.sort_rounded, color: cs.onSurfaceVariant, size: 20),
@@ -371,8 +413,7 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
                   style: TextStyle(
                       color: cs.tertiary, fontWeight: FontWeight.w500)),
               Text('Vs', style: TextStyle(color: cs.onSurfaceVariant)),
-              Text('Team B',
-                  style: TextStyle(color: cs.onSurfaceVariant)),
+              Text('Team B', style: TextStyle(color: cs.onSurfaceVariant)),
             ]),
             const SizedBox(height: 12),
             Center(
@@ -397,7 +438,10 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text(venues.isNotEmpty ? venues.first.venueName : 'Ground A',
                     style: TextStyle(color: cs.onSurface, fontSize: 13)),
-                Text(venues.isNotEmpty ? (venues.first.startTime ?? '09:15 AM') : '09:15 AM',
+                Text(
+                    venues.isNotEmpty
+                        ? (venues.first.startTime ?? '09:15 AM')
+                        : '09:15 AM',
                     style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
               ]),
               TextButton(
@@ -419,7 +463,8 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
           borderColor: cs.secondary.withValues(alpha: .12),
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(venues.length > 1 ? venues[1].venueName : 'Main Court', style: TextStyle(color: cs.onSurface)),
+            Text(venues.length > 1 ? venues[1].venueName : 'Main Court',
+                style: TextStyle(color: cs.onSurface)),
             const SportoDivider(height: 18),
             Text('Starts at 03:30 PM',
                 style: TextStyle(color: cs.onSurface, fontSize: 12)),
@@ -763,141 +808,215 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
   // TAB 3: REFEREES
   // ============================================================
   Widget _buildRefereesTab(ColorScheme cs, TextTheme tt) {
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(children: [
-            SportoFilterChip(label: 'All', active: true),
+    final assigned = _refereeAssignmentTab == 0;
+    final matches = _refereeMatches
+        .where(
+          (match) => _assignedReferees.containsKey(match.id) == assigned,
+        )
+        .toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            _refereeTab('Assigned', 0, cs),
+            const SizedBox(width: 34),
+            _refereeTab('Pending', 1, cs),
+          ],
+        ),
+        const SizedBox(height: 21),
+        Row(
+          children: [
+            Text('Sort by |', style: TextStyle(color: cs.onSurfaceVariant)),
             const SizedBox(width: 8),
-            SportoFilterChip(label: 'Assigned'),
-            const SizedBox(width: 8),
-            SportoFilterChip(label: 'Available'),
-            const SizedBox(width: 8),
-            SportoFilterChip(label: 'Live Match'),
-            const SizedBox(width: 8),
-            SportoFilterChip(label: 'Unavailable'),
-          ])),
-      const SizedBox(height: 16),
-      _RefereeCard(
-          name: 'Referee A',
-          level: 2,
-          match: 'Thunder Titans Vs Delhi Warriors',
-          ground: 'Ground A',
-          round: 'Round of 64',
-          status: 'live'),
-      const SizedBox(height: 12),
-      _RefereeCard(
-          name: 'Referee B',
-          level: 3,
-          lastMatch: 'Last Match Finished 1 hr ago',
-          status: 'available'),
-    ]);
+            Text('Venues', style: TextStyle(color: cs.secondary)),
+            const SizedBox(width: 20),
+            Text('Date', style: TextStyle(color: cs.onSurfaceVariant)),
+          ],
+        ),
+        const SizedBox(height: 24),
+        for (var i = 0; i < matches.length; i++) ...[
+          _refereeMatchCard(matches[i], assigned: assigned, cs: cs),
+          if (i != matches.length - 1) const SizedBox(height: 10),
+        ],
+      ],
+    );
   }
 
-  Widget _RefereeCard(
-      {required String name,
-      required int level,
-      String? match,
-      String? ground,
-      String? round,
-      String? lastMatch,
-      required String status}) {
-    return Builder(builder: (context) {
-      final cs = Theme.of(context).colorScheme;
-      final isAssignable = status == 'available';
+  Widget _refereeTab(String label, int index, ColorScheme cs) {
+    final active = _refereeAssignmentTab == index;
+    return InkWell(
+      onTap: () => setState(() => _refereeAssignmentTab = index),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+        child: Column(
+          children: [
+            Text(
+              label,
+              style: TextStyle(
+                color: active ? cs.primary : cs.onSurfaceVariant,
+                fontSize: 14,
+              ),
+            ),
+            const SizedBox(height: 8),
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 180),
+              width: active ? 20 : 0,
+              height: 3,
+              decoration: BoxDecoration(
+                color: cs.primary,
+                borderRadius: BorderRadius.circular(3),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
-      Color statusColor = status == 'live'
-          ? Colors.redAccent
-          : status == 'available'
-              ? cs.secondary
-              : status == 'break'
-                  ? Colors.orange
-                  : cs.onTertiary;
-
-      return SportoCard(
-          child:
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(children: [
-          Expanded(
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                Text(name,
-                    style: TextStyle(
-                        color: cs.onSurface,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 16)),
-                Text('Level: $level referee',
+  Widget _refereeMatchCard(
+    _RefereeMatch match, {
+    required bool assigned,
+    required ColorScheme cs,
+  }) {
+    final referee = _assignedReferees[match.id];
+    final isAssigned = assigned && referee != null;
+    return SportoCard(
+      radius: 15,
+      blur: 0,
+      padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+      backgroundColor: const Color(0xE817191F),
+      borderColor: const Color(0x192F3A48),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (match.badge != null) ...[
+            SportoBadge(
+              text: match.badge!,
+              color: cs.secondary,
+              radius: 9,
+              fontSize: 11,
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            ),
+            const SizedBox(height: 5),
+          ],
+          Row(
+            children: [
+              Icon(Icons.sports_cricket_rounded,
+                  color: cs.onSurfaceVariant, size: 15),
+              const SizedBox(width: 4),
+              Text(match.round,
+                  style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
+              const Spacer(),
+              if (match.time.isNotEmpty)
+                Text(match.time,
+                    style: TextStyle(color: cs.onSurfaceVariant, fontSize: 11)),
+              Icon(Icons.more_vert_rounded,
+                  color: cs.onSurfaceVariant, size: 20),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Row(
+            children: [
+              SportoAssetIcon(SportoAssets.locationPin,
+                  size: 13, color: cs.secondary),
+              const SizedBox(width: 4),
+              Text(match.ground,
+                  style: TextStyle(color: cs.secondary, fontSize: 12)),
+            ],
+          ),
+          const SportoDivider(height: 18),
+          if (isAssigned) ...[
+            Row(
+              children: [
+                Expanded(
+                  child: Text(referee,
+                      style:
+                          const TextStyle(color: Colors.white, fontSize: 13)),
+                ),
+                Text('Level: 2 referee',
+                    style: TextStyle(color: cs.onSurfaceVariant, fontSize: 11)),
+              ],
+            ),
+            const SportoDivider(height: 18),
+          ],
+          Row(
+            children: [
+              Text('Delhi Warriors',
+                  style: TextStyle(color: cs.onSurfaceVariant, fontSize: 11)),
+              const Spacer(),
+              Text('Vs',
+                  style: TextStyle(color: cs.onSurfaceVariant, fontSize: 10)),
+              const Spacer(),
+              Text('Hyd Highlanders',
+                  style: TextStyle(color: cs.onSurfaceVariant, fontSize: 11)),
+            ],
+          ),
+          const SizedBox(height: 10),
+          if (isAssigned)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                SportoPillButton(
+                  label: 'Reassign',
+                  color: cs.primary,
+                  height: 28,
+                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                  fontSize: 11,
+                  onTap: () => _openRefereePicker(match),
+                ),
+                const SizedBox(width: 12),
+                SportoPillButton(
+                  label: 'Remove Referee',
+                  color: Colors.redAccent,
+                  height: 28,
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  fontSize: 11,
+                  onTap: () =>
+                      setState(() => _assignedReferees.remove(match.id)),
+                ),
+              ],
+            )
+          else
+            Row(
+              children: [
+                Text('Referee: ',
                     style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
-              ])),
-          IconButton(
-              icon: Icon(Icons.more_vert_rounded, color: cs.onSurfaceVariant),
-              onPressed: () {}),
-        ]),
-        if (match != null) ...[
-          const SizedBox(height: 12),
-          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            Text(match.split(' Vs ')[0],
-                style:
-                    TextStyle(color: cs.tertiary, fontWeight: FontWeight.w500)),
-            Text('Vs', style: TextStyle(color: cs.onSurfaceVariant)),
-            Text(match.split(' Vs ')[1],
-                style: TextStyle(color: cs.onSurfaceVariant)),
-          ]),
+                const Text('Not Assigned',
+                    style: TextStyle(color: Colors.redAccent, fontSize: 12)),
+                const Spacer(),
+                SportoPillButton(
+                  label: 'Assign Referee',
+                  color: cs.primary,
+                  gradient: LinearGradient(colors: [cs.primary, cs.tertiary]),
+                  filled: true,
+                  foregroundColor: Colors.black,
+                  height: 28,
+                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                  fontSize: 11,
+                  onTap: () => _openRefereePicker(match),
+                ),
+              ],
+            ),
         ],
-        const SizedBox(height: 12),
-        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            if (ground != null)
-              Row(children: [
-                SportoAssetIcon(SportoAssets.locationPin,
-                    size: 14, color: cs.secondary),
-                const SizedBox(width: 4),
-                Text(ground,
-                    style: TextStyle(color: cs.secondary, fontSize: 12))
-              ]),
-            if (round != null)
-              Row(children: [
-                Icon(Icons.edit_note_outlined,
-                    size: 14, color: cs.onSurfaceVariant),
-                const SizedBox(width: 4),
-                Text(round,
-                    style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12))
-              ]),
-            if (lastMatch != null)
-              Row(children: [
-                Container(
-                    width: 6,
-                    height: 6,
-                    decoration: BoxDecoration(
-                        shape: BoxShape.circle, color: statusColor)),
-                const SizedBox(width: 6),
-                Text(lastMatch,
-                    style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12))
-              ]),
-          ]),
-          if (isAssignable)
-            Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: BoxDecoration(
-                    color: cs.tertiary,
-                    borderRadius: BorderRadius.circular(20)),
-                child: Text('Assign',
-                    style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.w500,
-                        fontSize: 12)))
-          else if (match != null)
-            TextButton(
-                onPressed: () {},
-                child: Text('View Details',
-                    style: TextStyle(
-                        color: cs.onSurface,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500))),
-        ]),
-      ]));
+      ),
+    );
+  }
+
+  Future<void> _openRefereePicker(_RefereeMatch match) async {
+    final selected = await Navigator.of(context).push<String>(
+      MaterialPageRoute(
+        builder: (_) => AssignRefereeScreen(
+          tournamentName: _tournament?.name ?? 'Hyderabad Super Cup',
+          tournamentCode: _tournament?.code ?? 'SPT-20481',
+        ),
+      ),
+    );
+    if (selected == null || !mounted) return;
+    setState(() {
+      _assignedReferees[match.id] = selected;
+      _refereeAssignmentTab = 0;
     });
   }
 
@@ -1091,4 +1210,20 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
       ]));
     });
   }
+}
+
+class _RefereeMatch {
+  const _RefereeMatch({
+    required this.id,
+    required this.round,
+    required this.ground,
+    required this.time,
+    this.badge,
+  });
+
+  final String id;
+  final String round;
+  final String ground;
+  final String time;
+  final String? badge;
 }

@@ -13,6 +13,8 @@ class SecondaryButton extends StatelessWidget {
   final double radius;
   final double? width;
   final double? widthFactor;
+  final double fontSize;
+  final double iconSize;
 
   const SecondaryButton({
     super.key,
@@ -23,6 +25,8 @@ class SecondaryButton extends StatelessWidget {
     this.radius = 16,
     this.width,
     this.widthFactor,
+    this.fontSize = 16,
+    this.iconSize = 20,
   });
 
   @override
@@ -53,13 +57,13 @@ class SecondaryButton extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               if (icon != null) ...[
-                Icon(icon, color: cs.onSurfaceVariant, size: 20),
+                Icon(icon, color: cs.onSurfaceVariant, size: iconSize),
                 const SizedBox(width: 8),
               ],
               Text(label,
                   style: TextStyle(
                       color: cs.onSurface,
-                      fontSize: 16,
+                      fontSize: fontSize,
                       fontWeight: FontWeight.w500)),
             ],
           ),

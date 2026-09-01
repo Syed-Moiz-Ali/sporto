@@ -54,5 +54,6 @@ export 'src/widgets/sporto_shimmer.dart';
 // Screens (Mobile OTP & Onboarding)
 export 'src/screens/splash_screen.dart';
 export 'src/screens/onboarding_screen.dart';
+export 'src/screens/referee_onboarding_screen.dart';
 export 'src/screens/phone_login_screen.dart';
 export 'src/screens/automated_onboarding_wizard.dart';
