@@ -13,6 +13,36 @@ class OnboardingScreen extends StatefulWidget {
   State<OnboardingScreen> createState() => _OnboardingScreenState();
 }
 
+/// Keeps the mobile carousel horizontal while giving each slide the requested
+/// top-to-bottom visual and bottom-to-top copy reveal.
+class _DirectionalReveal extends StatelessWidget {
+  const _DirectionalReveal({
+    required this.isActive,
+    required this.fromTop,
+    required this.child,
+  });
+
+  final bool isActive;
+  final bool fromTop;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    const duration = Duration(milliseconds: 450);
+    return AnimatedSlide(
+      offset: isActive ? Offset.zero : Offset(0, fromTop ? -0.12 : 0.12),
+      duration: duration,
+      curve: Curves.easeOutCubic,
+      child: AnimatedOpacity(
+        opacity: isActive ? 1 : 0,
+        duration: duration,
+        curve: Curves.easeOut,
+        child: child,
+      ),
+    );
+  }
+}
+
 class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
@@ -82,7 +112,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   void _startAutoAdvance() {
     _cancelAutoAdvance();
-    _autoAdvanceTimer = Timer.periodic(const Duration(milliseconds: 4000), (_) {
+    _autoAdvanceTimer = Timer.periodic(const Duration(milliseconds: 3200), (_) {
       if (_currentPage < _slides.length - 1) {
         _pageController.nextPage(
           duration: const Duration(milliseconds: 400),
@@ -172,7 +202,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               children: [
                 // 1. Top Header Navigation Bar (Back & Skip)
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -225,6 +256,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 Expanded(
                   child: PageView.builder(
                     controller: _pageController,
+                    scrollDirection: Axis.horizontal,
                     onPageChanged: (idx) {
                       setState(() => _currentPage = idx);
                     },
@@ -238,13 +270,18 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                             // Top Portion: Visual Element (Hero Card)
                             Expanded(
                               flex: 5,
-                              child: Center(
-                                child: SingleChildScrollView(
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  child: _buildVisual(
-                                    slide['type'] as String,
-                                    darkTokens,
-                                    colorScheme,
+                              child: _DirectionalReveal(
+                                isActive: index == _currentPage,
+                                fromTop: true,
+                                child: Center(
+                                  child: SingleChildScrollView(
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    child: _buildVisual(
+                                      slide['type'] as String,
+                                      darkTokens,
+                                      colorScheme,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -253,81 +290,86 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                             // Bottom Portion: Text Content (Kicker, Title, Description)
                             Expanded(
                               flex: 4,
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  if (slide['kicker'] != null) ...[
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 10, vertical: 4),
-                                      decoration: BoxDecoration(
-                                        color: _amberGold.withValues(alpha: 0.15),
-                                        borderRadius: BorderRadius.circular(6),
-                                        border: Border.all(
-                                          color: _amberGold.withValues(alpha: 0.4),
+                              child: _DirectionalReveal(
+                                isActive: index == _currentPage,
+                                fromTop: false,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    if (slide['kicker'] != null) ...[
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 10, vertical: 4),
+                                        decoration: BoxDecoration(
+                                          color: _amberGold.withValues(
+                                              alpha: 0.15),
+                                          borderRadius:
+                                              BorderRadius.circular(6),
+                                          border: Border.all(
+                                            color: _amberGold.withValues(
+                                                alpha: 0.4),
+                                          ),
+                                        ),
+                                        child: Text(
+                                          (slide['kicker'] as String)
+                                              .toUpperCase(),
+                                          style: textTheme.labelSmall?.copyWith(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.w800,
+                                            letterSpacing: 1.5,
+                                            color: _amberGold,
+                                          ),
                                         ),
                                       ),
-                                      child: Text(
-                                        (slide['kicker'] as String).toUpperCase(),
-                                        style: textTheme.labelSmall?.copyWith(
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.w800,
-                                          letterSpacing: 1.5,
-                                          color: _amberGold,
-                                        ),
+                                      const SizedBox(height: 8),
+                                    ],
+                                    Text(
+                                      slide['title'] as String,
+                                      style: textTheme.titleLarge?.copyWith(
+                                        fontSize: 22,
+                                        height: 1.18,
+                                        fontWeight: FontWeight.w800,
+                                        color: colorScheme.onSurface,
+                                        letterSpacing: 0.2,
                                       ),
                                     ),
                                     const SizedBox(height: 8),
-                                  ],
-
-                                  Text(
-                                    slide['title'] as String,
-                                    style: textTheme.titleLarge?.copyWith(
-                                      fontSize: 22,
-                                      height: 1.18,
-                                      fontWeight: FontWeight.w800,
-                                      color: colorScheme.onSurface,
-                                      letterSpacing: 0.2,
+                                    Text(
+                                      slide['desc'] as String,
+                                      maxLines: 4,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: textTheme.bodyMedium?.copyWith(
+                                        fontSize: 13.5,
+                                        height: 1.45,
+                                        color: colorScheme.onSurfaceVariant,
+                                      ),
                                     ),
-                                  ),
-
-                                  const SizedBox(height: 8),
-
-                                  Text(
-                                    slide['desc'] as String,
-                                    maxLines: 4,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: textTheme.bodyMedium?.copyWith(
-                                      fontSize: 13.5,
-                                      height: 1.45,
-                                      color: colorScheme.onSurfaceVariant,
-                                    ),
-                                  ),
-
-                                  if (slide['tagline'] != null) ...[
-                                    const SizedBox(height: 10),
-                                    Row(
-                                      children: [
-                                        const Icon(
-                                          Icons.verified_rounded,
-                                          color: _turfGreen,
-                                          size: 15,
-                                        ),
-                                        const SizedBox(width: 6),
-                                        Text(
-                                          slide['tagline'] as String,
-                                          style: textTheme.labelLarge?.copyWith(
+                                    if (slide['tagline'] != null) ...[
+                                      const SizedBox(height: 10),
+                                      Row(
+                                        children: [
+                                          const Icon(
+                                            Icons.verified_rounded,
                                             color: _turfGreen,
-                                            fontSize: 12.5,
-                                            fontWeight: FontWeight.w700,
-                                            letterSpacing: 0.5,
+                                            size: 15,
                                           ),
-                                        ),
-                                      ],
-                                    ),
+                                          const SizedBox(width: 6),
+                                          Text(
+                                            slide['tagline'] as String,
+                                            style:
+                                                textTheme.labelLarge?.copyWith(
+                                              color: _turfGreen,
+                                              fontSize: 12.5,
+                                              fontWeight: FontWeight.w700,
+                                              letterSpacing: 0.5,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
                                   ],
-                                ],
+                                ),
                               ),
                             ),
                           ],
@@ -502,9 +544,21 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               const Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  Text('⚡ Auto Fixtures', style: TextStyle(fontSize: 10, color: _brightGold, fontWeight: FontWeight.w700)),
-                  Text('🏆 Real Scoring', style: TextStyle(fontSize: 10, color: _turfGreen, fontWeight: FontWeight.w700)),
-                  Text('💳 Payouts', style: TextStyle(fontSize: 10, color: Color(0xFF4FBAF0), fontWeight: FontWeight.w700)),
+                  Text('⚡ Auto Fixtures',
+                      style: TextStyle(
+                          fontSize: 10,
+                          color: _brightGold,
+                          fontWeight: FontWeight.w700)),
+                  Text('🏆 Real Scoring',
+                      style: TextStyle(
+                          fontSize: 10,
+                          color: _turfGreen,
+                          fontWeight: FontWeight.w700)),
+                  Text('💳 Payouts',
+                      style: TextStyle(
+                          fontSize: 10,
+                          color: Color(0xFF4FBAF0),
+                          fontWeight: FontWeight.w700)),
                 ],
               ),
             ],
@@ -513,10 +567,26 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
       case 'partner':
         final features = [
-          {'icon': Icons.campaign_rounded, 'title': 'You Organise,\nWe Market', 'tag': 'Spoto Promotion'},
-          {'icon': Icons.groups_rounded, 'title': 'Attract Teams,\nEngage Audience', 'tag': '50K+ Players'},
-          {'icon': Icons.bolt_rounded, 'title': 'Digitalise\nSporting', 'tag': 'Cloud Sync'},
-          {'icon': Icons.track_changes_rounded, 'title': 'Add Tech To\nYour Matches', 'tag': 'Live Engine'},
+          {
+            'icon': Icons.campaign_rounded,
+            'title': 'You Organise,\nWe Market',
+            'tag': 'Spoto Promotion'
+          },
+          {
+            'icon': Icons.groups_rounded,
+            'title': 'Attract Teams,\nEngage Audience',
+            'tag': '50K+ Players'
+          },
+          {
+            'icon': Icons.bolt_rounded,
+            'title': 'Digitalise\nSporting',
+            'tag': 'Cloud Sync'
+          },
+          {
+            'icon': Icons.track_changes_rounded,
+            'title': 'Add Tech To\nYour Matches',
+            'tag': 'Live Engine'
+          },
         ];
         return GridView.count(
           crossAxisCount: 2,
@@ -589,7 +659,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.emoji_events_rounded, color: _amberGold, size: 16),
+                      const Icon(Icons.emoji_events_rounded,
+                          color: _amberGold, size: 16),
                       const SizedBox(width: 6),
                       Text(
                         'Tournament Studio',
@@ -626,15 +697,24 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 child: const Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('🏆 Winner: ₹15,000', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: Colors.white)),
-                    Text('🥈 Runner Up: ₹7,000', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: _brightGold)),
+                    Text('🏆 Winner: ₹15,000',
+                        style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white)),
+                    Text('🥈 Runner Up: ₹7,000',
+                        style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                            color: _brightGold)),
                   ],
                 ),
               ),
               const SizedBox(height: 5),
               Row(
                 children: [
-                  Icon(Icons.location_on_rounded, color: colorScheme.onSurfaceVariant, size: 12),
+                  Icon(Icons.location_on_rounded,
+                      color: colorScheme.onSurfaceVariant, size: 12),
                   const SizedBox(width: 4),
                   Expanded(
                     child: Text(
@@ -678,18 +758,21 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       color: colorScheme.onSurface,
                     ),
                   ),
-                  const SportoBadge(text: 'LIVE OPERATIONAL', color: _turfGreen),
+                  const SportoBadge(
+                      text: 'LIVE OPERATIONAL', color: _turfGreen),
                 ],
               ),
               const SizedBox(height: 8),
               Row(
                 children: [
                   Expanded(
-                    child: _statBox('24 Teams', 'Registered', _amberGold, darkTokens, colorScheme),
+                    child: _statBox('24 Teams', 'Registered', _amberGold,
+                        darkTokens, colorScheme),
                   ),
                   const SizedBox(width: 6),
                   Expanded(
-                    child: _statBox('6 Referees', 'Assigned', _turfGreen, darkTokens, colorScheme),
+                    child: _statBox('6 Referees', 'Assigned', _turfGreen,
+                        darkTokens, colorScheme),
                   ),
                 ],
               ),
@@ -697,11 +780,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               Row(
                 children: [
                   Expanded(
-                    child: _statBox('32 Matches', 'Generated', const Color(0xFF4FBAF0), darkTokens, colorScheme),
+                    child: _statBox('32 Matches', 'Generated',
+                        const Color(0xFF4FBAF0), darkTokens, colorScheme),
                   ),
                   const SizedBox(width: 6),
                   Expanded(
-                    child: _statBox('₹38,400', 'Revenue', _brightGold, darkTokens, colorScheme),
+                    child: _statBox('₹38,400', 'Revenue', _brightGold,
+                        darkTokens, colorScheme),
                   ),
                 ],
               ),
@@ -800,9 +885,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   final isSix = b == '6';
                   return Container(
                     margin: const EdgeInsets.symmetric(horizontal: 2),
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
-                      color: isW ? Colors.redAccent : (isSix ? _brightGold : darkTokens.field),
+                      color: isW
+                          ? Colors.redAccent
+                          : (isSix ? _brightGold : darkTokens.field),
                       borderRadius: BorderRadius.circular(5),
                     ),
                     child: Text(
@@ -824,9 +912,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         final stages = [
           {'name': 'Local Tournament', 'status': 'Completed', 'done': true},
           {'name': 'City Championship', 'status': 'Completed', 'done': true},
-          {'name': 'District Championship', 'status': 'Active Stage', 'active': true},
+          {
+            'name': 'District Championship',
+            'status': 'Active Stage',
+            'active': true
+          },
           {'name': 'State Championship', 'status': 'Qualified', 'locked': true},
-          {'name': 'National Championship 🏆', 'status': 'Mega Final', 'crown': true},
+          {
+            'name': 'National Championship 🏆',
+            'status': 'Mega Final',
+            'crown': true
+          },
         ];
         return Container(
           width: double.infinity,
@@ -860,7 +956,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           shape: BoxShape.circle,
                           color: isCrown
                               ? _brightGold
-                              : (isActive ? _amberGold : (isDone ? _turfGreen : darkTokens.field)),
+                              : (isActive
+                                  ? _amberGold
+                                  : (isDone ? _turfGreen : darkTokens.field)),
                         ),
                         alignment: Alignment.center,
                         child: Text(
@@ -868,7 +966,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           style: TextStyle(
                             fontSize: 9,
                             fontWeight: FontWeight.w800,
-                            color: isDone || isCrown ? Colors.black : Colors.white,
+                            color:
+                                isDone || isCrown ? Colors.black : Colors.white,
                           ),
                         ),
                       ),
@@ -881,14 +980,20 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           style: TextStyle(
                             fontFamily: 'packages/ui_kit/Quicksand',
                             fontSize: 10.5,
-                            fontWeight: isActive || isCrown ? FontWeight.w800 : FontWeight.w600,
-                            color: isActive || isCrown ? Colors.white : colorScheme.onSurfaceVariant,
+                            fontWeight: isActive || isCrown
+                                ? FontWeight.w800
+                                : FontWeight.w600,
+                            color: isActive || isCrown
+                                ? Colors.white
+                                : colorScheme.onSurfaceVariant,
                           ),
                         ),
                       ),
                       SportoBadge(
                         text: item['status'] as String,
-                        color: isCrown ? _brightGold : (isActive ? _amberGold : _turfGreen),
+                        color: isCrown
+                            ? _brightGold
+                            : (isActive ? _amberGold : _turfGreen),
                       ),
                     ],
                   ),

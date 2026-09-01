@@ -69,6 +69,11 @@ class InitialOnboardingData {
   final String? presentOccupation;
   final List<String> sports;
   final int experienceYears;
+  final List<String> availableDays;
+  final String? preferredCity;
+  final int? travelRadiusKm;
+  final String? emergencyContactName;
+  final String? emergencyContact;
   final Map<String, String> documents;
 
   const InitialOnboardingData({
@@ -82,6 +87,11 @@ class InitialOnboardingData {
     this.presentOccupation,
     this.sports = const [],
     this.experienceYears = 0,
+    this.availableDays = const [],
+    this.preferredCity,
+    this.travelRadiusKm,
+    this.emergencyContactName,
+    this.emergencyContact,
     this.documents = const {},
   });
 }
@@ -170,6 +180,7 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
   final Set<String> _selectedDays = {};
   final _preferredCityController = TextEditingController();
   final _travelRadiusController = TextEditingController();
+  final _emergencyContactNameController = TextEditingController();
   final _emergencyContactController = TextEditingController();
 
   // Step 5
@@ -243,7 +254,8 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
           data.highestQualification!.isNotEmpty) {
         _qualificationController.text = data.highestQualification!;
       }
-      if (data.presentOccupation != null && data.presentOccupation!.isNotEmpty) {
+      if (data.presentOccupation != null &&
+          data.presentOccupation!.isNotEmpty) {
         _occupationController.text = data.presentOccupation!;
       }
 
@@ -252,6 +264,21 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
       }
       if (data.experienceYears > 0) {
         _experienceController.text = data.experienceYears.toString();
+      }
+      _selectedDays.addAll(
+        data.availableDays.map(_titleCaseDay).where(_allDays.contains),
+      );
+      if (data.preferredCity?.isNotEmpty == true) {
+        _preferredCityController.text = data.preferredCity!;
+      }
+      if (data.travelRadiusKm != null && data.travelRadiusKm! > 0) {
+        _travelRadiusController.text = data.travelRadiusKm.toString();
+      }
+      if (data.emergencyContactName?.isNotEmpty == true) {
+        _emergencyContactNameController.text = data.emergencyContactName!;
+      }
+      if (data.emergencyContact?.isNotEmpty == true) {
+        _emergencyContactController.text = data.emergencyContact!;
       }
 
       if (data.documents.containsKey('profile_photo')) {
@@ -283,6 +310,12 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
         ConfettiController(duration: const Duration(seconds: 3));
   }
 
+  String _titleCaseDay(String value) {
+    final normalized = value.trim().toLowerCase();
+    if (normalized.isEmpty) return normalized;
+    return '${normalized[0].toUpperCase()}${normalized.substring(1)}';
+  }
+
   @override
   void dispose() {
     _confettiController.dispose();
@@ -300,6 +333,7 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
     _occupationController.dispose();
     _preferredCityController.dispose();
     _travelRadiusController.dispose();
+    _emergencyContactNameController.dispose();
     _emergencyContactController.dispose();
     super.dispose();
   }
@@ -417,6 +451,13 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
     } else if (radius == null || radius <= 0 || radius > 500) {
       errors['travelRadius'] = 'Travel radius must be between 1 and 500 km.';
     }
+    _validateRequiredMin(
+      errors,
+      'emergencyContactName',
+      _emergencyContactNameController.text.trim(),
+      'Emergency contact name',
+      2,
+    );
     final emergency = _emergencyContactController.text.trim();
     if (emergency.isEmpty) {
       errors['emergencyContact'] = 'Emergency contact is required.';
@@ -571,7 +612,8 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
   bool _isLocalFile(String? path) {
     if (path == null || path.trim().isEmpty) return false;
     final trimmed = path.trim();
-    if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) return false;
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://'))
+      return false;
     return true;
   }
 
@@ -696,6 +738,7 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
       availableDays: _selectedDays.toList(),
       preferredCity: _preferredCityController.text.trim(),
       travelRadiusKm: int.tryParse(_travelRadiusController.text.trim()),
+      emergencyContactName: _emergencyContactNameController.text.trim(),
       emergencyContact: _emergencyContactController.text.trim(),
     );
   }
@@ -902,160 +945,163 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
                         GestureDetector(
                           onTap: _onBackRequested,
                           behavior: HitTestBehavior.opaque,
-                        child: GlassContainer(
-                          width: scaled(40),
-                          height: scaled(40),
-                          borderRadius: scaled(12),
-                          blur: scaled(12),
-                          borderWidth: scale,
-                          borderColor: SportoCard.defaultBorder,
-                          backgroundColor: cs.onSurface.withValues(alpha: 0.10),
-                          padding: EdgeInsets.zero,
-                          child: Center(
-                            child: Icon(Icons.arrow_back_ios_new_rounded,
-                                color: cs.onSurface, size: scaled(18)),
+                          child: GlassContainer(
+                            width: scaled(40),
+                            height: scaled(40),
+                            borderRadius: scaled(12),
+                            blur: scaled(12),
+                            borderWidth: scale,
+                            borderColor: SportoCard.defaultBorder,
+                            backgroundColor:
+                                cs.onSurface.withValues(alpha: 0.10),
+                            padding: EdgeInsets.zero,
+                            child: Center(
+                              child: Icon(Icons.arrow_back_ios_new_rounded,
+                                  color: cs.onSurface, size: scaled(18)),
+                            ),
                           ),
                         ),
-                      ),
-                      SizedBox(width: scaled(14)),
-                      Expanded(
-                        child: Text(
-                          _isReferee
-                              ? 'Apply as Referee'
-                              : 'Complete Partner Profile',
-                          style: tt.titleLarge?.copyWith(
-                            fontSize: scaled(18),
-                            fontWeight: FontWeight.w600,
-                            color: cs.onSurface,
+                        SizedBox(width: scaled(14)),
+                        Expanded(
+                          child: Text(
+                            _isReferee
+                                ? 'Apply as Referee'
+                                : 'Complete Partner Profile',
+                            style: tt.titleLarge?.copyWith(
+                              fontSize: scaled(18),
+                              fontWeight: FontWeight.w600,
+                              color: cs.onSurface,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: scaled(12)),
-
-                // Progress bar
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: scaled(20)),
-                  child: Row(
-                    children: List.generate(_totalSteps, (index) {
-                      final done = index < _currentStep;
-                      return Expanded(
-                        child: Container(
-                          height: scaled(3),
-                          margin: EdgeInsets.only(
-                              right: index == _totalSteps - 1 ? 0 : scaled(6)),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(scaled(3)),
-                            gradient: done
-                                ? LinearGradient(
-                                    colors: [cs.primary, cs.tertiary])
-                                : null,
-                            color: done ? null : cs.surfaceContainerHigh,
-                          ),
-                        ),
-                      );
-                    }),
-                  ),
-                ),
-                SizedBox(height: scaled(22)),
-
-                // Step content
-                Expanded(
-                  child: AnimatedSwitcher(
-                    layoutBuilder: (currentChild, previousChildren) => Stack(
-                      alignment: Alignment.topCenter,
-                      children: [
-                        ...previousChildren,
-                        if (currentChild != null) currentChild
                       ],
                     ),
-                    duration: const Duration(milliseconds: 350),
-                    switchInCurve: Curves.easeOutCubic,
-                    switchOutCurve: Curves.easeInCubic,
-                    transitionBuilder: (child, anim) =>
-                        FadeTransition(opacity: anim, child: child),
-                    child: SingleChildScrollView(
-                      key: ValueKey<int>(_currentStep),
-                      physics: const ClampingScrollPhysics(),
-                      padding: EdgeInsets.fromLTRB(
-                        scaled(20),
-                        scaled(4),
-                        scaled(20),
-                        scaled(24),
-                      ),
-                      child: Column(
+                  ),
+                  SizedBox(height: scaled(12)),
+
+                  // Progress bar
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: scaled(20)),
+                    child: Row(
+                      children: List.generate(_totalSteps, (index) {
+                        final done = index < _currentStep;
+                        return Expanded(
+                          child: Container(
+                            height: scaled(3),
+                            margin: EdgeInsets.only(
+                                right:
+                                    index == _totalSteps - 1 ? 0 : scaled(6)),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(scaled(3)),
+                              gradient: done
+                                  ? LinearGradient(
+                                      colors: [cs.primary, cs.tertiary])
+                                  : null,
+                              color: done ? null : cs.surfaceContainerHigh,
+                            ),
+                          ),
+                        );
+                      }),
+                    ),
+                  ),
+                  SizedBox(height: scaled(22)),
+
+                  // Step content
+                  Expanded(
+                    child: AnimatedSwitcher(
+                      layoutBuilder: (currentChild, previousChildren) => Stack(
+                        alignment: Alignment.topCenter,
                         children: [
-                          _buildCurrentStepContent(cs, tt),
-                          SizedBox(height: scaled(40)),
-                          PrimaryButton(
-                            width: scaled(270),
-                            height: scaled(48),
-                            radius: scaled(14),
-                            label: _isSubmittingOnboarding
-                                ? 'Submitting...'
-                                : isLastStep
-                                    ? 'Submit Application'
-                                    : 'Continue',
-                            disabled: submitDisabled || _isSubmittingOnboarding,
-                            onPressed: () async {
-                              if (submitDisabled || _isSubmittingOnboarding)
-                                return;
-                              if (!_validateCurrentStep()) return;
-                              if (_currentStep < _totalSteps) {
-                                setState(() {
-                                  _isSubmittingOnboarding = true;
-                                  _submissionError = null;
-                                });
-                                try {
-                                  await _uploadPendingDocuments();
-                                  await widget.onContinueStep?.call(
-                                    _buildSubmission(widget.user),
-                                    _currentStep,
-                                  );
-                                } catch (error) {
+                          ...previousChildren,
+                          if (currentChild != null) currentChild
+                        ],
+                      ),
+                      duration: const Duration(milliseconds: 350),
+                      switchInCurve: Curves.easeOutCubic,
+                      switchOutCurve: Curves.easeInCubic,
+                      transitionBuilder: (child, anim) =>
+                          FadeTransition(opacity: anim, child: child),
+                      child: SingleChildScrollView(
+                        key: ValueKey<int>(_currentStep),
+                        physics: const ClampingScrollPhysics(),
+                        padding: EdgeInsets.fromLTRB(
+                          scaled(20),
+                          scaled(4),
+                          scaled(20),
+                          scaled(24),
+                        ),
+                        child: Column(
+                          children: [
+                            _buildCurrentStepContent(cs, tt),
+                            SizedBox(height: scaled(40)),
+                            PrimaryButton(
+                              width: scaled(270),
+                              height: scaled(48),
+                              radius: scaled(14),
+                              label: _isSubmittingOnboarding
+                                  ? 'Submitting...'
+                                  : isLastStep
+                                      ? 'Submit Application'
+                                      : 'Continue',
+                              disabled:
+                                  submitDisabled || _isSubmittingOnboarding,
+                              onPressed: () async {
+                                if (submitDisabled || _isSubmittingOnboarding)
+                                  return;
+                                if (!_validateCurrentStep()) return;
+                                if (_currentStep < _totalSteps) {
+                                  setState(() {
+                                    _isSubmittingOnboarding = true;
+                                    _submissionError = null;
+                                  });
+                                  try {
+                                    await _uploadPendingDocuments();
+                                    await widget.onContinueStep?.call(
+                                      _buildSubmission(widget.user),
+                                      _currentStep,
+                                    );
+                                  } catch (error) {
+                                    if (!mounted) return;
+                                    setState(() {
+                                      _isSubmittingOnboarding = false;
+                                      _submissionError = error.toString();
+                                    });
+                                    return;
+                                  }
                                   if (!mounted) return;
                                   setState(() {
                                     _isSubmittingOnboarding = false;
-                                    _submissionError = error.toString();
+                                    _currentStep++;
                                   });
-                                  return;
+                                } else {
+                                  _finishOnboarding();
                                 }
-                                if (!mounted) return;
-                                setState(() {
-                                  _isSubmittingOnboarding = false;
-                                  _currentStep++;
-                                });
-                              } else {
-                                _finishOnboarding();
-                              }
-                            },
-                          ),
-                          if (_submissionError != null) ...[
-                            SizedBox(height: scaled(12)),
-                            Text(
-                              _submissionError!,
-                              textAlign: TextAlign.center,
-                              style: tt.bodyMedium?.copyWith(
-                                color: cs.error,
-                                fontSize: scaled(12),
-                              ),
+                              },
                             ),
+                            if (_submissionError != null) ...[
+                              SizedBox(height: scaled(12)),
+                              Text(
+                                _submissionError!,
+                                textAlign: TextAlign.center,
+                                style: tt.bodyMedium?.copyWith(
+                                  color: cs.error,
+                                  fontSize: scaled(12),
+                                ),
+                              ),
+                            ],
+                            SizedBox(height: scaled(28)),
                           ],
-                          SizedBox(height: scaled(28)),
-                        ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-    ),
-  );
+    );
   }
 
   // ============================================================
@@ -1340,8 +1386,15 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
             cs: cs,
             tt: tt),
         _buildGlassInput(
+            fieldKey: 'emergencyContactName',
+            label: 'Emergency Contact Name',
+            controller: _emergencyContactNameController,
+            hint: 'Enter contact person name',
+            cs: cs,
+            tt: tt),
+        _buildGlassInput(
             fieldKey: 'emergencyContact',
-            label: 'Emergency Contact',
+            label: 'Emergency Contact Number',
             controller: _emergencyContactController,
             hint: 'Enter an emergency contact',
             keyboardType: TextInputType.phone,
@@ -1532,7 +1585,8 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
     required double scale,
   }) {
     final path = uploadedPath?.trim() ?? '';
-    final fileName = path.isEmpty ? 'Uploaded' : path.split(RegExp(r'[/\\]')).last;
+    final fileName =
+        path.isEmpty ? 'Uploaded' : path.split(RegExp(r'[/\\]')).last;
     final lower = path.toLowerCase();
     final isImage = lower.endsWith('.png') ||
         lower.endsWith('.jpg') ||
@@ -1682,7 +1736,8 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
           'https://pub-c94d45e28dfa4bf08b2cd5d22adb73e6.r2.dev/$resolvedUrl';
     }
 
-    if (resolvedUrl.startsWith('http://') || resolvedUrl.startsWith('https://')) {
+    if (resolvedUrl.startsWith('http://') ||
+        resolvedUrl.startsWith('https://')) {
       return Image.network(
         resolvedUrl,
         fit: BoxFit.cover,
@@ -2327,6 +2382,7 @@ class OnboardingSubmission {
     required this.availableDays,
     required this.preferredCity,
     required this.travelRadiusKm,
+    required this.emergencyContactName,
     required this.emergencyContact,
   });
 
@@ -2356,6 +2412,7 @@ class OnboardingSubmission {
   final List<String> availableDays;
   final String preferredCity;
   final int? travelRadiusKm;
+  final String emergencyContactName;
   final String emergencyContact;
 }
 

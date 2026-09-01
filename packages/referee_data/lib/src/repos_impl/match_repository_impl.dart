@@ -49,10 +49,12 @@ class MatchRepositoryImpl implements IMatchRepository {
   }
 
   @override
-  Future<void> recordBallScore(String matchId, BallScoreEntity ballScore) async {
+  Future<void> recordBallScore(
+      String matchId, BallScoreEntity ballScore) async {
     final match = localDataSource.getMatchById(matchId);
     if (match != null) {
-      final engine = SportEngineFactory.getEngine(match.sportType) as CricketScoreEngine;
+      final engine =
+          SportEngineFactory.getEngine(match.sportType) as CricketScoreEngine;
       final updatedMatch = engine.processEvent(match, ballScore);
       await localDataSource.saveMatch(updatedMatch);
     }
@@ -73,7 +75,8 @@ class MatchRepositoryImpl implements IMatchRepository {
   @override
   Future<void> syncPendingMatches() async {
     final matches = localDataSource.getMatches();
-    final pending = matches.where((m) => m.syncStatus == SyncStatus.pendingSync);
+    final pending =
+        matches.where((m) => m.syncStatus == SyncStatus.pendingSync);
 
     for (var m in pending) {
       final synced = m.copyWith(syncStatus: SyncStatus.synced);

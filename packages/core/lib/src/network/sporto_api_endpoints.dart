@@ -25,6 +25,24 @@ class SportoApiEndpoints {
       PartnerApplicationApiEndpoints._();
   static final PartnerTournamentApiEndpoints partnerTournaments =
       PartnerTournamentApiEndpoints._();
+  static final RefereeApplicationApiEndpoints refereeApplication =
+      RefereeApplicationApiEndpoints._();
+}
+
+class RefereeApplicationApiEndpoints {
+  RefereeApplicationApiEndpoints._();
+
+  String get application => '/v1/referee/application';
+  String get personal => '/v1/referee/application/personal';
+  String get address => '/v1/referee/application/address';
+  String get sports => '/v1/referee/application/sports';
+  String get availability => '/v1/referee/application/availability';
+  String get documents => '/v1/referee/application/documents';
+  String document(Object documentId) =>
+      '/v1/referee/application/documents/$documentId';
+  String get review => '/v1/referee/application/review';
+  String get submit => '/v1/referee/application/submit';
+  String get status => '/v1/referee/application/status';
 }
 
 class CommonApiEndpoints {

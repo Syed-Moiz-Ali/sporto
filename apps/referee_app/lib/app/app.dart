@@ -5,6 +5,7 @@ import 'package:ui_kit/ui_kit.dart';
 
 import '../../core/di/dependency_injector.dart';
 import '../../features/matches/application/match_scoring_bloc.dart';
+import '../../features/application/application/referee_application_cubit.dart';
 import 'router/app_router.dart';
 
 class RefereeApp extends StatelessWidget {
@@ -18,6 +19,9 @@ class RefereeApp extends StatelessWidget {
         BlocProvider<ThemeBloc>.value(value: di.themeBloc),
         BlocProvider<ConnectivityBloc>.value(value: di.connectivityBloc),
         BlocProvider<AuthBloc>.value(value: di.authBloc),
+        BlocProvider<RefereeApplicationCubit>.value(
+          value: di.refereeApplicationCubit,
+        ),
         BlocProvider<MatchScoringBloc>.value(value: di.matchScoringBloc),
       ],
       child: BlocBuilder<ThemeBloc, ThemeState>(

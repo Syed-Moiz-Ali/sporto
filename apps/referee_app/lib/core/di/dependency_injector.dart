@@ -4,6 +4,7 @@ import 'package:shared_domain/shared_domain.dart';
 
 import '../../features/matches/application/conduct_toss_bloc.dart';
 import '../../features/matches/application/match_scoring_bloc.dart';
+import '../../features/application/application/referee_application_cubit.dart';
 
 class DependencyInjector {
   DependencyInjector._();
@@ -35,6 +36,12 @@ class DependencyInjector {
   // ==========================================================
 
   late final AuthBloc authBloc = _buildAuthBloc();
+  late final RefereeRemoteDataSource refereeRemoteDataSource =
+      RefereeRemoteDataSource(
+    apiClient: SportoApiClient(tokenProvider: AuthSessionStore().getToken),
+  );
+  late final RefereeApplicationCubit refereeApplicationCubit =
+      RefereeApplicationCubit(remoteDataSource: refereeRemoteDataSource);
 
   // ==========================================================
   // MATCHES
