@@ -1,0 +1,830 @@
+{
+    "info": {
+        "name": "Sporto Partner - tournament.php",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Tournament",
+            "item": [
+                {
+                    "name": "Metadata",
+                    "item": [
+                        {
+                            "name": "types",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{partner_base_url}}/api/v1/partner/tournaments/types",
+                                    "host": [
+                                        "{{partner_base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "partner",
+                                        "tournaments",
+                                        "types"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "sports",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{partner_base_url}}/api/v1/partner/tournaments/sports",
+                                    "host": [
+                                        "{{partner_base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "partner",
+                                        "tournaments",
+                                        "sports"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "formats",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{partner_base_url}}/api/v1/partner/tournaments/sports/{{sportId}}/formats",
+                                    "host": [
+                                        "{{partner_base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "partner",
+                                        "tournaments",
+                                        "sports",
+                                        "{{sportId}}",
+                                        "formats"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "form-config",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{partner_base_url}}/api/v1/partner/tournaments/form-config",
+                                    "host": [
+                                        "{{partner_base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "partner",
+                                        "tournaments",
+                                        "form-config"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "prize-categories",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{partner_base_url}}/api/v1/partner/tournaments/prize-categories",
+                                    "host": [
+                                        "{{partner_base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "partner",
+                                        "tournaments",
+                                        "prize-categories"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        }
+                    ]
+                },
+                {
+                    "name": "Tournament CRUD",
+                    "item": [
+                        {
+                            "name": "tournaments",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{partner_base_url}}/api/v1/partner/tournaments",
+                                    "host": [
+                                        "{{partner_base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "partner",
+                                        "tournaments"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "tournaments",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{partner_base_url}}/api/v1/partner/tournaments",
+                                    "host": [
+                                        "{{partner_base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "partner",
+                                        "tournaments"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "{id}",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{partner_base_url}}/api/v1/partner/tournaments/{{id}}",
+                                    "host": [
+                                        "{{partner_base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "partner",
+                                        "tournaments",
+                                        "{{id}}"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "{id}",
+                            "request": {
+                                "method": "PUT",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{partner_base_url}}/api/v1/partner/tournaments/{{id}}",
+                                    "host": [
+                                        "{{partner_base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "partner",
+                                        "tournaments",
+                                        "{{id}}"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "{id}",
+                            "request": {
+                                "method": "DELETE",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{partner_base_url}}/api/v1/partner/tournaments/{{id}}",
+                                    "host": [
+                                        "{{partner_base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "partner",
+                                        "tournaments",
+                                        "{{id}}"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        }
+                    ]
+                },
+                {
+                    "name": "Rules",
+                    "item": [
+                        {
+                            "name": "rules",
+                            "request": {
+                                "method": "PUT",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{partner_base_url}}/api/v1/partner/tournaments/{{id}}/rules",
+                                    "host": [
+                                        "{{partner_base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "partner",
+                                        "tournaments",
+                                        "{{id}}",
+                                        "rules"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        }
+                    ]
+                },
+                {
+                    "name": "Venues",
+                    "item": [
+                        {
+                            "name": "venues",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{partner_base_url}}/api/v1/partner/tournaments/{{id}}/venues",
+                                    "host": [
+                                        "{{partner_base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "partner",
+                                        "tournaments",
+                                        "{{id}}",
+                                        "venues"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "{venueId}",
+                            "request": {
+                                "method": "PUT",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{partner_base_url}}/api/v1/partner/tournaments/{{id}}/venues/{{venueId}}",
+                                    "host": [
+                                        "{{partner_base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "partner",
+                                        "tournaments",
+                                        "{{id}}",
+                                        "venues",
+                                        "{{venueId}}"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "{venueId}",
+                            "request": {
+                                "method": "DELETE",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{partner_base_url}}/api/v1/partner/tournaments/{{id}}/venues/{{venueId}}",
+                                    "host": [
+                                        "{{partner_base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "partner",
+                                        "tournaments",
+                                        "{{id}}",
+                                        "venues",
+                                        "{{venueId}}"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        }
+                    ]
+                },
+                {
+                    "name": "Budget",
+                    "item": [
+                        {
+                            "name": "budget",
+                            "request": {
+                                "method": "PUT",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{partner_base_url}}/api/v1/partner/tournaments/{{id}}/budget",
+                                    "host": [
+                                        "{{partner_base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "partner",
+                                        "tournaments",
+                                        "{{id}}",
+                                        "budget"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        }
+                    ]
+                },
+                {
+                    "name": "Review & Submit",
+                    "item": [
+                        {
+                            "name": "review",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{partner_base_url}}/api/v1/partner/tournaments/{{id}}/review",
+                                    "host": [
+                                        "{{partner_base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "partner",
+                                        "tournaments",
+                                        "{{id}}",
+                                        "review"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "submit",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{partner_base_url}}/api/v1/partner/tournaments/{{id}}/submit",
+                                    "host": [
+                                        "{{partner_base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "partner",
+                                        "tournaments",
+                                        "{{id}}",
+                                        "submit"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        }
+                    ]
+                },
+                {
+                    "name": "Matches",
+                    "item": [
+                        {
+                            "name": "matches",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{partner_base_url}}/api/v1/partner/tournaments/{{id}}/matches",
+                                    "host": [
+                                        "{{partner_base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "partner",
+                                        "tournaments",
+                                        "{{id}}",
+                                        "matches"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "{matchId}",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{partner_base_url}}/api/v1/partner/tournaments/{{id}}/matches/{{matchId}}",
+                                    "host": [
+                                        "{{partner_base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "partner",
+                                        "tournaments",
+                                        "{{id}}",
+                                        "matches",
+                                        "{{matchId}}"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "Match Referees",
+                            "item": [
+                                {
+                                    "name": "Get Eligible Referees",
+                                    "request": {
+                                        "method": "GET",
+                                        "header": [
+                                            {
+                                                "key": "Accept",
+                                                "value": "application/json"
+                                            }
+                                        ],
+                                        "url": {
+                                            "raw": "{{base_url}}/api/v1/partner/tournaments/{{tournament_id}}/matches/referees",
+                                            "host": [
+                                                "{{base_url}}"
+                                            ],
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "partner",
+                                                "tournaments",
+                                                "{{tournament_id}}",
+                                                "matches",
+                                                "referees"
+                                            ]
+                                        }
+                                    },
+                                    "response": []
+                                },
+                                {
+                                    "name": "List Match Referee Assignments",
+                                    "request": {
+                                        "method": "GET",
+                                        "header": [
+                                            {
+                                                "key": "Accept",
+                                                "value": "application/json"
+                                            }
+                                        ],
+                                        "url": {
+                                            "raw": "{{base_url}}/api/v1/partner/tournaments/{{tournament_id}}/matches/{{match_id}}/referees",
+                                            "host": [
+                                                "{{base_url}}"
+                                            ],
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "partner",
+                                                "tournaments",
+                                                "{{tournament_id}}",
+                                                "matches",
+                                                "{{match_id}}",
+                                                "referees"
+                                            ]
+                                        }
+                                    },
+                                    "response": []
+                                },
+                                {
+                                    "name": "Assign Referee to Match",
+                                    "request": {
+                                        "method": "POST",
+                                        "header": [
+                                            {
+                                                "key": "Accept",
+                                                "value": "application/json"
+                                            },
+                                            {
+                                                "key": "Content-Type",
+                                                "value": "application/json"
+                                            }
+                                        ],
+                                        "body": {
+                                            "mode": "raw",
+                                            "raw": "{\n    \"referee_id\": 123,\n    \"role\": \"Main Referee\",\n    \"notes\": \"Be on time\"\n}"
+                                        },
+                                        "url": {
+                                            "raw": "{{base_url}}/api/v1/partner/tournaments/{{tournament_id}}/matches/{{match_id}}/referees",
+                                            "host": [
+                                                "{{base_url}}"
+                                            ],
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "partner",
+                                                "tournaments",
+                                                "{{tournament_id}}",
+                                                "matches",
+                                                "{{match_id}}",
+                                                "referees"
+                                            ]
+                                        }
+                                    },
+                                    "response": []
+                                },
+                                {
+                                    "name": "View Match Referee Assignment",
+                                    "request": {
+                                        "method": "GET",
+                                        "header": [
+                                            {
+                                                "key": "Accept",
+                                                "value": "application/json"
+                                            }
+                                        ],
+                                        "url": {
+                                            "raw": "{{base_url}}/api/v1/partner/tournaments/{{tournament_id}}/matches/{{match_id}}/referees/{{assignment_id}}",
+                                            "host": [
+                                                "{{base_url}}"
+                                            ],
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "partner",
+                                                "tournaments",
+                                                "{{tournament_id}}",
+                                                "matches",
+                                                "{{match_id}}",
+                                                "referees",
+                                                "{{assignment_id}}"
+                                            ]
+                                        }
+                                    },
+                                    "response": []
+                                },
+                                {
+                                    "name": "Update Match Referee Assignment",
+                                    "request": {
+                                        "method": "PUT",
+                                        "header": [
+                                            {
+                                                "key": "Accept",
+                                                "value": "application/json"
+                                            },
+                                            {
+                                                "key": "Content-Type",
+                                                "value": "application/json"
+                                            }
+                                        ],
+                                        "body": {
+                                            "mode": "raw",
+                                            "raw": "{\n    \"role\": \"Assistant Referee\",\n    \"status\": 1,\n    \"notes\": \"Updated notes\"\n}"
+                                        },
+                                        "url": {
+                                            "raw": "{{base_url}}/api/v1/partner/tournaments/{{tournament_id}}/matches/{{match_id}}/referees/{{assignment_id}}",
+                                            "host": [
+                                                "{{base_url}}"
+                                            ],
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "partner",
+                                                "tournaments",
+                                                "{{tournament_id}}",
+                                                "matches",
+                                                "{{match_id}}",
+                                                "referees",
+                                                "{{assignment_id}}"
+                                            ]
+                                        }
+                                    },
+                                    "response": []
+                                },
+                                {
+                                    "name": "Remove Match Referee Assignment",
+                                    "request": {
+                                        "method": "DELETE",
+                                        "header": [
+                                            {
+                                                "key": "Accept",
+                                                "value": "application/json"
+                                            }
+                                        ],
+                                        "url": {
+                                            "raw": "{{base_url}}/api/v1/partner/tournaments/{{tournament_id}}/matches/{{match_id}}/referees/{{assignment_id}}",
+                                            "host": [
+                                                "{{base_url}}"
+                                            ],
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "partner",
+                                                "tournaments",
+                                                "{{tournament_id}}",
+                                                "matches",
+                                                "{{match_id}}",
+                                                "referees",
+                                                "{{assignment_id}}"
+                                            ]
+                                        }
+                                    },
+                                    "response": []
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "auth": null,
+    "event": null,
+    "variable": null
+}

@@ -149,6 +149,29 @@ class PartnerRemoteDataSource {
     return PartnerApplicationSubmitResponse.fromJson(_mapData(response.data));
   }
 
+  Future<SportoApiResponse> listPartnerReferees({
+    int page = 1,
+    int perPage = 20,
+  }) {
+    return _get(
+      SportoApiEndpoints.partnerReferees.referees,
+      queryParameters: {
+        'page': page,
+        'per_page': perPage,
+      },
+    );
+  }
+
+  Future<List<PartnerRefereeResponse>> listPartnerRefereesData({
+    int page = 1,
+    int perPage = 20,
+  }) async {
+    final response = await listPartnerReferees(page: page, perPage: perPage);
+    return _listOrPaginatedData(response.data)
+        .map(PartnerRefereeResponse.fromJson)
+        .toList();
+  }
+
   Future<SportoApiResponse> getTournamentTypes() {
     return _get(SportoApiEndpoints.partnerTournaments.types);
   }
@@ -440,6 +463,176 @@ class PartnerRemoteDataSource {
     return PartnerTournamentResponse.fromJson(_mapData(response.data));
   }
 
+  Future<SportoApiResponse> listTournamentMatches(Object tournamentId) {
+    return _get(SportoApiEndpoints.partnerTournaments.matches(tournamentId));
+  }
+
+  Future<List<PartnerTournamentMatchResponse>> listTournamentMatchesData(
+    Object tournamentId,
+  ) async {
+    final response = await listTournamentMatches(tournamentId);
+    return _listOrPaginatedData(response.data)
+        .map(PartnerTournamentMatchResponse.fromJson)
+        .toList();
+  }
+
+  Future<SportoApiResponse> showTournamentMatch(
+    Object tournamentId,
+    Object matchId,
+  ) {
+    return _get(
+      SportoApiEndpoints.partnerTournaments.matchById(tournamentId, matchId),
+    );
+  }
+
+  Future<PartnerTournamentMatchResponse> showTournamentMatchData(
+    Object tournamentId,
+    Object matchId,
+  ) async {
+    final response = await showTournamentMatch(tournamentId, matchId);
+    return PartnerTournamentMatchResponse.fromJson(_mapData(response.data));
+  }
+
+  Future<SportoApiResponse> getEligibleReferees(Object tournamentId) {
+    return _get(
+      SportoApiEndpoints.partnerTournaments.eligibleReferees(tournamentId),
+    );
+  }
+
+  Future<List<PartnerEligibleRefereeResponse>> getEligibleRefereesData(
+    Object tournamentId,
+  ) async {
+    final response = await getEligibleReferees(tournamentId);
+    return _listOrPaginatedData(response.data)
+        .map(PartnerEligibleRefereeResponse.fromJson)
+        .toList();
+  }
+
+  Future<SportoApiResponse> listMatchRefereeAssignments(
+    Object tournamentId,
+    Object matchId,
+  ) {
+    return _get(
+      SportoApiEndpoints.partnerTournaments.matchReferees(
+        tournamentId,
+        matchId,
+      ),
+    );
+  }
+
+  Future<List<PartnerMatchRefereeAssignmentResponse>>
+      listMatchRefereeAssignmentsData(
+    Object tournamentId,
+    Object matchId,
+  ) async {
+    final response = await listMatchRefereeAssignments(tournamentId, matchId);
+    return _listOrPaginatedData(response.data)
+        .map(PartnerMatchRefereeAssignmentResponse.fromJson)
+        .toList();
+  }
+
+  Future<SportoApiResponse> assignMatchReferee(
+    Object tournamentId,
+    Object matchId,
+    PartnerMatchRefereeAssignmentRequest request,
+  ) {
+    return _post(
+      SportoApiEndpoints.partnerTournaments.matchReferees(
+        tournamentId,
+        matchId,
+      ),
+      body: request.toJson(),
+    );
+  }
+
+  Future<PartnerMatchRefereeAssignmentResponse> assignMatchRefereeData(
+    Object tournamentId,
+    Object matchId,
+    PartnerMatchRefereeAssignmentRequest request,
+  ) async {
+    final response = await assignMatchReferee(tournamentId, matchId, request);
+    return PartnerMatchRefereeAssignmentResponse.fromJson(
+      _mapData(response.data),
+    );
+  }
+
+  Future<SportoApiResponse> showMatchRefereeAssignment(
+    Object tournamentId,
+    Object matchId,
+    Object assignmentId,
+  ) {
+    return _get(
+      SportoApiEndpoints.partnerTournaments.matchRefereeAssignment(
+        tournamentId,
+        matchId,
+        assignmentId,
+      ),
+    );
+  }
+
+  Future<PartnerMatchRefereeAssignmentResponse> showMatchRefereeAssignmentData(
+    Object tournamentId,
+    Object matchId,
+    Object assignmentId,
+  ) async {
+    final response = await showMatchRefereeAssignment(
+      tournamentId,
+      matchId,
+      assignmentId,
+    );
+    return PartnerMatchRefereeAssignmentResponse.fromJson(
+      _mapData(response.data),
+    );
+  }
+
+  Future<SportoApiResponse> updateMatchRefereeAssignment(
+    Object tournamentId,
+    Object matchId,
+    Object assignmentId,
+    PartnerMatchRefereeAssignmentUpdateRequest request,
+  ) {
+    return _put(
+      SportoApiEndpoints.partnerTournaments.matchRefereeAssignment(
+        tournamentId,
+        matchId,
+        assignmentId,
+      ),
+      body: request.toJson(),
+    );
+  }
+
+  Future<PartnerMatchRefereeAssignmentResponse>
+      updateMatchRefereeAssignmentData(
+    Object tournamentId,
+    Object matchId,
+    Object assignmentId,
+    PartnerMatchRefereeAssignmentUpdateRequest request,
+  ) async {
+    final response = await updateMatchRefereeAssignment(
+      tournamentId,
+      matchId,
+      assignmentId,
+      request,
+    );
+    return PartnerMatchRefereeAssignmentResponse.fromJson(
+      _mapData(response.data),
+    );
+  }
+
+  Future<SportoApiResponse> removeMatchRefereeAssignment(
+    Object tournamentId,
+    Object matchId,
+    Object assignmentId,
+  ) {
+    return _delete(
+      SportoApiEndpoints.partnerTournaments.matchRefereeAssignment(
+        tournamentId,
+        matchId,
+        assignmentId,
+      ),
+    );
+  }
+
   Future<SportoApiResponse> _get(
     String path, {
     Map<String, dynamic>? queryParameters,
@@ -495,5 +688,14 @@ class PartnerRemoteDataSource {
         .whereType<Map>()
         .map((item) => Map<String, dynamic>.from(item))
         .toList();
+  }
+
+  List<Map<String, dynamic>> _listOrPaginatedData(Object? data) {
+    if (data is Map) {
+      final inner = data['data'];
+      if (inner is List) return _listData(inner);
+      return [Map<String, dynamic>.from(data)];
+    }
+    return _listData(data);
   }
 }

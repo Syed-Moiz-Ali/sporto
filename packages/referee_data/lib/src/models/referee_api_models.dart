@@ -339,3 +339,269 @@ class RefereeApplicationStatusResponse {
             .toList(),
       );
 }
+
+class RefereeMatchTeam {
+  const RefereeMatchTeam({
+    this.id,
+    required this.name,
+    this.score,
+  });
+
+  final int? id;
+  final String name;
+  final String? score;
+
+  factory RefereeMatchTeam.fromJson(Map<String, dynamic> json) {
+    return RefereeMatchTeam(
+      id: json['id'] == null ? null : _intValue(json['id']),
+      name: _stringValue(
+            json['name'] ??
+                json['team_name'] ??
+                json['display_name'] ??
+                json['title'],
+          ) ??
+          'Team',
+      score: _stringValue(json['score'] ?? json['runs']),
+    );
+  }
+}
+
+class RefereeMatchResponse {
+  const RefereeMatchResponse({
+    required this.id,
+    this.assignmentId,
+    this.tournamentId,
+    this.tournamentName,
+    this.matchNumber,
+    this.roundName,
+    this.scheduledAt,
+    this.matchDate,
+    this.startTime,
+    this.venueName,
+    this.location,
+    this.status,
+    this.statusLabel,
+    this.role,
+    this.notes,
+    this.teamA,
+    this.teamB,
+    this.raw = const {},
+  });
+
+  final int id;
+  final int? assignmentId;
+  final int? tournamentId;
+  final String? tournamentName;
+  final String? matchNumber;
+  final String? roundName;
+  final String? scheduledAt;
+  final String? matchDate;
+  final String? startTime;
+  final String? venueName;
+  final String? location;
+  final int? status;
+  final String? statusLabel;
+  final String? role;
+  final String? notes;
+  final RefereeMatchTeam? teamA;
+  final RefereeMatchTeam? teamB;
+  final Map<String, dynamic> raw;
+
+  String get displayTournament =>
+      _firstText([tournamentName, raw['competition_name']]) ?? 'Tournament';
+  String get displayRound => _firstText([roundName, matchNumber]) ?? 'Match';
+  String get displaySchedule =>
+      _firstText([scheduledAt, _joinDateTime(matchDate, startTime)]) ??
+      'Schedule not set';
+  String get displayVenue =>
+      _firstText([venueName, location]) ?? 'Venue not set';
+  String get displayTeamA => teamA?.name ?? 'Team A';
+  String get displayTeamB => teamB?.name ?? 'Team B';
+  String get displayStatus =>
+      _firstText([statusLabel, raw['status_text'], raw['state']]) ??
+      _statusFromValue(status);
+
+  bool get isLive {
+    final value = displayStatus.toLowerCase();
+    return value.contains('live') || value.contains('progress');
+  }
+
+  bool get isCompleted {
+    final value = displayStatus.toLowerCase();
+    return value.contains('complete') || value.contains('finish');
+  }
+
+  bool get isUpcoming => !isLive && !isCompleted;
+
+  factory RefereeMatchResponse.fromJson(Map<String, dynamic> json) {
+    final assignment = _mapValue(json['assignment']);
+    final match = _mapValue(json['match']).isNotEmpty
+        ? _mapValue(json['match'])
+        : Map<String, dynamic>.from(json);
+    final tournament = _mapValue(
+      match['tournament'] ?? json['tournament'] ?? assignment['tournament'],
+    );
+    final venue = _mapValue(match['venue'] ?? json['venue']);
+    final teamA = _teamFromAny(
+      match['team_a'] ??
+          match['team1'] ??
+          match['home_team'] ??
+          json['team_a'] ??
+          json['team1'] ??
+          json['home_team'],
+    );
+    final teamB = _teamFromAny(
+      match['team_b'] ??
+          match['team2'] ??
+          match['away_team'] ??
+          json['team_b'] ??
+          json['team2'] ??
+          json['away_team'],
+    );
+
+    return RefereeMatchResponse(
+      id: _intValue(match['id'] ?? json['match_id'] ?? json['id']),
+      assignmentId:
+          _nullableInt(json['assignment_id'] ?? assignment['id'] ?? json['id']),
+      tournamentId: _nullableInt(
+        match['tournament_id'] ?? json['tournament_id'] ?? tournament['id'],
+      ),
+      tournamentName: _firstText([
+        match['tournament_name'],
+        json['tournament_name'],
+        tournament['name'],
+      ]),
+      matchNumber: _stringValue(
+        match['match_number'] ??
+            match['match_no'] ??
+            match['fixture_code'] ??
+            match['code'],
+      ),
+      roundName: _stringValue(
+        match['round_name'] ?? match['round'] ?? match['stage'],
+      ),
+      scheduledAt: _stringValue(
+        match['scheduled_at'] ??
+            match['match_start_at'] ??
+            json['scheduled_at'] ??
+            json['match_start_at'],
+      ),
+      matchDate: _stringValue(
+        match['match_date'] ?? match['date'] ?? json['match_date'],
+      ),
+      startTime: _stringValue(
+        match['start_time'] ?? match['time'] ?? json['start_time'],
+      ),
+      venueName: _firstText([
+        match['venue_name'],
+        json['venue_name'],
+        venue['venue_name'],
+        venue['name'],
+      ]),
+      location: _firstText([
+        match['location'],
+        json['location'],
+        venue['location'],
+        venue['address'],
+        venue['venue_address'],
+      ]),
+      status: _nullableInt(match['status'] ?? json['status']),
+      statusLabel: _stringValue(
+        match['status_label'] ?? json['status_label'] ?? match['status_text'],
+      ),
+      role: _stringValue(json['role'] ?? assignment['role']),
+      notes: _stringValue(json['notes'] ?? assignment['notes']),
+      teamA: teamA,
+      teamB: teamB,
+      raw: Map<String, dynamic>.from(json),
+    );
+  }
+
+  static RefereeMatchTeam? _teamFromAny(Object? value) {
+    if (value is Map) {
+      return RefereeMatchTeam.fromJson(Map<String, dynamic>.from(value));
+    }
+    final text = _stringValue(value);
+    if (text == null || text.trim().isEmpty) return null;
+    return RefereeMatchTeam(name: text);
+  }
+}
+
+class RefereeMatchRequestResponse extends RefereeMatchResponse {
+  const RefereeMatchRequestResponse({
+    required super.id,
+    super.assignmentId,
+    super.tournamentId,
+    super.tournamentName,
+    super.matchNumber,
+    super.roundName,
+    super.scheduledAt,
+    super.matchDate,
+    super.startTime,
+    super.venueName,
+    super.location,
+    super.status,
+    super.statusLabel,
+    super.role,
+    super.notes,
+    super.teamA,
+    super.teamB,
+    super.raw,
+  });
+
+  factory RefereeMatchRequestResponse.fromJson(Map<String, dynamic> json) {
+    final match = RefereeMatchResponse.fromJson(json);
+    return RefereeMatchRequestResponse(
+      id: match.id,
+      assignmentId: match.assignmentId,
+      tournamentId: match.tournamentId,
+      tournamentName: match.tournamentName,
+      matchNumber: match.matchNumber,
+      roundName: match.roundName,
+      scheduledAt: match.scheduledAt,
+      matchDate: match.matchDate,
+      startTime: match.startTime,
+      venueName: match.venueName,
+      location: match.location,
+      status: match.status,
+      statusLabel: match.statusLabel,
+      role: match.role,
+      notes: match.notes,
+      teamA: match.teamA,
+      teamB: match.teamB,
+      raw: match.raw,
+    );
+  }
+}
+
+int? _nullableInt(Object? value) {
+  if (value == null) return null;
+  if (value is int) return value;
+  if (value is num) return value.toInt();
+  return int.tryParse(value.toString());
+}
+
+String? _firstText(Iterable<Object?> values) {
+  for (final value in values) {
+    final text = _stringValue(value)?.trim();
+    if (text != null && text.isNotEmpty) return text;
+  }
+  return null;
+}
+
+String? _joinDateTime(String? date, String? time) {
+  final cleanDate = date?.trim();
+  final cleanTime = time?.trim();
+  if (cleanDate == null || cleanDate.isEmpty) return cleanTime;
+  if (cleanTime == null || cleanTime.isEmpty) return cleanDate;
+  return '$cleanDate, $cleanTime';
+}
+
+String _statusFromValue(int? value) {
+  return switch (value) {
+    2 => 'Live',
+    3 => 'Completed',
+    4 => 'Cancelled',
+    _ => 'Scheduled',
+  };
+}

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:referee_data/referee_data.dart';
 import 'package:ui_kit/ui_kit.dart';
 
 import '../../../../app/router/app_router.dart';
-import '../../application/match_scoring_bloc.dart';
+import '../../../../core/di/dependency_injector.dart';
 
 class RefereeHomeScreen extends StatefulWidget {
   final VoidCallback? onViewAll;
@@ -19,47 +19,175 @@ class RefereeHomeScreen extends StatefulWidget {
 }
 
 class _RefereeHomeScreenState extends State<RefereeHomeScreen> {
+  late Future<List<RefereeMatchResponse>> _matchesFuture;
+
   @override
   void initState() {
     super.initState();
-
-    context.read<MatchScoringBloc>().add(
-          LoadMatchesEvent(),
-        );
+    _matchesFuture = DependencyInjector.instance.refereeRemoteDataSource
+        .listMyMatchesData(perPage: 50);
   }
 
   @override
   Widget build(BuildContext context) {
-    final state = context.watch<MatchScoringBloc>().state;
-
-    final hasMatches =
-        state is MatchScoringListLoadedState && state.matches.isNotEmpty;
-
     return SafeArea(
       bottom: false,
-      child: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(20, 17, 20, 22),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const _HomeHeader(),
-            const SizedBox(height: 15),
-            const _HomeSearchBar(),
-            const SizedBox(height: 24),
-            _MatchOverview(hasMatches: hasMatches),
-            const SizedBox(height: 24),
-            if (hasMatches)
-              _LoadedHomeContent(onViewAll: widget.onViewAll)
-            else
-              const _EmptyHomeContent(),
-            const SizedBox(height: 21),
-            const _AdsBanner(),
-          ],
-        ),
+      child: FutureBuilder<List<RefereeMatchResponse>>(
+        future: _matchesFuture,
+        builder: (context, snapshot) {
+          final matches = snapshot.data ?? const <RefereeMatchResponse>[];
+          final liveCount = matches.where((match) => match.isLive).length;
+          final upcomingCount =
+              matches.where((match) => match.isUpcoming).length;
+          final completedCount =
+              matches.where((match) => match.isCompleted).length;
+          final hasMatches = matches.isNotEmpty;
+
+          return RefreshIndicator(
+            onRefresh: () async {
+              setState(() {
+                _matchesFuture = DependencyInjector
+                    .instance.refereeRemoteDataSource
+                    .listMyMatchesData(perPage: 50);
+              });
+            },
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(
+                parent: BouncingScrollPhysics(),
+              ),
+              padding: const EdgeInsets.fromLTRB(20, 17, 20, 22),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const _HomeHeader(),
+                  const SizedBox(height: 15),
+                  const _HomeSearchBar(),
+                  const SizedBox(height: 24),
+                  _MatchOverview(
+                    liveCount: liveCount,
+                    upcomingCount: upcomingCount,
+                    assignedCount: matches.length,
+                    completedCount: completedCount,
+                  ),
+                  const SizedBox(height: 24),
+                  if (snapshot.connectionState == ConnectionState.waiting)
+                    const Center(child: CircularProgressIndicator())
+                  else if (snapshot.hasError)
+                    _HomeErrorCard(
+                      message: snapshot.error.toString(),
+                      onRetry: () {
+                        setState(() {
+                          _matchesFuture = DependencyInjector
+                              .instance.refereeRemoteDataSource
+                              .listMyMatchesData(perPage: 50);
+                        });
+                      },
+                    )
+                  else if (hasMatches)
+                    _LoadedHomeContent(
+                      matches: matches,
+                      onViewAll: widget.onViewAll,
+                    )
+                  else
+                    const _EmptyHomeContent(),
+                  const SizedBox(height: 21),
+                  const _AdsBanner(),
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }
+}
+
+class _HomeErrorCard extends StatelessWidget {
+  const _HomeErrorCard({
+    required this.message,
+    required this.onRetry,
+  });
+
+  final String message;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1C2026),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: colors.error.withValues(alpha: .25)),
+      ),
+      child: Column(
+        children: [
+          Text(
+            'Unable to load assigned matches',
+            style: theme.textTheme.titleMedium?.copyWith(
+              color: colors.onSurface,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: colors.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: 12),
+          FilledButton(onPressed: onRetry, child: const Text('Retry')),
+        ],
+      ),
+    );
+  }
+}
+
+class _HomeApiMatchCard extends StatelessWidget {
+  const _HomeApiMatchCard({
+    required this.match,
+    this.showCountdown = false,
+  });
+
+  final RefereeMatchResponse match;
+  final bool showCountdown;
+
+  @override
+  Widget build(BuildContext context) {
+    return _UpcomingHomeCard(
+      date: match.displaySchedule,
+      tournamentName: match.displayTournament,
+      location: match.displayVenue,
+      leftTeam: match.displayTeamA,
+      rightTeam: match.displayTeamB,
+      status: match.displayStatus,
+      showCountdown: showCountdown,
+    );
+  }
+}
+
+extension _RefereeHomeMatchPickers on List<RefereeMatchResponse> {
+  RefereeMatchResponse? get firstLiveOrNull {
+    for (final match in this) {
+      if (match.isLive) return match;
+    }
+    return null;
+  }
+
+  RefereeMatchResponse? get firstUpcomingOrNull {
+    for (final match in this) {
+      if (match.isUpcoming) return match;
+    }
+    return isEmpty ? null : first;
+  }
+
+  List<RefereeMatchResponse> get assignedPreview =>
+      length <= 3 ? this : take(3).toList();
 }
 
 // ============================================================
@@ -270,10 +398,16 @@ class _HomeSearchBar extends StatelessWidget {
 // ============================================================
 
 class _MatchOverview extends StatelessWidget {
-  final bool hasMatches;
+  final int liveCount;
+  final int upcomingCount;
+  final int assignedCount;
+  final int completedCount;
 
   const _MatchOverview({
-    required this.hasMatches,
+    required this.liveCount,
+    required this.upcomingCount,
+    required this.assignedCount,
+    required this.completedCount,
   });
 
   @override
@@ -288,28 +422,28 @@ class _MatchOverview extends StatelessWidget {
             children: [
               Expanded(
                 child: _StatCard(
-                  value: hasMatches ? '1' : '0',
+                  value: liveCount.toString(),
                   label: 'Live Now',
                   color: sporto.live,
-                  hasValue: hasMatches,
+                  hasValue: liveCount > 0,
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: _StatCard(
-                  value: hasMatches ? '4' : '0',
+                  value: upcomingCount.toString(),
                   label: 'Upcoming',
                   color: sporto.upcoming,
-                  hasValue: hasMatches,
+                  hasValue: upcomingCount > 0,
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: _StatCard(
-                  value: hasMatches ? '6' : '0',
+                  value: assignedCount.toString(),
                   label: 'Assigned',
                   color: sporto.assigned,
-                  hasValue: hasMatches,
+                  hasValue: assignedCount > 0,
                 ),
               ),
             ],
@@ -333,7 +467,7 @@ class _MatchOverview extends StatelessWidget {
               Expanded(
                 child: _SecondaryStat(
                   label: 'Completed',
-                  value: hasMatches ? '1' : '0',
+                  value: completedCount.toString(),
                 ),
               ),
               Expanded(
@@ -553,48 +687,54 @@ class _EmptyHomeContent extends StatelessWidget {
 // ============================================================
 
 class _LoadedHomeContent extends StatelessWidget {
+  final List<RefereeMatchResponse> matches;
   final VoidCallback? onViewAll;
 
   const _LoadedHomeContent({
+    required this.matches,
     required this.onViewAll,
   });
 
   @override
   Widget build(BuildContext context) {
+    final liveMatch = matches.firstLiveOrNull;
+    final nextMatch = matches.firstUpcomingOrNull;
+    final assigned = matches.assignedPreview;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        if (liveMatch != null) ...[
+          _SectionHeader(
+            title: 'Live Now',
+            color: context.sporto.live,
+          ),
+          const SizedBox(height: 9),
+          _HomeApiMatchCard(match: liveMatch),
+          const SizedBox(height: 21),
+        ],
+        if (nextMatch != null) ...[
+          _SectionHeader(
+            title: 'Next Match',
+            color: context.sporto.upcoming,
+            showArrow: true,
+          ),
+          const SizedBox(height: 10),
+          _HomeApiMatchCard(match: nextMatch, showCountdown: true),
+          const SizedBox(height: 25),
+        ],
         _SectionHeader(
-          title: 'Live Now',
-          color: context.sporto.live,
-        ),
-        const SizedBox(height: 9),
-        const _LiveMatchCard(),
-        const SizedBox(height: 21),
-        _SectionHeader(
-          title: 'Next Match',
-          color: context.sporto.upcoming,
-          showArrow: true,
-        ),
-        const SizedBox(height: 10),
-        const _UpcomingHomeCard(
-          date: 'Today, 08:00 PM',
-          leftTeam: 'Thunder Titans',
-          rightTeam: 'Royal Smashers',
-          showCountdown: true,
-        ),
-        const SizedBox(height: 25),
-        _SectionHeader(
-          title: 'Assigned Matches (3)',
+          title: 'Assigned Matches (${matches.length})',
           color: context.sporto.assigned,
           action: 'View All  →',
           onAction: onViewAll,
         ),
         const SizedBox(height: 10),
-        const _UpcomingHomeCard(
-          date: 'Tomorrow, 06:30 PM',
-          leftTeam: 'Delhi Warriors',
-          rightTeam: 'Hyd Highlanders',
+        ...assigned.map(
+          (match) => Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: _HomeApiMatchCard(match: match),
+          ),
         ),
       ],
     );
@@ -678,6 +818,8 @@ class _SectionHeader extends StatelessWidget {
 // LIVE MATCH
 // ============================================================
 
+// Kept as a design fallback/reference for the referee home live-card style.
+// ignore: unused_element
 class _LiveMatchCard extends StatelessWidget {
   const _LiveMatchCard();
 
@@ -807,14 +949,20 @@ class _LiveMatchCard extends StatelessWidget {
 
 class _UpcomingHomeCard extends StatelessWidget {
   final String date;
+  final String tournamentName;
+  final String location;
   final String leftTeam;
   final String rightTeam;
+  final String status;
   final bool showCountdown;
 
   const _UpcomingHomeCard({
     required this.date,
+    this.tournamentName = 'Asia Cup 2026',
+    this.location = 'Hyderabad',
     required this.leftTeam,
     required this.rightTeam,
+    this.status = 'Upcoming',
     this.showCountdown = false,
   });
 
@@ -836,7 +984,7 @@ class _UpcomingHomeCard extends StatelessWidget {
           Row(
             children: [
               _StatusChip(
-                text: 'Upcoming',
+                text: status,
                 color: context.sporto.upcoming,
               ),
               const Spacer(),
@@ -852,7 +1000,7 @@ class _UpcomingHomeCard extends StatelessWidget {
           ),
           const SizedBox(height: 9),
           Text(
-            'Asia Cup 2026',
+            tournamentName,
             style: theme.textTheme.titleMedium?.copyWith(
               color: colors.onSurface,
               fontSize: 16,
@@ -870,7 +1018,7 @@ class _UpcomingHomeCard extends StatelessWidget {
               ),
               const SizedBox(width: 2),
               Text(
-                'Hyderabad',
+                location,
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: colors.onSurfaceVariant,
                   fontSize: 11,

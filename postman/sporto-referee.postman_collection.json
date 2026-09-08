@@ -1,403 +1,165 @@
 {
     "info": {
         "name": "Sporto Referee APIs",
-        "description": "Postman Collection for Referee Application endpoints",
+        "description": "APIs used by authenticated referees for assigned tournament/match operations.",
         "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
     },
-    "variable": [
-        {
-            "key": "base_url",
-            "value": "http://127.0.0.1:8000"
-        },
-        {
-            "key": "token",
-            "value": "YOUR_BEARER_TOKEN"
-        },
-        {
-            "key": "otp_session_key",
-            "value": ""
-        },
-        {
-            "key": "device_id",
-            "value": "postman-device"
-        },
-        {
-            "key": "document_id",
-            "value": "1"
-        },
-        {
-            "key": "uploaded_file_path",
-            "value": ""
-        }
-    ],
     "item": [
         {
-            "name": "Authentication",
+            "name": "Referee",
             "item": [
                 {
-                    "name": "Send OTP",
-                    "request": {
-                        "auth": {
-                            "type": "noauth"
-                        },
-                        "method": "POST",
-                        "header": [
-                            {
-                                "key": "Accept",
-                                "value": "application/json"
-                            }
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n    \"mobile_number\": \"9700000201\"\n}",
-                            "options": {
-                                "raw": {
-                                    "language": "json"
-                                }
-                            }
-                        },
-                        "url": {
-                            "raw": "{{base_url}}/api/v1/referee/send-otp",
-                            "host": [
-                                "{{base_url}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "referee",
-                                "send-otp"
-                            ]
-                        },
-                        "description": "- public endpoint\n- sends OTP\n- reuses existing User authentication flow\n- rate limiting applies\n- session key is returned when successful"
-                    },
-                    "event": [
+                    "name": "Authentication",
+                    "item": [
                         {
-                            "listen": "test",
-                            "script": {
-                                "exec": [
-                                    "let response = pm.response.json();",
-                                    "if (response?.data?.session_key) {",
-                                    "    pm.collectionVariables.set(\"otp_session_key\", response.data.session_key);",
-                                    "}"
-                                ],
-                                "type": "text/javascript"
-                            }
-                        }
-                    ],
-                    "response": [
-                        {
-                            "name": "Success",
-                            "originalRequest": {
+                            "name": "send-otp",
+                            "request": {
                                 "method": "POST",
                                 "header": [
                                     {
                                         "key": "Accept",
                                         "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
                                     }
                                 ],
-                                "body": {
-                                    "mode": "raw",
-                                    "raw": "{\n    \"mobile_number\": \"9700000201\"\n}",
-                                    "options": {
-                                        "raw": {
-                                            "language": "json"
-                                        }
-                                    }
-                                },
                                 "url": {
-                                    "raw": "{{base_url}}/api/v1/referee/send-otp",
+                                    "raw": "{{referee_base_url}}/api/v1/referee/send-otp",
                                     "host": [
-                                        "{{base_url}}"
+                                        "{{referee_base_url}}"
                                     ],
                                     "path": [
                                         "api",
                                         "v1",
                                         "referee",
                                         "send-otp"
-                                    ]
-                                }
-                            },
-                            "status": "OK",
-                            "code": 200,
-                            "_postman_previewlanguage": "json",
-                            "body": "{\n    \"success\": true,\n    \"message\": \"OTP sent successfully.\",\n    \"data\": {\n        \"session_key\": \"mock-session-key\"\n    }\n}"
-                        },
-                        {
-                            "name": "Validation Error",
-                            "originalRequest": {
-                                "method": "POST",
-                                "header": [
-                                    {
-                                        "key": "Accept",
-                                        "value": "application/json"
-                                    }
-                                ],
-                                "body": {
-                                    "mode": "raw",
-                                    "raw": "{\n    \"mobile_number\": \"123\"\n}",
-                                    "options": {
-                                        "raw": {
-                                            "language": "json"
-                                        }
-                                    }
-                                },
-                                "url": {
-                                    "raw": "{{base_url}}/api/v1/referee/send-otp",
-                                    "host": [
-                                        "{{base_url}}"
                                     ],
-                                    "path": [
-                                        "api",
-                                        "v1",
-                                        "referee",
-                                        "send-otp"
+                                    "variable": [
+                                        {
+                                            "key": "referee_base_url",
+                                            "value": "1",
+                                            "description": "Referee base url"
+                                        }
                                     ]
-                                }
-                            },
-                            "status": "Unprocessable Entity",
-                            "code": 422,
-                            "_postman_previewlanguage": "json",
-                            "body": "{\n    \"success\": false,\n    \"message\": \"Validation failed.\",\n    \"errors\": {\n        \"mobile_number\": [\n            \"The mobile number format is invalid.\"\n        ]\n    }\n}"
-                        }
-                    ]
-                },
-                {
-                    "name": "Verify OTP",
-                    "request": {
-                        "auth": {
-                            "type": "noauth"
-                        },
-                        "method": "POST",
-                        "header": [
-                            {
-                                "key": "Accept",
-                                "value": "application/json"
-                            }
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n    \"mobile_number\": \"9700000201\",\n    \"otp\": \"1234\",\n    \"session_key\": \"{{otp_session_key}}\",\n    \"device_id\": \"{{device_id}}\"\n}",
-                            "options": {
-                                "raw": {
-                                    "language": "json"
-                                }
-                            }
-                        },
-                        "url": {
-                            "raw": "{{base_url}}/api/v1/referee/verify-otp",
-                            "host": [
-                                "{{base_url}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "referee",
-                                "verify-otp"
-                            ]
-                        },
-                        "description": "- public endpoint\n- verifies OTP\n- reuses existing User auth verify logic\n- returns opaque token"
-                    },
-                    "event": [
-                        {
-                            "listen": "test",
-                            "script": {
-                                "exec": [
-                                    "let response = pm.response.json();",
-                                    "if (response?.data?.token) {",
-                                    "    pm.collectionVariables.set(\"token\", response.data.token);",
-                                    "}"
-                                ],
-                                "type": "text/javascript"
-                            }
-                        }
-                    ],
-                    "response": [
-                        {
-                            "name": "Success",
-                            "originalRequest": {
-                                "method": "POST",
-                                "header": [
-                                    {
-                                        "key": "Accept",
-                                        "value": "application/json"
-                                    }
-                                ],
+                                },
                                 "body": {
                                     "mode": "raw",
-                                    "raw": "{\n    \"mobile_number\": \"9700000201\",\n    \"otp\": \"1234\",\n    \"session_key\": \"mock-session-key\",\n    \"device_id\": \"postman-device\"\n}",
+                                    "raw": "{\n    \"mobile_number\": \"example_value\"\n}",
                                     "options": {
                                         "raw": {
                                             "language": "json"
                                         }
                                     }
-                                },
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "verify-otp",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
                                 "url": {
-                                    "raw": "{{base_url}}/api/v1/referee/verify-otp",
+                                    "raw": "{{referee_base_url}}/api/v1/referee/verify-otp",
                                     "host": [
-                                        "{{base_url}}"
+                                        "{{referee_base_url}}"
                                     ],
                                     "path": [
                                         "api",
                                         "v1",
                                         "referee",
                                         "verify-otp"
-                                    ]
-                                }
-                            },
-                            "status": "OK",
-                            "code": 200,
-                            "_postman_previewlanguage": "json",
-                            "body": "{\n    \"success\": true,\n    \"message\": \"Logged in successfully.\",\n    \"data\": {\n        \"token\": \"sporto_a1b2c3d4e5f6...\",\n        \"is_new_user\": false,\n        \"user\": {\n            \"id\": 1,\n            \"mobile_number\": \"9700000201\",\n            \"status\": 1,\n            \"profile\": {}\n        }\n    }\n}"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "name": "Referee Application",
-            "auth": {
-                "type": "bearer",
-                "bearer": [
-                    {
-                        "key": "token",
-                        "value": "{{token}}",
-                        "type": "string"
-                    }
-                ]
-            },
-            "item": [
-                {
-                    "name": "Get Application",
-                    "request": {
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Accept",
-                                "value": "application/json"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{base_url}}/api/v1/referee/application",
-                            "host": [
-                                "{{base_url}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "referee",
-                                "application"
-                            ]
-                        },
-                        "description": "Returns the current state of the Referee application for the authenticated user."
-                    },
-                    "response": [
-                        {
-                            "name": "Success",
-                            "originalRequest": {
-                                "method": "GET",
-                                "header": [
-                                    {
-                                        "key": "Accept",
-                                        "value": "application/json"
-                                    }
-                                ],
-                                "url": {
-                                    "raw": "{{base_url}}/api/v1/referee/application",
-                                    "host": [
-                                        "{{base_url}}"
                                     ],
-                                    "path": [
-                                        "api",
-                                        "v1",
-                                        "referee",
-                                        "application"
+                                    "variable": [
+                                        {
+                                            "key": "referee_base_url",
+                                            "value": "1",
+                                            "description": "Referee base url"
+                                        }
                                     ]
-                                }
-                            },
-                            "status": "OK",
-                            "code": 200,
-                            "_postman_previewlanguage": "json",
-                            "body": "{\n    \"success\": true,\n    \"message\": \"Application retrieved successfully.\",\n    \"data\": {\n        \"id\": 1,\n        \"status\": 1,\n        \"personal\": {},\n        \"address\": {},\n        \"sports\": [],\n        \"availability\": [],\n        \"documents\": []\n    }\n}"
-                        },
-                        {
-                            "name": "Unauthorized",
-                            "originalRequest": {
-                                "method": "GET",
-                                "header": [
-                                    {
-                                        "key": "Accept",
-                                        "value": "application/json"
+                                },
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"mobile_number\": \"example_value\",\n    \"otp\": 1,\n    \"session_key\": \"example_value\",\n    \"device_id\": \"example_value\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
                                     }
-                                ],
-                                "url": {
-                                    "raw": "{{base_url}}/api/v1/referee/application",
-                                    "host": [
-                                        "{{base_url}}"
-                                    ],
-                                    "path": [
-                                        "api",
-                                        "v1",
-                                        "referee",
-                                        "application"
-                                    ]
                                 }
                             },
-                            "status": "Unauthorized",
-                            "code": 401,
-                            "_postman_previewlanguage": "json",
-                            "body": "{\n    \"message\": \"Unauthenticated.\"\n}"
+                            "response": []
                         }
                     ]
                 },
                 {
-                    "name": "Save Personal Information",
-                    "request": {
-                        "method": "POST",
-                        "header": [
-                            {
-                                "key": "Accept",
-                                "value": "application/json"
-                            }
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n    \"first_name\": \"John\",\n    \"last_name\": \"Doe\",\n    \"email\": \"john.doe@example.com\",\n    \"date_of_birth\": \"1990-01-01\",\n    \"gender\": \"male\"\n}",
-                            "options": {
-                                "raw": {
-                                    "language": "json"
-                                }
-                            }
-                        },
-                        "url": {
-                            "raw": "{{base_url}}/api/v1/referee/application/personal",
-                            "host": [
-                                "{{base_url}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "referee",
-                                "application",
-                                "personal"
-                            ]
-                        },
-                        "description": "Saves personal information step for the referee application."
-                    },
-                    "response": [
+                    "name": "Application",
+                    "item": [
                         {
-                            "name": "Success",
-                            "originalRequest": {
+                            "name": "application",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{referee_base_url}}/api/v1/referee/application",
+                                    "host": [
+                                        "{{referee_base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "referee",
+                                        "application"
+                                    ],
+                                    "variable": [
+                                        {
+                                            "key": "referee_base_url",
+                                            "value": "1",
+                                            "description": "Referee base url"
+                                        }
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "personal",
+                            "request": {
                                 "method": "POST",
                                 "header": [
                                     {
                                         "key": "Accept",
                                         "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
                                     }
                                 ],
                                 "url": {
-                                    "raw": "{{base_url}}/api/v1/referee/application/personal",
+                                    "raw": "{{referee_base_url}}/api/v1/referee/application/personal",
                                     "host": [
-                                        "{{base_url}}"
+                                        "{{referee_base_url}}"
                                     ],
                                     "path": [
                                         "api",
@@ -405,94 +167,45 @@
                                         "referee",
                                         "application",
                                         "personal"
-                                    ]
-                                }
-                            },
-                            "status": "OK",
-                            "code": 200,
-                            "_postman_previewlanguage": "json",
-                            "body": "{\n    \"success\": true,\n    \"message\": \"Personal information saved.\",\n    \"data\": {}\n}"
-                        },
-                        {
-                            "name": "Validation Error",
-                            "originalRequest": {
-                                "method": "POST",
-                                "header": [
-                                    {
-                                        "key": "Accept",
-                                        "value": "application/json"
-                                    }
-                                ],
-                                "url": {
-                                    "raw": "{{base_url}}/api/v1/referee/application/personal",
-                                    "host": [
-                                        "{{base_url}}"
                                     ],
-                                    "path": [
-                                        "api",
-                                        "v1",
-                                        "referee",
-                                        "application",
-                                        "personal"
+                                    "variable": [
+                                        {
+                                            "key": "referee_base_url",
+                                            "value": "1",
+                                            "description": "Referee base url"
+                                        }
                                     ]
+                                },
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"first_name\": \"Example Name\",\n    \"last_name\": \"Example Name\",\n    \"email\": \"user@example.com\",\n    \"date_of_birth\": \"example_value\",\n    \"gender\": \"example_value\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
                                 }
                             },
-                            "status": "Unprocessable Entity",
-                            "code": 422,
-                            "_postman_previewlanguage": "json",
-                            "body": "{\n    \"success\": false,\n    \"message\": \"Validation failed.\",\n    \"errors\": {\n        \"first_name\": [\n            \"The first name field is required.\"\n        ]\n    }\n}"
-                        }
-                    ]
-                },
-                {
-                    "name": "Save Address",
-                    "request": {
-                        "method": "PUT",
-                        "header": [
-                            {
-                                "key": "Accept",
-                                "value": "application/json"
-                            }
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n    \"address_line_1\": \"123 Main St\",\n    \"address_line_2\": \"Apt 4B\",\n    \"city\": \"Hyderabad\",\n    \"state\": \"Telangana\",\n    \"pincode\": \"500001\",\n    \"country\": \"India\"\n}",
-                            "options": {
-                                "raw": {
-                                    "language": "json"
-                                }
-                            }
+                            "response": []
                         },
-                        "url": {
-                            "raw": "{{base_url}}/api/v1/referee/application/address",
-                            "host": [
-                                "{{base_url}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "referee",
-                                "application",
-                                "address"
-                            ]
-                        },
-                        "description": "Saves address step for the referee application."
-                    },
-                    "response": [
                         {
-                            "name": "Success",
-                            "originalRequest": {
+                            "name": "address",
+                            "request": {
                                 "method": "PUT",
                                 "header": [
                                     {
                                         "key": "Accept",
                                         "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
                                     }
                                 ],
                                 "url": {
-                                    "raw": "{{base_url}}/api/v1/referee/application/address",
+                                    "raw": "{{referee_base_url}}/api/v1/referee/application/address",
                                     "host": [
-                                        "{{base_url}}"
+                                        "{{referee_base_url}}"
                                     ],
                                     "path": [
                                         "api",
@@ -500,65 +213,45 @@
                                         "referee",
                                         "application",
                                         "address"
+                                    ],
+                                    "variable": [
+                                        {
+                                            "key": "referee_base_url",
+                                            "value": "1",
+                                            "description": "Referee base url"
+                                        }
                                     ]
+                                },
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"address_line_1\": \"example_value\",\n    \"address_line_2\": \"example_value\",\n    \"city\": \"example_value\",\n    \"state\": \"example_value\",\n    \"pincode\": \"example_value\",\n    \"country\": \"example_value\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
                                 }
                             },
-                            "status": "OK",
-                            "code": 200,
-                            "_postman_previewlanguage": "json",
-                            "body": "{\n    \"success\": true,\n    \"message\": \"Address saved.\",\n    \"data\": {}\n}"
-                        }
-                    ]
-                },
-                {
-                    "name": "Save Sports & Experience",
-                    "request": {
-                        "method": "PUT",
-                        "header": [
-                            {
-                                "key": "Accept",
-                                "value": "application/json"
-                            }
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n    \"sport_ids\": [1, 2],\n    \"experience_years\": 3,\n    \"highest_qualification\": \"National Certified Referee\"\n}",
-                            "options": {
-                                "raw": {
-                                    "language": "json"
-                                }
-                            }
+                            "response": []
                         },
-                        "url": {
-                            "raw": "{{base_url}}/api/v1/referee/application/sports",
-                            "host": [
-                                "{{base_url}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "referee",
-                                "application",
-                                "sports"
-                            ]
-                        },
-                        "description": "Saves sports and experience step for the referee application."
-                    },
-                    "response": [
                         {
-                            "name": "Success",
-                            "originalRequest": {
+                            "name": "sports",
+                            "request": {
                                 "method": "PUT",
                                 "header": [
                                     {
                                         "key": "Accept",
                                         "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
                                     }
                                 ],
                                 "url": {
-                                    "raw": "{{base_url}}/api/v1/referee/application/sports",
+                                    "raw": "{{referee_base_url}}/api/v1/referee/application/sports",
                                     "host": [
-                                        "{{base_url}}"
+                                        "{{referee_base_url}}"
                                     ],
                                     "path": [
                                         "api",
@@ -566,65 +259,45 @@
                                         "referee",
                                         "application",
                                         "sports"
+                                    ],
+                                    "variable": [
+                                        {
+                                            "key": "referee_base_url",
+                                            "value": "1",
+                                            "description": "Referee base url"
+                                        }
                                     ]
+                                },
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"sport_ids\": {\n        \"*\": 1\n    },\n    \"experience_years\": 1,\n    \"highest_qualification\": \"example_value\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
                                 }
                             },
-                            "status": "OK",
-                            "code": 200,
-                            "_postman_previewlanguage": "json",
-                            "body": "{\n    \"success\": true,\n    \"message\": \"Sports information saved.\",\n    \"data\": {}\n}"
-                        }
-                    ]
-                },
-                {
-                    "name": "Save Availability",
-                    "request": {
-                        "method": "PUT",
-                        "header": [
-                            {
-                                "key": "Accept",
-                                "value": "application/json"
-                            }
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n    \"availability\": [\n        \"monday\",\n        \"tuesday\",\n        \"saturday\"\n    ],\n    \"preferred_city\": \"Hyderabad\",\n    \"travel_radius\": 25,\n    \"emergency_contact_name\": \"John Doe\",\n    \"emergency_contact_number\": \"9876543210\"\n}",
-                            "options": {
-                                "raw": {
-                                    "language": "json"
-                                }
-                            }
+                            "response": []
                         },
-                        "url": {
-                            "raw": "{{base_url}}/api/v1/referee/application/availability",
-                            "host": [
-                                "{{base_url}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "referee",
-                                "application",
-                                "availability"
-                            ]
-                        },
-                        "description": "Saves availability and emergency contact details for the referee application."
-                    },
-                    "response": [
                         {
-                            "name": "Success",
-                            "originalRequest": {
+                            "name": "availability",
+                            "request": {
                                 "method": "PUT",
                                 "header": [
                                     {
                                         "key": "Accept",
                                         "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
                                     }
                                 ],
                                 "url": {
-                                    "raw": "{{base_url}}/api/v1/referee/application/availability",
+                                    "raw": "{{referee_base_url}}/api/v1/referee/application/availability",
                                     "host": [
-                                        "{{base_url}}"
+                                        "{{referee_base_url}}"
                                     ],
                                     "path": [
                                         "api",
@@ -632,65 +305,45 @@
                                         "referee",
                                         "application",
                                         "availability"
+                                    ],
+                                    "variable": [
+                                        {
+                                            "key": "referee_base_url",
+                                            "value": "1",
+                                            "description": "Referee base url"
+                                        }
                                     ]
+                                },
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"availability\": {\n        \"*\": \"example_value\"\n    },\n    \"preferred_city\": \"example_value\",\n    \"travel_radius\": 1,\n    \"emergency_contact_name\": \"Example Name\",\n    \"emergency_contact_number\": \"example_value\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
                                 }
                             },
-                            "status": "OK",
-                            "code": 200,
-                            "_postman_previewlanguage": "json",
-                            "body": "{\n    \"success\": true,\n    \"message\": \"Availability saved.\",\n    \"data\": {}\n}"
-                        }
-                    ]
-                },
-                {
-                    "name": "Add Document",
-                    "request": {
-                        "method": "POST",
-                        "header": [
-                            {
-                                "key": "Accept",
-                                "value": "application/json"
-                            }
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n    \"type\": 1,\n    \"file_path\": \"{{uploaded_file_path}}\"\n}",
-                            "options": {
-                                "raw": {
-                                    "language": "json"
-                                }
-                            }
+                            "response": []
                         },
-                        "url": {
-                            "raw": "{{base_url}}/api/v1/referee/application/documents",
-                            "host": [
-                                "{{base_url}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "referee",
-                                "application",
-                                "documents"
-                            ]
-                        },
-                        "description": "Adds a document using a file path reference returned from the Common Upload API. Document types: 1: Photo, 2: Gov ID, 3: Certificate, 4: Resume."
-                    },
-                    "response": [
                         {
-                            "name": "Success",
-                            "originalRequest": {
+                            "name": "documents",
+                            "request": {
                                 "method": "POST",
                                 "header": [
                                     {
                                         "key": "Accept",
                                         "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
                                     }
                                 ],
                                 "url": {
-                                    "raw": "{{base_url}}/api/v1/referee/application/documents",
+                                    "raw": "{{referee_base_url}}/api/v1/referee/application/documents",
                                     "host": [
-                                        "{{base_url}}"
+                                        "{{referee_base_url}}"
                                     ],
                                     "path": [
                                         "api",
@@ -698,57 +351,45 @@
                                         "referee",
                                         "application",
                                         "documents"
+                                    ],
+                                    "variable": [
+                                        {
+                                            "key": "referee_base_url",
+                                            "value": "1",
+                                            "description": "Referee base url"
+                                        }
                                     ]
+                                },
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"type\": 1,\n    \"file_path\": \"example_value\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
                                 }
                             },
-                            "status": "OK",
-                            "code": 200,
-                            "_postman_previewlanguage": "json",
-                            "body": "{\n    \"success\": true,\n    \"message\": \"Document added successfully.\",\n    \"data\": {\n        \"id\": 1,\n        \"type\": 1,\n        \"file_path\": \"referee/documents/xyz123.jpg\"\n    }\n}"
-                        }
-                    ]
-                },
-                {
-                    "name": "Delete Document",
-                    "request": {
-                        "method": "DELETE",
-                        "header": [
-                            {
-                                "key": "Accept",
-                                "value": "application/json"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{base_url}}/api/v1/referee/application/documents/{{document_id}}",
-                            "host": [
-                                "{{base_url}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "referee",
-                                "application",
-                                "documents",
-                                "{{document_id}}"
-                            ]
+                            "response": []
                         },
-                        "description": "Deletes a previously added document by its ID."
-                    },
-                    "response": [
                         {
-                            "name": "Success",
-                            "originalRequest": {
+                            "name": "{id}",
+                            "request": {
                                 "method": "DELETE",
                                 "header": [
                                     {
                                         "key": "Accept",
                                         "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
                                     }
                                 ],
                                 "url": {
-                                    "raw": "{{base_url}}/api/v1/referee/application/documents/{{document_id}}",
+                                    "raw": "{{referee_base_url}}/api/v1/referee/application/documents/{{id}}",
                                     "host": [
-                                        "{{base_url}}"
+                                        "{{referee_base_url}}"
                                     ],
                                     "path": [
                                         "api",
@@ -756,57 +397,30 @@
                                         "referee",
                                         "application",
                                         "documents",
-                                        "{{document_id}}"
+                                        "{{id}}"
                                     ]
                                 }
                             },
-                            "status": "OK",
-                            "code": 200,
-                            "_postman_previewlanguage": "json",
-                            "body": "{\n    \"success\": true,\n    \"message\": \"Document deleted successfully.\",\n    \"data\": null\n}"
-                        }
-                    ]
-                },
-                {
-                    "name": "Review Application",
-                    "request": {
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Accept",
-                                "value": "application/json"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{base_url}}/api/v1/referee/application/review",
-                            "host": [
-                                "{{base_url}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "referee",
-                                "application",
-                                "review"
-                            ]
+                            "response": []
                         },
-                        "description": "Retrieves the full application data to be presented for final review before submission."
-                    },
-                    "response": [
                         {
-                            "name": "Success",
-                            "originalRequest": {
+                            "name": "review",
+                            "request": {
                                 "method": "GET",
                                 "header": [
                                     {
                                         "key": "Accept",
                                         "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
                                     }
                                 ],
                                 "url": {
-                                    "raw": "{{base_url}}/api/v1/referee/application/review",
+                                    "raw": "{{referee_base_url}}/api/v1/referee/application/review",
                                     "host": [
-                                        "{{base_url}}"
+                                        "{{referee_base_url}}"
                                     ],
                                     "path": [
                                         "api",
@@ -814,133 +428,279 @@
                                         "referee",
                                         "application",
                                         "review"
+                                    ],
+                                    "variable": [
+                                        {
+                                            "key": "referee_base_url",
+                                            "value": "1",
+                                            "description": "Referee base url"
+                                        }
                                     ]
                                 }
                             },
-                            "status": "OK",
-                            "code": 200,
-                            "_postman_previewlanguage": "json",
-                            "body": "{\n    \"success\": true,\n    \"message\": \"Application ready for review.\",\n    \"data\": {\n        \"personal\": {},\n        \"address\": {},\n        \"sports\": {},\n        \"availability\": {},\n        \"documents\": []\n    }\n}"
+                            "response": []
+                        },
+                        {
+                            "name": "submit",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{referee_base_url}}/api/v1/referee/application/submit",
+                                    "host": [
+                                        "{{referee_base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "referee",
+                                        "application",
+                                        "submit"
+                                    ],
+                                    "variable": [
+                                        {
+                                            "key": "referee_base_url",
+                                            "value": "1",
+                                            "description": "Referee base url"
+                                        }
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "status",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{referee_base_url}}/api/v1/referee/application/status",
+                                    "host": [
+                                        "{{referee_base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "referee",
+                                        "application",
+                                        "status"
+                                    ],
+                                    "variable": [
+                                        {
+                                            "key": "referee_base_url",
+                                            "value": "1",
+                                            "description": "Referee base url"
+                                        }
+                                    ]
+                                }
+                            },
+                            "response": []
                         }
                     ]
                 },
                 {
-                    "name": "Submit Application",
-                    "request": {
-                        "method": "POST",
-                        "header": [
-                            {
-                                "key": "Accept",
-                                "value": "application/json"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{base_url}}/api/v1/referee/application/submit",
-                            "host": [
-                                "{{base_url}}"
-                            ],
-                            "path": [
-                                "api",
-                                "v1",
-                                "referee",
-                                "application",
-                                "submit"
+                    "name": "Matches",
+                    "item": [
+                        {
+                            "name": "Match Requests",
+                            "item": [
+                                {
+                                    "name": "List Match Requests",
+                                    "request": {
+                                        "method": "GET",
+                                        "header": [
+                                            {
+                                                "key": "Accept",
+                                                "value": "application/json"
+                                            },
+                                            {
+                                                "key": "Authorization",
+                                                "value": "Bearer {{token}}"
+                                            }
+                                        ],
+                                        "url": {
+                                            "raw": "{{referee_base_url}}/api/v1/referee/match-requests",
+                                            "host": [
+                                                "{{referee_base_url}}"
+                                            ],
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "referee",
+                                                "match-requests"
+                                            ]
+                                        }
+                                    },
+                                    "response": []
+                                },
+                                {
+                                    "name": "Accept Match Request",
+                                    "request": {
+                                        "method": "POST",
+                                        "header": [
+                                            {
+                                                "key": "Accept",
+                                                "value": "application/json"
+                                            },
+                                            {
+                                                "key": "Authorization",
+                                                "value": "Bearer {{token}}"
+                                            }
+                                        ],
+                                        "url": {
+                                            "raw": "{{referee_base_url}}/api/v1/referee/match-requests/1/accept",
+                                            "host": [
+                                                "{{referee_base_url}}"
+                                            ],
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "referee",
+                                                "match-requests",
+                                                "1",
+                                                "accept"
+                                            ]
+                                        }
+                                    },
+                                    "response": []
+                                },
+                                {
+                                    "name": "Reject Match Request",
+                                    "request": {
+                                        "method": "POST",
+                                        "header": [
+                                            {
+                                                "key": "Accept",
+                                                "value": "application/json"
+                                            },
+                                            {
+                                                "key": "Authorization",
+                                                "value": "Bearer {{token}}"
+                                            },
+                                            {
+                                                "key": "Content-Type",
+                                                "value": "application/json"
+                                            }
+                                        ],
+                                        "body": {
+                                            "mode": "raw",
+                                            "raw": "{\n    \"reason\": \"Unavailable on this date\"\n}",
+                                            "options": {
+                                                "raw": {
+                                                    "language": "json"
+                                                }
+                                            }
+                                        },
+                                        "url": {
+                                            "raw": "{{referee_base_url}}/api/v1/referee/match-requests/1/reject",
+                                            "host": [
+                                                "{{referee_base_url}}"
+                                            ],
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "referee",
+                                                "match-requests",
+                                                "1",
+                                                "reject"
+                                            ]
+                                        }
+                                    },
+                                    "response": []
+                                }
                             ]
                         },
-                        "description": "Submits the referee application. Requires all prior steps (personal, address, sports, availability, and documents) to be completed."
-                    },
-                    "response": [
                         {
-                            "name": "Success",
-                            "originalRequest": {
-                                "method": "POST",
-                                "header": [
-                                    {
-                                        "key": "Accept",
-                                        "value": "application/json"
-                                    }
-                                ],
-                                "url": {
-                                    "raw": "{{base_url}}/api/v1/referee/application/submit",
-                                    "host": [
-                                        "{{base_url}}"
-                                    ],
-                                    "path": [
-                                        "api",
-                                        "v1",
-                                        "referee",
-                                        "application",
-                                        "submit"
-                                    ]
+                            "name": "My Matches",
+                            "item": [
+                                {
+                                    "name": "My Assigned Matches",
+                                    "request": {
+                                        "method": "GET",
+                                        "header": [
+                                            {
+                                                "key": "Accept",
+                                                "value": "application/json"
+                                            },
+                                            {
+                                                "key": "Authorization",
+                                                "value": "Bearer {{token}}"
+                                            }
+                                        ],
+                                        "url": {
+                                            "raw": "{{referee_base_url}}/api/v1/referee/matches",
+                                            "host": [
+                                                "{{referee_base_url}}"
+                                            ],
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "referee",
+                                                "matches"
+                                            ]
+                                        }
+                                    },
+                                    "response": []
+                                },
+                                {
+                                    "name": "View Assigned Match",
+                                    "request": {
+                                        "method": "GET",
+                                        "header": [
+                                            {
+                                                "key": "Accept",
+                                                "value": "application/json"
+                                            },
+                                            {
+                                                "key": "Authorization",
+                                                "value": "Bearer {{token}}"
+                                            }
+                                        ],
+                                        "url": {
+                                            "raw": "{{referee_base_url}}/api/v1/referee/matches/1",
+                                            "host": [
+                                                "{{referee_base_url}}"
+                                            ],
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "referee",
+                                                "matches",
+                                                "1"
+                                            ]
+                                        }
+                                    },
+                                    "response": []
                                 }
-                            },
-                            "status": "OK",
-                            "code": 200,
-                            "_postman_previewlanguage": "json",
-                            "body": "{\n    \"success\": true,\n    \"message\": \"Application submitted successfully.\",\n    \"data\": {}\n}"
-                        },
-                        {
-                            "name": "Incomplete Validation Error",
-                            "originalRequest": {
-                                "method": "POST",
-                                "header": [
-                                    {
-                                        "key": "Accept",
-                                        "value": "application/json"
-                                    }
-                                ],
-                                "url": {
-                                    "raw": "{{base_url}}/api/v1/referee/application/submit",
-                                    "host": [
-                                        "{{base_url}}"
-                                    ],
-                                    "path": [
-                                        "api",
-                                        "v1",
-                                        "referee",
-                                        "application",
-                                        "submit"
-                                    ]
-                                }
-                            },
-                            "status": "Unprocessable Entity",
-                            "code": 422,
-                            "_postman_previewlanguage": "json",
-                            "body": "{\n    \"success\": false,\n    \"message\": \"Please complete all sections before submitting.\",\n    \"errors\": null\n}"
-                        },
-                        {
-                            "name": "Already Submitted Error",
-                            "originalRequest": {
-                                "method": "POST",
-                                "header": [
-                                    {
-                                        "key": "Accept",
-                                        "value": "application/json"
-                                    }
-                                ],
-                                "url": {
-                                    "raw": "{{base_url}}/api/v1/referee/application/submit",
-                                    "host": [
-                                        "{{base_url}}"
-                                    ],
-                                    "path": [
-                                        "api",
-                                        "v1",
-                                        "referee",
-                                        "application",
-                                        "submit"
-                                    ]
-                                }
-                            },
-                            "status": "Conflict",
-                            "code": 409,
-                            "_postman_previewlanguage": "json",
-                            "body": "{\n    \"success\": false,\n    \"message\": \"Application has already been submitted.\",\n    \"errors\": null\n}"
+                            ]
                         }
                     ]
-                },
+                }
+            ]
+        },
+        {
+            "name": "Assigned Matches",
+            "item": [
                 {
-                    "name": "Application Status",
+                    "name": "List Assigned Matches",
                     "request": {
                         "method": "GET",
                         "header": [
@@ -950,7 +710,7 @@
                             }
                         ],
                         "url": {
-                            "raw": "{{base_url}}/api/v1/referee/application/status",
+                            "raw": "{{base_url}}/api/v1/referee/matches",
                             "host": [
                                 "{{base_url}}"
                             ],
@@ -958,132 +718,55 @@
                                 "api",
                                 "v1",
                                 "referee",
-                                "application",
-                                "status"
-                            ]
-                        },
-                        "description": "Checks the status of the submitted application (e.g., Draft, Pending Review, Approved, Rejected)."
-                    },
-                    "response": [
-                        {
-                            "name": "Success",
-                            "originalRequest": {
-                                "method": "GET",
-                                "header": [
-                                    {
-                                        "key": "Accept",
-                                        "value": "application/json"
-                                    }
-                                ],
-                                "url": {
-                                    "raw": "{{base_url}}/api/v1/referee/application/status",
-                                    "host": [
-                                        "{{base_url}}"
-                                    ],
-                                    "path": [
-                                        "api",
-                                        "v1",
-                                        "referee",
-                                        "application",
-                                        "status"
-                                    ]
+                                "matches"
+                            ],
+                            "variable": [],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "example_value",
+                                    "description": "Optional parameter"
+                                },
+                                {
+                                    "key": "per_page",
+                                    "value": "example_value",
+                                    "description": "Optional parameter"
+                                },
+                                {
+                                    "key": "search",
+                                    "value": "example_value",
+                                    "description": "Optional parameter"
                                 }
-                            },
-                            "status": "OK",
-                            "code": 200,
-                            "_postman_previewlanguage": "json",
-                            "body": "{\n    \"success\": true,\n    \"message\": \"Application status retrieved.\",\n    \"data\": {\n        \"status\": 2,\n        \"status_label\": \"Pending Review\"\n    }\n}"
+                            ]
                         }
-                    ]
-                }
-            ]
-        },
-        {
-            "name": "Common",
-            "item": [
+                    },
+                    "response": []
+                },
                 {
-                    "name": "Upload File",
+                    "name": "View Assigned Match Details",
                     "request": {
-                        "method": "POST",
+                        "method": "GET",
                         "header": [
                             {
                                 "key": "Accept",
                                 "value": "application/json"
                             }
                         ],
-                        "body": {
-                            "mode": "formdata",
-                            "formdata": [
-                                {
-                                    "key": "file",
-                                    "type": "file",
-                                    "src": []
-                                },
-                                {
-                                    "key": "folder",
-                                    "value": "referee/documents",
-                                    "type": "text"
-                                }
-                            ]
-                        },
                         "url": {
-                            "raw": "{{base_url}}/api/v1/common/upload",
+                            "raw": "{{base_url}}/api/v1/referee/matches/{{match_id}}",
                             "host": [
                                 "{{base_url}}"
                             ],
                             "path": [
                                 "api",
                                 "v1",
-                                "common",
-                                "upload"
+                                "referee",
+                                "matches",
+                                "{{match_id}}"
                             ]
-                        },
-                        "description": "Uploads a file and returns a reference path to be used in document endpoints."
+                        }
                     },
-                    "event": [
-                        {
-                            "listen": "test",
-                            "script": {
-                                "exec": [
-                                    "let response = pm.response.json();",
-                                    "if (response?.data?.path) {",
-                                    "    pm.collectionVariables.set(\"uploaded_file_path\", response.data.path);",
-                                    "}"
-                                ],
-                                "type": "text/javascript"
-                            }
-                        }
-                    ],
-                    "response": [
-                        {
-                            "name": "Success",
-                            "originalRequest": {
-                                "method": "POST",
-                                "header": [
-                                    {
-                                        "key": "Accept",
-                                        "value": "application/json"
-                                    }
-                                ],
-                                "url": {
-                                    "raw": "{{base_url}}/api/v1/common/upload",
-                                    "host": [
-                                        "{{base_url}}"
-                                    ],
-                                    "path": [
-                                        "api",
-                                        "v1",
-                                        "common",
-                                        "upload"
-                                    ]
-                                }
-                            },
-                            "status": "OK",
-                            "code": 200,
-                            "_postman_previewlanguage": "json",
-                            "body": "{\n    \"success\": true,\n    \"message\": \"File uploaded successfully.\",\n    \"data\": {\n        \"path\": \"referee/documents/example-file.pdf\",\n        \"url\": \"https://storage.example.com/referee/documents/example-file.pdf\"\n    }\n}"
-                        }
-                    ]
+                    "response": []
                 }
             ]
         }

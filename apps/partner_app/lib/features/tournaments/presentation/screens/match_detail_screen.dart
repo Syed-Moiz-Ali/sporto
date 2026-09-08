@@ -74,6 +74,11 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
   ];
 
   PartnerTournamentResponse? _tournament;
+  List<PartnerTournamentMatchResponse>? _apiMatches;
+  final Map<int, List<PartnerMatchRefereeAssignmentResponse>> _apiAssignments =
+      {};
+  bool _isRefereeApiLoading = false;
+  String? _refereeApiError;
   bool _isLoading = false;
   String? _error;
 
@@ -97,6 +102,7 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
         apiClient: SportoApiClient(tokenProvider: AuthSessionStore().getToken),
       );
       final data = await ds.showTournamentData(id);
+      await _fetchRefereeAssignments(ds, id);
       if (mounted) {
         setState(() {
           _tournament = data;
@@ -110,6 +116,46 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
           _isLoading = false;
         });
       }
+    }
+  }
+
+  Future<void> _fetchRefereeAssignments(
+    PartnerRemoteDataSource ds,
+    String tournamentId,
+  ) async {
+    if (mounted) {
+      setState(() {
+        _isRefereeApiLoading = true;
+        _refereeApiError = null;
+      });
+    }
+    try {
+      final matches = await ds.listTournamentMatchesData(tournamentId);
+      final assignments = <int, List<PartnerMatchRefereeAssignmentResponse>>{};
+      for (final match in matches) {
+        try {
+          assignments[match.id] =
+              await ds.listMatchRefereeAssignmentsData(tournamentId, match.id);
+        } catch (_) {
+          assignments[match.id] = const [];
+        }
+      }
+      if (!mounted) return;
+      setState(() {
+        _apiMatches = matches;
+        _apiAssignments
+          ..clear()
+          ..addAll(assignments);
+        _isRefereeApiLoading = false;
+      });
+    } catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _apiMatches = const [];
+        _apiAssignments.clear();
+        _refereeApiError = error.toString();
+        _isRefereeApiLoading = false;
+      });
     }
   }
 
@@ -808,6 +854,10 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
   // TAB 3: REFEREES
   // ============================================================
   Widget _buildRefereesTab(ColorScheme cs, TextTheme tt) {
+    if (_apiMatches != null) {
+      return _buildApiRefereesTab(cs);
+    }
+
     final assigned = _refereeAssignmentTab == 0;
     final matches = _refereeMatches
         .where(
@@ -840,6 +890,65 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
           _refereeMatchCard(matches[i], assigned: assigned, cs: cs),
           if (i != matches.length - 1) const SizedBox(height: 10),
         ],
+      ],
+    );
+  }
+
+  Widget _buildApiRefereesTab(ColorScheme cs) {
+    final assigned = _refereeAssignmentTab == 0;
+    final matches = (_apiMatches ?? const <PartnerTournamentMatchResponse>[])
+        .where((match) =>
+            (_apiAssignments[match.id]?.isNotEmpty ?? false) == assigned)
+        .toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            _refereeTab('Assigned', 0, cs),
+            const SizedBox(width: 34),
+            _refereeTab('Pending', 1, cs),
+          ],
+        ),
+        const SizedBox(height: 21),
+        Row(
+          children: [
+            Text('Sort by |', style: TextStyle(color: cs.onSurfaceVariant)),
+            const SizedBox(width: 8),
+            Text('Venues', style: TextStyle(color: cs.secondary)),
+            const SizedBox(width: 20),
+            Text('Date', style: TextStyle(color: cs.onSurfaceVariant)),
+          ],
+        ),
+        if (_isRefereeApiLoading) ...[
+          const SizedBox(height: 16),
+          const LinearProgressIndicator(),
+        ],
+        if (_refereeApiError != null) ...[
+          const SizedBox(height: 16),
+          SportoCard(
+            child: Text(
+              'Unable to load live referee data: $_refereeApiError',
+              style: TextStyle(color: cs.error, fontSize: 12),
+            ),
+          ),
+        ],
+        const SizedBox(height: 24),
+        if (matches.isEmpty)
+          SportoCard(
+            child: Text(
+              assigned
+                  ? 'No assigned referees found.'
+                  : 'No pending referee assignments found.',
+              style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12),
+            ),
+          )
+        else
+          for (var i = 0; i < matches.length; i++) ...[
+            _apiRefereeMatchCard(matches[i], assigned: assigned, cs: cs),
+            if (i != matches.length - 1) const SizedBox(height: 10),
+          ],
       ],
     );
   }
@@ -1004,6 +1113,128 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
     );
   }
 
+  Widget _apiRefereeMatchCard(
+    PartnerTournamentMatchResponse match, {
+    required bool assigned,
+    required ColorScheme cs,
+  }) {
+    final assignment = (_apiAssignments[match.id] ?? const []).isNotEmpty
+        ? _apiAssignments[match.id]!.first
+        : null;
+    final isAssigned = assigned && assignment != null;
+    return SportoCard(
+      radius: 15,
+      blur: 0,
+      padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+      backgroundColor: const Color(0xE817191F),
+      borderColor: const Color(0x192F3A48),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.sports_cricket_rounded,
+                  color: cs.onSurfaceVariant, size: 15),
+              const SizedBox(width: 4),
+              Text(match.displayRound,
+                  style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
+              const Spacer(),
+              if (match.displayTime.isNotEmpty)
+                Text(_formatApiDate(match.displayTime),
+                    style: TextStyle(color: cs.onSurfaceVariant, fontSize: 11)),
+              Icon(Icons.more_vert_rounded,
+                  color: cs.onSurfaceVariant, size: 20),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Row(
+            children: [
+              SportoAssetIcon(SportoAssets.locationPin,
+                  size: 13, color: cs.secondary),
+              const SizedBox(width: 4),
+              Expanded(
+                child: Text(match.displayVenue,
+                    style: TextStyle(color: cs.secondary, fontSize: 12)),
+              ),
+            ],
+          ),
+          const SportoDivider(height: 18),
+          if (isAssigned) ...[
+            Row(
+              children: [
+                Expanded(
+                  child: Text(assignment.displayName,
+                      style:
+                          const TextStyle(color: Colors.white, fontSize: 13)),
+                ),
+                Text(assignment.displayRole,
+                    style: TextStyle(color: cs.onSurfaceVariant, fontSize: 11)),
+              ],
+            ),
+            const SportoDivider(height: 18),
+          ],
+          Row(
+            children: [
+              Text(match.displayTeamA,
+                  style: TextStyle(color: cs.onSurfaceVariant, fontSize: 11)),
+              const Spacer(),
+              Text('Vs',
+                  style: TextStyle(color: cs.onSurfaceVariant, fontSize: 10)),
+              const Spacer(),
+              Text(match.displayTeamB,
+                  style: TextStyle(color: cs.onSurfaceVariant, fontSize: 11)),
+            ],
+          ),
+          const SizedBox(height: 10),
+          if (isAssigned)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                SportoPillButton(
+                  label: 'Reassign',
+                  color: cs.primary,
+                  height: 28,
+                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                  fontSize: 11,
+                  onTap: () => _openApiRefereePicker(match),
+                ),
+                const SizedBox(width: 12),
+                SportoPillButton(
+                  label: 'Remove Referee',
+                  color: Colors.redAccent,
+                  height: 28,
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  fontSize: 11,
+                  onTap: () => _removeApiAssignment(match, assignment),
+                ),
+              ],
+            )
+          else
+            Row(
+              children: [
+                Text('Referee: ',
+                    style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
+                const Text('Not Assigned',
+                    style: TextStyle(color: Colors.redAccent, fontSize: 12)),
+                const Spacer(),
+                SportoPillButton(
+                  label: 'Assign Referee',
+                  color: cs.primary,
+                  gradient: LinearGradient(colors: [cs.primary, cs.tertiary]),
+                  filled: true,
+                  foregroundColor: Colors.black,
+                  height: 28,
+                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                  fontSize: 11,
+                  onTap: () => _openApiRefereePicker(match),
+                ),
+              ],
+            ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _openRefereePicker(_RefereeMatch match) async {
     final selected = await Navigator.of(context).push<String>(
       MaterialPageRoute(
@@ -1018,6 +1249,56 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
       _assignedReferees[match.id] = selected;
       _refereeAssignmentTab = 0;
     });
+  }
+
+  Future<void> _openApiRefereePicker(
+    PartnerTournamentMatchResponse match,
+  ) async {
+    if (widget.tournamentId == null) return;
+    final selected = await Navigator.of(context).push<String>(
+      MaterialPageRoute(
+        builder: (_) => AssignRefereeScreen(
+          tournamentName: _tournament?.name ?? 'Hyderabad Super Cup',
+          tournamentCode: _tournament?.code ?? 'SPT-20481',
+          tournamentId: widget.tournamentId,
+          matchId: match.id,
+          match: match,
+        ),
+      ),
+    );
+    if (selected == null || !mounted) return;
+    final ds = PartnerRemoteDataSource(
+      apiClient: SportoApiClient(tokenProvider: AuthSessionStore().getToken),
+    );
+    await _fetchRefereeAssignments(ds, widget.tournamentId!);
+    setState(() => _refereeAssignmentTab = 0);
+  }
+
+  Future<void> _removeApiAssignment(
+    PartnerTournamentMatchResponse match,
+    PartnerMatchRefereeAssignmentResponse assignment,
+  ) async {
+    if (widget.tournamentId == null) return;
+    try {
+      final ds = PartnerRemoteDataSource(
+        apiClient: SportoApiClient(tokenProvider: AuthSessionStore().getToken),
+      );
+      await ds.removeMatchRefereeAssignment(
+        widget.tournamentId!,
+        match.id,
+        assignment.id,
+      );
+      await _fetchRefereeAssignments(ds, widget.tournamentId!);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Referee removed from match.')),
+      );
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Unable to remove referee: $error')),
+      );
+    }
   }
 
   // ============================================================
@@ -1226,4 +1507,35 @@ class _RefereeMatch {
   final String ground;
   final String time;
   final String? badge;
+}
+
+String _formatApiDate(String value) {
+  final parsed = DateTime.tryParse(value);
+  if (parsed == null) return value;
+  final hour = parsed.hour == 0
+      ? 12
+      : parsed.hour > 12
+          ? parsed.hour - 12
+          : parsed.hour;
+  final minute = parsed.minute.toString().padLeft(2, '0');
+  final suffix = parsed.hour >= 12 ? 'PM' : 'AM';
+  return '${parsed.day} ${_monthName(parsed.month)}, $hour:$minute $suffix';
+}
+
+String _monthName(int month) {
+  const names = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ];
+  return names[(month - 1).clamp(0, names.length - 1)];
 }

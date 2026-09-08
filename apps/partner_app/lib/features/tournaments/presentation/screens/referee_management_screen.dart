@@ -1,4 +1,6 @@
+import 'package:core/core.dart';
 import 'package:flutter/material.dart';
+import 'package:partner_data/partner_data.dart';
 import 'package:ui_kit/ui_kit.dart';
 
 import 'assign_referee_screen.dart';
@@ -14,16 +16,28 @@ class RefereeManagementScreen extends StatefulWidget {
 class _RefereeManagementScreenState extends State<RefereeManagementScreen> {
   final _searchController = TextEditingController();
   final Set<String> _assignedMatchIds = {};
+  late final PartnerRemoteDataSource _remoteDataSource =
+      PartnerRemoteDataSource(
+    apiClient: SportoApiClient(tokenProvider: AuthSessionStore().getToken),
+  );
+  List<_RefereeScheduleMatch>? _apiMatches;
+  List<_ManagedReferee>? _apiReferees;
+  bool _isLoading = false;
+  String? _error;
   int _filter = 0;
 
   static const _matches = <_RefereeScheduleMatch>[
     _RefereeScheduleMatch(
       id: 'round-64',
+      tournamentName: 'Hyderabad Super Cup',
+      tournamentCode: 'SPT-20481',
       round: 'Round of 64',
       date: '15 July, 10:00 AM',
     ),
     _RefereeScheduleMatch(
       id: 'final',
+      tournamentName: 'Hyderabad Super Cup',
+      tournamentCode: 'SPT-20481',
       badge: 'Final',
       round: 'Round of 64',
       date: '15 July, 10:00 AM',
@@ -62,6 +76,46 @@ class _RefereeManagementScreenState extends State<RefereeManagementScreen> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    _loadLiveData();
+  }
+
+  Future<void> _loadLiveData() async {
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+    try {
+      final tournaments = await _remoteDataSource.listTournamentsData();
+      final liveMatches = <_RefereeScheduleMatch>[];
+      for (final tournament in tournaments.take(10)) {
+        final matches =
+            await _remoteDataSource.listTournamentMatchesData(tournament.id);
+        liveMatches.addAll(matches.map(
+          (match) => _RefereeScheduleMatch.fromApi(match, tournament),
+        ));
+      }
+
+      final referees = await _remoteDataSource.listPartnerRefereesData();
+
+      if (!mounted) return;
+      setState(() {
+        _apiMatches = liveMatches;
+        _apiReferees =
+            referees.map(_ManagedReferee.fromPartnerReferee).toList();
+        _isLoading = false;
+      });
+    } catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _error = error.toString();
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
@@ -70,14 +124,19 @@ class _RefereeManagementScreenState extends State<RefereeManagementScreen> {
   Future<void> _assign(_RefereeScheduleMatch match) async {
     final selected = await Navigator.of(context).push<String>(
       MaterialPageRoute(
-        builder: (_) => const AssignRefereeScreen(
-          tournamentName: 'Hyderabad Super Cup',
-          tournamentCode: 'SPT-20481',
+        builder: (_) => AssignRefereeScreen(
+          tournamentName: match.tournamentName,
+          tournamentCode: match.tournamentCode,
+          tournamentId: match.tournamentId,
+          matchId: match.matchId,
         ),
       ),
     );
     if (selected == null || !mounted) return;
     setState(() => _assignedMatchIds.add(match.id));
+    if (match.tournamentId != null) {
+      await _loadLiveData();
+    }
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('$selected assigned successfully.')),
     );
@@ -101,11 +160,13 @@ class _RefereeManagementScreenState extends State<RefereeManagementScreen> {
     final cs = Theme.of(context).colorScheme;
     final scale = context.sportoScale;
     final query = _searchController.text.trim().toLowerCase();
-    final visibleReferees = _referees
+    final sourceReferees = _apiReferees ?? _referees;
+    final sourceMatches = _apiMatches ?? _matches;
+    final visibleReferees = sourceReferees
         .where((referee) =>
             query.isEmpty || referee.name.toLowerCase().contains(query))
         .toList();
-    final pending = _matches
+    final pending = sourceMatches
         .where((match) => !_assignedMatchIds.contains(match.id))
         .toList();
 
@@ -173,6 +234,19 @@ class _RefereeManagementScreenState extends State<RefereeManagementScreen> {
                       ),
                       onChanged: (_) => setState(() {}),
                     ),
+                    if (_isLoading) ...[
+                      SizedBox(height: 14 * scale),
+                      const LinearProgressIndicator(),
+                    ],
+                    if (_error != null) ...[
+                      SizedBox(height: 14 * scale),
+                      SportoCard(
+                        child: Text(
+                          'Unable to load live referee data: $_error',
+                          style: TextStyle(color: cs.error, fontSize: 12),
+                        ),
+                      ),
+                    ],
                     SizedBox(height: 29 * scale),
                     Row(
                       children: [
@@ -282,8 +356,9 @@ class _RefereeManagementScreenState extends State<RefereeManagementScreen> {
             ),
             const SizedBox(height: 5),
           ],
-          const Text('Hyderabad Super Cup',
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+          Text(match.tournamentName,
+              style:
+                  const TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
           const SizedBox(height: 8),
           Row(
             children: [
@@ -303,20 +378,20 @@ class _RefereeManagementScreenState extends State<RefereeManagementScreen> {
               SportoAssetIcon(SportoAssets.locationPin,
                   color: cs.secondary, size: 13),
               const SizedBox(width: 4),
-              Text('Ground A',
+              Text(match.ground,
                   style: TextStyle(color: cs.secondary, fontSize: 12)),
             ],
           ),
           const SizedBox(height: 10),
           Row(
             children: [
-              Text('Delhi Warriors',
+              Text(match.teamA,
                   style: TextStyle(color: cs.onSurfaceVariant, fontSize: 11)),
               const Spacer(),
               Text('Vs',
                   style: TextStyle(color: cs.onSurfaceVariant, fontSize: 10)),
               const Spacer(),
-              Text('Hyd Highlanders',
+              Text(match.teamB,
                   style: TextStyle(color: cs.onSurfaceVariant, fontSize: 11)),
             ],
           ),
@@ -344,7 +419,8 @@ class _RefereeManagementScreenState extends State<RefereeManagementScreen> {
 
   Widget _refereeCard(_ManagedReferee referee) {
     final cs = Theme.of(context).colorScheme;
-    final available = referee.status == 'Available Now';
+    final status = referee.status.toLowerCase();
+    final available = status == 'available now' || status == 'active';
     final statusColor = available ? cs.secondary : const Color(0xFFFF7545);
     return SportoCard(
       onTap: () => _openDetails(referee),
@@ -442,11 +518,15 @@ class _RefereeDetailsScreenState extends State<_RefereeDetailsScreen> {
     final matches = const [
       _RefereeScheduleMatch(
           id: 'detail-1',
+          tournamentName: 'Hyderabad Super Cup',
+          tournamentCode: 'SPT-20481',
           badge: 'Final',
           round: 'Round of 64',
           date: '15 July, 10:00 AM'),
       _RefereeScheduleMatch(
           id: 'detail-2',
+          tournamentName: 'Hyderabad Super Cup',
+          tournamentCode: 'SPT-20481',
           badge: 'Final',
           round: 'Round of 64',
           date: '15 July, 10:00 AM'),
@@ -661,15 +741,47 @@ class _RefereeDetailsScreenState extends State<_RefereeDetailsScreen> {
 class _RefereeScheduleMatch {
   const _RefereeScheduleMatch({
     required this.id,
+    required this.tournamentName,
+    required this.tournamentCode,
     required this.round,
     required this.date,
     this.badge,
+    this.ground = 'Ground A',
+    this.teamA = 'Delhi Warriors',
+    this.teamB = 'Hyd Highlanders',
+    this.tournamentId,
+    this.matchId,
   });
 
   final String id;
+  final String tournamentName;
+  final String tournamentCode;
   final String round;
   final String date;
   final String? badge;
+  final String ground;
+  final String teamA;
+  final String teamB;
+  final int? tournamentId;
+  final int? matchId;
+
+  factory _RefereeScheduleMatch.fromApi(
+    PartnerTournamentMatchResponse match,
+    PartnerTournamentResponse tournament,
+  ) {
+    return _RefereeScheduleMatch(
+      id: match.id.toString(),
+      tournamentName: tournament.name,
+      tournamentCode: tournament.code ?? 'SPT-${tournament.id}',
+      round: match.displayRound,
+      date: _formatApiDate(match.displayTime),
+      ground: match.displayVenue,
+      teamA: match.displayTeamA,
+      teamB: match.displayTeamB,
+      tournamentId: tournament.id,
+      matchId: match.id,
+    );
+  }
 }
 
 class _ManagedReferee {
@@ -692,6 +804,18 @@ class _ManagedReferee {
   final int assignedMatches;
   final String status;
   final String? conflict;
+
+  factory _ManagedReferee.fromPartnerReferee(PartnerRefereeResponse referee) {
+    return _ManagedReferee(
+      name: referee.name,
+      phone: '',
+      level: 1,
+      rating: 0,
+      matches: 0,
+      assignedMatches: 0,
+      status: referee.status ?? 'unknown',
+    );
+  }
 }
 
 class _StatusDot extends StatelessWidget {
@@ -710,4 +834,36 @@ class _StatusDot extends StatelessWidget {
           boxShadow: [BoxShadow(color: color, blurRadius: 7)],
         ),
       );
+}
+
+String _formatApiDate(String value) {
+  if (value.trim().isEmpty) return '';
+  final parsed = DateTime.tryParse(value);
+  if (parsed == null) return value;
+  final hour = parsed.hour == 0
+      ? 12
+      : parsed.hour > 12
+          ? parsed.hour - 12
+          : parsed.hour;
+  final minute = parsed.minute.toString().padLeft(2, '0');
+  final suffix = parsed.hour >= 12 ? 'PM' : 'AM';
+  return '${parsed.day} ${_monthName(parsed.month)}, $hour:$minute $suffix';
+}
+
+String _monthName(int month) {
+  const names = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ];
+  return names[(month - 1).clamp(0, names.length - 1)];
 }

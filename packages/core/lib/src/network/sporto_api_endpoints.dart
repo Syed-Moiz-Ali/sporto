@@ -23,10 +23,14 @@ class SportoApiEndpoints {
       PartnerDocumentsApiEndpoints._();
   static final PartnerApplicationApiEndpoints partnerApplication =
       PartnerApplicationApiEndpoints._();
+  static final PartnerRefereeApiEndpoints partnerReferees =
+      PartnerRefereeApiEndpoints._();
   static final PartnerTournamentApiEndpoints partnerTournaments =
       PartnerTournamentApiEndpoints._();
   static final RefereeApplicationApiEndpoints refereeApplication =
       RefereeApplicationApiEndpoints._();
+  static final RefereeMatchApiEndpoints refereeMatches =
+      RefereeMatchApiEndpoints._();
 }
 
 class RefereeApplicationApiEndpoints {
@@ -45,6 +49,18 @@ class RefereeApplicationApiEndpoints {
   String get status => '/v1/referee/application/status';
 }
 
+class RefereeMatchApiEndpoints {
+  RefereeMatchApiEndpoints._();
+
+  String get matchRequests => '/v1/referee/match-requests';
+  String acceptMatchRequest(Object requestId) =>
+      '/v1/referee/match-requests/$requestId/accept';
+  String rejectMatchRequest(Object requestId) =>
+      '/v1/referee/match-requests/$requestId/reject';
+  String get matches => '/v1/referee/matches';
+  String matchById(Object matchId) => '/v1/referee/matches/$matchId';
+}
+
 class CommonApiEndpoints {
   CommonApiEndpoints._();
 
@@ -58,6 +74,7 @@ class AuthApiEndpoints {
 
   String get sendOtp => '/v1/${role.path}/send-otp';
   String get verifyOtp => '/v1/${role.path}/verify-otp';
+  String get logout => '/v1/${role.path}/logout';
 }
 
 class PartnerProfileApiEndpoints {
@@ -89,6 +106,12 @@ class PartnerApplicationApiEndpoints {
   String get submit => '/v1/partner/submit';
 }
 
+class PartnerRefereeApiEndpoints {
+  PartnerRefereeApiEndpoints._();
+
+  String get referees => '/v1/partner/referees';
+}
+
 class PartnerTournamentApiEndpoints {
   PartnerTournamentApiEndpoints._();
 
@@ -112,4 +135,21 @@ class PartnerTournamentApiEndpoints {
       '/v1/partner/tournaments/$tournamentId/review';
   String submit(Object tournamentId) =>
       '/v1/partner/tournaments/$tournamentId/submit';
+  String matches(Object tournamentId) =>
+      '/v1/partner/tournaments/$tournamentId/matches';
+  String matchById(Object tournamentId, Object matchId) =>
+      '/v1/partner/tournaments/$tournamentId/matches/$matchId';
+  // NOTE: Postman still lists `/tournaments/{id}/matches/referees`, but the
+  // live backend currently routes that through `{matchId}` and returns 500.
+  // Backend-provided working route for eligible/listable referees:
+  // `/v1/partner/referees`.
+  String eligibleReferees(Object tournamentId) => '/v1/partner/referees';
+  String matchReferees(Object tournamentId, Object matchId) =>
+      '/v1/partner/tournaments/$tournamentId/matches/$matchId/referees';
+  String matchRefereeAssignment(
+    Object tournamentId,
+    Object matchId,
+    Object assignmentId,
+  ) =>
+      '/v1/partner/tournaments/$tournamentId/matches/$matchId/referees/$assignmentId';
 }

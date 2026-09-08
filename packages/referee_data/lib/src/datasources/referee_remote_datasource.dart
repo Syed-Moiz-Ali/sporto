@@ -94,6 +94,84 @@ class RefereeRemoteDataSource {
     );
   }
 
+  Future<SportoApiResponse> listMatchRequests({
+    int page = 1,
+    int perPage = 20,
+  }) {
+    return _get(
+      SportoApiEndpoints.refereeMatches.matchRequests,
+      queryParameters: {
+        'page': page,
+        'per_page': perPage,
+      },
+    );
+  }
+
+  Future<List<RefereeMatchRequestResponse>> listMatchRequestsData({
+    int page = 1,
+    int perPage = 20,
+  }) async {
+    final response = await listMatchRequests(page: page, perPage: perPage);
+    return _listOrPaginatedData(response.data)
+        .map(RefereeMatchRequestResponse.fromJson)
+        .toList();
+  }
+
+  Future<SportoApiResponse> acceptMatchRequest(Object requestId) {
+    return _post(
+      SportoApiEndpoints.refereeMatches.acceptMatchRequest(requestId),
+      const {},
+    );
+  }
+
+  Future<SportoApiResponse> rejectMatchRequest(
+    Object requestId, {
+    String? reason,
+  }) {
+    return _post(
+      SportoApiEndpoints.refereeMatches.rejectMatchRequest(requestId),
+      {
+        if (reason != null && reason.trim().isNotEmpty) 'reason': reason.trim(),
+      },
+    );
+  }
+
+  Future<SportoApiResponse> listMyMatches({
+    int page = 1,
+    int perPage = 20,
+  }) {
+    return _get(
+      SportoApiEndpoints.refereeMatches.matches,
+      queryParameters: {
+        'page': page,
+        'per_page': perPage,
+      },
+    );
+  }
+
+  Future<List<RefereeMatchResponse>> listMyMatchesData({
+    int page = 1,
+    int perPage = 20,
+  }) async {
+    final response = await listMyMatches(page: page, perPage: perPage);
+    return _listOrPaginatedData(response.data)
+        .map(RefereeMatchResponse.fromJson)
+        .toList();
+  }
+
+  Future<SportoApiResponse> showMyMatch(Object matchId) {
+    return _get(SportoApiEndpoints.refereeMatches.matchById(matchId));
+  }
+
+  Future<RefereeMatchResponse> showMyMatchData(Object matchId) async {
+    final response = await showMyMatch(matchId);
+    final data = response.data;
+    if (data is! Map) {
+      throw const SportoApiException('Match response data is invalid.');
+    }
+    return RefereeMatchResponse.fromJson(Map<String, dynamic>.from(data));
+  }
+
   RefereeApplicationResponse? _applicationFromData(Object? data) {
     if (data == null) return null;
     if (data is! Map) {
@@ -106,8 +184,13 @@ class RefereeRemoteDataSource {
     );
   }
 
-  Future<SportoApiResponse> _get(String path) async {
-    return SportoApiResponse.fromJson(await _apiClient.getJson(path));
+  Future<SportoApiResponse> _get(
+    String path, {
+    Map<String, dynamic>? queryParameters,
+  }) async {
+    return SportoApiResponse.fromJson(
+      await _apiClient.getJson(path, queryParameters: queryParameters),
+    );
   }
 
   Future<SportoApiResponse> _post(
@@ -130,5 +213,25 @@ class RefereeRemoteDataSource {
 
   Future<SportoApiResponse> _delete(String path) async {
     return SportoApiResponse.fromJson(await _apiClient.deleteJson(path));
+  }
+
+  List<Map<String, dynamic>> _listOrPaginatedData(Object? data) {
+    if (data is List) {
+      return data
+          .whereType<Map>()
+          .map((item) => Map<String, dynamic>.from(item))
+          .toList();
+    }
+    if (data is Map) {
+      final map = Map<String, dynamic>.from(data);
+      final nested = map['data'] ?? map['items'] ?? map['matches'];
+      if (nested is List) {
+        return nested
+            .whereType<Map>()
+            .map((item) => Map<String, dynamic>.from(item))
+            .toList();
+      }
+    }
+    return const [];
   }
 }

@@ -569,3 +569,336 @@ class PartnerFinancialSummary with _$PartnerFinancialSummary {
   factory PartnerFinancialSummary.fromJson(Map<String, dynamic> json) =>
       _$PartnerFinancialSummaryFromJson(json);
 }
+
+class PartnerRefereeResponse {
+  const PartnerRefereeResponse({
+    required this.id,
+    required this.name,
+    this.profilePhotoUrl,
+    this.status,
+  });
+
+  final int id;
+  final String name;
+  final String? profilePhotoUrl;
+  final String? status;
+
+  bool get isActive => status?.toLowerCase() == 'active';
+
+  factory PartnerRefereeResponse.fromJson(Map<String, dynamic> json) {
+    return PartnerRefereeResponse(
+      id: _intFromJson(json['id']),
+      name: _stringFromJson(json['name']),
+      profilePhotoUrl: _nullableStringFromJson(json['profile_photo_url']),
+      status: _nullableStringFromJson(json['status']),
+    );
+  }
+}
+
+class PartnerTournamentMatchResponse {
+  const PartnerTournamentMatchResponse({
+    required this.id,
+    this.tournamentId,
+    this.roundName,
+    this.matchNumber,
+    this.matchDate,
+    this.startTime,
+    this.venueName,
+    this.location,
+    this.status,
+    this.teamAName,
+    this.teamBName,
+    this.raw = const {},
+  });
+
+  final int id;
+  final int? tournamentId;
+  final String? roundName;
+  final String? matchNumber;
+  final String? matchDate;
+  final String? startTime;
+  final String? venueName;
+  final String? location;
+  final int? status;
+  final String? teamAName;
+  final String? teamBName;
+  final Map<String, dynamic> raw;
+
+  String get displayRound =>
+      _firstText([roundName, raw['round'], raw['stage'], raw['name']]) ??
+      'Match';
+
+  String get displayTime =>
+      _firstText([matchDate, startTime, raw['scheduled_at'], raw['date']]) ??
+      '';
+
+  String get displayVenue =>
+      _firstText([venueName, location, raw['venue'], raw['ground']]) ??
+      'Venue not set';
+
+  String get displayTeamA =>
+      _firstText([teamAName, raw['team_a'], raw['home_team']]) ?? 'Team A';
+
+  String get displayTeamB =>
+      _firstText([teamBName, raw['team_b'], raw['away_team']]) ?? 'Team B';
+
+  factory PartnerTournamentMatchResponse.fromJson(Map<String, dynamic> json) {
+    final teamA = _readNestedName(json, const [
+      'team_a',
+      'team1',
+      'home_team',
+      'first_team',
+    ]);
+    final teamB = _readNestedName(json, const [
+      'team_b',
+      'team2',
+      'away_team',
+      'second_team',
+    ]);
+    final venue = json['venue'];
+    final venueMap = venue is Map ? Map<String, dynamic>.from(venue) : null;
+    return PartnerTournamentMatchResponse(
+      id: _intFromJson(json['id'] ?? json['match_id']),
+      tournamentId: _nullableIntFromJson(json['tournament_id']),
+      roundName: _nullableStringFromJson(
+        json['round_name'] ?? json['round'] ?? json['stage'],
+      ),
+      matchNumber: _nullableStringFromJson(
+        json['match_number'] ?? json['code'] ?? json['fixture_code'],
+      ),
+      matchDate: _nullableStringFromJson(
+        json['match_date'] ?? json['date'] ?? json['scheduled_date'],
+      ),
+      startTime: _nullableStringFromJson(
+        json['start_time'] ?? json['time'] ?? json['scheduled_at'],
+      ),
+      venueName: _nullableStringFromJson(
+        json['venue_name'] ?? venueMap?['venue_name'] ?? venueMap?['name'],
+      ),
+      location: _nullableStringFromJson(
+        json['location'] ?? venueMap?['location'] ?? venueMap?['address'],
+      ),
+      status: _nullableIntFromJson(json['status']),
+      teamAName: teamA,
+      teamBName: teamB,
+      raw: Map<String, dynamic>.from(json),
+    );
+  }
+}
+
+class PartnerEligibleRefereeResponse {
+  const PartnerEligibleRefereeResponse({
+    required this.id,
+    this.name,
+    this.mobileNumber,
+    this.sportName,
+    this.level,
+    this.rating,
+    this.matches,
+    this.assignedMatches,
+    this.available,
+    this.status,
+    this.conflict,
+    this.raw = const {},
+  });
+
+  final int id;
+  final String? name;
+  final String? mobileNumber;
+  final String? sportName;
+  final int? level;
+  final double? rating;
+  final int? matches;
+  final int? assignedMatches;
+  final bool? available;
+  final String? status;
+  final String? conflict;
+  final Map<String, dynamic> raw;
+
+  String get displayName => name?.trim().isNotEmpty == true ? name! : 'Referee';
+  String get displayStatus =>
+      status ?? (available == false ? 'Busy' : 'Available Now');
+  String get displaySport => sportName ?? 'Cricket';
+
+  factory PartnerEligibleRefereeResponse.fromJson(Map<String, dynamic> json) {
+    final user = json['user'];
+    final profile = json['profile'];
+    final userMap = user is Map ? Map<String, dynamic>.from(user) : null;
+    final profileMap =
+        profile is Map ? Map<String, dynamic>.from(profile) : null;
+    final sport = json['sport'];
+    final sportMap = sport is Map ? Map<String, dynamic>.from(sport) : null;
+    final fullName = _firstText([
+      json['name'],
+      json['full_name'],
+      json['referee_name'],
+      userMap?['name'],
+      userMap?['full_name'],
+      profileMap?['full_name'],
+      [
+        profileMap?['first_name'],
+        profileMap?['last_name'],
+      ].whereType<Object>().join(' '),
+    ]);
+    return PartnerEligibleRefereeResponse(
+      id: _intFromJson(json['id'] ?? json['referee_id'] ?? userMap?['id']),
+      name: fullName,
+      mobileNumber: _nullableStringFromJson(
+        json['mobile_number'] ?? userMap?['mobile_number'],
+      ),
+      sportName: _nullableStringFromJson(
+        json['sport_name'] ?? sportMap?['name'],
+      ),
+      level: _nullableIntFromJson(
+        json['level'] ?? json['referee_level'] ?? json['experience_level'],
+      ),
+      rating: _nullableDoubleFromJson(json['rating'] ?? json['avg_rating']),
+      matches: _nullableIntFromJson(
+        json['matches'] ?? json['match_count'] ?? json['total_matches'],
+      ),
+      assignedMatches: _nullableIntFromJson(
+        json['assigned_matches'] ?? json['assigned_match_count'],
+      ),
+      available:
+          _nullableBoolFromJson(json['available'] ?? json['is_available']),
+      status: _nullableStringFromJson(json['status_label'] ?? json['status']),
+      conflict: _nullableStringFromJson(
+        json['conflict'] ?? json['conflict_reason'],
+      ),
+      raw: Map<String, dynamic>.from(json),
+    );
+  }
+}
+
+class PartnerMatchRefereeAssignmentResponse {
+  const PartnerMatchRefereeAssignmentResponse({
+    required this.id,
+    this.tournamentId,
+    this.matchId,
+    this.refereeId,
+    this.refereeName,
+    this.role,
+    this.notes,
+    this.status,
+    this.raw = const {},
+  });
+
+  final int id;
+  final int? tournamentId;
+  final int? matchId;
+  final int? refereeId;
+  final String? refereeName;
+  final String? role;
+  final String? notes;
+  final int? status;
+  final Map<String, dynamic> raw;
+
+  String get displayName => refereeName ?? 'Assigned referee';
+  String get displayRole => role ?? 'Main Referee';
+
+  factory PartnerMatchRefereeAssignmentResponse.fromJson(
+    Map<String, dynamic> json,
+  ) {
+    final referee = json['referee'];
+    final refereeMap =
+        referee is Map ? Map<String, dynamic>.from(referee) : null;
+    return PartnerMatchRefereeAssignmentResponse(
+      id: _intFromJson(json['id'] ?? json['assignment_id']),
+      tournamentId: _nullableIntFromJson(json['tournament_id']),
+      matchId: _nullableIntFromJson(json['match_id']),
+      refereeId: _nullableIntFromJson(json['referee_id'] ?? refereeMap?['id']),
+      refereeName: _firstText([
+        json['referee_name'],
+        json['name'],
+        refereeMap?['name'],
+        refereeMap?['full_name'],
+      ]),
+      role: _nullableStringFromJson(json['role']),
+      notes: _nullableStringFromJson(json['notes']),
+      status: _nullableIntFromJson(json['status']),
+      raw: Map<String, dynamic>.from(json),
+    );
+  }
+}
+
+class PartnerMatchRefereeAssignmentRequest {
+  const PartnerMatchRefereeAssignmentRequest({
+    required this.refereeId,
+    this.role = 'Main Referee',
+    this.notes,
+  });
+
+  final int refereeId;
+  final String role;
+  final String? notes;
+
+  Map<String, dynamic> toJson() => {
+        'referee_id': refereeId,
+        'role': role,
+        if (notes != null && notes!.trim().isNotEmpty) 'notes': notes,
+      };
+}
+
+class PartnerMatchRefereeAssignmentUpdateRequest {
+  const PartnerMatchRefereeAssignmentUpdateRequest({
+    this.role,
+    this.status,
+    this.notes,
+  });
+
+  final String? role;
+  final int? status;
+  final String? notes;
+
+  Map<String, dynamic> toJson() => {
+        if (role != null) 'role': role,
+        if (status != null) 'status': status,
+        if (notes != null) 'notes': notes,
+      };
+}
+
+double? _nullableDoubleFromJson(Object? value) {
+  if (value == null) return null;
+  if (value is num) return value.toDouble();
+  return double.tryParse(value.toString());
+}
+
+bool? _nullableBoolFromJson(Object? value) {
+  if (value == null) return null;
+  if (value is bool) return value;
+  if (value is num) return value != 0;
+  final text = value.toString().toLowerCase();
+  if (text == 'true' || text == 'yes' || text == 'available') return true;
+  if (text == 'false' || text == 'no' || text == 'busy') return false;
+  return null;
+}
+
+String? _firstText(Iterable<Object?> values) {
+  for (final value in values) {
+    if (value == null) continue;
+    if (value is Map) {
+      final nested =
+          _firstText([value['name'], value['full_name'], value['title']]);
+      if (nested != null) return nested;
+      continue;
+    }
+    final text = value.toString().trim();
+    if (text.isNotEmpty && text != 'null') return text;
+  }
+  return null;
+}
+
+String? _readNestedName(Map<String, dynamic> json, List<String> keys) {
+  for (final key in keys) {
+    final value = json[key];
+    if (value is Map) {
+      final name =
+          _firstText([value['name'], value['full_name'], value['title']]);
+      if (name != null) return name;
+    } else {
+      final text = _firstText([value]);
+      if (text != null) return text;
+    }
+  }
+  return null;
+}

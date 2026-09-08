@@ -136,6 +136,17 @@ class AuthRepositoryImpl implements IAuthRepository {
 
   @override
   Future<void> logout() async {
+    final user = await getCurrentUser();
+    if (user != null) {
+      try {
+        await apiClient.postJson(
+          SportoApiEndpoints.auth(_roleFromPath(user.role)).logout,
+          body: const {},
+        );
+      } catch (_) {
+        // Local logout must still succeed even if token invalidation fails.
+      }
+    }
     final box = HiveService.pendingSyncBox;
     await box.delete(_userKey);
     await sessionStore.clear();
