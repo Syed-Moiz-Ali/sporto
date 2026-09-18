@@ -1,0 +1,425 @@
+{
+    "info": {
+        "name": "Sporto Referee Toss API",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Toss",
+            "item": [
+                {
+                    "name": "Get Toss",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/v1/referee/matches/{{match_id}}/toss",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "referee",
+                                "matches",
+                                "{{match_id}}",
+                                "toss"
+                            ]
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "Get Toss \u2014 Cricket T20 (Success)",
+                            "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{base_url}}/api/v1/referee/matches/1/toss",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "referee",
+                                        "matches",
+                                        "1",
+                                        "toss"
+                                    ]
+                                }
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n    \"success\": true,\n    \"message\": \"Match toss configuration and state retrieved successfully.\",\n    \"data\": {\n        \"sport\": {\n            \"id\": 1,\n            \"name\": \"Cricket\"\n        },\n        \"format\": {\n            \"id\": 2,\n            \"name\": \"T20\"\n        },\n        \"toss\": {\n            \"enabled\": true,\n            \"method\": \"coin\",\n            \"state\": \"TOSS_PENDING\",\n            \"decision_options\": [\n                {\n                    \"value\": \"BAT_FIRST\",\n                    \"label\": \"Bat First\"\n                },\n                {\n                    \"value\": \"BOWL_FIRST\",\n                    \"label\": \"Bowl First\"\n                }\n            ],\n            \"starting_roles\": [\n                {\n                    \"key\": \"STRIKER\",\n                    \"label\": \"Striker\",\n                    \"is_opponent\": false\n                },\n                {\n                    \"key\": \"NON_STRIKER\",\n                    \"label\": \"Non-Striker\",\n                    \"is_opponent\": false\n                },\n                {\n                    \"key\": \"OPENING_BOWLER\",\n                    \"label\": \"Opening Bowler\",\n                    \"is_opponent\": true\n                }\n            ],\n            \"runtime\": {\n                \"calling_team_id\": null,\n                \"called_side\": null,\n                \"landed_side\": null,\n                \"winner_team_id\": null,\n                \"decision\": null,\n                \"starting_setup\": null,\n                \"completed_at\": null\n            },\n            \"result_methods\": [\n                {\n                    \"value\": \"COIN\",\n                    \"label\": \"Flip Coin\"\n                },\n                {\n                    \"value\": \"MANUAL\",\n                    \"label\": \"Enter Result\"\n                }\n            ]\n        }\n    }\n}"
+                        },
+                        {
+                            "name": "Unauthorized Referee",
+                            "status": "Not Found",
+                            "code": 404,
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n    \"success\": false,\n    \"message\": \"Match not found or you do not have permission to view it.\"\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "Update Toss",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"action\": \"CALL\",\n    \"called_side\": \"HEADS\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/v1/referee/matches/{{match_id}}/toss",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "referee",
+                                "matches",
+                                "{{match_id}}",
+                                "toss"
+                            ]
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "1. CALL",
+                            "originalRequest": {
+                                "method": "PUT",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"action\": \"CALL\",\n    \"called_side\": \"HEADS\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{base_url}}/api/v1/referee/matches/1/toss",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "referee",
+                                        "matches",
+                                        "1",
+                                        "toss"
+                                    ]
+                                }
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n    \"success\": true,\n    \"message\": \"Match toss state updated successfully.\",\n    \"data\": {\n        \"sport\": {\n            \"id\": 1,\n            \"name\": \"Cricket\"\n        },\n        \"format\": {\n            \"id\": 2,\n            \"name\": \"T20\"\n        },\n        \"toss\": {\n            \"enabled\": true,\n            \"method\": \"coin\",\n            \"state\": \"TOSS_CALLING\",\n            \"decision_options\": [],\n            \"starting_roles\": [],\n            \"runtime\": {\n                \"called_side\": \"HEADS\",\n                \"landed_side\": null,\n                \"winner_team_id\": null,\n                \"decision\": null,\n                \"starting_setup\": null,\n                \"completed_at\": null\n            }\n        }\n    }\n}"
+                        },
+                        {
+                            "name": "2. FLIP",
+                            "originalRequest": {
+                                "method": "PUT",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"action\": \"FLIP\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{base_url}}/api/v1/referee/matches/1/toss",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "referee",
+                                        "matches",
+                                        "1",
+                                        "toss"
+                                    ]
+                                }
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n    \"success\": true,\n    \"message\": \"Match toss state updated successfully.\",\n    \"data\": {\n        \"toss\": {\n            \"state\": \"DECISION_PENDING\",\n            \"runtime\": {\n                \"called_side\": \"HEADS\",\n                \"landed_side\": \"HEADS\",\n                \"winner_team_id\": 10\n            }\n        }\n    }\n}"
+                        },
+                        {
+                            "name": "3. ENTER_RESULT",
+                            "originalRequest": {
+                                "method": "PUT",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"action\": \"ENTER_RESULT\",\n    \"winner_team_id\": 20\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{base_url}}/api/v1/referee/matches/1/toss",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "referee",
+                                        "matches",
+                                        "1",
+                                        "toss"
+                                    ]
+                                }
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n    \"success\": true,\n    \"message\": \"Match toss state updated successfully.\"\n}"
+                        },
+                        {
+                            "name": "4. SET_DECISION",
+                            "originalRequest": {
+                                "method": "PUT",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"action\": \"SET_DECISION\",\n    \"decision\": \"BAT_FIRST\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{base_url}}/api/v1/referee/matches/1/toss",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "referee",
+                                        "matches",
+                                        "1",
+                                        "toss"
+                                    ]
+                                }
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n    \"success\": true,\n    \"message\": \"Match toss state updated successfully.\"\n}"
+                        },
+                        {
+                            "name": "5. SET_STARTING_PLAYERS",
+                            "originalRequest": {
+                                "method": "PUT",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"action\": \"SET_STARTING_PLAYERS\",\n    \"striker_user_id\": 101,\n    \"non_striker_user_id\": 102,\n    \"opening_bowler_user_id\": 201\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{base_url}}/api/v1/referee/matches/1/toss",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "referee",
+                                        "matches",
+                                        "1",
+                                        "toss"
+                                    ]
+                                }
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n    \"success\": true,\n    \"message\": \"Match toss state updated successfully.\"\n}"
+                        },
+                        {
+                            "name": "Validation Error",
+                            "status": "Unprocessable Entity",
+                            "code": 422,
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n    \"success\": false,\n    \"message\": \"Action is required.\"\n}"
+                        },
+                        {
+                            "name": "Invalid State Conflict",
+                            "status": "Conflict",
+                            "code": 409,
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n    \"success\": false,\n    \"message\": \"Invalid state transition for setting decision.\"\n}"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

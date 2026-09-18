@@ -605,3 +605,451 @@ String _statusFromValue(int? value) {
     _ => 'Scheduled',
   };
 }
+
+class RefereeTossDecisionLabels {
+  const RefereeTossDecisionLabels._();
+
+  static const Map<String, String> values = {
+    'BAT_FIRST': 'Bat First',
+    'BOWL_FIRST': 'Bowl First',
+    'KICK_OFF': 'Kick Off',
+    'CHOOSE_SIDE': 'Choose Side',
+    'SERVE': 'Serve',
+    'RECEIVE': 'Receive',
+    'COURT_SIDE': 'Choose Court Side',
+    'INITIAL_POSSESSION': 'Initial Possession',
+    'RAID_FIRST': 'Raid First',
+    'CHASE_FIRST': 'Chase First',
+    'DEFEND_FIRST': 'Defend First',
+    'STARTING_POSSESSION': 'Starting Possession',
+    'OFFENSE_FIRST': 'Offense First',
+    'DEFENSE_FIRST': 'Defense First',
+    'FIRST_BREAK': 'First Break',
+    'FIRST_MOVE': 'First Move',
+    'KICK_FIRST': 'Kick First',
+  };
+
+  static String labelFor(String value) => values[value] ?? value;
+}
+
+class RefereeTossOptionResponse {
+  const RefereeTossOptionResponse({
+    required this.value,
+    required this.label,
+  });
+
+  final String value;
+  final String label;
+
+  factory RefereeTossOptionResponse.fromJson(Map<String, dynamic> json) {
+    final value = _stringValue(json['value']) ?? '';
+    return RefereeTossOptionResponse(
+      value: value,
+      label: _stringValue(json['label']) ??
+          RefereeTossDecisionLabels.labelFor(value),
+    );
+  }
+}
+
+class RefereeTossStartingRoleResponse {
+  const RefereeTossStartingRoleResponse({
+    required this.key,
+    required this.label,
+    required this.isOpponent,
+  });
+
+  final String key;
+  final String label;
+  final bool isOpponent;
+
+  factory RefereeTossStartingRoleResponse.fromJson(
+    Map<String, dynamic> json,
+  ) {
+    return RefereeTossStartingRoleResponse(
+      key: _stringValue(json['key']) ?? '',
+      label: _stringValue(json['label']) ?? '',
+      isOpponent:
+          json['is_opponent'] == true || json['is_opponent']?.toString() == '1',
+    );
+  }
+}
+
+class RefereeTossRuntimeResponse {
+  const RefereeTossRuntimeResponse({
+    this.callingTeamId,
+    this.calledSide,
+    this.landedSide,
+    this.winnerTeamId,
+    this.decision,
+    this.startingSetup,
+    this.completedAt,
+  });
+
+  final int? callingTeamId;
+  final String? calledSide;
+  final String? landedSide;
+  final int? winnerTeamId;
+  final String? decision;
+  final Map<String, dynamic>? startingSetup;
+  final String? completedAt;
+
+  String? get decisionLabel =>
+      decision == null ? null : RefereeTossDecisionLabels.labelFor(decision!);
+
+  factory RefereeTossRuntimeResponse.fromJson(Map<String, dynamic> json) {
+    final startingSetup = json['starting_setup'];
+    return RefereeTossRuntimeResponse(
+      callingTeamId: _nullableInt(json['calling_team_id']),
+      calledSide: _stringValue(json['called_side']),
+      landedSide: _stringValue(json['landed_side']),
+      winnerTeamId: _nullableInt(json['winner_team_id']),
+      decision: _stringValue(json['decision']),
+      startingSetup: startingSetup is Map
+          ? Map<String, dynamic>.from(startingSetup)
+          : null,
+      completedAt: _stringValue(json['completed_at']),
+    );
+  }
+}
+
+class RefereeTossStateResponse {
+  const RefereeTossStateResponse({
+    required this.enabled,
+    this.method,
+    this.state,
+    this.decisionOptions = const [],
+    this.startingRoles = const [],
+    required this.runtime,
+    this.resultMethods = const [],
+  });
+
+  final bool enabled;
+  final String? method;
+  final String? state;
+  final List<RefereeTossOptionResponse> decisionOptions;
+  final List<RefereeTossStartingRoleResponse> startingRoles;
+  final RefereeTossRuntimeResponse runtime;
+  final List<RefereeTossOptionResponse> resultMethods;
+
+  bool get isPending => state == null || state == 'TOSS_PENDING';
+  bool get isCalling => state == 'TOSS_CALLING';
+  bool get isDecisionPending => state == 'DECISION_PENDING';
+  bool get isCompleted => runtime.completedAt != null || state == 'COMPLETED';
+
+  factory RefereeTossStateResponse.fromJson(Map<String, dynamic> json) {
+    return RefereeTossStateResponse(
+      enabled: json['enabled'] != false,
+      method: _stringValue(json['method']),
+      state: _stringValue(json['state']),
+      decisionOptions: _listValue(json['decision_options'])
+          .whereType<Map>()
+          .map((item) => RefereeTossOptionResponse.fromJson(
+                Map<String, dynamic>.from(item),
+              ))
+          .toList(),
+      startingRoles: _listValue(json['starting_roles'])
+          .whereType<Map>()
+          .map((item) => RefereeTossStartingRoleResponse.fromJson(
+                Map<String, dynamic>.from(item),
+              ))
+          .toList(),
+      runtime: RefereeTossRuntimeResponse.fromJson(
+        _mapValue(json['runtime']),
+      ),
+      resultMethods: _listValue(json['result_methods'])
+          .whereType<Map>()
+          .map((item) => RefereeTossOptionResponse.fromJson(
+                Map<String, dynamic>.from(item),
+              ))
+          .toList(),
+    );
+  }
+}
+
+class RefereeTossResponse {
+  const RefereeTossResponse({
+    this.sportId,
+    this.sportName,
+    this.formatId,
+    this.formatName,
+    required this.toss,
+    this.raw = const {},
+  });
+
+  final int? sportId;
+  final String? sportName;
+  final int? formatId;
+  final String? formatName;
+  final RefereeTossStateResponse toss;
+  final Map<String, dynamic> raw;
+
+  factory RefereeTossResponse.fromJson(Map<String, dynamic> json) {
+    final sport = _mapValue(json['sport']);
+    final format = _mapValue(json['format']);
+    return RefereeTossResponse(
+      sportId: _nullableInt(sport['id']),
+      sportName: _stringValue(sport['name']),
+      formatId: _nullableInt(format['id']),
+      formatName: _stringValue(format['name']),
+      toss: RefereeTossStateResponse.fromJson(_mapValue(json['toss'])),
+      raw: Map<String, dynamic>.from(json),
+    );
+  }
+}
+
+class RefereeTossUpdateRequest {
+  const RefereeTossUpdateRequest._(this.body);
+
+  final Map<String, dynamic> body;
+
+  factory RefereeTossUpdateRequest.call({required String calledSide}) {
+    return RefereeTossUpdateRequest._({
+      'action': 'CALL',
+      'called_side': calledSide,
+    });
+  }
+
+  factory RefereeTossUpdateRequest.flip() {
+    return const RefereeTossUpdateRequest._({'action': 'FLIP'});
+  }
+
+  factory RefereeTossUpdateRequest.enterResult({required int winnerTeamId}) {
+    return RefereeTossUpdateRequest._({
+      'action': 'ENTER_RESULT',
+      'winner_team_id': winnerTeamId,
+    });
+  }
+
+  factory RefereeTossUpdateRequest.setDecision({required String decision}) {
+    return RefereeTossUpdateRequest._({
+      'action': 'SET_DECISION',
+      'decision': decision,
+    });
+  }
+
+  factory RefereeTossUpdateRequest.setStartingPlayers({
+    required int strikerUserId,
+    required int nonStrikerUserId,
+    required int openingBowlerUserId,
+  }) {
+    return RefereeTossUpdateRequest._({
+      'action': 'SET_STARTING_PLAYERS',
+      'striker_user_id': strikerUserId,
+      'non_striker_user_id': nonStrikerUserId,
+      'opening_bowler_user_id': openingBowlerUserId,
+    });
+  }
+
+  Map<String, dynamic> toJson() => body;
+}
+
+class RefereeScorePlayerResponse {
+  const RefereeScorePlayerResponse({
+    required this.userId,
+    required this.name,
+  });
+
+  final int userId;
+  final String name;
+
+  factory RefereeScorePlayerResponse.fromJson(Map<String, dynamic> json) {
+    return RefereeScorePlayerResponse(
+      userId: _intValue(json['user_id'] ?? json['id']),
+      name: _stringValue(json['name'] ?? json['player_name']) ?? 'Player',
+    );
+  }
+}
+
+class RefereeScoreTeamResponse {
+  const RefereeScoreTeamResponse({
+    required this.id,
+    required this.name,
+    this.logoUrl,
+    this.players = const [],
+  });
+
+  final int id;
+  final String name;
+  final String? logoUrl;
+  final List<RefereeScorePlayerResponse> players;
+
+  factory RefereeScoreTeamResponse.fromJson(Map<String, dynamic> json) {
+    return RefereeScoreTeamResponse(
+      id: _intValue(json['id'] ?? json['team_id']),
+      name: _stringValue(
+            json['team_name'] ?? json['name'] ?? json['display_name'],
+          ) ??
+          'Team',
+      logoUrl: _stringValue(json['team_logo_url'] ?? json['logo_url']),
+      players: _listValue(json['players'])
+          .whereType<Map>()
+          .map((item) => RefereeScorePlayerResponse.fromJson(
+                Map<String, dynamic>.from(item),
+              ))
+          .toList(),
+    );
+  }
+}
+
+class RefereeScoreEventResponse {
+  const RefereeScoreEventResponse({
+    required this.code,
+    required this.label,
+    this.type,
+    this.value,
+    this.requiresPlayer = false,
+  });
+
+  final String code;
+  final String label;
+  final String? type;
+  final int? value;
+  final bool requiresPlayer;
+
+  factory RefereeScoreEventResponse.fromJson(Map<String, dynamic> json) {
+    final code = _stringValue(json['code'] ?? json['event_code']) ?? '';
+    return RefereeScoreEventResponse(
+      code: code,
+      label: _stringValue(json['label'] ?? json['name']) ?? code,
+      type: _stringValue(json['type']),
+      value: _nullableInt(json['value']),
+      requiresPlayer: json['requires_player'] == true ||
+          json['requires_player']?.toString() == '1',
+    );
+  }
+}
+
+class RefereeScoreStateResponse {
+  const RefereeScoreStateResponse({
+    required this.enabled,
+    this.method,
+    this.periodType,
+    this.periodsCount,
+    this.currentPeriod,
+    this.availableEvents = const [],
+    this.runtime = const {},
+    this.score = const {},
+  });
+
+  final bool enabled;
+  final String? method;
+  final String? periodType;
+  final int? periodsCount;
+  final int? currentPeriod;
+  final List<RefereeScoreEventResponse> availableEvents;
+  final Map<String, dynamic> runtime;
+  final Map<String, dynamic> score;
+
+  factory RefereeScoreStateResponse.fromJson(Map<String, dynamic> json) {
+    return RefereeScoreStateResponse(
+      enabled: json['enabled'] == true || json['enabled']?.toString() == '1',
+      method: _stringValue(json['method']),
+      periodType: _stringValue(json['period_type']),
+      periodsCount: _nullableInt(json['periods_count']),
+      currentPeriod: _nullableInt(json['current_period']),
+      availableEvents: _listValue(json['available_events'])
+          .whereType<Map>()
+          .map((item) => RefereeScoreEventResponse.fromJson(
+                Map<String, dynamic>.from(item),
+              ))
+          .toList(),
+      runtime: _mapValue(json['runtime']),
+      score: _mapValue(json['score']),
+    );
+  }
+}
+
+class RefereeScoreResponse {
+  const RefereeScoreResponse({
+    required this.matchId,
+    this.matchStatus,
+    this.matchNumber,
+    this.winnerTeamId,
+    this.isWalkover = false,
+    this.sportId,
+    this.sportName,
+    this.formatId,
+    this.formatName,
+    this.teams = const [],
+    required this.scoring,
+    this.raw = const {},
+  });
+
+  final int matchId;
+  final int? matchStatus;
+  final int? matchNumber;
+  final int? winnerTeamId;
+  final bool isWalkover;
+  final int? sportId;
+  final String? sportName;
+  final int? formatId;
+  final String? formatName;
+  final List<RefereeScoreTeamResponse> teams;
+  final RefereeScoreStateResponse scoring;
+  final Map<String, dynamic> raw;
+
+  factory RefereeScoreResponse.fromJson(Map<String, dynamic> json) {
+    final match = _mapValue(json['match']);
+    final sport = _mapValue(json['sport']);
+    final format = _mapValue(json['format']);
+    return RefereeScoreResponse(
+      matchId: _intValue(match['id'] ?? json['match_id'] ?? json['id']),
+      matchStatus: _nullableInt(match['status'] ?? json['status']),
+      matchNumber: _nullableInt(match['match_number']),
+      winnerTeamId: _nullableInt(match['winner_team_id']),
+      isWalkover: match['is_walkover'] == true ||
+          match['is_walkover']?.toString() == '1',
+      sportId: _nullableInt(sport['id']),
+      sportName: _stringValue(sport['name']),
+      formatId: _nullableInt(format['id']),
+      formatName: _stringValue(format['name']),
+      teams: _listValue(json['teams'])
+          .whereType<Map>()
+          .map((item) => RefereeScoreTeamResponse.fromJson(
+                Map<String, dynamic>.from(item),
+              ))
+          .toList(),
+      scoring: RefereeScoreStateResponse.fromJson(_mapValue(json['scoring'])),
+      raw: Map<String, dynamic>.from(json),
+    );
+  }
+}
+
+class RefereeScoreUpdateRequest {
+  const RefereeScoreUpdateRequest._(this.body);
+
+  final Map<String, dynamic> body;
+
+  factory RefereeScoreUpdateRequest.start() {
+    return const RefereeScoreUpdateRequest._({'action': 'START'});
+  }
+
+  factory RefereeScoreUpdateRequest.undoLast() {
+    return const RefereeScoreUpdateRequest._({'action': 'UNDO_LAST'});
+  }
+
+  factory RefereeScoreUpdateRequest.endPeriod() {
+    return const RefereeScoreUpdateRequest._({'action': 'END_PERIOD'});
+  }
+
+  factory RefereeScoreUpdateRequest.complete() {
+    return const RefereeScoreUpdateRequest._({'action': 'COMPLETE'});
+  }
+
+  factory RefereeScoreUpdateRequest.addEvent({
+    required String eventCode,
+    required int teamId,
+    int? playerId,
+    int? value,
+  }) {
+    return RefereeScoreUpdateRequest._({
+      'action': 'ADD_EVENT',
+      'event_code': eventCode,
+      'team_id': teamId,
+      if (playerId != null) 'player_id': playerId,
+      if (value != null) 'value': value,
+    });
+  }
+
+  Map<String, dynamic> toJson() => body;
+}

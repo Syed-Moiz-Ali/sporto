@@ -7,21 +7,21 @@ import 'package:ui_kit/ui_kit.dart';
 import '../../../../app/router/app_router.dart';
 import '../../../partner_api/application/partner_api_bloc.dart';
 
-class MatchHistoryScreen extends StatefulWidget {
+class TournamentsScreen extends StatefulWidget {
   final bool embedded;
 
-  const MatchHistoryScreen({
+  const TournamentsScreen({
     super.key,
     this.embedded = false,
   });
 
   @override
-  State<MatchHistoryScreen> createState() => _MatchHistoryScreenState();
+  State<TournamentsScreen> createState() => _TournamentsScreenState();
 }
 
-class _MatchHistoryScreenState extends State<MatchHistoryScreen> {
+class _TournamentsScreenState extends State<TournamentsScreen> {
   int _selectedTab = 0;
-  static const _tabs = ['All', 'Upcoming', 'Live', 'Completed'];
+  static const _tabs = ['All', 'Live', 'Upcoming', 'Completed'];
 
   @override
   void initState() {
@@ -41,10 +41,10 @@ class _MatchHistoryScreenState extends State<MatchHistoryScreen> {
 
   int? _getApiStatusForTab(int index) {
     switch (index) {
-      case 1:
-        return 1; // Draft / Upcoming (status 1)
       case 2:
-        return 6; // Live (status 6)
+        return 1; // Upcoming / draft
+      case 1:
+        return 6; // Live
       case 3:
         return 7; // Completed (status 7)
       default:
@@ -55,10 +55,10 @@ class _MatchHistoryScreenState extends State<MatchHistoryScreen> {
   List<PartnerTournamentResponse> _filterTournaments(
       List<PartnerTournamentResponse> all) {
     switch (_selectedTab) {
-      case 1: // Upcoming / Drafts (status 1 to 5)
-        return all.where((t) => t.status >= 1 && t.status <= 5).toList();
-      case 2: // Live (status 6)
+      case 1: // Live
         return all.where((t) => t.status == 6).toList();
+      case 2: // Upcoming / Drafts
+        return all.where((t) => t.status >= 1 && t.status <= 5).toList();
       case 3: // Completed (status 7)
         return all.where((t) => t.status == 7).toList();
       default: // All
@@ -92,15 +92,34 @@ class _MatchHistoryScreenState extends State<MatchHistoryScreen> {
                   final all = loaded?.tournaments ?? [];
                   final filtered = _filterTournaments(all);
                   final count = loaded != null ? filtered.length : 0;
-                  return Column(
+                  return Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("Partner Tournaments",
-                          style: theme.textTheme.titleLarge
-                              ?.copyWith(fontSize: 18 * scale)),
-                      Text('$count Tournaments',
-                          style: theme.textTheme.bodyMedium
-                              ?.copyWith(color: context.sporto.info)),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text("Today's Matches",
+                                style: theme.textTheme.titleLarge
+                                    ?.copyWith(fontSize: 18 * scale)),
+                            Text('$count Matches Assigned',
+                                style: theme.textTheme.bodyMedium
+                                    ?.copyWith(color: context.sporto.info)),
+                          ],
+                        ),
+                      ),
+                      SportoPillButton(
+                        label: '+ Create',
+                        color: cs.primary,
+                        gradient: context.sporto.primaryGradient,
+                        filled: true,
+                        foregroundColor: Colors.black,
+                        height: 32 * scale,
+                        padding: EdgeInsets.symmetric(horizontal: 12 * scale),
+                        fontSize: 12 * scale,
+                        onTap: () =>
+                            context.push(AppRouter.createTournamentRoute),
+                      ),
                     ],
                   );
                 },
@@ -150,7 +169,8 @@ class _MatchHistoryScreenState extends State<MatchHistoryScreen> {
             Expanded(
               child: BlocBuilder<PartnerApiBloc, PartnerApiState>(
                 builder: (context, state) {
-                  final isLoading = state is PartnerApiLoadingState || state is PartnerApiInitialState;
+                  final isLoading = state is PartnerApiLoadingState ||
+                      state is PartnerApiInitialState;
                   final loaded = state is PartnerApiLoadedState ? state : null;
                   final all = loaded?.tournaments ?? [];
                   final filtered = _filterTournaments(all);
@@ -162,7 +182,8 @@ class _MatchHistoryScreenState extends State<MatchHistoryScreen> {
                       context.sportoResponsive.horizontalPadding,
                       context.sportoResponsive.bottomContentPadding(context),
                     ),
-                    children: _matchCards(scale, filtered, isLoading: isLoading),
+                    children:
+                        _matchCards(scale, filtered, isLoading: isLoading),
                   );
                 },
               ),
@@ -246,8 +267,18 @@ class _MatchHistoryScreenState extends State<MatchHistoryScreen> {
     try {
       final dt = DateTime.parse(raw);
       const months = [
-        'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec'
       ];
       return '${dt.day} ${months[dt.month - 1]} ${dt.year}';
     } catch (_) {

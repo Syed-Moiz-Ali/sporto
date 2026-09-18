@@ -59,6 +59,8 @@ class RefereeMatchApiEndpoints {
       '/v1/referee/match-requests/$requestId/reject';
   String get matches => '/v1/referee/matches';
   String matchById(Object matchId) => '/v1/referee/matches/$matchId';
+  String toss(Object matchId) => '/v1/referee/matches/$matchId/toss';
+  String score(Object matchId) => '/v1/referee/matches/$matchId/score';
 }
 
 class CommonApiEndpoints {

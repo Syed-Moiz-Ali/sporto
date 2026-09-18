@@ -172,6 +172,74 @@ class RefereeRemoteDataSource {
     return RefereeMatchResponse.fromJson(Map<String, dynamic>.from(data));
   }
 
+  Future<SportoApiResponse> getMatchToss(Object matchId) {
+    return _get(SportoApiEndpoints.refereeMatches.toss(matchId));
+  }
+
+  Future<RefereeTossResponse> getMatchTossData(Object matchId) async {
+    final response = await getMatchToss(matchId);
+    final data = response.data;
+    if (data is! Map) {
+      throw const SportoApiException('Toss response data is invalid.');
+    }
+    return RefereeTossResponse.fromJson(Map<String, dynamic>.from(data));
+  }
+
+  Future<SportoApiResponse> updateMatchToss(
+    Object matchId,
+    RefereeTossUpdateRequest request,
+  ) {
+    return _put(
+      SportoApiEndpoints.refereeMatches.toss(matchId),
+      request.toJson(),
+    );
+  }
+
+  Future<RefereeTossResponse?> updateMatchTossData(
+    Object matchId,
+    RefereeTossUpdateRequest request,
+  ) async {
+    final response = await updateMatchToss(matchId, request);
+    if (response.data is! Map) return null;
+    return RefereeTossResponse.fromJson(
+      Map<String, dynamic>.from(response.data as Map),
+    );
+  }
+
+  Future<SportoApiResponse> getMatchScore(Object matchId) {
+    return _get(SportoApiEndpoints.refereeMatches.score(matchId));
+  }
+
+  Future<RefereeScoreResponse> getMatchScoreData(Object matchId) async {
+    final response = await getMatchScore(matchId);
+    final data = response.data;
+    if (data is! Map) {
+      throw const SportoApiException('Score response data is invalid.');
+    }
+    return RefereeScoreResponse.fromJson(Map<String, dynamic>.from(data));
+  }
+
+  Future<SportoApiResponse> updateMatchScore(
+    Object matchId,
+    RefereeScoreUpdateRequest request,
+  ) {
+    return _put(
+      SportoApiEndpoints.refereeMatches.score(matchId),
+      request.toJson(),
+    );
+  }
+
+  Future<RefereeScoreResponse?> updateMatchScoreData(
+    Object matchId,
+    RefereeScoreUpdateRequest request,
+  ) async {
+    final response = await updateMatchScore(matchId, request);
+    if (response.data is! Map) return null;
+    return RefereeScoreResponse.fromJson(
+      Map<String, dynamic>.from(response.data as Map),
+    );
+  }
+
   RefereeApplicationResponse? _applicationFromData(Object? data) {
     if (data == null) return null;
     if (data is! Map) {

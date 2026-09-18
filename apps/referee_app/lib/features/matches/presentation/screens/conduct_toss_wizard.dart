@@ -608,6 +608,10 @@ class _ConductTossView extends StatelessWidget {
             // Next we should pass these to LiveScoringBloc.
             // ================================================
 
+            context.read<ConductTossBloc>().add(
+                  ConfirmStartingPlayers(),
+                );
+
             context.push(
               AppRouter.liveScoringRoute,
             );

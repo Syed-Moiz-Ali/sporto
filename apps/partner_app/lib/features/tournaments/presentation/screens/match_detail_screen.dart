@@ -854,44 +854,7 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
   // TAB 3: REFEREES
   // ============================================================
   Widget _buildRefereesTab(ColorScheme cs, TextTheme tt) {
-    if (_apiMatches != null) {
-      return _buildApiRefereesTab(cs);
-    }
-
-    final assigned = _refereeAssignmentTab == 0;
-    final matches = _refereeMatches
-        .where(
-          (match) => _assignedReferees.containsKey(match.id) == assigned,
-        )
-        .toList();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            _refereeTab('Assigned', 0, cs),
-            const SizedBox(width: 34),
-            _refereeTab('Pending', 1, cs),
-          ],
-        ),
-        const SizedBox(height: 21),
-        Row(
-          children: [
-            Text('Sort by |', style: TextStyle(color: cs.onSurfaceVariant)),
-            const SizedBox(width: 8),
-            Text('Venues', style: TextStyle(color: cs.secondary)),
-            const SizedBox(width: 20),
-            Text('Date', style: TextStyle(color: cs.onSurfaceVariant)),
-          ],
-        ),
-        const SizedBox(height: 24),
-        for (var i = 0; i < matches.length; i++) ...[
-          _refereeMatchCard(matches[i], assigned: assigned, cs: cs),
-          if (i != matches.length - 1) const SizedBox(height: 10),
-        ],
-      ],
-    );
+    return _buildApiRefereesTab(cs);
   }
 
   Widget _buildApiRefereesTab(ColorScheme cs) {

@@ -91,19 +91,20 @@ class TeamDetailsScreen extends StatelessWidget {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     return SportoCard(
+        width: double.infinity,
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Text(title,
-          style: theme.textTheme.titleMedium
-              ?.copyWith(color: context.sporto.info)),
-      const SizedBox(height: 12),
-      for (final person in people) ...[
-        Text(person.$1, style: theme.textTheme.bodyLarge),
-        const SizedBox(height: 4),
-        Text('• Active  • ${person.$2}  • ${person.$3}',
-            style: theme.textTheme.bodySmall
-                ?.copyWith(color: cs.onSurfaceVariant)),
-        if (person != people.last) const SizedBox(height: 12),
-      ],
-    ]));
+          Text(title,
+              style: theme.textTheme.titleMedium
+                  ?.copyWith(color: context.sporto.info)),
+          const SizedBox(height: 12),
+          for (final person in people) ...[
+            Text(person.$1, style: theme.textTheme.bodyLarge),
+            const SizedBox(height: 4),
+            Text('• Active  • ${person.$2}  • ${person.$3}',
+                style: theme.textTheme.bodySmall
+                    ?.copyWith(color: cs.onSurfaceVariant)),
+            if (person != people.last) const SizedBox(height: 12),
+          ],
+        ]));
   }
 }

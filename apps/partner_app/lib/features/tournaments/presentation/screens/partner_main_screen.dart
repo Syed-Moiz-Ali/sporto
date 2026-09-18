@@ -7,7 +7,7 @@ import '../../../../app/router/app_router.dart';
 import '../../../partner_api/application/partner_api_bloc.dart';
 import '../../application/tournament_bloc.dart';
 import '../widgets/live_tournament_card.dart';
-import 'match_history_screen.dart';
+import 'tournaments_screen.dart';
 import 'profile_screen.dart';
 import 'referee_management_screen.dart';
 import 'schedule_screen.dart';
@@ -45,7 +45,7 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
       },
       tabs: [
         _buildHomeTab(context),
-        const MatchHistoryScreen(embedded: true),
+        const TournamentsScreen(embedded: true),
         const ScheduleScreen(embedded: true),
         const RefereeManagementScreen(),
         const PartnerProfileScreen(),

@@ -26,7 +26,7 @@ class _RefereeManagementScreenState extends State<RefereeManagementScreen> {
   String? _error;
   int _filter = 0;
 
-  static const _matches = <_RefereeScheduleMatch>[
+  /* API is the source of truth. static const _matches = <_RefereeScheduleMatch>[
     _RefereeScheduleMatch(
       id: 'round-64',
       tournamentName: 'Hyderabad Super Cup',
@@ -42,9 +42,9 @@ class _RefereeManagementScreenState extends State<RefereeManagementScreen> {
       round: 'Round of 64',
       date: '15 July, 10:00 AM',
     ),
-  ];
+  ]; */
 
-  static const _referees = <_ManagedReferee>[
+  /* static const _referees = <_ManagedReferee>[
     _ManagedReferee(
       name: 'Amit Verma',
       phone: '+91 98765 43210',
@@ -73,7 +73,7 @@ class _RefereeManagementScreenState extends State<RefereeManagementScreen> {
       status: 'Busy',
       conflict: 'Scheduling conflict - same-day matches too close together',
     ),
-  ];
+  ]; */
 
   @override
   void initState() {
@@ -160,8 +160,8 @@ class _RefereeManagementScreenState extends State<RefereeManagementScreen> {
     final cs = Theme.of(context).colorScheme;
     final scale = context.sportoScale;
     final query = _searchController.text.trim().toLowerCase();
-    final sourceReferees = _apiReferees ?? _referees;
-    final sourceMatches = _apiMatches ?? _matches;
+    final sourceReferees = _apiReferees ?? const <_ManagedReferee>[];
+    final sourceMatches = _apiMatches ?? const <_RefereeScheduleMatch>[];
     final visibleReferees = sourceReferees
         .where((referee) =>
             query.isEmpty || referee.name.toLowerCase().contains(query))
@@ -258,19 +258,18 @@ class _RefereeManagementScreenState extends State<RefereeManagementScreen> {
                       ],
                     ),
                     SizedBox(height: 37 * scale),
-                    Row(
-                      children: [
-                        Text('Needs Your Attention',
+                    Row(children: [
+                      Expanded(
+                        child: Text('Needs Your Attention',
                             style: Theme.of(context).textTheme.bodyMedium),
-                        const SizedBox(width: 8),
-                        SportoBadge(
-                          text: '${pending.length} Pending',
-                          color: cs.primary,
-                          outlined: true,
-                          fontSize: 11,
-                        ),
-                      ],
-                    ),
+                      ),
+                      SportoBadge(
+                        text: '${pending.length} Pending',
+                        color: cs.primary,
+                        outlined: true,
+                        fontSize: 11,
+                      ),
+                    ]),
                     SizedBox(height: 12 * scale),
                     if (pending.isEmpty)
                       SportoCard(
@@ -293,8 +292,15 @@ class _RefereeManagementScreenState extends State<RefereeManagementScreen> {
                           SizedBox(height: 10 * scale),
                       ],
                     SizedBox(height: 26 * scale),
-                    Text('Referee Roster',
-                        style: Theme.of(context).textTheme.bodyMedium),
+                    Row(children: [
+                      Expanded(
+                        child: Text('Referee Roster',
+                            style: Theme.of(context).textTheme.bodyMedium),
+                      ),
+                      Text('View all',
+                          style: TextStyle(color: context.sporto.info)),
+                      const Icon(Icons.chevron_right, size: 18),
+                    ]),
                     SizedBox(height: 12 * scale),
                     if (visibleReferees.isEmpty)
                       SportoCard(
@@ -319,22 +325,48 @@ class _RefereeManagementScreenState extends State<RefereeManagementScreen> {
 
   Widget _filterChip(String label, int index) {
     final cs = Theme.of(context).colorScheme;
-    return SportoFilterChip(
-      type: SportoFilterChipType.filter,
-      label: label,
-      icon: Icons.sports_rounded,
-      active: _filter == index,
-      activeColor: cs.tertiary,
-      inactiveFill: true,
-      height: 42 * context.sportoScale,
+    final active = _filter == index;
+    final icons = [
+      Icons.gavel_rounded,
+      Icons.edit_calendar_rounded,
+      Icons.location_on_outlined
+    ];
+    return GestureDetector(
       onTap: () => setState(() => _filter = index),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 160),
+        height: 36 * context.sportoScale,
+        decoration: BoxDecoration(
+          color: active ? const Color(0xFF20C783) : const Color(0xFF191D23),
+          borderRadius: BorderRadius.circular(120),
+          border: Border.all(
+            color: active ? const Color(0xFF20C783) : const Color(0xFF33302B),
+          ),
+        ),
+        child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+          Icon(icons[index],
+              size: 14, color: active ? Colors.black : cs.onSurfaceVariant),
+          const SizedBox(width: 7),
+          Text(label,
+              style: TextStyle(
+                color: active ? Colors.black : cs.onSurface,
+                fontSize: 12,
+                fontWeight: active ? FontWeight.w600 : FontWeight.w400,
+              )),
+        ]),
+      ),
     );
   }
 
   Widget _pendingMatchCard(_RefereeScheduleMatch match) {
     final cs = Theme.of(context).colorScheme;
-    return SportoCard(
+    return Container(
       padding: const EdgeInsets.fromLTRB(14, 13, 14, 12),
+      decoration: BoxDecoration(
+        color: const Color(0xFF14181E),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFF252B33)),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -399,16 +431,22 @@ class _RefereeManagementScreenState extends State<RefereeManagementScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              SportoPillButton(
-                label: 'Assign Referee',
-                color: cs.primary,
-                gradient: context.sporto.primaryGradient,
-                foregroundColor: Colors.black,
-                filled: true,
-                height: 28,
-                fontSize: 11,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+              GestureDetector(
                 onTap: () => _assign(match),
+                child: Container(
+                  height: 30,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFB817),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Text('Assign Referee',
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600)),
+                ),
               ),
             ],
           ),

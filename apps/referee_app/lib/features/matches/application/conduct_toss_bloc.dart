@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:referee_data/referee_data.dart';
 import 'package:shared_domain/shared_domain.dart';
 
 // ============================================================
@@ -452,12 +453,15 @@ class OpeningBowlerSelected extends ConductTossAction {
       ];
 }
 
+class ConfirmStartingPlayers extends ConductTossAction {}
+
 // ============================================================
 // BLOC
 // ============================================================
 
 class ConductTossBloc extends Bloc<ConductTossAction, ConductTossState> {
   final ConductTossUseCase conductTossUseCase;
+  final RefereeRemoteDataSource? refereeRemoteDataSource;
 
   /// Actual repository/domain match id.
   final String matchId;
@@ -468,6 +472,7 @@ class ConductTossBloc extends Bloc<ConductTossAction, ConductTossState> {
 
   ConductTossBloc({
     required this.conductTossUseCase,
+    this.refereeRemoteDataSource,
     required this.matchId,
     required TossTeam team1,
     required TossTeam team2,
@@ -509,6 +514,10 @@ class ConductTossBloc extends Bloc<ConductTossAction, ConductTossState> {
     on<OpeningBowlerSelected>(
       _onOpeningBowlerSelected,
     );
+
+    on<ConfirmStartingPlayers>(
+      _onConfirmStartingPlayers,
+    );
   }
 
   // ==========================================================
@@ -536,18 +545,47 @@ class ConductTossBloc extends Bloc<ConductTossAction, ConductTossState> {
       ),
     );
 
-    final result = forcedCoinSide ??
+    TossCoinSide? remoteLandedSide;
+    String? remoteWinnerTeamId;
+
+    try {
+      await refereeRemoteDataSource?.updateMatchTossData(
+        matchId,
+        RefereeTossUpdateRequest.call(
+          calledSide: _coinSideToApi(state.callerChoice),
+        ),
+      );
+      final flip = await refereeRemoteDataSource?.updateMatchTossData(
+        matchId,
+        RefereeTossUpdateRequest.flip(),
+      );
+      remoteLandedSide = _coinSideFromApi(flip?.toss.runtime.landedSide);
+      final winnerTeamId = flip?.toss.runtime.winnerTeamId;
+      if (winnerTeamId != null) {
+        remoteWinnerTeamId = winnerTeamId.toString();
+      }
+    } catch (_) {
+      // Backend toss is still returning 404 for some QA matches. Keep the
+      // existing local toss flow usable until backend test data is available.
+    }
+
+    final result = remoteLandedSide ??
+        forcedCoinSide ??
         (_random.nextBool() ? TossCoinSide.heads : TossCoinSide.tails);
 
     final callerWon = result == state.callerChoice;
 
-    final winner = callerWon
-        ? state.teamById(
-            state.callerTeamId,
-          )
-        : state.otherTeam(
-            state.callerTeamId,
-          );
+    final winner = remoteWinnerTeamId == state.team1.id
+        ? state.team1
+        : remoteWinnerTeamId == state.team2.id
+            ? state.team2
+            : (callerWon
+                ? state.teamById(
+                    state.callerTeamId,
+                  )
+                : state.otherTeam(
+                    state.callerTeamId,
+                  ));
 
     emit(
       state.copyWith(
@@ -643,6 +681,17 @@ class ConductTossBloc extends Bloc<ConductTossAction, ConductTossState> {
         matchId,
         tossResult,
       );
+
+      try {
+        await refereeRemoteDataSource?.updateMatchTossData(
+          matchId,
+          RefereeTossUpdateRequest.setDecision(
+            decision: _decisionToApi(choice),
+          ),
+        );
+      } catch (_) {
+        // Local repository save above remains the fallback source.
+      }
 
       // ======================================================
       // Set sensible default selections.
@@ -761,5 +810,50 @@ class ConductTossBloc extends Bloc<ConductTossAction, ConductTossState> {
         clearError: true,
       ),
     );
+  }
+
+  Future<void> _onConfirmStartingPlayers(
+    ConfirmStartingPlayers event,
+    Emitter<ConductTossState> emit,
+  ) async {
+    final strikerId = int.tryParse(state.strikerId ?? '');
+    final nonStrikerId = int.tryParse(state.nonStrikerId ?? '');
+    final openingBowlerId = int.tryParse(state.openingBowlerId ?? '');
+
+    if (strikerId == null ||
+        nonStrikerId == null ||
+        openingBowlerId == null ||
+        !state.canStartScoring) {
+      return;
+    }
+
+    try {
+      await refereeRemoteDataSource?.updateMatchTossData(
+        matchId,
+        RefereeTossUpdateRequest.setStartingPlayers(
+          strikerUserId: strikerId,
+          nonStrikerUserId: nonStrikerId,
+          openingBowlerUserId: openingBowlerId,
+        ),
+      );
+    } catch (_) {
+      // Do not block navigation while backend toss data is not available.
+    }
+  }
+
+  static String _coinSideToApi(TossCoinSide side) {
+    return side == TossCoinSide.heads ? 'HEADS' : 'TAILS';
+  }
+
+  static TossCoinSide? _coinSideFromApi(String? value) {
+    return switch (value?.toUpperCase()) {
+      'HEADS' => TossCoinSide.heads,
+      'TAILS' => TossCoinSide.tails,
+      _ => null,
+    };
+  }
+
+  static String _decisionToApi(TossBatBowlChoice choice) {
+    return choice == TossBatBowlChoice.batFirst ? 'BAT_FIRST' : 'BOWL_FIRST';
   }
 }

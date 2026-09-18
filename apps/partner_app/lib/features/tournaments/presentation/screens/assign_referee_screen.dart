@@ -34,7 +34,7 @@ class _AssignRefereeScreenState extends State<AssignRefereeScreen> {
   bool _isLoading = false;
   String? _error;
 
-  static const _referees = <_AvailableReferee>[
+  /* Legacy placeholder removed: referee cards are API-backed. static const _referees = <_AvailableReferee>[
     _AvailableReferee(
         name: 'Amit Verma',
         level: 3,
@@ -57,7 +57,7 @@ class _AssignRefereeScreenState extends State<AssignRefereeScreen> {
         matches: 45,
         assigned: 4,
         conflict: 'Scheduling conflict - same-day matches too close together'),
-  ];
+  ]; */
 
   @override
   void initState() {
@@ -108,10 +108,6 @@ class _AssignRefereeScreenState extends State<AssignRefereeScreen> {
     final apiReferees = _apiReferees
         ?.where((referee) =>
             query.isEmpty || referee.displayName.toLowerCase().contains(query))
-        .toList();
-    final referees = _referees
-        .where((referee) =>
-            query.isEmpty || referee.name.toLowerCase().contains(query))
         .toList();
 
     return MediaQuery.withNoTextScaling(
@@ -185,13 +181,8 @@ class _AssignRefereeScreenState extends State<AssignRefereeScreen> {
                       if (i != apiReferees.length - 1)
                         const SizedBox(height: 10),
                     ]
-                else if (referees.isEmpty)
-                  const SportoCard(child: Text('No referees found.'))
                 else
-                  for (var i = 0; i < referees.length; i++) ...[
-                    _refereeCard(context, referees[i]),
-                    if (i != referees.length - 1) const SizedBox(height: 10),
-                  ],
+                  const SportoCard(child: Text('No eligible referees found.')),
               ],
             ),
           ),
@@ -352,6 +343,7 @@ class _AssignRefereeScreenState extends State<AssignRefereeScreen> {
     }
   }
 
+  /* Legacy local referee renderer removed; cards are API-backed.
   Widget _refereeCard(BuildContext context, _AvailableReferee referee) {
     final cs = Theme.of(context).colorScheme;
     final available = referee.status == 'Available Now';
@@ -418,6 +410,7 @@ class _AssignRefereeScreenState extends State<AssignRefereeScreen> {
       ]),
     );
   }
+  */
 }
 
 String? _formatApiDate(String? value) {
@@ -452,7 +445,7 @@ String _monthName(int month) {
   return names[(month - 1).clamp(0, names.length - 1)];
 }
 
-class _AvailableReferee {
+/* class _AvailableReferee {
   const _AvailableReferee(
       {required this.name,
       required this.level,
@@ -468,7 +461,7 @@ class _AvailableReferee {
   final int matches;
   final int assigned;
   final String? conflict;
-}
+} */
 
 class _StatusDot extends StatelessWidget {
   const _StatusDot({required this.color, this.size = 8});

@@ -125,6 +125,7 @@ class DependencyInjector {
   }) {
     return ConductTossBloc(
       conductTossUseCase: _conductTossUseCase,
+      refereeRemoteDataSource: refereeRemoteDataSource,
       matchId: matchId,
       team1: team1,
       team2: team2,

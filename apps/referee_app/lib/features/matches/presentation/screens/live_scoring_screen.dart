@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:referee_data/referee_data.dart';
 import 'package:ui_kit/ui_kit.dart';
 
 import '../../../../app/router/app_router.dart';
+import '../../../../core/di/dependency_injector.dart';
 import '../../application/live_scoring/live_scoring_bloc.dart';
 
 // ============================================================
 // LIVE SCORING SCREEN
 // ============================================================
 
-class LiveScoringScreen extends StatelessWidget {
+class LiveScoringScreen extends StatefulWidget {
   final String matchId;
   final String matchCode;
 
@@ -22,6 +24,32 @@ class LiveScoringScreen extends StatelessWidget {
     this.matchCode = 'SPT-20481',
     this.totalOvers = 5,
   });
+
+  @override
+  State<LiveScoringScreen> createState() => _LiveScoringScreenState();
+}
+
+class _LiveScoringScreenState extends State<LiveScoringScreen> {
+  late final Future<RefereeScoreResponse?> _scoreFuture;
+
+  RefereeRemoteDataSource get _remote =>
+      DependencyInjector.instance.refereeRemoteDataSource;
+
+  @override
+  void initState() {
+    super.initState();
+    _scoreFuture = _loadScoreConfig();
+  }
+
+  Future<RefereeScoreResponse?> _loadScoreConfig() async {
+    final numericMatchId = int.tryParse(widget.matchId);
+    if (numericMatchId == null) return null;
+    try {
+      return await _remote.getMatchScoreData(numericMatchId);
+    } catch (_) {
+      return null;
+    }
+  }
 
   // ==========================================================
   // DEMO TEAM A
@@ -91,24 +119,54 @@ class LiveScoringScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) {
-        return LiveScoringBloc(
-          teamA: _hydHighlanders,
-          teamB: _delhiWarriors,
+    return FutureBuilder<RefereeScoreResponse?>(
+      future: _scoreFuture,
+      builder: (context, snapshot) {
+        final scoreConfig = snapshot.data;
+        final teams = _teamsFromScore(scoreConfig);
+        final firstBattingTeamId = teams.$1.id;
 
-          // Hyd bats first.
-          // Later pass this from ConductTossBloc.
-          firstBattingTeamId: _hydHighlanders.id,
-
-          regulationOvers: totalOvers,
-          maxWickets: 10,
+        return BlocProvider(
+          create: (_) {
+            return LiveScoringBloc(
+              teamA: teams.$1,
+              teamB: teams.$2,
+              firstBattingTeamId: firstBattingTeamId,
+              regulationOvers: widget.totalOvers,
+              maxWickets: 10,
+            );
+          },
+          child: _LiveScoringView(
+            matchId: widget.matchId,
+            matchCode: widget.matchCode,
+            scoreConfig: scoreConfig,
+          ),
         );
       },
-      child: _LiveScoringView(
-        matchId: matchId,
-        matchCode: matchCode,
-      ),
+    );
+  }
+
+  (ScoringTeam, ScoringTeam) _teamsFromScore(RefereeScoreResponse? score) {
+    if (score == null || score.teams.length < 2) {
+      return (_hydHighlanders, _delhiWarriors);
+    }
+    return (
+      _teamFromScore(score.teams[0]),
+      _teamFromScore(score.teams[1]),
+    );
+  }
+
+  ScoringTeam _teamFromScore(RefereeScoreTeamResponse team) {
+    final players = team.players
+        .map((player) => ScoringBowler(
+              id: player.userId.toString(),
+              name: player.name,
+            ))
+        .toList();
+    return ScoringTeam(
+      id: team.id.toString(),
+      name: team.name,
+      bowlers: players,
     );
   }
 }
@@ -120,11 +178,120 @@ class LiveScoringScreen extends StatelessWidget {
 class _LiveScoringView extends StatelessWidget {
   final String matchId;
   final String matchCode;
+  final RefereeScoreResponse? scoreConfig;
 
   const _LiveScoringView({
     required this.matchId,
     required this.matchCode,
+    required this.scoreConfig,
   });
+
+  RefereeRemoteDataSource get _remote =>
+      DependencyInjector.instance.refereeRemoteDataSource;
+
+  bool get _scoreApiEnabled => scoreConfig?.scoring.enabled ?? true;
+
+  int? get _numericMatchId => int.tryParse(matchId);
+
+  Future<bool> _syncScore(
+    BuildContext context,
+    RefereeScoreUpdateRequest request,
+  ) async {
+    final numericMatchId = _numericMatchId;
+    if (scoreConfig == null || numericMatchId == null) return true;
+    if (!_scoreApiEnabled) {
+      if (!_scoreApiEnabled) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Scoring API is disabled for this match.'),
+          ),
+        );
+      }
+      return false;
+    }
+    try {
+      await _remote.updateMatchScoreData(numericMatchId, request);
+      return true;
+    } catch (error) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Score sync failed: $error')),
+        );
+      }
+      return false;
+    }
+  }
+
+  int? _teamId(String teamId) => int.tryParse(teamId);
+
+  int? _selectedPlayerId(LiveScoringState state) {
+    return int.tryParse(state.selectedBowlerId ?? '');
+  }
+
+  Future<void> _startOver(BuildContext context) async {
+    final synced = await _syncScore(
+      context,
+      RefereeScoreUpdateRequest.start(),
+    );
+    if (!context.mounted || !synced) return;
+    context.read<LiveScoringBloc>().add(StartSelectedOverEvent());
+  }
+
+  Future<void> _addScoreEvent(
+    BuildContext context,
+    LiveScoringState state, {
+    required String eventCode,
+    int? value,
+  }) async {
+    final teamId = _teamId(state.currentBattingTeam.id);
+    if (teamId == null) return;
+    final synced = await _syncScore(
+      context,
+      RefereeScoreUpdateRequest.addEvent(
+        eventCode: eventCode,
+        teamId: teamId,
+        playerId: _selectedPlayerId(state),
+        value: value,
+      ),
+    );
+    if (!context.mounted || !synced) return;
+    final bloc = context.read<LiveScoringBloc>();
+    switch (eventCode) {
+      case 'RUN':
+        bloc.add(RecordRunsEvent(value ?? 0));
+        break;
+      case 'WICKET':
+        bloc.add(RecordWicketEvent());
+        break;
+      case 'WIDE':
+        bloc.add(RecordWideEvent());
+        break;
+      case 'NO_BALL':
+        bloc.add(RecordNoBallEvent());
+        break;
+    }
+  }
+
+  Future<void> _endPeriod(
+    BuildContext context,
+    LiveScoringEvent event,
+  ) async {
+    final synced = await _syncScore(
+      context,
+      RefereeScoreUpdateRequest.endPeriod(),
+    );
+    if (!context.mounted || !synced) return;
+    context.read<LiveScoringBloc>().add(event);
+  }
+
+  Future<void> _complete(BuildContext context) async {
+    final synced = await _syncScore(
+      context,
+      RefereeScoreUpdateRequest.complete(),
+    );
+    if (!context.mounted || !synced) return;
+    context.read<LiveScoringBloc>().add(SubmitFinalResultEvent());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -175,6 +342,14 @@ class _LiveScoringView extends StatelessWidget {
                     SizedBox(
                       height: 23 * context.sportoScale,
                     ),
+                    if (scoreConfig != null && !_scoreApiEnabled) ...[
+                      const SportoLiveNoticeBar(
+                        text: 'Scoring is disabled for this match by backend.',
+                      ),
+                      SizedBox(
+                        height: 16 * context.sportoScale,
+                      ),
+                    ],
                   ],
 
                   // ===========================================
@@ -411,9 +586,7 @@ class _LiveScoringView extends StatelessWidget {
           buttonText: 'Start Over ${state.displayOver}',
           buttonEnabled: state.canStartOver,
           onContinue: () {
-            context.read<LiveScoringBloc>().add(
-                  StartSelectedOverEvent(),
-                );
+            _startOver(context);
           },
         ),
       ],
@@ -486,26 +659,33 @@ class _LiveScoringView extends StatelessWidget {
           onRun: (
             runs,
           ) {
-            context.read<LiveScoringBloc>().add(
-                  RecordRunsEvent(
-                    runs,
-                  ),
-                );
+            _addScoreEvent(
+              context,
+              state,
+              eventCode: 'RUN',
+              value: runs,
+            );
           },
           onWicket: () {
-            context.read<LiveScoringBloc>().add(
-                  RecordWicketEvent(),
-                );
+            _addScoreEvent(
+              context,
+              state,
+              eventCode: 'WICKET',
+            );
           },
           onWide: () {
-            context.read<LiveScoringBloc>().add(
-                  RecordWideEvent(),
-                );
+            _addScoreEvent(
+              context,
+              state,
+              eventCode: 'WIDE',
+            );
           },
           onNoBall: () {
-            context.read<LiveScoringBloc>().add(
-                  RecordNoBallEvent(),
-                );
+            _addScoreEvent(
+              context,
+              state,
+              eventCode: 'NO_BALL',
+            );
           },
         ),
       ],
@@ -578,9 +758,7 @@ class _LiveScoringView extends StatelessWidget {
         SportoLivePrimaryButton(
           text: buttonText,
           onTap: () {
-            context.read<LiveScoringBloc>().add(
-                  ContinueAfterOverEvent(),
-                );
+            _endPeriod(context, ContinueAfterOverEvent());
           },
         ),
       ],
@@ -647,9 +825,7 @@ class _LiveScoringView extends StatelessWidget {
         SportoLivePrimaryButton(
           text: 'Start 2nd Innings',
           onTap: () {
-            context.read<LiveScoringBloc>().add(
-                  StartSecondInningsEvent(),
-                );
+            _endPeriod(context, StartSecondInningsEvent());
           },
         ),
       ],
@@ -687,9 +863,7 @@ class _LiveScoringView extends StatelessWidget {
       ),
       winner: state.regulationWinner ?? '',
       onSubmit: () {
-        context.read<LiveScoringBloc>().add(
-              SubmitFinalResultEvent(),
-            );
+        _complete(context);
       },
     );
   }
@@ -765,9 +939,7 @@ class _LiveScoringView extends StatelessWidget {
               ? 'Start Super Over'
               : 'Start Another Super Over',
           onTap: () {
-            context.read<LiveScoringBloc>().add(
-                  StartSuperOverEvent(),
-                );
+            _endPeriod(context, StartSuperOverEvent());
           },
         ),
       ],
@@ -862,9 +1034,7 @@ class _LiveScoringView extends StatelessWidget {
           buttonText: 'Start Super Over',
           buttonEnabled: state.canStartOver,
           onContinue: () {
-            context.read<LiveScoringBloc>().add(
-                  StartSelectedOverEvent(),
-                );
+            _startOver(context);
           },
         ),
       ],
@@ -962,9 +1132,7 @@ class _LiveScoringView extends StatelessWidget {
         SportoLivePrimaryButton(
           text: 'Start Super Over 2nd Innings',
           onTap: () {
-            context.read<LiveScoringBloc>().add(
-                  StartSecondSuperOverInningsEvent(),
-                );
+            _endPeriod(context, StartSecondSuperOverInningsEvent());
           },
         ),
       ],
@@ -1032,9 +1200,7 @@ class _LiveScoringView extends StatelessWidget {
       winner: state.superOverWinner ?? '',
 
       onSubmit: () {
-        context.read<LiveScoringBloc>().add(
-              SubmitFinalResultEvent(),
-            );
+        _complete(context);
       },
     );
   }
