@@ -2,7 +2,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/auth/presentation/views/auth_flow_view.dart';
 import '../../features/tournaments/presentation/screens/create_tournament_wizard_screen.dart';
-import '../../features/tournaments/presentation/screens/match_detail_screen.dart';
+import '../../features/tournaments/presentation/screens/tournament_detail_screen.dart';
 
 /// Central route table for the partner app.
 abstract final class AppRouter {

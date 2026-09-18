@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:dio/dio.dart';
 
 import 'sporto_api_endpoints.dart';
@@ -229,6 +231,6 @@ class _SportoDioLogInterceptor extends Interceptor {
   }
 
   static void _log(String message) {
-    print('[SportoApi] $message');
+    log('[SportoApi] $message');
   }
 }

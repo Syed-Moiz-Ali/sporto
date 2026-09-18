@@ -576,80 +576,375 @@ class PartnerRefereeResponse {
     required this.name,
     this.profilePhotoUrl,
     this.status,
+    this.mobileNumber,
+    this.sportName,
+    this.level,
+    this.rating,
+    this.matches,
+    this.assignedMatches,
+    this.conflict,
+    this.available,
+    this.raw = const {},
   });
 
   final int id;
   final String name;
   final String? profilePhotoUrl;
   final String? status;
+  final String? mobileNumber;
+  final String? sportName;
+  final int? level;
+  final double? rating;
+  final int? matches;
+  final int? assignedMatches;
+  final String? conflict;
+  final bool? available;
+  final Map<String, dynamic> raw;
 
-  bool get isActive => status?.toLowerCase() == 'active';
+  bool get isActive => status?.toLowerCase() == 'active' || available == true;
+  String get displayStatus => status ?? (isActive ? 'Available Now' : 'Busy');
+  String get displaySport => sportName ?? 'Cricket';
 
   factory PartnerRefereeResponse.fromJson(Map<String, dynamic> json) {
+    final user = json['user'];
+    final profile = json['profile'];
+    final userMap = user is Map ? Map<String, dynamic>.from(user) : null;
+    final profileMap =
+        profile is Map ? Map<String, dynamic>.from(profile) : null;
+    final sport = json['sport'];
+    final sportMap = sport is Map ? Map<String, dynamic>.from(sport) : null;
+    final fullName = _firstText([
+      json['name'],
+      json['full_name'],
+      json['referee_name'],
+      userMap?['name'],
+      userMap?['full_name'],
+      profileMap?['full_name'],
+      [
+        profileMap?['first_name'],
+        profileMap?['last_name'],
+      ].whereType<Object>().join(' '),
+    ]);
+
     return PartnerRefereeResponse(
-      id: _intFromJson(json['id']),
-      name: _stringFromJson(json['name']),
-      profilePhotoUrl: _nullableStringFromJson(json['profile_photo_url']),
-      status: _nullableStringFromJson(json['status']),
+      id: _intFromJson(json['id'] ?? json['referee_id'] ?? userMap?['id']),
+      name: fullName ?? 'Referee',
+      profilePhotoUrl: _nullableStringFromJson(
+        json['profile_photo_url'] ??
+            json['avatar'] ??
+            profileMap?['photo_url'] ??
+            userMap?['avatar'],
+      ),
+      status: _nullableStringFromJson(json['status_label'] ?? json['status']),
+      mobileNumber: _nullableStringFromJson(
+        json['mobile_number'] ??
+            json['phone'] ??
+            userMap?['mobile_number'] ??
+            userMap?['phone'],
+      ),
+      sportName: _nullableStringFromJson(
+        json['sport_name'] ?? sportMap?['name'],
+      ),
+      level: _nullableIntFromJson(
+        json['level'] ?? json['referee_level'] ?? json['experience_level'],
+      ),
+      rating: _nullableDoubleFromJson(json['rating'] ?? json['avg_rating']),
+      matches: _nullableIntFromJson(
+        json['matches'] ?? json['match_count'] ?? json['total_matches'],
+      ),
+      assignedMatches: _nullableIntFromJson(
+        json['assigned_matches'] ?? json['assigned_match_count'],
+      ),
+      conflict: _nullableStringFromJson(
+        json['conflict'] ?? json['conflict_reason'],
+      ),
+      available:
+          _nullableBoolFromJson(json['available'] ?? json['is_available']),
+      raw: Map<String, dynamic>.from(json),
     );
   }
+}
+
+class PartnerMatchNamedEntity {
+  const PartnerMatchNamedEntity({
+    required this.id,
+    required this.name,
+    this.code,
+  });
+
+  final int id;
+  final String name;
+  final String? code;
+
+  factory PartnerMatchNamedEntity.fromJson(Map<String, dynamic> json) {
+    return PartnerMatchNamedEntity(
+      id: _intFromJson(json['id']),
+      name: _nullableStringFromJson(json['name']) ?? '',
+      code: _nullableStringFromJson(json['code']),
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'name': name,
+        'code': code,
+      };
+}
+
+class PartnerMatchTeam {
+  const PartnerMatchTeam({
+    required this.id,
+    required this.name,
+    this.logoUrl,
+  });
+
+  final int id;
+  final String name;
+  final String? logoUrl;
+
+  factory PartnerMatchTeam.fromJson(Map<String, dynamic> json) {
+    return PartnerMatchTeam(
+      id: _intFromJson(json['id']),
+      name: _nullableStringFromJson(json['name']) ?? 'Team',
+      logoUrl: _nullableStringFromJson(json['logo_url'] ?? json['logo']),
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'name': name,
+        'logo_url': logoUrl,
+      };
+}
+
+class PartnerMatchSchedule {
+  const PartnerMatchSchedule({
+    this.date,
+    this.startTime,
+    this.endTime,
+    this.venue,
+    this.venueName,
+    this.location,
+    this.scheduleStatus,
+  });
+
+  final String? date;
+  final String? startTime;
+  final String? endTime;
+  final dynamic venue;
+  final String? venueName;
+  final String? location;
+  final String? scheduleStatus;
+
+  factory PartnerMatchSchedule.fromJson(Map<String, dynamic> json) {
+    final rawVenue = json['venue'];
+    String? vName;
+    String? loc;
+    if (rawVenue is Map) {
+      final vMap = Map<String, dynamic>.from(rawVenue);
+      vName = _nullableStringFromJson(
+        vMap['name'] ?? vMap['venue_name'] ?? vMap['title'],
+      );
+      loc = _nullableStringFromJson(
+        vMap['location'] ?? vMap['address'] ?? vMap['ground'],
+      );
+    } else if (rawVenue is String && rawVenue.trim().isNotEmpty) {
+      vName = rawVenue.trim();
+    }
+    return PartnerMatchSchedule(
+      date: _nullableStringFromJson(json['date'] ?? json['match_date']),
+      startTime: _nullableStringFromJson(json['start_time'] ?? json['time']),
+      endTime: _nullableStringFromJson(json['end_time']),
+      venue: rawVenue,
+      venueName: vName,
+      location: loc,
+      scheduleStatus: _nullableStringFromJson(
+        json['schedule_status'] ?? json['status'],
+      ),
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'date': date,
+        'start_time': startTime,
+        'end_time': endTime,
+        'venue': venue,
+        'schedule_status': scheduleStatus,
+      };
 }
 
 class PartnerTournamentMatchResponse {
   const PartnerTournamentMatchResponse({
     required this.id,
     this.tournamentId,
-    this.roundName,
     this.matchNumber,
+    this.stage,
+    this.round,
+    this.group,
+    this.teamA,
+    this.teamB,
+    this.schedule,
+    this.status,
+    this.result,
+    this.roundName,
     this.matchDate,
     this.startTime,
     this.venueName,
     this.location,
-    this.status,
     this.teamAName,
     this.teamBName,
+    this.teamALogoUrl,
+    this.teamBLogoUrl,
     this.raw = const {},
   });
 
   final int id;
   final int? tournamentId;
-  final String? roundName;
   final String? matchNumber;
+  final PartnerMatchNamedEntity? stage;
+  final PartnerMatchNamedEntity? round;
+  final PartnerMatchNamedEntity? group;
+  final PartnerMatchTeam? teamA;
+  final PartnerMatchTeam? teamB;
+  final PartnerMatchSchedule? schedule;
+  final String? status;
+  final dynamic result;
+
+  final String? roundName;
   final String? matchDate;
   final String? startTime;
   final String? venueName;
   final String? location;
-  final int? status;
   final String? teamAName;
   final String? teamBName;
+  final String? teamALogoUrl;
+  final String? teamBLogoUrl;
   final Map<String, dynamic> raw;
 
-  String get displayRound =>
-      _firstText([roundName, raw['round'], raw['stage'], raw['name']]) ??
-      'Match';
+  String get stageName =>
+      stage?.name ?? _nullableStringFromJson(raw['stage_name']) ?? '';
 
-  String get displayTime =>
-      _firstText([matchDate, startTime, raw['scheduled_at'], raw['date']]) ??
-      '';
+  String get groupName =>
+      group?.name ?? _nullableStringFromJson(raw['group_name']) ?? '';
 
-  String get displayVenue =>
-      _firstText([venueName, location, raw['venue'], raw['ground']]) ??
-      'Venue not set';
+  String get displayRound {
+    if (round?.name != null && round!.name.isNotEmpty) {
+      return round!.name;
+    }
+    if (stage?.name != null && stage!.name.isNotEmpty) {
+      return stage!.name;
+    }
+    if (roundName != null && roundName!.isNotEmpty) {
+      return roundName!;
+    }
+    return _firstText([raw['round'], raw['stage'], raw['name']]) ?? 'Match';
+  }
+
+  String get displayTime {
+    final d = schedule?.date ?? matchDate;
+    final t = schedule?.startTime ?? startTime;
+    if (d != null && d.isNotEmpty && t != null && t.isNotEmpty) {
+      return '$d, $t';
+    }
+    if (d != null && d.isNotEmpty) return d;
+    if (t != null && t.isNotEmpty) return t;
+    return _firstText([raw['scheduled_at'], raw['date']]) ?? '';
+  }
+
+  String get displayVenue {
+    final v = schedule?.venueName ??
+        venueName ??
+        schedule?.location ??
+        location;
+    if (v != null && v.isNotEmpty) return v;
+    final fallback = _firstText([raw['venue'], raw['ground']]);
+    return fallback ?? 'Venue not set';
+  }
 
   String get displayTeamA =>
-      _firstText([teamAName, raw['team_a'], raw['home_team']]) ?? 'Team A';
+      teamA?.name ??
+      teamAName ??
+      _firstText([raw['team_a'], raw['home_team']]) ??
+      'Team A';
 
   String get displayTeamB =>
-      _firstText([teamBName, raw['team_b'], raw['away_team']]) ?? 'Team B';
+      teamB?.name ??
+      teamBName ??
+      _firstText([raw['team_b'], raw['away_team']]) ??
+      'Team B';
+
+  String? get displayTeamALogo => teamA?.logoUrl ?? teamALogoUrl;
+
+  String? get displayTeamBLogo => teamB?.logoUrl ?? teamBLogoUrl;
+
+  String get displayStatus =>
+      status ?? raw['status']?.toString() ?? 'scheduled';
+
+  bool get isLive {
+    final s = displayStatus.toLowerCase();
+    return s == 'live' || s == 'ongoing' || s == 'in_progress';
+  }
+
+  bool get isCompleted {
+    final s = displayStatus.toLowerCase();
+    return s == 'completed' || s == 'finished' || s == 'ended';
+  }
+
+  bool get isNeedsReview {
+    final sched = schedule?.scheduleStatus?.toLowerCase();
+    return sched == 'needs_review' || sched == 'pending';
+  }
 
   factory PartnerTournamentMatchResponse.fromJson(Map<String, dynamic> json) {
-    final teamA = _readNestedName(json, const [
+    PartnerMatchNamedEntity? stageEntity;
+    if (json['stage'] is Map) {
+      stageEntity = PartnerMatchNamedEntity.fromJson(
+        Map<String, dynamic>.from(json['stage'] as Map),
+      );
+    }
+
+    PartnerMatchNamedEntity? roundEntity;
+    if (json['round'] is Map) {
+      roundEntity = PartnerMatchNamedEntity.fromJson(
+        Map<String, dynamic>.from(json['round'] as Map),
+      );
+    }
+
+    PartnerMatchNamedEntity? groupEntity;
+    if (json['group'] is Map) {
+      groupEntity = PartnerMatchNamedEntity.fromJson(
+        Map<String, dynamic>.from(json['group'] as Map),
+      );
+    }
+
+    PartnerMatchTeam? teamAEntity;
+    if (json['team_a'] is Map) {
+      teamAEntity = PartnerMatchTeam.fromJson(
+        Map<String, dynamic>.from(json['team_a'] as Map),
+      );
+    }
+
+    PartnerMatchTeam? teamBEntity;
+    if (json['team_b'] is Map) {
+      teamBEntity = PartnerMatchTeam.fromJson(
+        Map<String, dynamic>.from(json['team_b'] as Map),
+      );
+    }
+
+    PartnerMatchSchedule? scheduleEntity;
+    if (json['schedule'] is Map) {
+      scheduleEntity = PartnerMatchSchedule.fromJson(
+        Map<String, dynamic>.from(json['schedule'] as Map),
+      );
+    }
+
+    final directTeamA = _readNestedName(json, const [
       'team_a',
       'team1',
       'home_team',
       'first_team',
     ]);
-    final teamB = _readNestedName(json, const [
+    final directTeamB = _readNestedName(json, const [
       'team_b',
       'team2',
       'away_team',
@@ -657,30 +952,50 @@ class PartnerTournamentMatchResponse {
     ]);
     final venue = json['venue'];
     final venueMap = venue is Map ? Map<String, dynamic>.from(venue) : null;
+
+    final rawRoundName = roundEntity?.name ??
+        _nullableStringFromJson(
+          json['round_name'] ??
+              (json['round'] is String ? json['round'] : null) ??
+              (json['stage'] is String ? json['stage'] : null),
+        );
+
+    final rawStatus = json['status']?.toString();
+
     return PartnerTournamentMatchResponse(
       id: _intFromJson(json['id'] ?? json['match_id']),
       tournamentId: _nullableIntFromJson(json['tournament_id']),
-      roundName: _nullableStringFromJson(
-        json['round_name'] ?? json['round'] ?? json['stage'],
-      ),
-      matchNumber: _nullableStringFromJson(
-        json['match_number'] ?? json['code'] ?? json['fixture_code'],
-      ),
-      matchDate: _nullableStringFromJson(
-        json['match_date'] ?? json['date'] ?? json['scheduled_date'],
-      ),
-      startTime: _nullableStringFromJson(
-        json['start_time'] ?? json['time'] ?? json['scheduled_at'],
-      ),
-      venueName: _nullableStringFromJson(
-        json['venue_name'] ?? venueMap?['venue_name'] ?? venueMap?['name'],
-      ),
-      location: _nullableStringFromJson(
-        json['location'] ?? venueMap?['location'] ?? venueMap?['address'],
-      ),
-      status: _nullableIntFromJson(json['status']),
-      teamAName: teamA,
-      teamBName: teamB,
+      matchNumber: json['match_number']?.toString() ??
+          _nullableStringFromJson(json['code'] ?? json['fixture_code']),
+      stage: stageEntity,
+      round: roundEntity,
+      group: groupEntity,
+      teamA: teamAEntity,
+      teamB: teamBEntity,
+      schedule: scheduleEntity,
+      status: rawStatus,
+      result: json['result'],
+      roundName: rawRoundName,
+      matchDate: scheduleEntity?.date ??
+          _nullableStringFromJson(
+            json['match_date'] ?? json['date'] ?? json['scheduled_date'],
+          ),
+      startTime: scheduleEntity?.startTime ??
+          _nullableStringFromJson(
+            json['start_time'] ?? json['time'] ?? json['scheduled_at'],
+          ),
+      venueName: scheduleEntity?.venueName ??
+          _nullableStringFromJson(
+            json['venue_name'] ?? venueMap?['venue_name'] ?? venueMap?['name'],
+          ),
+      location: scheduleEntity?.location ??
+          _nullableStringFromJson(
+            json['location'] ?? venueMap?['location'] ?? venueMap?['address'],
+          ),
+      teamAName: teamAEntity?.name ?? directTeamA,
+      teamBName: teamBEntity?.name ?? directTeamB,
+      teamALogoUrl: teamAEntity?.logoUrl,
+      teamBLogoUrl: teamBEntity?.logoUrl,
       raw: Map<String, dynamic>.from(json),
     );
   }

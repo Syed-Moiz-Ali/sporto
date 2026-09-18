@@ -9,10 +9,12 @@ import '../../../partner_api/application/partner_api_bloc.dart';
 
 class TournamentsScreen extends StatefulWidget {
   final bool embedded;
+  final bool? isLoading;
 
   const TournamentsScreen({
     super.key,
     this.embedded = false,
+    this.isLoading,
   });
 
   @override
@@ -27,15 +29,18 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final bloc = context.read<PartnerApiBloc>();
-      if (bloc.state is! PartnerApiLoadedState) {
-        bloc.add(const LoadPartnerApiBootstrapEvent());
-      } else {
-        final loaded = bloc.state as PartnerApiLoadedState;
-        if (loaded.tournaments.isEmpty) {
-          bloc.add(const LoadPartnerTournamentsEvent());
+      if (!mounted) return;
+      try {
+        final bloc = context.read<PartnerApiBloc>();
+        if (bloc.state is! PartnerApiLoadedState) {
+          bloc.add(const LoadPartnerApiBootstrapEvent());
+        } else {
+          final loaded = bloc.state as PartnerApiLoadedState;
+          if (loaded.tournaments.isEmpty) {
+            bloc.add(const LoadPartnerTournamentsEvent());
+          }
         }
-      }
+      } catch (_) {}
     });
   }
 
@@ -72,6 +77,22 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
     final cs = theme.colorScheme;
     final scale = context.sportoScale;
 
+    PartnerApiLoadedState? loaded;
+    bool isApiLoading = false;
+    try {
+      final bloc = BlocProvider.of<PartnerApiBloc>(context, listen: true);
+      isApiLoading = bloc.state is PartnerApiLoadingState ||
+          bloc.state is PartnerApiInitialState;
+      if (bloc.state is PartnerApiLoadedState) {
+        loaded = bloc.state as PartnerApiLoadedState;
+      }
+    } catch (_) {}
+
+    final isLoading = widget.isLoading ?? isApiLoading;
+    final all = loaded?.tournaments ?? [];
+    final filtered = _filterTournaments(all);
+    final count = loaded != null ? filtered.length : 0;
+
     final content = SafeArea(
       bottom: false,
       child: SportoResponsiveContent(
@@ -86,43 +107,45 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
                 context.sportoResponsive.horizontalPadding,
                 8 * scale,
               ),
-              child: BlocBuilder<PartnerApiBloc, PartnerApiState>(
-                builder: (context, state) {
-                  final loaded = state is PartnerApiLoadedState ? state : null;
-                  final all = loaded?.tournaments ?? [];
-                  final filtered = _filterTournaments(all);
-                  final count = loaded != null ? filtered.length : 0;
-                  return Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text("Today's Matches",
-                                style: theme.textTheme.titleLarge
-                                    ?.copyWith(fontSize: 18 * scale)),
-                            Text('$count Matches Assigned',
-                                style: theme.textTheme.bodyMedium
-                                    ?.copyWith(color: context.sporto.info)),
-                          ],
-                        ),
-                      ),
-                      SportoPillButton(
-                        label: '+ Create',
-                        color: cs.primary,
-                        gradient: context.sporto.primaryGradient,
-                        filled: true,
-                        foregroundColor: Colors.black,
-                        height: 32 * scale,
-                        padding: EdgeInsets.symmetric(horizontal: 12 * scale),
-                        fontSize: 12 * scale,
-                        onTap: () =>
-                            context.push(AppRouter.createTournamentRoute),
-                      ),
-                    ],
-                  );
-                },
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("Today's Matches",
+                            style: theme.textTheme.titleLarge
+                                ?.copyWith(fontSize: 18 * scale)),
+                        if (isLoading)
+                          Padding(
+                            padding: EdgeInsets.only(top: 4 * scale),
+                            child: SportoShimmer(
+                              width: 110 * scale,
+                              height: 14 * scale,
+                              borderRadius: 4,
+                            ),
+                          )
+                        else
+                          Text('$count Matches Assigned',
+                              style: theme.textTheme.bodyMedium
+                                  ?.copyWith(color: context.sporto.info)),
+                      ],
+                    ),
+                  ),
+                  SportoPillButton(
+                    label: '+ Create',
+                    color: cs.primary,
+                    gradient: context.sporto.primaryGradient,
+                    filled: true,
+                    foregroundColor: Colors.black,
+                    height: 32 * scale,
+                    padding: EdgeInsets.symmetric(horizontal: 12 * scale),
+                    fontSize: 12 * scale,
+                    onTap: () =>
+                        context.push(AppRouter.createTournamentRoute),
+                  ),
+                ],
               ),
             ),
             SizedBox(
@@ -139,9 +162,11 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
                     if (_selectedTab != index) {
                       setState(() => _selectedTab = index);
                       final apiStatus = _getApiStatusForTab(index);
-                      context
-                          .read<PartnerApiBloc>()
-                          .add(LoadPartnerTournamentsEvent(status: apiStatus));
+                      try {
+                        context
+                            .read<PartnerApiBloc>()
+                            .add(LoadPartnerTournamentsEvent(status: apiStatus));
+                      } catch (_) {}
                     }
                   },
                   child: Column(
@@ -167,25 +192,14 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
             ),
             Divider(height: 1, color: context.sporto.border),
             Expanded(
-              child: BlocBuilder<PartnerApiBloc, PartnerApiState>(
-                builder: (context, state) {
-                  final isLoading = state is PartnerApiLoadingState ||
-                      state is PartnerApiInitialState;
-                  final loaded = state is PartnerApiLoadedState ? state : null;
-                  final all = loaded?.tournaments ?? [];
-                  final filtered = _filterTournaments(all);
-
-                  return ListView(
-                    padding: EdgeInsets.fromLTRB(
-                      context.sportoResponsive.horizontalPadding,
-                      26 * scale,
-                      context.sportoResponsive.horizontalPadding,
-                      context.sportoResponsive.bottomContentPadding(context),
-                    ),
-                    children:
-                        _matchCards(scale, filtered, isLoading: isLoading),
-                  );
-                },
+              child: ListView(
+                padding: EdgeInsets.fromLTRB(
+                  context.sportoResponsive.horizontalPadding,
+                  26 * scale,
+                  context.sportoResponsive.horizontalPadding,
+                  context.sportoResponsive.bottomContentPadding(context),
+                ),
+                children: _matchCards(scale, filtered, isLoading: isLoading),
               ),
             ),
           ],
@@ -199,10 +213,10 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
       double scale, List<PartnerTournamentResponse> tournaments,
       {bool isLoading = false}) {
     if (isLoading) {
-      // Skeleton shimmer placeholders while loading
+      // Skeleton shimmer placeholders matching match card layout
       return [
         for (var index = 0; index < 3; index++) ...[
-          SportoSkeletonCard(height: 140 * scale),
+          _buildTournamentCardShimmer(scale),
           if (index != 2) SizedBox(height: 16 * scale),
         ],
       ];
@@ -232,6 +246,102 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
         if (index != tournaments.length - 1) SizedBox(height: 16 * scale),
       ],
     ];
+  }
+
+  Widget _buildTournamentCardShimmer(double scale) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(12 * scale),
+      decoration: BoxDecoration(
+        color: const Color(0xFF13171E),
+        borderRadius: BorderRadius.circular(16 * scale),
+        border: Border.all(color: const Color(0xFF1F242C)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              SportoShimmer(
+                width: 76 * scale,
+                height: 22 * scale,
+                borderRadius: 6 * scale,
+              ),
+              SportoShimmer(
+                width: 100 * scale,
+                height: 14 * scale,
+                borderRadius: 4 * scale,
+              ),
+              SportoShimmer(
+                width: 76 * scale,
+                height: 22 * scale,
+                borderRadius: 6 * scale,
+              ),
+            ],
+          ),
+          SizedBox(height: 10 * scale),
+          SportoShimmer(
+            width: 190 * scale,
+            height: 16 * scale,
+            borderRadius: 4 * scale,
+          ),
+          SizedBox(height: 7 * scale),
+          Row(
+            children: [
+              SportoShimmer(
+                width: 14 * scale,
+                height: 14 * scale,
+                borderRadius: 7 * scale,
+              ),
+              SizedBox(width: 6 * scale),
+              SportoShimmer(
+                width: 110 * scale,
+                height: 12 * scale,
+                borderRadius: 4 * scale,
+              ),
+            ],
+          ),
+          SizedBox(height: 12 * scale),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              SportoShimmer(
+                width: 120 * scale,
+                height: 12 * scale,
+                borderRadius: 4 * scale,
+              ),
+              SportoShimmer(
+                width: 100 * scale,
+                height: 12 * scale,
+                borderRadius: 4 * scale,
+              ),
+            ],
+          ),
+          SizedBox(height: 10 * scale),
+          Container(
+            height: 1,
+            color: const Color(0xFF1F242C),
+          ),
+          SizedBox(height: 10 * scale),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              SportoShimmer(
+                width: 80 * scale,
+                height: 12 * scale,
+                borderRadius: 4 * scale,
+              ),
+              SportoShimmer(
+                width: 115 * scale,
+                height: 28 * scale,
+                borderRadius: 100,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildDynamicMatchCard(PartnerTournamentResponse t) {

@@ -14,11 +14,13 @@ import 'schedule_screen.dart';
 
 class PartnerMainScreen extends StatefulWidget {
   final int initialIndex;
+  final bool? isLoading;
   static int activeTabIndex = 0;
 
   const PartnerMainScreen({
     super.key,
     this.initialIndex = 0,
+    this.isLoading,
   });
 
   @override
@@ -45,9 +47,9 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
       },
       tabs: [
         _buildHomeTab(context),
-        const TournamentsScreen(embedded: true),
-        const ScheduleScreen(embedded: true),
-        const RefereeManagementScreen(),
+        TournamentsScreen(embedded: true, isLoading: widget.isLoading),
+        ScheduleScreen(embedded: true, isLoading: widget.isLoading),
+        RefereeManagementScreen(loadRemote: !(widget.isLoading ?? false)),
         const PartnerProfileScreen(),
       ],
       items: const [
@@ -64,7 +66,7 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
           label: 'Schedules',
         ),
         SportoNavItem(
-          Icons.sports_rounded,
+          Icons.sports_cricket_rounded,
           'Referees',
         ),
         SportoNavItem.asset(
@@ -95,6 +97,8 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
               ),
               child: BlocBuilder<PartnerApiBloc, PartnerApiState>(
                 builder: (context, state) {
+                  final effectiveLoading = widget.isLoading ??
+                      (state is! PartnerApiLoadedState);
                   final loaded = state is PartnerApiLoadedState ? state : null;
                   final name = loaded?.displayName;
                   final greeting = _greeting();
@@ -105,7 +109,7 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            if (name != null)
+                            if (!effectiveLoading && name != null)
                               Text(
                                 name,
                                 maxLines: 1,
@@ -157,47 +161,54 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
                             onPressed: () {},
                           ),
                           SizedBox(width: 4 * scale),
-                          SportoCard(
-                            radius: 7 * scale,
-                            blur: 10 * scale,
-                            padding: EdgeInsets.fromLTRB(
-                              8 * scale,
-                              3 * scale,
-                              2 * scale,
-                              3 * scale,
+                          if (effectiveLoading)
+                            SportoShimmer(
+                              width: 75 * scale,
+                              height: 28 * scale,
+                              borderRadius: 7 * scale,
+                            )
+                          else
+                            SportoCard(
+                              radius: 7 * scale,
+                              blur: 10 * scale,
+                              padding: EdgeInsets.fromLTRB(
+                                8 * scale,
+                                3 * scale,
+                                2 * scale,
+                                3 * scale,
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    'Rs 500',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: theme.textTheme.titleMedium?.copyWith(
+                                      color: colorScheme.onSurface,
+                                      fontSize: 14 * scale,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  SizedBox(width: 5 * scale),
+                                  Container(
+                                    width: 22 * scale,
+                                    height: 22 * scale,
+                                    decoration: BoxDecoration(
+                                      color: colorScheme.tertiary,
+                                      borderRadius:
+                                          BorderRadius.circular(5 * scale),
+                                    ),
+                                    alignment: Alignment.center,
+                                    child: Icon(
+                                      Icons.add_rounded,
+                                      color: Colors.black,
+                                      size: 16 * scale,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  'Rs 500',
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: theme.textTheme.titleMedium?.copyWith(
-                                    color: colorScheme.onSurface,
-                                    fontSize: 14 * scale,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                SizedBox(width: 5 * scale),
-                                Container(
-                                  width: 22 * scale,
-                                  height: 22 * scale,
-                                  decoration: BoxDecoration(
-                                    color: colorScheme.tertiary,
-                                    borderRadius:
-                                        BorderRadius.circular(5 * scale),
-                                  ),
-                                  alignment: Alignment.center,
-                                  child: Icon(
-                                    Icons.add_rounded,
-                                    color: Colors.black,
-                                    size: 16 * scale,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
                         ],
                       ),
                     ],
@@ -217,20 +228,34 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
                 ),
                 child: BlocBuilder<PartnerApiBloc, PartnerApiState>(
                   builder: (context, state) {
+                    final effectiveLoading = widget.isLoading ??
+                        (state is! PartnerApiLoadedState);
                     final loaded =
                         state is PartnerApiLoadedState ? state : null;
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildOverviewSection(colorScheme, loaded),
+                        _buildOverviewSection(
+                          colorScheme,
+                          loaded,
+                          isLoading: effectiveLoading,
+                        ),
                         SizedBox(height: 20 * scale),
                         _buildQuickActions(colorScheme),
                         SizedBox(height: 12 * scale),
                         _buildAnnouncementsBanner(colorScheme),
                         SizedBox(height: 22 * scale),
-                        _buildLiveTournaments(colorScheme, loaded),
+                        _buildLiveTournaments(
+                          colorScheme,
+                          loaded,
+                          isLoading: effectiveLoading,
+                        ),
                         SizedBox(height: 20 * scale),
-                        _buildTodaysSchedule(colorScheme, loaded),
+                        _buildTodaysSchedule(
+                          colorScheme,
+                          loaded,
+                          isLoading: effectiveLoading,
+                        ),
                         SizedBox(height: 20 * scale),
                         _buildAdsBanner(colorScheme),
                       ],
@@ -252,9 +277,13 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
     return 'Good Evening';
   }
 
-  Widget _buildOverviewSection(ColorScheme cs, PartnerApiLoadedState? loaded) {
+  Widget _buildOverviewSection(
+    ColorScheme cs,
+    PartnerApiLoadedState? loaded, {
+    bool? isLoading,
+  }) {
     final scale = context.sportoScale;
-    final isLoading = loaded == null;
+    final loading = isLoading ?? (loaded == null);
     final tournaments = loaded?.tournaments ?? [];
     final live = tournaments.where((t) => t.status == 6).length;
     final active =
@@ -276,7 +305,7 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
                 fontSize: 13 * scale,
                 fontWeight: FontWeight.w500)),
         SizedBox(height: 12 * scale),
-        if (isLoading)
+        if (loading)
           GridView.count(
             crossAxisCount: 2,
             shrinkWrap: true,
@@ -286,10 +315,7 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
             childAspectRatio: tileWidth / (61 * scale),
             children: [
               for (var i = 0; i < 4; i++)
-                SportoSkeletonCard(
-                  height: 61 * scale,
-                  borderRadius: 12 * scale,
-                ),
+                _buildOverviewShimmerCard(tileWidth, scale),
             ],
           )
         else
@@ -350,6 +376,32 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
             ],
           ),
       ],
+    );
+  }
+
+  Widget _buildOverviewShimmerCard(double tileWidth, double scale) {
+    return SportoCard(
+      padding: EdgeInsets.symmetric(
+        horizontal: 14 * scale,
+        vertical: 8 * scale,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SportoShimmer(
+            width: 70 * scale,
+            height: 10 * scale,
+            borderRadius: 3 * scale,
+          ),
+          SizedBox(height: 6 * scale),
+          SportoShimmer(
+            width: 45 * scale,
+            height: 16 * scale,
+            borderRadius: 4 * scale,
+          ),
+        ],
+      ),
     );
   }
 
@@ -477,9 +529,13 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
     );
   }
 
-  Widget _buildLiveTournaments(ColorScheme cs, PartnerApiLoadedState? loaded) {
+  Widget _buildLiveTournaments(
+    ColorScheme cs,
+    PartnerApiLoadedState? loaded, {
+    bool? isLoading,
+  }) {
     final scale = context.sportoScale;
-    final isLoading = loaded == null;
+    final loading = isLoading ?? (loaded == null);
     final liveTournaments = loaded?.liveTournaments ?? [];
 
     return Column(
@@ -501,8 +557,8 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
           ],
         ),
         SizedBox(height: 12 * scale),
-        if (isLoading)
-          SportoSkeletonCard(height: 120 * scale)
+        if (loading)
+          _buildLiveTournamentShimmer(cs, scale)
         else if (liveTournaments.isNotEmpty)
           ...liveTournaments.map((t) => Padding(
                 padding: EdgeInsets.only(bottom: 12 * scale),
@@ -537,6 +593,81 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
     );
   }
 
+  Widget _buildLiveTournamentShimmer(ColorScheme cs, double scale) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16 * scale),
+        boxShadow: [
+          BoxShadow(
+            color: cs.secondary.withValues(alpha: .045),
+            blurRadius: 14 * scale,
+            spreadRadius: -10 * scale,
+            offset: Offset(0, 6 * scale),
+          ),
+        ],
+      ),
+      child: SportoCard(
+        padding: EdgeInsets.all(12 * scale),
+        backgroundColor: cs.surfaceContainerHigh.withValues(alpha: .86),
+        borderColor: cs.secondary.withValues(alpha: .18),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                SportoShimmer(
+                  width: 56 * scale,
+                  height: 56 * scale,
+                  borderRadius: 10 * scale,
+                ),
+                SizedBox(width: 10 * scale),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SportoShimmer(
+                        width: 140 * scale,
+                        height: 14 * scale,
+                        borderRadius: 4 * scale,
+                      ),
+                      SizedBox(height: 8 * scale),
+                      SportoShimmer(
+                        width: 90 * scale,
+                        height: 11 * scale,
+                        borderRadius: 4 * scale,
+                      ),
+                    ],
+                  ),
+                ),
+                SportoShimmer(
+                  width: 64 * scale,
+                  height: 22 * scale,
+                  borderRadius: 10 * scale,
+                ),
+              ],
+            ),
+            SizedBox(height: 12 * scale),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                SportoShimmer(
+                  width: 60 * scale,
+                  height: 12 * scale,
+                  borderRadius: 4 * scale,
+                ),
+                SportoShimmer(
+                  width: 95 * scale,
+                  height: 12 * scale,
+                  borderRadius: 4 * scale,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   String _sportName(int sportId) {
     switch (sportId) {
       case 1:
@@ -550,9 +681,13 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
     }
   }
 
-  Widget _buildTodaysSchedule(ColorScheme cs, PartnerApiLoadedState? loaded) {
+  Widget _buildTodaysSchedule(
+    ColorScheme cs,
+    PartnerApiLoadedState? loaded, {
+    bool? isLoading,
+  }) {
     final scale = context.sportoScale;
-    final isLoading = loaded == null;
+    final loading = isLoading ?? (loaded == null);
     final upcoming = loaded?.upcomingTournaments ?? [];
 
     return Column(
@@ -585,9 +720,11 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
           ],
         ),
         SizedBox(height: 12 * scale),
-        if (isLoading)
-          SportoSkeletonCard(height: 100 * scale)
-        else if (upcoming.isNotEmpty)
+        if (loading) ...[
+          _buildScheduleCardShimmer(cs, scale),
+          SizedBox(height: 12 * scale),
+          _buildScheduleCardShimmer(cs, scale),
+        ] else if (upcoming.isNotEmpty)
           ...upcoming.take(2).map((t) {
             final venue =
                 t.tournamentVenues.isNotEmpty ? t.tournamentVenues.first : null;
@@ -624,6 +761,87 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
             ),
           ),
       ],
+    );
+  }
+
+  Widget _buildScheduleCardShimmer(ColorScheme cs, double scale) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16 * scale),
+        boxShadow: [
+          BoxShadow(
+            color: cs.secondary.withValues(alpha: .04),
+            blurRadius: 14 * scale,
+            spreadRadius: -10 * scale,
+            offset: Offset(0, 6 * scale),
+          ),
+        ],
+      ),
+      child: SportoCard(
+        padding: EdgeInsets.all(10 * scale),
+        backgroundColor: cs.surfaceContainerHigh.withValues(alpha: .86),
+        borderColor: cs.secondary.withValues(alpha: .16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SportoShimmer(
+              width: 120 * scale,
+              height: 11 * scale,
+              borderRadius: 4 * scale,
+            ),
+            SizedBox(height: 10 * scale),
+            Row(
+              children: [
+                SportoShimmer(
+                  width: 56 * scale,
+                  height: 56 * scale,
+                  borderRadius: 10 * scale,
+                ),
+                SizedBox(width: 10 * scale),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SportoShimmer(
+                        width: 130 * scale,
+                        height: 14 * scale,
+                        borderRadius: 4 * scale,
+                      ),
+                      SizedBox(height: 6 * scale),
+                      SportoShimmer(
+                        width: 85 * scale,
+                        height: 11 * scale,
+                        borderRadius: 4 * scale,
+                      ),
+                    ],
+                  ),
+                ),
+                SportoShimmer(
+                  width: 75 * scale,
+                  height: 20 * scale,
+                  borderRadius: 10 * scale,
+                ),
+              ],
+            ),
+            SizedBox(height: 10 * scale),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                SportoShimmer(
+                  width: 80 * scale,
+                  height: 11 * scale,
+                  borderRadius: 4 * scale,
+                ),
+                SportoShimmer(
+                  width: 95 * scale,
+                  height: 11 * scale,
+                  borderRadius: 4 * scale,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 
