@@ -387,11 +387,13 @@ class RefereeMatchTeam {
     this.id,
     required this.name,
     this.score,
+    this.logoUrl,
   });
 
   final int? id;
   final String name;
   final String? score;
+  final String? logoUrl;
 
   factory RefereeMatchTeam.fromJson(Map<String, dynamic> json) {
     return RefereeMatchTeam(
@@ -404,6 +406,7 @@ class RefereeMatchTeam {
           ) ??
           'Team',
       score: _stringValue(json['score'] ?? json['runs']),
+      logoUrl: _stringValue(json['team_logo_url'] ?? json['logo_url']),
     );
   }
 }

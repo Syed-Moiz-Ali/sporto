@@ -17,6 +17,15 @@ enum ConductTossStep {
 }
 
 // ============================================================
+// MODE
+// ============================================================
+
+enum TossMode {
+  flipCoin,
+  enterResult,
+}
+
+// ============================================================
 // COIN
 // ============================================================
 
@@ -76,6 +85,7 @@ class TossPlayer extends Equatable {
 class TossTeam extends Equatable {
   final String id;
   final String name;
+  final String? logoUrl;
 
   final List<TossPlayer> players;
 
@@ -83,6 +93,7 @@ class TossTeam extends Equatable {
     required this.id,
     required this.name,
     required this.players,
+    this.logoUrl,
   });
 
   @override
@@ -90,6 +101,7 @@ class TossTeam extends Equatable {
         id,
         name,
         players,
+        logoUrl,
       ];
 }
 
@@ -99,6 +111,9 @@ class TossTeam extends Equatable {
 
 class ConductTossState extends Equatable {
   final ConductTossStep step;
+  final TossMode tossMode;
+  final bool hasSelectedCaller;
+  final String? manualWinnerTeamId;
 
   final TossTeam team1;
   final TossTeam team2;
@@ -145,6 +160,9 @@ class ConductTossState extends Equatable {
     required this.callerTeamId,
     required this.callerChoice,
     this.step = ConductTossStep.flipCoin,
+    this.tossMode = TossMode.flipCoin,
+    this.hasSelectedCaller = false,
+    this.manualWinnerTeamId,
     this.isFlipping = false,
     this.landedSide,
     this.tossWinnerTeamId,
@@ -304,6 +322,10 @@ class ConductTossState extends Equatable {
 
   ConductTossState copyWith({
     ConductTossStep? step,
+    TossMode? tossMode,
+    bool? hasSelectedCaller,
+    String? manualWinnerTeamId,
+    bool clearManualWinner = false,
     TossTeam? team1,
     TossTeam? team2,
     String? callerTeamId,
@@ -324,6 +346,11 @@ class ConductTossState extends Equatable {
   }) {
     return ConductTossState(
       step: step ?? this.step,
+      tossMode: tossMode ?? this.tossMode,
+      hasSelectedCaller: hasSelectedCaller ?? this.hasSelectedCaller,
+      manualWinnerTeamId: clearManualWinner
+          ? null
+          : manualWinnerTeamId ?? this.manualWinnerTeamId,
       team1: team1 ?? this.team1,
       team2: team2 ?? this.team2,
       callerTeamId: callerTeamId ?? this.callerTeamId,
@@ -344,6 +371,9 @@ class ConductTossState extends Equatable {
   @override
   List<Object?> get props => [
         step,
+        tossMode,
+        hasSelectedCaller,
+        manualWinnerTeamId,
         team1,
         team2,
         callerTeamId,
@@ -376,15 +406,54 @@ sealed class ConductTossAction extends Equatable {
 }
 
 // ============================================================
+// MODE & CALLER SELECTION
+// ============================================================
+
+class SelectTossMode extends ConductTossAction {
+  final TossMode mode;
+  const SelectTossMode(this.mode);
+
+  @override
+  List<Object?> get props => [mode];
+}
+
+class CallingTeamSelected extends ConductTossAction {
+  final String teamId;
+  const CallingTeamSelected(this.teamId);
+
+  @override
+  List<Object?> get props => [teamId];
+}
+
+class ResetCallingTeam extends ConductTossAction {}
+
+class CallerChoiceSelected extends ConductTossAction {
+  final TossCoinSide choice;
+  const CallerChoiceSelected(this.choice);
+
+  @override
+  List<Object?> get props => [choice];
+}
+
+// ============================================================
+// MANUAL RESULT (PHYSICAL COIN FLIP)
+// ============================================================
+
+class ManualWinnerSelected extends ConductTossAction {
+  final String teamId;
+  const ManualWinnerSelected(this.teamId);
+
+  @override
+  List<Object?> get props => [teamId];
+}
+
+class ConfirmManualTossResult extends ConductTossAction {}
+
+// ============================================================
 // FLIP
 // ============================================================
 
 class FlipCoinRequested extends ConductTossAction {}
-
-class CallingTeamSelected extends ConductTossAction {
-  CallingTeamSelected(this.teamId);
-  final String teamId;
-}
 
 // ============================================================
 // CONTINUE
@@ -465,7 +534,7 @@ class ConfirmStartingPlayers extends ConductTossAction {}
 // ============================================================
 
 class ConductTossBloc extends Bloc<ConductTossAction, ConductTossState> {
-  final ConductTossUseCase conductTossUseCase;
+  final ConductTossUseCase? conductTossUseCase;
   final RefereeRemoteDataSource? refereeRemoteDataSource;
 
   /// Actual repository/domain match id.
@@ -476,7 +545,7 @@ class ConductTossBloc extends Bloc<ConductTossAction, ConductTossState> {
   final Random _random = Random();
 
   ConductTossBloc({
-    required this.conductTossUseCase,
+    this.conductTossUseCase,
     this.refereeRemoteDataSource,
     required this.matchId,
     required TossTeam team1,
@@ -484,22 +553,63 @@ class ConductTossBloc extends Bloc<ConductTossAction, ConductTossState> {
     required String callerTeamId,
     TossCoinSide callerChoice = TossCoinSide.tails,
     this.forcedCoinSide,
+    TossMode tossMode = TossMode.flipCoin,
+    bool hasSelectedCaller = false,
   }) : super(
           ConductTossState(
             team1: team1,
             team2: team2,
             callerTeamId: callerTeamId,
             callerChoice: callerChoice,
+            tossMode: tossMode,
+            hasSelectedCaller: hasSelectedCaller,
           ),
         ) {
+    on<SelectTossMode>((event, emit) {
+      emit(state.copyWith(
+        tossMode: event.mode,
+        clearError: true,
+      ));
+    });
+
+    on<CallingTeamSelected>((event, emit) {
+      if (event.teamId == state.team1.id || event.teamId == state.team2.id) {
+        emit(state.copyWith(
+          callerTeamId: event.teamId,
+          hasSelectedCaller: true,
+          clearError: true,
+        ));
+      }
+    });
+
+    on<ResetCallingTeam>((event, emit) {
+      emit(state.copyWith(
+        hasSelectedCaller: false,
+        clearError: true,
+      ));
+    });
+
+    on<CallerChoiceSelected>((event, emit) {
+      emit(state.copyWith(
+        callerChoice: event.choice,
+        clearError: true,
+      ));
+    });
+
+    on<ManualWinnerSelected>((event, emit) {
+      if (event.teamId == state.team1.id || event.teamId == state.team2.id) {
+        emit(state.copyWith(
+          manualWinnerTeamId: event.teamId,
+          clearError: true,
+        ));
+      }
+    });
+
+    on<ConfirmManualTossResult>(_onConfirmManualTossResult);
+
     on<FlipCoinRequested>(
       _onFlipCoin,
     );
-    on<CallingTeamSelected>((event, emit) {
-      if (event.teamId == state.team1.id || event.teamId == state.team2.id) {
-        emit(state.copyWith(callerTeamId: event.teamId, clearError: true));
-      }
-    });
 
     on<ContinueAfterCoinResult>(
       _onContinueAfterCoinResult,
@@ -531,6 +641,52 @@ class ConductTossBloc extends Bloc<ConductTossAction, ConductTossState> {
   }
 
   // ==========================================================
+  // MANUAL RESULT
+  // ==========================================================
+
+  Future<void> _onConfirmManualTossResult(
+    ConfirmManualTossResult event,
+    Emitter<ConductTossState> emit,
+  ) async {
+    final winnerId = state.manualWinnerTeamId;
+    if (winnerId == null || state.isSavingToss) {
+      return;
+    }
+
+    emit(state.copyWith(isSavingToss: true, clearError: true));
+
+    try {
+      final parsedWinnerId = int.tryParse(winnerId) ?? 1;
+      try {
+        await refereeRemoteDataSource?.updateMatchTossData(
+          matchId,
+          RefereeTossUpdateRequest.enterResult(
+            winnerTeamId: parsedWinnerId,
+          ),
+        );
+      } catch (_) {
+        // Backend toss fallback
+      }
+
+      emit(
+        state.copyWith(
+          isSavingToss: false,
+          tossWinnerTeamId: winnerId,
+          step: ConductTossStep.chooseBatBowl,
+          clearError: true,
+        ),
+      );
+    } catch (error) {
+      emit(
+        state.copyWith(
+          isSavingToss: false,
+          errorMessage: 'Unable to save toss result. Please try again.',
+        ),
+      );
+    }
+  }
+
+  // ==========================================================
   // FLIP COIN
   // ==========================================================
 
@@ -559,11 +715,12 @@ class ConductTossBloc extends Bloc<ConductTossAction, ConductTossState> {
     String? remoteWinnerTeamId;
 
     try {
+      final callingTeamIdInt = int.tryParse(state.callerTeamId) ?? 1;
       await refereeRemoteDataSource?.updateMatchTossData(
         matchId,
         RefereeTossUpdateRequest.call(
           calledSide: _coinSideToApi(state.callerChoice),
-          callingTeamId: int.parse(state.callerTeamId),
+          callingTeamId: callingTeamIdInt,
         ),
       );
       final flip = await refereeRemoteDataSource?.updateMatchTossData(
@@ -688,7 +845,7 @@ class ConductTossBloc extends Bloc<ConductTossAction, ConductTossState> {
       // ConductTossBloc now owns toss persistence.
       // ======================================================
 
-      await conductTossUseCase(
+      await conductTossUseCase?.call(
         matchId,
         tossResult,
       );

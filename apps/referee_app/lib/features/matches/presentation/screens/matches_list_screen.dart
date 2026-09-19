@@ -228,12 +228,17 @@ class _MatchesListScreenState extends State<MatchesListScreen> {
                         itemCount: visibleMatches.length,
                         separatorBuilder: (_, __) =>
                             SizedBox(height: layout.space12),
-                        itemBuilder: (context, index) => _RefereeApiMatchCard(
-                          match: visibleMatches[index],
-                          onTap: () => context.push(
-                            '${AppRouter.conductTossRoute}?matchId=${visibleMatches[index].id}',
-                          ),
-                        ),
+                        itemBuilder: (context, index) {
+                          final m = visibleMatches[index];
+                          return _RefereeApiMatchCard(
+                            match: m,
+                            onTap: m.isCompleted
+                                ? () => _showMatchDetails(m)
+                                : () => context.push(
+                                      '${AppRouter.conductTossRoute}?matchId=${m.id}',
+                                    ),
+                          );
+                        },
                       );
                     },
                   ),

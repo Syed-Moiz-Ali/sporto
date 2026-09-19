@@ -122,6 +122,8 @@ class DependencyInjector {
     required String callerTeamId,
     TossCoinSide callerChoice = TossCoinSide.tails,
     TossCoinSide? forcedCoinSide,
+    TossMode tossMode = TossMode.flipCoin,
+    bool hasSelectedCaller = false,
   }) {
     return ConductTossBloc(
       conductTossUseCase: _conductTossUseCase,
@@ -132,6 +134,8 @@ class DependencyInjector {
       callerTeamId: callerTeamId,
       callerChoice: callerChoice,
       forcedCoinSide: forcedCoinSide,
+      tossMode: tossMode,
+      hasSelectedCaller: hasSelectedCaller,
     );
   }
 }

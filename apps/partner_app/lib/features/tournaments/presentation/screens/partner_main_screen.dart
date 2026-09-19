@@ -97,8 +97,8 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
               ),
               child: BlocBuilder<PartnerApiBloc, PartnerApiState>(
                 builder: (context, state) {
-                  final effectiveLoading = widget.isLoading ??
-                      (state is! PartnerApiLoadedState);
+                  final effectiveLoading =
+                      widget.isLoading ?? (state is! PartnerApiLoadedState);
                   final loaded = state is PartnerApiLoadedState ? state : null;
                   final name = loaded?.displayName;
                   final greeting = _greeting();
@@ -184,7 +184,8 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
                                     'Rs 500',
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
-                                    style: theme.textTheme.titleMedium?.copyWith(
+                                    style:
+                                        theme.textTheme.titleMedium?.copyWith(
                                       color: colorScheme.onSurface,
                                       fontSize: 14 * scale,
                                       fontWeight: FontWeight.w600,
@@ -228,8 +229,8 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
                 ),
                 child: BlocBuilder<PartnerApiBloc, PartnerApiState>(
                   builder: (context, state) {
-                    final effectiveLoading = widget.isLoading ??
-                        (state is! PartnerApiLoadedState);
+                    final effectiveLoading =
+                        widget.isLoading ?? (state is! PartnerApiLoadedState);
                     final loaded =
                         state is PartnerApiLoadedState ? state : null;
                     return Column(
@@ -341,7 +342,7 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
                 ),
               ),
               SportoStatCard(
-                label: 'Live Tournaments',
+                label: 'Pending Tournaments',
                 value: '$live',
                 fontSize: 16 * scale,
                 labelSize: 11 * scale,
@@ -352,7 +353,7 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
                 ),
               ),
               SportoStatCard(
-                label: 'Registered Players',
+                label: 'Approved Tournaments ',
                 value: '$players',
                 fontSize: 16 * scale,
                 labelSize: 11 * scale,

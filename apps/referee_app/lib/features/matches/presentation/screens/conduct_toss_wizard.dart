@@ -27,6 +27,8 @@ class ConductTossWizard extends StatelessWidget {
   ///
   /// TossCoinSide.tails
   final TossCoinSide? debugForcedCoinSide;
+  final RefereeMatchResponse? initialMatch;
+  final ConductTossBloc? bloc;
 
   const ConductTossWizard({
     super.key,
@@ -36,6 +38,8 @@ class ConductTossWizard extends StatelessWidget {
     this.matchId,
     this.matchCode,
     this.debugForcedCoinSide,
+    this.initialMatch,
+    this.bloc,
   });
 
   // ==========================================================
@@ -44,7 +48,34 @@ class ConductTossWizard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (bloc != null) {
+      return BlocProvider.value(
+        value: bloc!,
+        child: _ConductTossView(
+          matchCode: matchCode ?? 'SPT-${initialMatch?.id ?? 20481}',
+        ),
+      );
+    }
     final di = DependencyInjector.instance;
+    if (initialMatch != null) {
+      final match = initialMatch!;
+      final team1 = _apiTeam(match.teamA, 'team-a');
+      final team2 = _apiTeam(match.teamB, 'team-b');
+      return BlocProvider(
+        create: (_) => di.createConductTossBloc(
+          matchId: match.id.toString(),
+          team1: team1,
+          team2: team2,
+          callerTeamId: team1.id,
+          callerChoice: TossCoinSide.heads,
+          forcedCoinSide: debugForcedCoinSide,
+          hasSelectedCaller: false,
+        ),
+        child: _ConductTossView(
+          matchCode: matchCode ?? 'SPT-${match.id}',
+        ),
+      );
+    }
     return FutureBuilder<RefereeMatchResponse>(
       future: _loadMatch(di),
       builder: (context, snapshot) {
@@ -66,13 +97,13 @@ class ConductTossWizard extends StatelessWidget {
             matchId: match.id.toString(),
             team1: team1,
             team2: team2,
-            callerTeamId: team2.id,
-            callerChoice: TossCoinSide.tails,
+            callerTeamId: team1.id,
+            callerChoice: TossCoinSide.heads,
             forcedCoinSide: debugForcedCoinSide,
+            hasSelectedCaller: false,
           ),
           child: _ConductTossView(
-            matchCode: matchCode ??
-                '${match.displayTournament} • ${match.displayRound}',
+            matchCode: matchCode ?? 'SPT-${match.id}',
           ),
         );
       },
@@ -95,6 +126,7 @@ class ConductTossWizard extends StatelessWidget {
       id: (team?.id ?? fallbackId.hashCode).toString(),
       name: team?.name ?? 'Team',
       players: const [],
+      logoUrl: team?.logoUrl,
     );
   }
 }
@@ -251,75 +283,557 @@ class _ConductTossView extends StatelessWidget {
   ) {
     final scale = context.sportoScale;
 
+    // ==========================================================
+    // SCREEN 3: "Enter Result - Conduct Toss.png" (PHYSICAL FLIP)
+    // ==========================================================
+    if (state.tossMode == TossMode.enterResult) {
+      return Column(
+        children: [
+          SportoTossMatchStrip(
+            team1: state.team1.name,
+            team2: state.team2.name,
+          ),
+          SizedBox(height: 16 * scale),
+          _buildModeSelector(context, state, scale),
+          SizedBox(height: 16 * scale),
+          _buildMainCard(
+            context: context,
+            title: 'Which team won the toss?',
+            scale: scale,
+            child: Row(
+              children: [
+                Expanded(
+                  child: _teamChoiceCard(
+                    context: context,
+                    team: state.team1,
+                    selected: state.manualWinnerTeamId == state.team1.id,
+                    onTap: () => context
+                        .read<ConductTossBloc>()
+                        .add(ManualWinnerSelected(state.team1.id)),
+                    scale: scale,
+                  ),
+                ),
+                SizedBox(width: 14 * scale),
+                Expanded(
+                  child: _teamChoiceCard(
+                    context: context,
+                    team: state.team2,
+                    selected: state.manualWinnerTeamId == state.team2.id,
+                    onTap: () => context
+                        .read<ConductTossBloc>()
+                        .add(ManualWinnerSelected(state.team2.id)),
+                    scale: scale,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: 24 * scale),
+          _buildGoldenButton(
+            label: 'Continue',
+            scale: scale,
+            disabled: state.manualWinnerTeamId == null || state.isSavingToss,
+            loading: state.isSavingToss,
+            onPressed: () {
+              context.read<ConductTossBloc>().add(ConfirmManualTossResult());
+            },
+          ),
+        ],
+      );
+    }
+
+    // ==========================================================
+    // SCREEN 1: "Flip Coin - Conduct Toss.png" (WHO IS CALLING?)
+    // ==========================================================
+    if (!state.hasSelectedCaller) {
+      return Column(
+        children: [
+          SportoTossMatchStrip(
+            team1: state.team1.name,
+            team2: state.team2.name,
+          ),
+          SizedBox(height: 16 * scale),
+          _buildModeSelector(context, state, scale),
+          SizedBox(height: 16 * scale),
+          _buildMainCard(
+            context: context,
+            title: 'Who is calling?',
+            scale: scale,
+            child: Row(
+              children: [
+                Expanded(
+                  child: _teamChoiceCard(
+                    context: context,
+                    team: state.team1,
+                    selected: state.callerTeamId == state.team1.id,
+                    onTap: () => context
+                        .read<ConductTossBloc>()
+                        .add(CallingTeamSelected(state.team1.id)),
+                    scale: scale,
+                  ),
+                ),
+                SizedBox(width: 14 * scale),
+                Expanded(
+                  child: _teamChoiceCard(
+                    context: context,
+                    team: state.team2,
+                    selected: state.callerTeamId == state.team2.id,
+                    onTap: () => context
+                        .read<ConductTossBloc>()
+                        .add(CallingTeamSelected(state.team2.id)),
+                    scale: scale,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    }
+
+    // ==========================================================
+    // SCREEN 2: "Conduct Toss.png" (TEAM CALLS HEADS/TAILS & FLIP)
+    // ==========================================================
+    final callingTeam = state.teamById(state.callerTeamId);
     return Column(
       children: [
         SportoTossMatchStrip(
           team1: state.team1.name,
           team2: state.team2.name,
         ),
-        SizedBox(height: 14 * scale),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Text('Who is calling?',
-              style: Theme.of(context).textTheme.titleMedium),
+        SizedBox(height: 16 * scale),
+        _buildCallingBar(context, state, scale),
+        SizedBox(height: 16 * scale),
+        _buildMainCard(
+          context: context,
+          title: '${callingTeam.name} calls:',
+          scale: scale,
+          child: Row(
+            children: [
+              Expanded(
+                child: _coinChoiceCard(
+                  context: context,
+                  label: 'Heads',
+                  asset: 'assets/images/toss_coin_heads.png',
+                  selected: state.callerChoice == TossCoinSide.heads,
+                  onTap: state.isFlipping
+                      ? () {}
+                      : () => context
+                          .read<ConductTossBloc>()
+                          .add(const CallerChoiceSelected(TossCoinSide.heads)),
+                  scale: scale,
+                ),
+              ),
+              SizedBox(width: 14 * scale),
+              Expanded(
+                child: _coinChoiceCard(
+                  context: context,
+                  label: 'Tails',
+                  asset: 'assets/images/toss_coin_tails.png',
+                  selected: state.callerChoice == TossCoinSide.tails,
+                  onTap: state.isFlipping
+                      ? () {}
+                      : () => context
+                          .read<ConductTossBloc>()
+                          .add(const CallerChoiceSelected(TossCoinSide.tails)),
+                  scale: scale,
+                ),
+              ),
+            ],
+          ),
         ),
-        SizedBox(height: 8 * scale),
-        Row(children: [
-          Expanded(child: _callingTeamCard(context, state, state.team1)),
-          SizedBox(width: 10 * scale),
-          Expanded(child: _callingTeamCard(context, state, state.team2)),
-        ]),
-        SizedBox(
-          height: 21 * scale,
-        ),
-        SportoTossCoinCard(
-          coinAsset: 'assets/images/toss_coin_heads.png',
-          isFlipping: state.isFlipping,
-          buttonText: 'Flip Coin',
-          onButtonPressed: () {
-            context.read<ConductTossBloc>().add(
-                  FlipCoinRequested(),
-                );
+        SizedBox(height: 24 * scale),
+        _buildGoldenButton(
+          label: state.isFlipping ? 'Flipping Coin...' : 'Flip Coin',
+          scale: scale,
+          loading: state.isFlipping,
+          disabled: state.isFlipping,
+          onPressed: () {
+            context.read<ConductTossBloc>().add(FlipCoinRequested());
           },
         ),
       ],
     );
   }
 
-  Widget _callingTeamCard(
-      BuildContext context, ConductTossState state, TossTeam team) {
-    final selected = state.callerTeamId == team.id;
-    return GestureDetector(
-      onTap: state.isFlipping
-          ? null
-          : () => context.read<ConductTossBloc>().add(
-                CallingTeamSelected(team.id),
+  Widget _buildModeSelector(
+    BuildContext context,
+    ConductTossState state,
+    double scale,
+  ) {
+    final isFlip = state.tossMode == TossMode.flipCoin;
+    return Container(
+      width: double.infinity,
+      height: 48 * scale,
+      padding: EdgeInsets.all(4 * scale),
+      decoration: BoxDecoration(
+        color: const Color(0xFF0D141F),
+        borderRadius: BorderRadius.circular(14 * scale),
+        border: Border.all(color: const Color(0xFF1E2838)),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: GestureDetector(
+              onTap: () => context
+                  .read<ConductTossBloc>()
+                  .add(const SelectTossMode(TossMode.flipCoin)),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 180),
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: isFlip ? const Color(0xFF20C783) : Colors.transparent,
+                  borderRadius: BorderRadius.circular(10 * scale),
+                ),
+                child: Text(
+                  'Flip Coin',
+                  style: TextStyle(
+                    color: isFlip
+                        ? const Color(0xFF03160D)
+                        : const Color(0xFF8C96A5),
+                    fontSize: 14 * scale,
+                    fontWeight: isFlip ? FontWeight.w700 : FontWeight.w500,
+                  ),
+                ),
               ),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 160),
-        height: 54,
-        padding: const EdgeInsets.all(10),
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: selected
-              ? const Color(0xFF103126)
-              : Theme.of(context).colorScheme.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: selected
-                ? const Color(0xFF20C783)
-                : Theme.of(context).colorScheme.outline,
+            ),
           ),
-        ),
-        child: Text(team.name,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+          Expanded(
+            child: GestureDetector(
+              onTap: () => context
+                  .read<ConductTossBloc>()
+                  .add(const SelectTossMode(TossMode.enterResult)),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 180),
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: !isFlip ? const Color(0xFF20C783) : Colors.transparent,
+                  borderRadius: BorderRadius.circular(10 * scale),
+                ),
+                child: Text(
+                  'Enter Result',
+                  style: TextStyle(
+                    color: !isFlip
+                        ? const Color(0xFF03160D)
+                        : const Color(0xFF8C96A5),
+                    fontSize: 14 * scale,
+                    fontWeight: !isFlip ? FontWeight.w700 : FontWeight.w500,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCallingBar(
+    BuildContext context,
+    ConductTossState state,
+    double scale,
+  ) {
+    final caller = state.teamById(state.callerTeamId);
+    return Container(
+      width: double.infinity,
+      padding:
+          EdgeInsets.symmetric(horizontal: 16 * scale, vertical: 14 * scale),
+      decoration: BoxDecoration(
+        color: const Color(0xFF0D141F),
+        borderRadius: BorderRadius.circular(14 * scale),
+        border: Border.all(color: const Color(0xFF1E2838)),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text.rich(
+              TextSpan(
+                children: [
+                  TextSpan(
+                    text: caller.name,
+                    style: TextStyle(
+                      color: const Color(0xFF20C783),
+                      fontSize: 14 * scale,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  TextSpan(
+                    text: ' is calling',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 14 * scale,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ],
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          GestureDetector(
+            onTap: () =>
+                context.read<ConductTossBloc>().add(ResetCallingTeam()),
+            child: Text(
+              'Change',
+              style: TextStyle(
+                color: const Color(0xFF4B96E6),
+                fontSize: 14 * scale,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMainCard({
+    required BuildContext context,
+    required String title,
+    required Widget child,
+    required double scale,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding:
+          EdgeInsets.fromLTRB(16 * scale, 24 * scale, 16 * scale, 24 * scale),
+      decoration: BoxDecoration(
+        color: const Color(0xFF0E1622),
+        borderRadius: BorderRadius.circular(18 * scale),
+        border: Border.all(color: const Color(0xFF1A2433)),
+      ),
+      child: Column(
+        children: [
+          Text(
+            title,
             textAlign: TextAlign.center,
             style: TextStyle(
+              color: const Color(0xFF20C783),
+              fontSize: 18 * scale,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          SizedBox(height: 20 * scale),
+          child,
+        ],
+      ),
+    );
+  }
+
+  Widget _teamChoiceCard({
+    required BuildContext context,
+    required TossTeam team,
+    required bool selected,
+    required VoidCallback onTap,
+    required double scale,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        height: 195 * scale,
+        padding:
+            EdgeInsets.symmetric(horizontal: 10 * scale, vertical: 16 * scale),
+        decoration: BoxDecoration(
+          color: selected ? const Color(0xFF0C2018) : const Color(0xFF111A24),
+          borderRadius: BorderRadius.circular(16 * scale),
+          border: Border.all(
+            color: selected ? const Color(0xFF20C783) : const Color(0xFF1E2838),
+            width: selected ? 1.5 : 1.0,
+          ),
+          boxShadow: selected
+              ? [
+                  BoxShadow(
+                    color: const Color(0xFF20C783).withValues(alpha: 0.16),
+                    blurRadius: 14,
+                    spreadRadius: -2,
+                  ),
+                ]
+              : null,
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 86 * scale,
+              height: 86 * scale,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(14 * scale),
+                color: const Color(0xFF1A2332),
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: team.logoUrl != null && team.logoUrl!.isNotEmpty
+                  ? Image.network(
+                      team.logoUrl!,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => _fallbackLogo(team, scale),
+                    )
+                  : _fallbackLogo(team, scale),
+            ),
+            SizedBox(height: 14 * scale),
+            Text(
+              team.name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: TextStyle(
                 color: selected
                     ? const Color(0xFF20C783)
-                    : Theme.of(context).colorScheme.onSurface,
-                fontSize: 12)),
+                    : const Color(0xFF94A3B8),
+                fontSize: 14 * scale,
+                fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _fallbackLogo(TossTeam team, double scale) {
+    final initials = team.name.trim().isNotEmpty
+        ? team.name
+            .trim()
+            .split(RegExp(r'\s+'))
+            .take(2)
+            .map((e) => e.isNotEmpty ? e[0].toUpperCase() : '')
+            .join()
+        : 'T';
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(0xFF1E293B), Color(0xFF0F172A)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        initials,
+        style: TextStyle(
+          color: const Color(0xFF20C783),
+          fontSize: 24 * scale,
+          fontWeight: FontWeight.bold,
+          letterSpacing: 1.2,
+        ),
+      ),
+    );
+  }
+
+  Widget _coinChoiceCard({
+    required BuildContext context,
+    required String label,
+    required String asset,
+    required bool selected,
+    required VoidCallback onTap,
+    required double scale,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        height: 195 * scale,
+        padding:
+            EdgeInsets.symmetric(horizontal: 10 * scale, vertical: 16 * scale),
+        decoration: BoxDecoration(
+          color: selected ? const Color(0xFF0C2018) : const Color(0xFF111A24),
+          borderRadius: BorderRadius.circular(16 * scale),
+          border: Border.all(
+            color: selected ? const Color(0xFF20C783) : const Color(0xFF1E2838),
+            width: selected ? 1.5 : 1.0,
+          ),
+          boxShadow: selected
+              ? [
+                  BoxShadow(
+                    color: const Color(0xFF20C783).withValues(alpha: 0.16),
+                    blurRadius: 14,
+                    spreadRadius: -2,
+                  ),
+                ]
+              : null,
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(
+              width: 86 * scale,
+              height: 86 * scale,
+              child: Image.asset(
+                asset,
+                fit: BoxFit.contain,
+              ),
+            ),
+            SizedBox(height: 14 * scale),
+            Text(
+              label,
+              style: TextStyle(
+                color: selected
+                    ? const Color(0xFF20C783)
+                    : const Color(0xFF94A3B8),
+                fontSize: 14 * scale,
+                fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGoldenButton({
+    required String label,
+    required double scale,
+    required VoidCallback? onPressed,
+    bool disabled = false,
+    bool loading = false,
+  }) {
+    return Center(
+      child: GestureDetector(
+        onTap: (disabled || loading) ? null : onPressed,
+        child: AnimatedOpacity(
+          duration: const Duration(milliseconds: 180),
+          opacity: disabled ? 0.45 : 1.0,
+          child: Container(
+            width: double.infinity,
+            height: 52 * scale,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFFE58A13), Color(0xFFF5A623)],
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+              ),
+              borderRadius: BorderRadius.circular(16 * scale),
+              boxShadow: disabled
+                  ? null
+                  : [
+                      BoxShadow(
+                        color: const Color(0xFFE58A13).withValues(alpha: 0.35),
+                        blurRadius: 18,
+                        offset: const Offset(0, 6),
+                      ),
+                    ],
+            ),
+            alignment: Alignment.center,
+            child: loading
+                ? const SizedBox(
+                    width: 22,
+                    height: 22,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.5,
+                      color: Colors.white,
+                    ),
+                  )
+                : Text(
+                    label,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16 * scale,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+          ),
+        ),
       ),
     );
   }

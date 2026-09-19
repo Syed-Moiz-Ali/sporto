@@ -141,11 +141,15 @@ class SportoTossHeader extends StatelessWidget {
 class SportoTossMatchStrip extends StatelessWidget {
   final String team1;
   final String team2;
+  final String? team1LogoUrl;
+  final String? team2LogoUrl;
 
   const SportoTossMatchStrip({
     super.key,
     required this.team1,
     required this.team2,
+    this.team1LogoUrl,
+    this.team2LogoUrl,
   });
 
   @override
