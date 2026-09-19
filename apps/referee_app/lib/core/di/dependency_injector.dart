@@ -124,6 +124,7 @@ class DependencyInjector {
     TossCoinSide? forcedCoinSide,
     TossMode tossMode = TossMode.flipCoin,
     bool hasSelectedCaller = false,
+    RefereeTossResponse? initialToss,
   }) {
     return ConductTossBloc(
       conductTossUseCase: _conductTossUseCase,
@@ -136,6 +137,7 @@ class DependencyInjector {
       forcedCoinSide: forcedCoinSide,
       tossMode: tossMode,
       hasSelectedCaller: hasSelectedCaller,
+      initialToss: initialToss,
     );
   }
 }

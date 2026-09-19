@@ -743,6 +743,10 @@ class RefereeTossRuntimeResponse {
     this.decision,
     this.startingSetup,
     this.completedAt,
+    this.nextAction,
+    this.isResultDecided = false,
+    this.isCompleted = false,
+    this.allowedActions = const [],
   });
 
   final int? callingTeamId;
@@ -752,6 +756,10 @@ class RefereeTossRuntimeResponse {
   final String? decision;
   final Map<String, dynamic>? startingSetup;
   final String? completedAt;
+  final String? nextAction;
+  final bool isResultDecided;
+  final bool isCompleted;
+  final List<String> allowedActions;
 
   String? get decisionLabel =>
       decision == null ? null : RefereeTossDecisionLabels.labelFor(decision!);
@@ -768,6 +776,12 @@ class RefereeTossRuntimeResponse {
           ? Map<String, dynamic>.from(startingSetup)
           : null,
       completedAt: _stringValue(json['completed_at']),
+      nextAction: _stringValue(json['next_action']),
+      isResultDecided: json['is_result_decided'] == true,
+      isCompleted: json['is_completed'] == true,
+      allowedActions: _listValue(json['allowed_actions'])
+          .map((value) => value.toString())
+          .toList(),
     );
   }
 }

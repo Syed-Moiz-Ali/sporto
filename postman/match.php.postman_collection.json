@@ -1,0 +1,1288 @@
+{
+    "info": {
+        "name": "Referee - Match API",
+        "description": "APIs used by authenticated referees for assigned tournament/match operations.",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+        "_postman_id": "6aaecda13d6a70.61029304"
+    },
+    "item": [
+        {
+            "name": "Matches",
+            "item": [
+                {
+                    "name": "List Matches",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{referee_base_url}}/api/v1/referee/matches",
+                            "host": [
+                                "{{referee_base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "referee",
+                                "matches"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Match Details",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{referee_base_url}}/api/v1/referee/matches/1",
+                            "host": [
+                                "{{referee_base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "referee",
+                                "matches",
+                                "1"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Toss",
+                    "item": [
+                        {
+                            "name": "Get Toss",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{base_url}}/api/v1/referee/matches/{{match_id}}/toss",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "referee",
+                                        "matches",
+                                        "{{match_id}}",
+                                        "toss"
+                                    ]
+                                },
+                                "description": "Always call GET Toss first to check `data.toss.state`. The state drives which UPDATE action is permitted next."
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "Update Toss",
+                            "description": "Action depends on current state:\n- `TOSS_PENDING` \u2192 `CALL` (or `ENTER_RESULT` for manual)\n- `TOSS_CALLING` \u2192 `FLIP` (or `ENTER_RESULT`)\n- `DECISION_PENDING` \u2192 `SET_DECISION`\n- `STARTING_SETUP_PENDING` \u2192 `SET_STARTING_PLAYERS`\n- `TOSS_COMPLETED` \u2192 NO further mutation allowed",
+                            "request": {
+                                "method": "PUT",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"action\": \"CALL\",\n    \"calling_team_id\": 5,\n    \"called_side\": \"HEADS\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{base_url}}/api/v1/referee/matches/{{match_id}}/toss",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "referee",
+                                        "matches",
+                                        "{{match_id}}",
+                                        "toss"
+                                    ]
+                                }
+                            },
+                            "response": [
+                                {
+                                    "name": "CALL (Coin Flow)",
+                                    "originalRequest": {
+                                        "method": "PUT",
+                                        "header": [
+                                            {
+                                                "key": "Content-Type",
+                                                "value": "application/json"
+                                            }
+                                        ],
+                                        "body": {
+                                            "mode": "raw",
+                                            "raw": "{\n    \"action\": \"CALL\",\n    \"calling_team_id\": 5,\n    \"called_side\": \"HEADS\"\n}"
+                                        },
+                                        "url": {
+                                            "raw": "{{base_url}}/api/v1/referee/matches/{{match_id}}/toss",
+                                            "host": [
+                                                "{{base_url}}"
+                                            ],
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "referee",
+                                                "matches",
+                                                "{{match_id}}",
+                                                "toss"
+                                            ]
+                                        }
+                                    },
+                                    "status": "OK",
+                                    "code": 200,
+                                    "_postman_previewlanguage": "json",
+                                    "header": [],
+                                    "cookie": [],
+                                    "body": ""
+                                },
+                                {
+                                    "name": "FLIP (Coin Flow)",
+                                    "originalRequest": {
+                                        "method": "PUT",
+                                        "header": [
+                                            {
+                                                "key": "Content-Type",
+                                                "value": "application/json"
+                                            }
+                                        ],
+                                        "body": {
+                                            "mode": "raw",
+                                            "raw": "{\n    \"action\": \"FLIP\"\n}"
+                                        },
+                                        "url": {
+                                            "raw": "{{base_url}}/api/v1/referee/matches/{{match_id}}/toss",
+                                            "host": [
+                                                "{{base_url}}"
+                                            ],
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "referee",
+                                                "matches",
+                                                "{{match_id}}",
+                                                "toss"
+                                            ]
+                                        }
+                                    },
+                                    "status": "OK",
+                                    "code": 200,
+                                    "_postman_previewlanguage": "json",
+                                    "header": [],
+                                    "cookie": [],
+                                    "body": ""
+                                },
+                                {
+                                    "name": "ENTER_RESULT (Manual Flow)",
+                                    "originalRequest": {
+                                        "method": "PUT",
+                                        "header": [
+                                            {
+                                                "key": "Content-Type",
+                                                "value": "application/json"
+                                            }
+                                        ],
+                                        "body": {
+                                            "mode": "raw",
+                                            "raw": "{\n    \"action\": \"ENTER_RESULT\",\n    \"winner_team_id\": 5\n}"
+                                        },
+                                        "url": {
+                                            "raw": "{{base_url}}/api/v1/referee/matches/{{match_id}}/toss",
+                                            "host": [
+                                                "{{base_url}}"
+                                            ],
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "referee",
+                                                "matches",
+                                                "{{match_id}}",
+                                                "toss"
+                                            ]
+                                        }
+                                    },
+                                    "status": "OK",
+                                    "code": 200,
+                                    "_postman_previewlanguage": "json",
+                                    "header": [],
+                                    "cookie": [],
+                                    "body": ""
+                                },
+                                {
+                                    "name": "SET_DECISION",
+                                    "originalRequest": {
+                                        "method": "PUT",
+                                        "header": [
+                                            {
+                                                "key": "Content-Type",
+                                                "value": "application/json"
+                                            }
+                                        ],
+                                        "body": {
+                                            "mode": "raw",
+                                            "raw": "{\n    \"action\": \"SET_DECISION\",\n    \"decision\": \"BAT_FIRST\"\n}"
+                                        },
+                                        "url": {
+                                            "raw": "{{base_url}}/api/v1/referee/matches/{{match_id}}/toss",
+                                            "host": [
+                                                "{{base_url}}"
+                                            ],
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "referee",
+                                                "matches",
+                                                "{{match_id}}",
+                                                "toss"
+                                            ]
+                                        }
+                                    },
+                                    "status": "OK",
+                                    "code": 200,
+                                    "_postman_previewlanguage": "json",
+                                    "header": [],
+                                    "cookie": [],
+                                    "body": ""
+                                },
+                                {
+                                    "name": "SET_STARTING_PLAYERS",
+                                    "originalRequest": {
+                                        "method": "PUT",
+                                        "header": [
+                                            {
+                                                "key": "Content-Type",
+                                                "value": "application/json"
+                                            }
+                                        ],
+                                        "body": {
+                                            "mode": "raw",
+                                            "raw": "{\n    \"action\": \"SET_STARTING_PLAYERS\",\n    \"striker_user_id\": 101,\n    \"non_striker_user_id\": 102,\n    \"opening_bowler_user_id\": 201\n}"
+                                        },
+                                        "url": {
+                                            "raw": "{{base_url}}/api/v1/referee/matches/{{match_id}}/toss",
+                                            "host": [
+                                                "{{base_url}}"
+                                            ],
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "referee",
+                                                "matches",
+                                                "{{match_id}}",
+                                                "toss"
+                                            ]
+                                        }
+                                    },
+                                    "status": "OK",
+                                    "code": 200,
+                                    "_postman_previewlanguage": "json",
+                                    "header": [],
+                                    "cookie": [],
+                                    "body": ""
+                                },
+                                {
+                                    "name": "409 Conflict - CALL after completed",
+                                    "originalRequest": {
+                                        "method": "PUT",
+                                        "header": [
+                                            {
+                                                "key": "Content-Type",
+                                                "value": "application/json"
+                                            }
+                                        ],
+                                        "body": {
+                                            "mode": "raw",
+                                            "raw": "{\n    \"action\": \"CALL\"\n}"
+                                        },
+                                        "url": {
+                                            "raw": "{{base_url}}/api/v1/referee/matches/{{match_id}}/toss",
+                                            "host": [
+                                                "{{base_url}}"
+                                            ],
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "referee",
+                                                "matches",
+                                                "{{match_id}}",
+                                                "toss"
+                                            ]
+                                        }
+                                    },
+                                    "status": "Conflict",
+                                    "code": 409,
+                                    "_postman_previewlanguage": "json",
+                                    "header": [
+                                        {
+                                            "key": "Content-Type",
+                                            "value": "application/json"
+                                        }
+                                    ],
+                                    "cookie": [],
+                                    "body": "{\n    \"success\": false,\n    \"message\": \"Match toss has already been completed.\",\n    \"errors\": null,\n    \"data\": {\n        \"match\": [],\n        \"sport\": [],\n        \"format\": [],\n        \"teams\": [],\n        \"toss\": {\n            \"enabled\": true,\n            \"method\": \"coin\",\n            \"state\": \"TOSS_COMPLETED\",\n            \"is_started\": true,\n            \"is_result_decided\": true,\n            \"is_completed\": true,\n            \"next_action\": null,\n            \"allowed_actions\": [],\n            \"runtime\": {\n                \"is_started\": true,\n                \"is_completed\": true,\n                \"next_action\": null,\n                \"allowed_actions\": []\n            }\n        }\n    }\n}"
+                                },
+                                {
+                                    "name": "409 Conflict - FLIP after completed",
+                                    "originalRequest": {
+                                        "method": "PUT",
+                                        "header": [
+                                            {
+                                                "key": "Content-Type",
+                                                "value": "application/json"
+                                            }
+                                        ],
+                                        "body": {
+                                            "mode": "raw",
+                                            "raw": "{\n    \"action\": \"FLIP\"\n}"
+                                        },
+                                        "url": {
+                                            "raw": "{{base_url}}/api/v1/referee/matches/{{match_id}}/toss",
+                                            "host": [
+                                                "{{base_url}}"
+                                            ],
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "referee",
+                                                "matches",
+                                                "{{match_id}}",
+                                                "toss"
+                                            ]
+                                        }
+                                    },
+                                    "status": "Conflict",
+                                    "code": 409,
+                                    "_postman_previewlanguage": "json",
+                                    "header": [
+                                        {
+                                            "key": "Content-Type",
+                                            "value": "application/json"
+                                        }
+                                    ],
+                                    "cookie": [],
+                                    "body": "{\n    \"success\": false,\n    \"message\": \"Match toss has already been completed.\",\n    \"errors\": null,\n    \"data\": {\n        \"match\": [],\n        \"sport\": [],\n        \"format\": [],\n        \"teams\": [],\n        \"toss\": {\n            \"enabled\": true,\n            \"method\": \"coin\",\n            \"state\": \"TOSS_COMPLETED\",\n            \"is_started\": true,\n            \"is_result_decided\": true,\n            \"is_completed\": true,\n            \"next_action\": null,\n            \"allowed_actions\": [],\n            \"runtime\": {\n                \"is_started\": true,\n                \"is_completed\": true,\n                \"next_action\": null,\n                \"allowed_actions\": []\n            }\n        }\n    }\n}"
+                                },
+                                {
+                                    "name": "409 Conflict - ENTER_RESULT after completed",
+                                    "originalRequest": {
+                                        "method": "PUT",
+                                        "header": [
+                                            {
+                                                "key": "Content-Type",
+                                                "value": "application/json"
+                                            }
+                                        ],
+                                        "body": {
+                                            "mode": "raw",
+                                            "raw": "{\n    \"action\": \"ENTER_RESULT\"\n}"
+                                        },
+                                        "url": {
+                                            "raw": "{{base_url}}/api/v1/referee/matches/{{match_id}}/toss",
+                                            "host": [
+                                                "{{base_url}}"
+                                            ],
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "referee",
+                                                "matches",
+                                                "{{match_id}}",
+                                                "toss"
+                                            ]
+                                        }
+                                    },
+                                    "status": "Conflict",
+                                    "code": 409,
+                                    "_postman_previewlanguage": "json",
+                                    "header": [
+                                        {
+                                            "key": "Content-Type",
+                                            "value": "application/json"
+                                        }
+                                    ],
+                                    "cookie": [],
+                                    "body": "{\n    \"success\": false,\n    \"message\": \"Match toss has already been completed.\",\n    \"errors\": null,\n    \"data\": {\n        \"match\": [],\n        \"sport\": [],\n        \"format\": [],\n        \"teams\": [],\n        \"toss\": {\n            \"enabled\": true,\n            \"method\": \"coin\",\n            \"state\": \"TOSS_COMPLETED\",\n            \"is_started\": true,\n            \"is_result_decided\": true,\n            \"is_completed\": true,\n            \"next_action\": null,\n            \"allowed_actions\": [],\n            \"runtime\": {\n                \"is_started\": true,\n                \"is_completed\": true,\n                \"next_action\": null,\n                \"allowed_actions\": []\n            }\n        }\n    }\n}"
+                                },
+                                {
+                                    "name": "409 Conflict - SET_DECISION after completed",
+                                    "originalRequest": {
+                                        "method": "PUT",
+                                        "header": [
+                                            {
+                                                "key": "Content-Type",
+                                                "value": "application/json"
+                                            }
+                                        ],
+                                        "body": {
+                                            "mode": "raw",
+                                            "raw": "{\n    \"action\": \"SET_DECISION\"\n}"
+                                        },
+                                        "url": {
+                                            "raw": "{{base_url}}/api/v1/referee/matches/{{match_id}}/toss",
+                                            "host": [
+                                                "{{base_url}}"
+                                            ],
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "referee",
+                                                "matches",
+                                                "{{match_id}}",
+                                                "toss"
+                                            ]
+                                        }
+                                    },
+                                    "status": "Conflict",
+                                    "code": 409,
+                                    "_postman_previewlanguage": "json",
+                                    "header": [
+                                        {
+                                            "key": "Content-Type",
+                                            "value": "application/json"
+                                        }
+                                    ],
+                                    "cookie": [],
+                                    "body": "{\n    \"success\": false,\n    \"message\": \"Match toss has already been completed.\",\n    \"errors\": null,\n    \"data\": {\n        \"match\": [],\n        \"sport\": [],\n        \"format\": [],\n        \"teams\": [],\n        \"toss\": {\n            \"enabled\": true,\n            \"method\": \"coin\",\n            \"state\": \"TOSS_COMPLETED\",\n            \"is_started\": true,\n            \"is_result_decided\": true,\n            \"is_completed\": true,\n            \"next_action\": null,\n            \"allowed_actions\": [],\n            \"runtime\": {\n                \"is_started\": true,\n                \"is_completed\": true,\n                \"next_action\": null,\n                \"allowed_actions\": []\n            }\n        }\n    }\n}"
+                                },
+                                {
+                                    "name": "409 Conflict - SET_STARTING_PLAYERS after completed",
+                                    "originalRequest": {
+                                        "method": "PUT",
+                                        "header": [
+                                            {
+                                                "key": "Content-Type",
+                                                "value": "application/json"
+                                            }
+                                        ],
+                                        "body": {
+                                            "mode": "raw",
+                                            "raw": "{\n    \"action\": \"SET_STARTING_PLAYERS\"\n}"
+                                        },
+                                        "url": {
+                                            "raw": "{{base_url}}/api/v1/referee/matches/{{match_id}}/toss",
+                                            "host": [
+                                                "{{base_url}}"
+                                            ],
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "referee",
+                                                "matches",
+                                                "{{match_id}}",
+                                                "toss"
+                                            ]
+                                        }
+                                    },
+                                    "status": "Conflict",
+                                    "code": 409,
+                                    "_postman_previewlanguage": "json",
+                                    "header": [
+                                        {
+                                            "key": "Content-Type",
+                                            "value": "application/json"
+                                        }
+                                    ],
+                                    "cookie": [],
+                                    "body": "{\n    \"success\": false,\n    \"message\": \"Match toss has already been completed.\",\n    \"errors\": null,\n    \"data\": {\n        \"match\": [],\n        \"sport\": [],\n        \"format\": [],\n        \"teams\": [],\n        \"toss\": {\n            \"enabled\": true,\n            \"method\": \"coin\",\n            \"state\": \"TOSS_COMPLETED\",\n            \"is_started\": true,\n            \"is_result_decided\": true,\n            \"is_completed\": true,\n            \"next_action\": null,\n            \"allowed_actions\": [],\n            \"runtime\": {\n                \"is_started\": true,\n                \"is_completed\": true,\n                \"next_action\": null,\n                \"allowed_actions\": []\n            }\n        }\n    }\n}"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "Score",
+                    "item": [
+                        {
+                            "name": "Get Score",
+                            "request": {
+                                "auth": {
+                                    "type": "bearer",
+                                    "bearer": [
+                                        {
+                                            "key": "token",
+                                            "value": "{{token}}",
+                                            "type": "string"
+                                        }
+                                    ]
+                                },
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{base_url}}/api/v1/referee/matches/{{match_id}}/score",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "referee",
+                                        "matches",
+                                        "{{match_id}}",
+                                        "score"
+                                    ]
+                                }
+                            },
+                            "response": [
+                                {
+                                    "name": "200 Success",
+                                    "originalRequest": {
+                                        "method": "GET",
+                                        "header": [
+                                            {
+                                                "key": "Accept",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            }
+                                        ],
+                                        "url": {
+                                            "raw": "{{base_url}}/api/v1/referee/matches/{{match_id}}/score",
+                                            "host": [
+                                                "{{base_url}}"
+                                            ],
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "referee",
+                                                "matches",
+                                                "{{match_id}}",
+                                                "score"
+                                            ]
+                                        }
+                                    },
+                                    "status": "OK",
+                                    "code": 200,
+                                    "_postman_previewlanguage": "json",
+                                    "header": [],
+                                    "cookie": [],
+                                    "body": "{\n    \"success\": true,\n    \"message\": \"Score details retrieved successfully.\",\n    \"data\": {\n        \"match\": {\n            \"id\": 1,\n            \"status\": 1,\n            \"match_number\": 1,\n            \"winner_team_id\": null,\n            \"is_walkover\": 0\n        },\n        \"sport\": {\n            \"id\": 1,\n            \"name\": \"Cricket\"\n        },\n        \"format\": {\n            \"id\": 1,\n            \"name\": \"T20\"\n        },\n        \"teams\": [\n            {\n                \"id\": 1,\n                \"team_name\": \"Team A\",\n                \"team_logo_url\": null,\n                \"players\": [\n                    {\n                        \"user_id\": 101,\n                        \"name\": \"Player A\"\n                    }\n                ]\n            },\n            {\n                \"id\": 2,\n                \"team_name\": \"Team B\",\n                \"team_logo_url\": null,\n                \"players\": []\n            }\n        ],\n        \"scoring\": {\n            \"enabled\": true,\n            \"method\": \"BALL_BY_BALL\",\n            \"period_type\": \"INNINGS\",\n            \"periods_count\": 2,\n            \"current_period\": 1,\n            \"available_events\": [\n                {\n                    \"code\": \"RUN\",\n                    \"label\": \"Run\",\n                    \"type\": \"POINT\",\n                    \"value\": 1,\n                    \"requires_player\": true\n                }\n            ],\n            \"runtime\": {},\n            \"score\": {}\n        }\n    }\n}"
+                                },
+                                {
+                                    "name": "404 Match Not Found",
+                                    "originalRequest": {
+                                        "method": "GET",
+                                        "header": [
+                                            {
+                                                "key": "Accept",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            }
+                                        ],
+                                        "url": {
+                                            "raw": "{{base_url}}/api/v1/referee/matches/{{match_id}}/score",
+                                            "host": [
+                                                "{{base_url}}"
+                                            ],
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "referee",
+                                                "matches",
+                                                "{{match_id}}",
+                                                "score"
+                                            ]
+                                        }
+                                    },
+                                    "status": "Not Found",
+                                    "code": 404,
+                                    "_postman_previewlanguage": "json",
+                                    "header": [],
+                                    "cookie": [],
+                                    "body": "{\n    \"success\": false,\n    \"message\": \"Match not found or you do not have permission to view it.\"\n}"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Update Score",
+                            "request": {
+                                "auth": {
+                                    "type": "bearer",
+                                    "bearer": [
+                                        {
+                                            "key": "token",
+                                            "value": "{{token}}",
+                                            "type": "string"
+                                        }
+                                    ]
+                                },
+                                "method": "PUT",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"action\": \"ADD_EVENT\",\n    \"event_code\": \"RUN\",\n    \"team_id\": 10,\n    \"player_id\": 101,\n    \"value\": 4\n}"
+                                },
+                                "url": {
+                                    "raw": "{{base_url}}/api/v1/referee/matches/{{match_id}}/score",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "referee",
+                                        "matches",
+                                        "{{match_id}}",
+                                        "score"
+                                    ]
+                                }
+                            },
+                            "response": [
+                                {
+                                    "name": "START",
+                                    "originalRequest": {
+                                        "method": "PUT",
+                                        "header": [
+                                            {
+                                                "key": "Accept",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            },
+                                            {
+                                                "key": "Content-Type",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            }
+                                        ],
+                                        "body": {
+                                            "mode": "raw",
+                                            "raw": "{\n    \"action\": \"START\"\n}"
+                                        },
+                                        "url": {
+                                            "raw": "{{base_url}}/api/v1/referee/matches/{{match_id}}/score",
+                                            "host": [
+                                                "{{base_url}}"
+                                            ],
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "referee",
+                                                "matches",
+                                                "{{match_id}}",
+                                                "score"
+                                            ]
+                                        }
+                                    },
+                                    "status": "OK",
+                                    "code": 200,
+                                    "_postman_previewlanguage": "json",
+                                    "header": [],
+                                    "cookie": [],
+                                    "body": "{\n    \"success\": true,\n    \"message\": \"Score updated successfully.\",\n    \"data\": {}\n}"
+                                },
+                                {
+                                    "name": "UNDO_LAST",
+                                    "originalRequest": {
+                                        "method": "PUT",
+                                        "header": [
+                                            {
+                                                "key": "Accept",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            },
+                                            {
+                                                "key": "Content-Type",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            }
+                                        ],
+                                        "body": {
+                                            "mode": "raw",
+                                            "raw": "{\n    \"action\": \"UNDO_LAST\"\n}"
+                                        },
+                                        "url": {
+                                            "raw": "{{base_url}}/api/v1/referee/matches/{{match_id}}/score",
+                                            "host": [
+                                                "{{base_url}}"
+                                            ],
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "referee",
+                                                "matches",
+                                                "{{match_id}}",
+                                                "score"
+                                            ]
+                                        }
+                                    },
+                                    "status": "OK",
+                                    "code": 200,
+                                    "_postman_previewlanguage": "json",
+                                    "header": [],
+                                    "cookie": [],
+                                    "body": "{\n    \"success\": true,\n    \"message\": \"Score updated successfully.\",\n    \"data\": {}\n}"
+                                },
+                                {
+                                    "name": "END_PERIOD",
+                                    "originalRequest": {
+                                        "method": "PUT",
+                                        "header": [
+                                            {
+                                                "key": "Accept",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            },
+                                            {
+                                                "key": "Content-Type",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            }
+                                        ],
+                                        "body": {
+                                            "mode": "raw",
+                                            "raw": "{\n    \"action\": \"END_PERIOD\"\n}"
+                                        },
+                                        "url": {
+                                            "raw": "{{base_url}}/api/v1/referee/matches/{{match_id}}/score",
+                                            "host": [
+                                                "{{base_url}}"
+                                            ],
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "referee",
+                                                "matches",
+                                                "{{match_id}}",
+                                                "score"
+                                            ]
+                                        }
+                                    },
+                                    "status": "OK",
+                                    "code": 200,
+                                    "_postman_previewlanguage": "json",
+                                    "header": [],
+                                    "cookie": [],
+                                    "body": "{\n    \"success\": true,\n    \"message\": \"Score updated successfully.\",\n    \"data\": {}\n}"
+                                },
+                                {
+                                    "name": "COMPLETE",
+                                    "originalRequest": {
+                                        "method": "PUT",
+                                        "header": [
+                                            {
+                                                "key": "Accept",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            },
+                                            {
+                                                "key": "Content-Type",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            }
+                                        ],
+                                        "body": {
+                                            "mode": "raw",
+                                            "raw": "{\n    \"action\": \"COMPLETE\"\n}"
+                                        },
+                                        "url": {
+                                            "raw": "{{base_url}}/api/v1/referee/matches/{{match_id}}/score",
+                                            "host": [
+                                                "{{base_url}}"
+                                            ],
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "referee",
+                                                "matches",
+                                                "{{match_id}}",
+                                                "score"
+                                            ]
+                                        }
+                                    },
+                                    "status": "OK",
+                                    "code": 200,
+                                    "_postman_previewlanguage": "json",
+                                    "header": [],
+                                    "cookie": [],
+                                    "body": "{\n    \"success\": true,\n    \"message\": \"Score updated successfully.\",\n    \"data\": {}\n}"
+                                },
+                                {
+                                    "name": "ADD_EVENT (Cricket RUN)",
+                                    "originalRequest": {
+                                        "method": "PUT",
+                                        "header": [
+                                            {
+                                                "key": "Accept",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            },
+                                            {
+                                                "key": "Content-Type",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            }
+                                        ],
+                                        "body": {
+                                            "mode": "raw",
+                                            "raw": "{\n    \"action\": \"ADD_EVENT\",\n    \"event_code\": \"RUN\",\n    \"team_id\": 10,\n    \"player_id\": 101,\n    \"value\": 4\n}"
+                                        },
+                                        "url": {
+                                            "raw": "{{base_url}}/api/v1/referee/matches/{{match_id}}/score",
+                                            "host": [
+                                                "{{base_url}}"
+                                            ],
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "referee",
+                                                "matches",
+                                                "{{match_id}}",
+                                                "score"
+                                            ]
+                                        }
+                                    },
+                                    "status": "OK",
+                                    "code": 200,
+                                    "_postman_previewlanguage": "json",
+                                    "header": [],
+                                    "cookie": [],
+                                    "body": "{\n    \"success\": true,\n    \"message\": \"Score updated successfully.\",\n    \"data\": {}\n}"
+                                },
+                                {
+                                    "name": "ADD_EVENT (Cricket WICKET)",
+                                    "originalRequest": {
+                                        "method": "PUT",
+                                        "header": [
+                                            {
+                                                "key": "Accept",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            },
+                                            {
+                                                "key": "Content-Type",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            }
+                                        ],
+                                        "body": {
+                                            "mode": "raw",
+                                            "raw": "{\n    \"action\": \"ADD_EVENT\",\n    \"event_code\": \"WICKET\",\n    \"team_id\": 10,\n    \"player_id\": 101\n}"
+                                        },
+                                        "url": {
+                                            "raw": "{{base_url}}/api/v1/referee/matches/{{match_id}}/score",
+                                            "host": [
+                                                "{{base_url}}"
+                                            ],
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "referee",
+                                                "matches",
+                                                "{{match_id}}",
+                                                "score"
+                                            ]
+                                        }
+                                    },
+                                    "status": "OK",
+                                    "code": 200,
+                                    "_postman_previewlanguage": "json",
+                                    "header": [],
+                                    "cookie": [],
+                                    "body": "{\n    \"success\": true,\n    \"message\": \"Score updated successfully.\",\n    \"data\": {}\n}"
+                                },
+                                {
+                                    "name": "ADD_EVENT (Cricket WIDE)",
+                                    "originalRequest": {
+                                        "method": "PUT",
+                                        "header": [
+                                            {
+                                                "key": "Accept",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            },
+                                            {
+                                                "key": "Content-Type",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            }
+                                        ],
+                                        "body": {
+                                            "mode": "raw",
+                                            "raw": "{\n    \"action\": \"ADD_EVENT\",\n    \"event_code\": \"WIDE\",\n    \"team_id\": 10\n}"
+                                        },
+                                        "url": {
+                                            "raw": "{{base_url}}/api/v1/referee/matches/{{match_id}}/score",
+                                            "host": [
+                                                "{{base_url}}"
+                                            ],
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "referee",
+                                                "matches",
+                                                "{{match_id}}",
+                                                "score"
+                                            ]
+                                        }
+                                    },
+                                    "status": "OK",
+                                    "code": 200,
+                                    "_postman_previewlanguage": "json",
+                                    "header": [],
+                                    "cookie": [],
+                                    "body": "{\n    \"success\": true,\n    \"message\": \"Score updated successfully.\",\n    \"data\": {}\n}"
+                                },
+                                {
+                                    "name": "ADD_EVENT (Cricket NO_BALL)",
+                                    "originalRequest": {
+                                        "method": "PUT",
+                                        "header": [
+                                            {
+                                                "key": "Accept",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            },
+                                            {
+                                                "key": "Content-Type",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            }
+                                        ],
+                                        "body": {
+                                            "mode": "raw",
+                                            "raw": "{\n    \"action\": \"ADD_EVENT\",\n    \"event_code\": \"NO_BALL\",\n    \"team_id\": 10\n}"
+                                        },
+                                        "url": {
+                                            "raw": "{{base_url}}/api/v1/referee/matches/{{match_id}}/score",
+                                            "host": [
+                                                "{{base_url}}"
+                                            ],
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "referee",
+                                                "matches",
+                                                "{{match_id}}",
+                                                "score"
+                                            ]
+                                        }
+                                    },
+                                    "status": "OK",
+                                    "code": 200,
+                                    "_postman_previewlanguage": "json",
+                                    "header": [],
+                                    "cookie": [],
+                                    "body": "{\n    \"success\": true,\n    \"message\": \"Score updated successfully.\",\n    \"data\": {}\n}"
+                                },
+                                {
+                                    "name": "ADD_EVENT (Badminton POINT)",
+                                    "originalRequest": {
+                                        "method": "PUT",
+                                        "header": [
+                                            {
+                                                "key": "Accept",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            },
+                                            {
+                                                "key": "Content-Type",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            }
+                                        ],
+                                        "body": {
+                                            "mode": "raw",
+                                            "raw": "{\n    \"action\": \"ADD_EVENT\",\n    \"event_code\": \"POINT\",\n    \"team_id\": 10,\n    \"player_id\": 101\n}"
+                                        },
+                                        "url": {
+                                            "raw": "{{base_url}}/api/v1/referee/matches/{{match_id}}/score",
+                                            "host": [
+                                                "{{base_url}}"
+                                            ],
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "referee",
+                                                "matches",
+                                                "{{match_id}}",
+                                                "score"
+                                            ]
+                                        }
+                                    },
+                                    "status": "OK",
+                                    "code": 200,
+                                    "_postman_previewlanguage": "json",
+                                    "header": [],
+                                    "cookie": [],
+                                    "body": "{\n    \"success\": true,\n    \"message\": \"Score updated successfully.\",\n    \"data\": {}\n}"
+                                },
+                                {
+                                    "name": "ADD_EVENT (Basketball POINT_1)",
+                                    "originalRequest": {
+                                        "method": "PUT",
+                                        "header": [
+                                            {
+                                                "key": "Accept",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            },
+                                            {
+                                                "key": "Content-Type",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            }
+                                        ],
+                                        "body": {
+                                            "mode": "raw",
+                                            "raw": "{\n    \"action\": \"ADD_EVENT\",\n    \"event_code\": \"POINT_1\",\n    \"team_id\": 10,\n    \"player_id\": 101\n}"
+                                        },
+                                        "url": {
+                                            "raw": "{{base_url}}/api/v1/referee/matches/{{match_id}}/score",
+                                            "host": [
+                                                "{{base_url}}"
+                                            ],
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "referee",
+                                                "matches",
+                                                "{{match_id}}",
+                                                "score"
+                                            ]
+                                        }
+                                    },
+                                    "status": "OK",
+                                    "code": 200,
+                                    "_postman_previewlanguage": "json",
+                                    "header": [],
+                                    "cookie": [],
+                                    "body": "{\n    \"success\": true,\n    \"message\": \"Score updated successfully.\",\n    \"data\": {}\n}"
+                                },
+                                {
+                                    "name": "ADD_EVENT (Basketball POINT_2)",
+                                    "originalRequest": {
+                                        "method": "PUT",
+                                        "header": [
+                                            {
+                                                "key": "Accept",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            },
+                                            {
+                                                "key": "Content-Type",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            }
+                                        ],
+                                        "body": {
+                                            "mode": "raw",
+                                            "raw": "{\n    \"action\": \"ADD_EVENT\",\n    \"event_code\": \"POINT_2\",\n    \"team_id\": 10,\n    \"player_id\": 101\n}"
+                                        },
+                                        "url": {
+                                            "raw": "{{base_url}}/api/v1/referee/matches/{{match_id}}/score",
+                                            "host": [
+                                                "{{base_url}}"
+                                            ],
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "referee",
+                                                "matches",
+                                                "{{match_id}}",
+                                                "score"
+                                            ]
+                                        }
+                                    },
+                                    "status": "OK",
+                                    "code": 200,
+                                    "_postman_previewlanguage": "json",
+                                    "header": [],
+                                    "cookie": [],
+                                    "body": "{\n    \"success\": true,\n    \"message\": \"Score updated successfully.\",\n    \"data\": {}\n}"
+                                },
+                                {
+                                    "name": "ADD_EVENT (Basketball POINT_3)",
+                                    "originalRequest": {
+                                        "method": "PUT",
+                                        "header": [
+                                            {
+                                                "key": "Accept",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            },
+                                            {
+                                                "key": "Content-Type",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            }
+                                        ],
+                                        "body": {
+                                            "mode": "raw",
+                                            "raw": "{\n    \"action\": \"ADD_EVENT\",\n    \"event_code\": \"POINT_3\",\n    \"team_id\": 10,\n    \"player_id\": 101\n}"
+                                        },
+                                        "url": {
+                                            "raw": "{{base_url}}/api/v1/referee/matches/{{match_id}}/score",
+                                            "host": [
+                                                "{{base_url}}"
+                                            ],
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "referee",
+                                                "matches",
+                                                "{{match_id}}",
+                                                "score"
+                                            ]
+                                        }
+                                    },
+                                    "status": "OK",
+                                    "code": 200,
+                                    "_postman_previewlanguage": "json",
+                                    "header": [],
+                                    "cookie": [],
+                                    "body": "{\n    \"success\": true,\n    \"message\": \"Score updated successfully.\",\n    \"data\": {}\n}"
+                                },
+                                {
+                                    "name": "ADD_EVENT (Basketball FOUL)",
+                                    "originalRequest": {
+                                        "method": "PUT",
+                                        "header": [
+                                            {
+                                                "key": "Accept",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            },
+                                            {
+                                                "key": "Content-Type",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            }
+                                        ],
+                                        "body": {
+                                            "mode": "raw",
+                                            "raw": "{\n    \"action\": \"ADD_EVENT\",\n    \"event_code\": \"FOUL\",\n    \"team_id\": 10,\n    \"player_id\": 101\n}"
+                                        },
+                                        "url": {
+                                            "raw": "{{base_url}}/api/v1/referee/matches/{{match_id}}/score",
+                                            "host": [
+                                                "{{base_url}}"
+                                            ],
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "referee",
+                                                "matches",
+                                                "{{match_id}}",
+                                                "score"
+                                            ]
+                                        }
+                                    },
+                                    "status": "OK",
+                                    "code": 200,
+                                    "_postman_previewlanguage": "json",
+                                    "header": [],
+                                    "cookie": [],
+                                    "body": "{\n    \"success\": true,\n    \"message\": \"Score updated successfully.\",\n    \"data\": {}\n}"
+                                }
+                            ],
+                            "item": [
+                                {
+                                    "name": "START - Success",
+                                    "request": {
+                                        "method": "PUT",
+                                        "header": [
+                                            {
+                                                "key": "Accept",
+                                                "value": "application/json"
+                                            },
+                                            {
+                                                "key": "Authorization",
+                                                "value": "Bearer {{token}}"
+                                            }
+                                        ],
+                                        "body": {
+                                            "mode": "raw",
+                                            "raw": "{\n    \"action\": \"START\"\n}",
+                                            "options": {
+                                                "raw": {
+                                                    "language": "json"
+                                                }
+                                            }
+                                        },
+                                        "url": {
+                                            "raw": "{{base_url}}/api/v1/referee/matches/{{match_id}}/score",
+                                            "host": [
+                                                "{{base_url}}"
+                                            ],
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "referee",
+                                                "matches",
+                                                "{{match_id}}",
+                                                "score"
+                                            ]
+                                        }
+                                    },
+                                    "response": []
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

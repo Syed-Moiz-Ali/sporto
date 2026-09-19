@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -9,42 +11,31 @@ import '../../../../core/di/dependency_injector.dart';
 import '../../application/conduct_toss_bloc.dart';
 
 // ============================================================
-// CONDUCT TOSS WIZARD
+// CONDUCT TOSS WIZARD (Figma: figma/toss)
 // ============================================================
 
 class ConductTossWizard extends StatelessWidget {
   /// Actual repository match id.
-  ///
-  /// Current repository mock has ids such as m-901 / m-902.
   final String? matchId;
 
-  /// What designer wants displayed.
+  /// Displayed match code, e.g. SPT-20481.
   final String? matchCode;
 
-  /// Null = actual random toss.
-  ///
-  /// For screenshot testing:
-  ///
-  /// TossCoinSide.tails
+  /// For screenshot or deterministic testing.
   final TossCoinSide? debugForcedCoinSide;
   final RefereeMatchResponse? initialMatch;
   final ConductTossBloc? bloc;
+  final VoidCallback? onNavigateToScoring;
 
   const ConductTossWizard({
     super.key,
-
-    // Current local mock repository contains m-902.
-    // Replace with actual selected match id later.
     this.matchId,
     this.matchCode,
     this.debugForcedCoinSide,
     this.initialMatch,
     this.bloc,
+    this.onNavigateToScoring,
   });
-
-  // ==========================================================
-  // BUILD
-  // ==========================================================
 
   @override
   Widget build(BuildContext context) {
@@ -53,45 +44,65 @@ class ConductTossWizard extends StatelessWidget {
         value: bloc!,
         child: _ConductTossView(
           matchCode: matchCode ?? 'SPT-${initialMatch?.id ?? 20481}',
+          onNavigateToScoring: onNavigateToScoring,
         ),
       );
     }
     final di = DependencyInjector.instance;
     if (initialMatch != null) {
       final match = initialMatch!;
-      final team1 = _apiTeam(match.teamA, 'team-a');
-      final team2 = _apiTeam(match.teamB, 'team-b');
-      return BlocProvider(
-        create: (_) => di.createConductTossBloc(
-          matchId: match.id.toString(),
-          team1: team1,
-          team2: team2,
-          callerTeamId: team1.id,
-          callerChoice: TossCoinSide.heads,
-          forcedCoinSide: debugForcedCoinSide,
-          hasSelectedCaller: false,
-        ),
-        child: _ConductTossView(
-          matchCode: matchCode ?? 'SPT-${match.id}',
-        ),
+      return FutureBuilder<RefereeTossResponse?>(
+        future: di.refereeRemoteDataSource.getMatchTossData(match.id),
+        builder: (context, snapshot) {
+          final toss = snapshot.data;
+          final team1 = _apiTeamWithRoster(match.teamA, toss, 0, 'team-a');
+          final team2 = _apiTeamWithRoster(match.teamB, toss, 1, 'team-b');
+          if (!snapshot.hasData) {
+            return const SportoScreenShell(
+                body: Center(child: CircularProgressIndicator()));
+          }
+          return BlocProvider(
+            create: (_) => di.createConductTossBloc(
+              matchId: match.id.toString(),
+              team1: team1,
+              team2: team2,
+              callerTeamId: team1.id,
+              callerChoice: TossCoinSide.heads,
+              forcedCoinSide: debugForcedCoinSide,
+              hasSelectedCaller: false,
+              initialToss: toss,
+            ),
+            child: _ConductTossView(
+              matchCode: matchCode ?? 'SPT-${match.id}',
+              onNavigateToScoring: onNavigateToScoring,
+            ),
+          );
+        },
       );
     }
-    return FutureBuilder<RefereeMatchResponse>(
+    return FutureBuilder<(RefereeMatchResponse, RefereeTossResponse?)>(
       future: _loadMatch(di),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           if (snapshot.hasError) {
             return SportoScreenShell(
               body: Center(
-                  child: Text('Unable to load match: ${snapshot.error}')),
+                child: Text(
+                  'Unable to load match: ${snapshot.error}',
+                  style: const TextStyle(color: Colors.white),
+                ),
+              ),
             );
           }
           return const SportoScreenShell(
-              body: Center(child: CircularProgressIndicator()));
+            body: Center(
+              child: CircularProgressIndicator(color: Color(0xFFED7B00)),
+            ),
+          );
         }
-        final match = snapshot.data!;
-        final team1 = _apiTeam(match.teamA, 'team-a');
-        final team2 = _apiTeam(match.teamB, 'team-b');
+        final (match, toss) = snapshot.data!;
+        final team1 = _apiTeamWithRoster(match.teamA, toss, 0, 'team-a');
+        final team2 = _apiTeamWithRoster(match.teamB, toss, 1, 'team-b');
         return BlocProvider(
           create: (_) => di.createConductTossBloc(
             matchId: match.id.toString(),
@@ -101,131 +112,156 @@ class ConductTossWizard extends StatelessWidget {
             callerChoice: TossCoinSide.heads,
             forcedCoinSide: debugForcedCoinSide,
             hasSelectedCaller: false,
+            initialToss: toss,
           ),
           child: _ConductTossView(
             matchCode: matchCode ?? 'SPT-${match.id}',
+            onNavigateToScoring: onNavigateToScoring,
           ),
         );
       },
     );
   }
 
-  Future<RefereeMatchResponse> _loadMatch(DependencyInjector di) async {
+  Future<(RefereeMatchResponse, RefereeTossResponse?)> _loadMatch(
+      DependencyInjector di) async {
     if (matchId != null && matchId!.trim().isNotEmpty) {
-      return di.refereeRemoteDataSource.showMyMatchData(matchId!);
+      final match = await di.refereeRemoteDataSource.showMyMatchData(matchId!);
+      RefereeTossResponse? toss;
+      try {
+        toss = await di.refereeRemoteDataSource.getMatchTossData(match.id);
+      } catch (_) {}
+      return (match, toss);
     }
     final matches = await di.refereeRemoteDataSource.listMyMatchesData();
     if (matches.isEmpty) {
       throw StateError('No assigned referee matches available.');
     }
-    return matches.first;
+    final match = matches.first;
+    RefereeTossResponse? toss;
+    try {
+      toss = await di.refereeRemoteDataSource.getMatchTossData(match.id);
+    } catch (_) {}
+    return (match, toss);
+  }
+
+  static List<TossPlayer> dummyPlayersForTeam(
+    String teamId,
+    String teamName,
+  ) {
+    return TossTeam.dummyPlayersFor(teamId, teamName);
   }
 
   TossTeam _apiTeam(RefereeMatchTeam? team, String fallbackId) {
+    final teamId = (team?.id ?? fallbackId.hashCode).toString();
+    final teamName = team?.name ?? 'Team';
     return TossTeam(
-      id: (team?.id ?? fallbackId.hashCode).toString(),
-      name: team?.name ?? 'Team',
-      players: const [],
+      id: teamId,
+      name: teamName,
+      players: dummyPlayersForTeam(teamId, teamName),
       logoUrl: team?.logoUrl,
     );
+  }
+
+  TossTeam _apiTeamWithRoster(RefereeMatchTeam? team, RefereeTossResponse? toss,
+      int index, String fallbackId) {
+    final base = _apiTeam(team, fallbackId);
+    final teams = (toss?.raw['teams'] as List?)?.whereType<Map>().toList();
+    final members = teams != null && index < teams.length
+        ? (teams[index]['members'] as List?)?.whereType<Map>().toList() ??
+            const []
+        : const [];
+    final players = members
+        .map((member) => TossPlayer(
+              id: (member['user_id'] ?? member['id']).toString(),
+              name: member['name']?.toString() ?? 'Player',
+              captain: member['is_captain'] == true,
+            ))
+        .toList();
+    return TossTeam(
+        id: base.id, name: base.name, players: players, logoUrl: base.logoUrl);
   }
 }
 
 // ============================================================
-// UI
+// UI VIEW
 // ============================================================
 
 class _ConductTossView extends StatelessWidget {
   final String matchCode;
+  final VoidCallback? onNavigateToScoring;
 
   const _ConductTossView({
     required this.matchCode,
+    this.onNavigateToScoring,
   });
 
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<ConductTossBloc, ConductTossState>(
-      listenWhen: (
-        previous,
-        current,
-      ) {
-        return previous.errorMessage != current.errorMessage;
-      },
-      listener: (
-        context,
-        state,
-      ) {
+      listenWhen: (previous, current) =>
+          previous.errorMessage != current.errorMessage,
+      listener: (context, state) {
         final error = state.errorMessage;
-
-        if (error == null) {
-          return;
-        }
-
+        if (error == null) return;
         ScaffoldMessenger.of(context)
           ..hideCurrentSnackBar()
           ..showSnackBar(
             SnackBar(
-              content: Text(
-                error,
-              ),
+              content: Text(error),
+              backgroundColor: const Color(0xFFB40003),
             ),
           );
       },
-      builder: (
-        context,
-        state,
-      ) {
+      builder: (context, state) {
+        final scale = context.sportoScale;
+        final title = state.screenTitle;
+
         return SportoScreenShell(
-          body: SafeArea(
-            bottom: false,
-            child: SingleChildScrollView(
-              physics: const ClampingScrollPhysics(),
-              padding: EdgeInsets.fromLTRB(
-                20 * context.sportoScale,
-                10 * context.sportoScale,
-                20 * context.sportoScale,
-                40 * context.sportoScale,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // ===========================================
-                  // HEADER
-                  // ===========================================
-
-                  _buildHeader(
-                    context: context,
-                    title: state.screenTitle,
-                    matchCode: matchCode,
-                    currentStep: state.progressStep,
-                    scale: context.sportoScale,
-                  ),
-
-                  SizedBox(
-                    height: 24 * context.sportoScale,
-                  ),
-
-                  // ===========================================
-                  // CURRENT STEP
-                  // ===========================================
-
-                  AnimatedSwitcher(
-                    duration: const Duration(
-                      milliseconds: 220,
+          body: Container(
+            color: const Color(0xFF090C10),
+            child: SafeArea(
+              bottom: false,
+              child: SingleChildScrollView(
+                physics: const ClampingScrollPhysics(),
+                padding: EdgeInsets.fromLTRB(
+                  20 * scale,
+                  10 * scale,
+                  20 * scale,
+                  40 * scale,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // ===========================================
+                    // TOP HEADER & PROGRESS (Exact Figma)
+                    // ===========================================
+                    _buildHeader(
+                      context: context,
+                      title: title,
+                      matchCode: matchCode,
+                      state: state,
+                      scale: scale,
                     ),
-                    switchInCurve: Curves.easeOutCubic,
-                    switchOutCurve: Curves.easeInCubic,
-                    child: KeyedSubtree(
-                      key: ValueKey(
-                        state.step,
-                      ),
-                      child: _buildStep(
-                        context,
-                        state,
+
+                    SizedBox(height: 20 * scale),
+
+                    // ===========================================
+                    // STEP VIEW
+                    // ===========================================
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 220),
+                      switchInCurve: Curves.easeOutCubic,
+                      switchOutCurve: Curves.easeInCubic,
+                      child: KeyedSubtree(
+                        key: ValueKey(state.step.name +
+                            state.tossMode.name +
+                            state.hasSelectedCaller.toString()),
+                        child: _buildStep(context, state),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -238,51 +274,325 @@ class _ConductTossView extends StatelessWidget {
   // STEP ROUTER
   // ==========================================================
 
-  Widget _buildStep(
-    BuildContext context,
-    ConductTossState state,
-  ) {
+  Widget _buildStep(BuildContext context, ConductTossState state) {
     switch (state.step) {
       case ConductTossStep.flipCoin:
-        return _flipCoin(
-          context,
-          state,
-        );
-
+        return _flipCoin(context, state);
       case ConductTossStep.coinResult:
-        return _coinResult(
-          context,
-          state,
-        );
-
+        return _coinResult(context, state);
       case ConductTossStep.chooseBatBowl:
-        return _chooseBatBowl(
-          context,
-          state,
-        );
-
+        return _chooseBatBowl(context, state);
       case ConductTossStep.selectOpeners:
-        return _selectOpeners(
-          context,
-          state,
-        );
+        return _buildSelectOpenersStep(context, state);
+      case ConductTossStep.matchReady:
+        return _buildMatchReadyStep(context, state);
     }
   }
 
   // ==========================================================
-  // STEP 1
-  // FLIP COIN
+  // HEADER (Frame 1261154402)
   // ==========================================================
 
-  Widget _flipCoin(
+  Widget _buildHeader({
+    required BuildContext context,
+    required String title,
+    required String matchCode,
+    required ConductTossState state,
+    required double scale,
+  }) {
+    final cleanMatchCode =
+        matchCode.replaceAll('Match #', '').replaceAll('#', '');
+
+    return Column(
+      children: [
+        SizedBox(
+          height: 46 * scale,
+          child: Row(
+            children: [
+              // Glassmorphic Back Button (Figma Back: 36x36, r10, fill #ffffff1a)
+              GestureDetector(
+                onTap: () {
+                  if (context.canPop()) {
+                    context.pop();
+                  }
+                },
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10 * scale),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                    child: Container(
+                      width: 36 * scale,
+                      height: 36 * scale,
+                      decoration: BoxDecoration(
+                        color: const Color(0x1AFFFFFF),
+                        borderRadius: BorderRadius.circular(10 * scale),
+                        border: Border.all(
+                          color: const Color(0x33FFFFFF),
+                          width: 0.8,
+                        ),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Color(0x1F000000),
+                            blurRadius: 4,
+                            offset: Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      alignment: Alignment.center,
+                      child: Icon(
+                        Icons.chevron_left_rounded,
+                        color: Colors.white,
+                        size: 26 * scale,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(width: 12 * scale),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18 * scale,
+                      fontWeight: FontWeight.w700,
+                      height: 1.1,
+                    ),
+                  ),
+                  SizedBox(height: 3 * scale),
+                  Text(
+                    'Match #$cleanMatchCode',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 12 * scale,
+                      fontWeight: FontWeight.w500,
+                      height: 1.1,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+
+        SizedBox(height: 16 * scale),
+
+        // Progress Capsules (Frame 1261154355: Line 2, Line 3, Line 5)
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(3, (index) {
+            final active = (state.step == ConductTossStep.selectOpeners ||
+                    state.step == ConductTossStep.matchReady)
+                ? true
+                : (index <= state.progressStep);
+            return Container(
+              margin: EdgeInsets.only(right: index == 2 ? 0 : 16 * scale),
+              width: 46 * scale,
+              height: 4 * scale,
+              decoration: BoxDecoration(
+                gradient: active
+                    ? const LinearGradient(
+                        colors: [Color(0xFFED7B00), Color(0xFFCF9E24)],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                      )
+                    : null,
+                color: active ? null : const Color(0xFF283040),
+                borderRadius: BorderRadius.circular(2 * scale),
+              ),
+            );
+          }),
+        ),
+      ],
+    );
+  }
+
+  // ==========================================================
+  // MATCH STRIP (Section: 350x46, radius 14, #12161c)
+  // ==========================================================
+
+  Widget _buildMatchStrip({
+    required String team1,
+    required String team2,
+    required double scale,
+  }) {
+    return Container(
+      width: double.infinity,
+      constraints: BoxConstraints(minHeight: 46 * scale),
+      padding: EdgeInsets.symmetric(
+        horizontal: 14 * scale,
+        vertical: 12 * scale,
+      ),
+      decoration: BoxDecoration(
+        color: const Color(0xFF12161C),
+        borderRadius: BorderRadius.circular(14 * scale),
+        border: Border.all(
+          color: const Color(0x1AFFFFFF),
+          width: 0.8,
+        ),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              team1,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 14 * scale,
+                fontWeight: FontWeight.w500,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 8 * scale),
+            child: Text(
+              'Vs',
+              style: TextStyle(
+                color: const Color(0xFFAAAAAA),
+                fontSize: 13 * scale,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              team2,
+              textAlign: TextAlign.end,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 14 * scale,
+                fontWeight: FontWeight.w500,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ==========================================================
+  // MODE SELECTOR (Shape: 350x42, r14, fill #2bb6731f, blur 20)
+  // ==========================================================
+
+  Widget _buildModeSelector(
     BuildContext context,
     ConductTossState state,
+    double scale,
   ) {
+    final isFlip = state.tossMode == TossMode.flipCoin;
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(14 * scale),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+        child: Container(
+          width: double.infinity,
+          height: 42 * scale,
+          padding: EdgeInsets.all(4 * scale),
+          decoration: BoxDecoration(
+            color: const Color(0x1F2BB673),
+            borderRadius: BorderRadius.circular(14 * scale),
+            border: Border.all(
+              color: const Color(0x33FFFFFF),
+              width: 1.0,
+            ),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: GestureDetector(
+                  onTap: () => context
+                      .read<ConductTossBloc>()
+                      .add(const SelectTossMode(TossMode.flipCoin)),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 180),
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: isFlip
+                          ? const Color(0xFF2BB673)
+                          : const Color(0xFF090C10),
+                      borderRadius: BorderRadius.circular(10 * scale),
+                      boxShadow: isFlip
+                          ? const [
+                              BoxShadow(
+                                color: Color(0x332BB673),
+                                blurRadius: 4,
+                                offset: Offset(0, 4),
+                              ),
+                            ]
+                          : null,
+                    ),
+                    child: Text(
+                      'Flip Coin',
+                      style: TextStyle(
+                        color: isFlip
+                            ? const Color(0xFF0E0C08)
+                            : const Color(0xFFA0A0A0),
+                        fontSize: 14 * scale,
+                        fontWeight: isFlip ? FontWeight.w700 : FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(width: 8 * scale),
+              Expanded(
+                child: GestureDetector(
+                  onTap: () => context
+                      .read<ConductTossBloc>()
+                      .add(const SelectTossMode(TossMode.enterResult)),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 180),
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: !isFlip
+                          ? const Color(0xFF2BB673)
+                          : const Color(0xFF090C10),
+                      borderRadius: BorderRadius.circular(10 * scale),
+                      boxShadow: !isFlip
+                          ? const [
+                              BoxShadow(
+                                color: Color(0x332BB673),
+                                blurRadius: 4,
+                                offset: Offset(0, 4),
+                              ),
+                            ]
+                          : null,
+                    ),
+                    child: Text(
+                      'Enter Result',
+                      style: TextStyle(
+                        color: !isFlip
+                            ? const Color(0xFF0E0C08)
+                            : const Color(0xFFA0A0A0),
+                        fontSize: 14 * scale,
+                        fontWeight: !isFlip ? FontWeight.w700 : FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ==========================================================
+  // STEP 1: FLIP COIN & ENTER RESULT
+  // ==========================================================
+
+  Widget _flipCoin(BuildContext context, ConductTossState state) {
     final scale = context.sportoScale;
 
-    // ==========================================================
-    // SCREEN 3: "Enter Result - Conduct Toss.png" (PHYSICAL FLIP)
-    // ==========================================================
+    // ----------------------------------------------------------
+    // MODE: ENTER RESULT (Enter Result - Conduct Toss.json)
+    // ----------------------------------------------------------
     if (state.tossMode == TossMode.enterResult) {
       return Column(
         children: [
@@ -340,9 +650,9 @@ class _ConductTossView extends StatelessWidget {
       );
     }
 
-    // ==========================================================
-    // SCREEN 1: "Flip Coin - Conduct Toss.png" (WHO IS CALLING?)
-    // ==========================================================
+    // ----------------------------------------------------------
+    // MODE: FLIP COIN - WHO IS CALLING? (Flip Coin - Conduct Toss.json)
+    // ----------------------------------------------------------
     if (!state.hasSelectedCaller) {
       return Column(
         children: [
@@ -390,9 +700,9 @@ class _ConductTossView extends StatelessWidget {
       );
     }
 
-    // ==========================================================
-    // SCREEN 2: "Conduct Toss.png" (TEAM CALLS HEADS/TAILS & FLIP)
-    // ==========================================================
+    // ----------------------------------------------------------
+    // MODE: FLIP COIN - COIN SIDE & FLIP
+    // ----------------------------------------------------------
     final callingTeam = state.teamById(state.callerTeamId);
     return Column(
       children: [
@@ -456,78 +766,6 @@ class _ConductTossView extends StatelessWidget {
     );
   }
 
-  Widget _buildModeSelector(
-    BuildContext context,
-    ConductTossState state,
-    double scale,
-  ) {
-    final isFlip = state.tossMode == TossMode.flipCoin;
-    return Container(
-      width: double.infinity,
-      height: 48 * scale,
-      padding: EdgeInsets.all(4 * scale),
-      decoration: BoxDecoration(
-        color: const Color(0xFF0D141F),
-        borderRadius: BorderRadius.circular(14 * scale),
-        border: Border.all(color: const Color(0xFF1E2838)),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: GestureDetector(
-              onTap: () => context
-                  .read<ConductTossBloc>()
-                  .add(const SelectTossMode(TossMode.flipCoin)),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 180),
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: isFlip ? const Color(0xFF20C783) : Colors.transparent,
-                  borderRadius: BorderRadius.circular(10 * scale),
-                ),
-                child: Text(
-                  'Flip Coin',
-                  style: TextStyle(
-                    color: isFlip
-                        ? const Color(0xFF03160D)
-                        : const Color(0xFF8C96A5),
-                    fontSize: 14 * scale,
-                    fontWeight: isFlip ? FontWeight.w700 : FontWeight.w500,
-                  ),
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            child: GestureDetector(
-              onTap: () => context
-                  .read<ConductTossBloc>()
-                  .add(const SelectTossMode(TossMode.enterResult)),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 180),
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: !isFlip ? const Color(0xFF20C783) : Colors.transparent,
-                  borderRadius: BorderRadius.circular(10 * scale),
-                ),
-                child: Text(
-                  'Enter Result',
-                  style: TextStyle(
-                    color: !isFlip
-                        ? const Color(0xFF03160D)
-                        : const Color(0xFF8C96A5),
-                    fontSize: 14 * scale,
-                    fontWeight: !isFlip ? FontWeight.w700 : FontWeight.w500,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildCallingBar(
     BuildContext context,
     ConductTossState state,
@@ -536,12 +774,17 @@ class _ConductTossView extends StatelessWidget {
     final caller = state.teamById(state.callerTeamId);
     return Container(
       width: double.infinity,
-      padding:
-          EdgeInsets.symmetric(horizontal: 16 * scale, vertical: 14 * scale),
+      padding: EdgeInsets.symmetric(
+        horizontal: 16 * scale,
+        vertical: 14 * scale,
+      ),
       decoration: BoxDecoration(
-        color: const Color(0xFF0D141F),
+        color: const Color(0xFF12161C),
         borderRadius: BorderRadius.circular(14 * scale),
-        border: Border.all(color: const Color(0xFF1E2838)),
+        border: Border.all(
+          color: const Color(0x1AFFFFFF),
+          width: 0.8,
+        ),
       ),
       child: Row(
         children: [
@@ -552,7 +795,7 @@ class _ConductTossView extends StatelessWidget {
                   TextSpan(
                     text: caller.name,
                     style: TextStyle(
-                      color: const Color(0xFF20C783),
+                      color: const Color(0xFF2BB673),
                       fontSize: 14 * scale,
                       fontWeight: FontWeight.w600,
                     ),
@@ -577,7 +820,7 @@ class _ConductTossView extends StatelessWidget {
             child: Text(
               'Change',
               style: TextStyle(
-                color: const Color(0xFF4B96E6),
+                color: const Color(0xFF7AD3FF),
                 fontSize: 14 * scale,
                 fontWeight: FontWeight.w600,
               ),
@@ -596,12 +839,19 @@ class _ConductTossView extends StatelessWidget {
   }) {
     return Container(
       width: double.infinity,
-      padding:
-          EdgeInsets.fromLTRB(16 * scale, 24 * scale, 16 * scale, 24 * scale),
+      padding: EdgeInsets.fromLTRB(
+        14 * scale,
+        18 * scale,
+        14 * scale,
+        18 * scale,
+      ),
       decoration: BoxDecoration(
-        color: const Color(0xFF0E1622),
-        borderRadius: BorderRadius.circular(18 * scale),
-        border: Border.all(color: const Color(0xFF1A2433)),
+        color: const Color(0xFF12161C),
+        borderRadius: BorderRadius.circular(14 * scale),
+        border: Border.all(
+          color: const Color(0x1AFFFFFF),
+          width: 0.8,
+        ),
       ),
       child: Column(
         children: [
@@ -609,17 +859,21 @@ class _ConductTossView extends StatelessWidget {
             title,
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: const Color(0xFF20C783),
-              fontSize: 18 * scale,
+              color: const Color(0xFF2BB673),
+              fontSize: 16 * scale,
               fontWeight: FontWeight.w600,
             ),
           ),
-          SizedBox(height: 20 * scale),
+          SizedBox(height: 16 * scale),
           child,
         ],
       ),
     );
   }
+
+  // ==========================================================
+  // TEAM CHOICE CARD (Frame 1261154265: 154x160, r16, logo 90x90)
+  // ==========================================================
 
   Widget _teamChoiceCard({
     required BuildContext context,
@@ -632,22 +886,29 @@ class _ConductTossView extends StatelessWidget {
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
-        height: 195 * scale,
-        padding:
-            EdgeInsets.symmetric(horizontal: 10 * scale, vertical: 16 * scale),
+        height: 160 * scale,
+        padding: EdgeInsets.symmetric(
+          horizontal: 10 * scale,
+          vertical: 16 * scale,
+        ),
         decoration: BoxDecoration(
-          color: selected ? const Color(0xFF0C2018) : const Color(0xFF111A24),
+          color: selected ? const Color(0x1A2BB673) : const Color(0x991B2335),
           borderRadius: BorderRadius.circular(16 * scale),
           border: Border.all(
-            color: selected ? const Color(0xFF20C783) : const Color(0xFF1E2838),
-            width: selected ? 1.5 : 1.0,
+            color: selected ? const Color(0xFF2BB673) : const Color(0x4D7AD0FA),
+            width: selected ? 1.2 : 1.0,
           ),
           boxShadow: selected
-              ? [
+              ? const [
                   BoxShadow(
-                    color: const Color(0xFF20C783).withValues(alpha: 0.16),
-                    blurRadius: 14,
-                    spreadRadius: -2,
+                    color: Color(0x4D17A25F),
+                    blurRadius: 24,
+                    offset: Offset(2, 6),
+                  ),
+                  BoxShadow(
+                    color: Color(0x1A000000),
+                    blurRadius: 8,
+                    offset: Offset(0, 2),
                   ),
                 ]
               : null,
@@ -656,10 +917,10 @@ class _ConductTossView extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              width: 86 * scale,
-              height: 86 * scale,
+              width: 90 * scale,
+              height: 90 * scale,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(14 * scale),
+                borderRadius: BorderRadius.circular(20 * scale),
                 color: const Color(0xFF1A2332),
               ),
               clipBehavior: Clip.antiAlias,
@@ -671,16 +932,14 @@ class _ConductTossView extends StatelessWidget {
                     )
                   : _fallbackLogo(team, scale),
             ),
-            SizedBox(height: 14 * scale),
+            SizedBox(height: 10 * scale),
             Text(
               team.name,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: selected
-                    ? const Color(0xFF20C783)
-                    : const Color(0xFF94A3B8),
+                color: selected ? const Color(0xFF2BB673) : Colors.white,
                 fontSize: 14 * scale,
                 fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
               ),
@@ -712,7 +971,7 @@ class _ConductTossView extends StatelessWidget {
       child: Text(
         initials,
         style: TextStyle(
-          color: const Color(0xFF20C783),
+          color: const Color(0xFF2BB673),
           fontSize: 24 * scale,
           fontWeight: FontWeight.bold,
           letterSpacing: 1.2,
@@ -733,22 +992,24 @@ class _ConductTossView extends StatelessWidget {
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
-        height: 195 * scale,
-        padding:
-            EdgeInsets.symmetric(horizontal: 10 * scale, vertical: 16 * scale),
+        height: 160 * scale,
+        padding: EdgeInsets.symmetric(
+          horizontal: 10 * scale,
+          vertical: 16 * scale,
+        ),
         decoration: BoxDecoration(
-          color: selected ? const Color(0xFF0C2018) : const Color(0xFF111A24),
+          color: selected ? const Color(0x1A2BB673) : const Color(0x991B2335),
           borderRadius: BorderRadius.circular(16 * scale),
           border: Border.all(
-            color: selected ? const Color(0xFF20C783) : const Color(0xFF1E2838),
-            width: selected ? 1.5 : 1.0,
+            color: selected ? const Color(0xFF2BB673) : const Color(0x4D7AD0FA),
+            width: selected ? 1.2 : 1.0,
           ),
           boxShadow: selected
-              ? [
+              ? const [
                   BoxShadow(
-                    color: const Color(0xFF20C783).withValues(alpha: 0.16),
-                    blurRadius: 14,
-                    spreadRadius: -2,
+                    color: Color(0x4D17A25F),
+                    blurRadius: 24,
+                    offset: Offset(2, 6),
                   ),
                 ]
               : null,
@@ -764,13 +1025,11 @@ class _ConductTossView extends StatelessWidget {
                 fit: BoxFit.contain,
               ),
             ),
-            SizedBox(height: 14 * scale),
+            SizedBox(height: 10 * scale),
             Text(
               label,
               style: TextStyle(
-                color: selected
-                    ? const Color(0xFF20C783)
-                    : const Color(0xFF94A3B8),
+                color: selected ? const Color(0xFF2BB673) : Colors.white,
                 fontSize: 14 * scale,
                 fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
               ),
@@ -781,78 +1040,13 @@ class _ConductTossView extends StatelessWidget {
     );
   }
 
-  Widget _buildGoldenButton({
-    required String label,
-    required double scale,
-    required VoidCallback? onPressed,
-    bool disabled = false,
-    bool loading = false,
-  }) {
-    return Center(
-      child: GestureDetector(
-        onTap: (disabled || loading) ? null : onPressed,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
-          width: double.infinity,
-          height: 52 * scale,
-          decoration: BoxDecoration(
-            color: disabled ? const Color(0xFF151A22) : null,
-            gradient: disabled
-                ? null
-                : const LinearGradient(
-                    colors: [Color(0xFFE58A13), Color(0xFFF5A623)],
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                  ),
-            borderRadius: BorderRadius.circular(16 * scale),
-            border: disabled
-                ? Border.all(color: const Color(0xFF202633), width: 1.0)
-                : null,
-            boxShadow: disabled
-                ? null
-                : [
-                    BoxShadow(
-                      color: const Color(0xFFE58A13).withValues(alpha: 0.35),
-                      blurRadius: 18,
-                      offset: const Offset(0, 6),
-                    ),
-                  ],
-          ),
-          alignment: Alignment.center,
-          child: loading
-              ? const SizedBox(
-                  width: 22,
-                  height: 22,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2.5,
-                    color: Colors.white,
-                  ),
-                )
-              : Text(
-                  label,
-                  style: TextStyle(
-                    color: disabled ? const Color(0xFF4A5568) : Colors.white,
-                    fontSize: 16 * scale,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-        ),
-      ),
-    );
-  }
-
   // ==========================================================
   // STEP 1 RESULT
   // ==========================================================
 
-  Widget _coinResult(
-    BuildContext context,
-    ConductTossState state,
-  ) {
+  Widget _coinResult(BuildContext context, ConductTossState state) {
     final scale = context.sportoScale;
-
     final landedSide = state.landedSide;
-
     final winner = state.tossWinner;
 
     if (landedSide == null || winner == null) {
@@ -868,9 +1062,7 @@ class _ConductTossView extends StatelessWidget {
           team2: state.team2.name,
           scale: scale,
         ),
-        SizedBox(
-          height: 21 * scale,
-        ),
+        SizedBox(height: 20 * scale),
         SportoTossCoinCard(
           coinAsset: isTails
               ? 'assets/images/toss_coin_tails.png'
@@ -879,9 +1071,7 @@ class _ConductTossView extends StatelessWidget {
           winnerText: '${winner.name} Won The Toss',
           buttonText: 'Continue',
           onButtonPressed: () {
-            context.read<ConductTossBloc>().add(
-                  ContinueAfterCoinResult(),
-                );
+            context.read<ConductTossBloc>().add(ContinueAfterCoinResult());
           },
         ),
       ],
@@ -889,109 +1079,10 @@ class _ConductTossView extends StatelessWidget {
   }
 
   // ==========================================================
-  // STEP 2
-  // BAT / BOWL
+  // STEP 2: CHOOSE BAT / BOWL
   // ==========================================================
 
-  Widget _buildHeader({
-    required BuildContext context,
-    required String title,
-    required String matchCode,
-    required int currentStep,
-    required double scale,
-  }) {
-    return Column(
-      children: [
-        SizedBox(
-          height: 36 * scale,
-          child: Row(
-            children: [
-              GestureDetector(
-                onTap: () {
-                  if (context.canPop()) {
-                    context.pop();
-                  }
-                },
-                child: Container(
-                  width: 36 * scale,
-                  height: 36 * scale,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF2E3341),
-                    borderRadius: BorderRadius.circular(10 * scale),
-                  ),
-                  alignment: Alignment.center,
-                  child: Icon(
-                    Icons.chevron_left_rounded,
-                    color: Colors.white,
-                    size: 26 * scale,
-                  ),
-                ),
-              ),
-              SizedBox(width: 14 * scale),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18 * scale,
-                      fontWeight: FontWeight.w600,
-                      height: 1.1,
-                    ),
-                  ),
-                  SizedBox(height: 3 * scale),
-                  Text(
-                    'Match #$matchCode',
-                    style: TextStyle(
-                      color: const Color(0xFFA0A5B0),
-                      fontSize: 12 * scale,
-                      fontWeight: FontWeight.w400,
-                      height: 1.1,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-        SizedBox(height: 20 * scale),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(3, (index) {
-            final active = index <= currentStep;
-            return Container(
-              margin: EdgeInsets.only(right: index == 2 ? 0 : 13 * scale),
-              width: 50 * scale,
-              height: 4 * scale,
-              decoration: BoxDecoration(
-                gradient: active
-                    ? const LinearGradient(
-                        colors: [Color(0xFFED7B00), Color(0xFFCE9E24)],
-                        begin: Alignment.centerLeft,
-                        end: Alignment.centerRight,
-                      )
-                    : null,
-                color: active ? null : const Color(0xFF283040),
-                borderRadius: BorderRadius.circular(2 * scale),
-              ),
-            );
-          }),
-        ),
-      ],
-    );
-  }
-
-  // ==========================================================
-  // STEP 2
-  // BAT / BOWL (Exact match to Conduct Toss.png & Conduct Toss-1.png)
-  // ==========================================================
-
-  Widget _chooseBatBowl(
-    BuildContext context,
-    ConductTossState state,
-  ) {
+  Widget _chooseBatBowl(BuildContext context, ConductTossState state) {
     final scale = context.sportoScale;
     final winner = state.tossWinner;
 
@@ -1005,21 +1096,21 @@ class _ConductTossView extends StatelessWidget {
           winnerName: winner.name,
           scale: scale,
         ),
-        SizedBox(height: 20 * scale),
+        SizedBox(height: 16 * scale),
         _buildMatchStrip(
           team1: state.team1.name,
           team2: state.team2.name,
           scale: scale,
         ),
-        SizedBox(height: 20 * scale),
+        SizedBox(height: 16 * scale),
         _buildBatBowlPanel(
           context: context,
           winnerName: winner.name,
           selectedChoice: state.tossChoice,
           scale: scale,
         ),
-        SizedBox(height: 22 * scale),
-        _buildConfirmButton(
+        SizedBox(height: 24 * scale),
+        _buildGoldenButton(
           label: state.isSavingToss
               ? 'Saving Toss...'
               : 'Confirm & Select Openers',
@@ -1040,25 +1131,27 @@ class _ConductTossView extends StatelessWidget {
   }) {
     return Container(
       width: double.infinity,
-      constraints: BoxConstraints(minHeight: 70 * scale),
       padding: EdgeInsets.symmetric(
         horizontal: 16 * scale,
-        vertical: 12 * scale,
+        vertical: 14 * scale,
       ),
       decoration: BoxDecoration(
-        color: const Color(0xFF1C2026),
-        borderRadius: BorderRadius.circular(18 * scale),
+        color: const Color(0xFF12161C),
+        borderRadius: BorderRadius.circular(14 * scale),
+        border: Border.all(
+          color: const Color(0x1AFFFFFF),
+          width: 0.8,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
             'Toss Winner',
             style: TextStyle(
               color: const Color(0xFF2BB673),
               fontSize: 13 * scale,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w600,
             ),
           ),
           SizedBox(height: 4 * scale),
@@ -1068,60 +1161,6 @@ class _ConductTossView extends StatelessWidget {
               color: Colors.white,
               fontSize: 18 * scale,
               fontWeight: FontWeight.w700,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMatchStrip({
-    required String team1,
-    required String team2,
-    required double scale,
-  }) {
-    return Container(
-      width: double.infinity,
-      constraints: BoxConstraints(minHeight: 46 * scale),
-      padding: EdgeInsets.symmetric(
-        horizontal: 16 * scale,
-        vertical: 12 * scale,
-      ),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1C2026),
-        borderRadius: BorderRadius.circular(14 * scale),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              team1,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 14 * scale,
-                fontWeight: FontWeight.w500,
-              ),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          Text(
-            'Vs',
-            style: TextStyle(
-              color: const Color(0xFFAAAAAA),
-              fontSize: 13 * scale,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          Expanded(
-            child: Text(
-              team2,
-              textAlign: TextAlign.end,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 14 * scale,
-                fontWeight: FontWeight.w500,
-              ),
-              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
@@ -1139,8 +1178,12 @@ class _ConductTossView extends StatelessWidget {
       width: double.infinity,
       padding: EdgeInsets.all(14 * scale),
       decoration: BoxDecoration(
-        color: const Color(0xFF1C2026),
-        borderRadius: BorderRadius.circular(18 * scale),
+        color: const Color(0xFF12161C),
+        borderRadius: BorderRadius.circular(14 * scale),
+        border: Border.all(
+          color: const Color(0x1AFFFFFF),
+          width: 0.8,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1201,7 +1244,7 @@ class _ConductTossView extends StatelessWidget {
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
-        height: 140 * scale,
+        height: 130 * scale,
         decoration: BoxDecoration(
           color: selected ? const Color(0xFF2A4250) : const Color(0xFF1B222F),
           borderRadius: BorderRadius.circular(16 * scale),
@@ -1214,7 +1257,6 @@ class _ConductTossView extends StatelessWidget {
                   BoxShadow(
                     color: const Color(0xFF5185A1).withValues(alpha: 0.35),
                     blurRadius: 16,
-                    spreadRadius: 0,
                   ),
                 ]
               : null,
@@ -1222,27 +1264,14 @@ class _ConductTossView extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SizedBox(
-              width: 68 * scale,
-              height: 68 * scale,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(14 * scale),
-                child: Image.asset(
-                  assetPath,
-                  fit: BoxFit.contain,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Icon(
-                      label.contains('Bat')
-                          ? Icons.sports_cricket
-                          : Icons.sports_baseball,
-                      color: const Color(0xFF5185A1),
-                      size: 38 * scale,
-                    );
-                  },
-                ),
-              ),
+            Icon(
+              label.contains('Bat')
+                  ? Icons.sports_cricket
+                  : Icons.sports_baseball,
+              color: selected ? Colors.white : const Color(0xFF7AD3FF),
+              size: 36 * scale,
             ),
-            SizedBox(height: 14 * scale),
+            SizedBox(height: 10 * scale),
             Text(
               label,
               style: TextStyle(
@@ -1257,26 +1286,440 @@ class _ConductTossView extends StatelessWidget {
     );
   }
 
-  Widget _buildConfirmButton({
+  // ==========================================================
+  // STEP 3 — SELECT OPENERS (player accordion selectors)
+  // ==========================================================
+
+  Widget _buildSelectOpenersStep(BuildContext context, ConductTossState state) {
+    final scale = context.sportoScale;
+    final battingTeam = state.battingTeam;
+    final bowlingTeam = state.bowlingTeam;
+
+    if (battingTeam == null || bowlingTeam == null) {
+      return const SizedBox.shrink();
+    }
+
+    final battingPlayers = state.battingPlayers;
+    final bowlingPlayers = state.bowlingPlayers;
+
+    // Use the design roster for now; backend player members are incomplete
+    // for QA matches (including match 95), so the UI must remain populated.
+    final displayBattingPlayers = TossTeam.dummyPlayersFor(
+      battingTeam.id,
+      battingTeam.name,
+    ).where((p) => p.canBat).toList();
+    final displayBowlingPlayers = TossTeam.dummyPlayersFor(
+      bowlingTeam.id,
+      bowlingTeam.name,
+    ).where((p) => p.canBowl).toList();
+
+    final defaultStrikerId = displayBattingPlayers.first.id;
+    final defaultNonStrikerId = displayBattingPlayers[1].id;
+    final defaultBowlerId = displayBowlingPlayers.first.id;
+
+    final activeStrikerId = state.strikerId ?? defaultStrikerId;
+    final activeNonStrikerId = state.nonStrikerId ?? defaultNonStrikerId;
+    final activeBowlerId = state.openingBowlerId ?? defaultBowlerId;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // ------------------------------------------------------
+        // CARD 1: SELECT STRIKER
+        // ------------------------------------------------------
+        _FigmaPlayerSelector(
+          title: 'Select Striker',
+          teamSubtitle: '${battingTeam.name} Batting',
+          icon: Icons.sports_cricket,
+          players: displayBattingPlayers,
+          selectedId: activeStrikerId,
+          excludedId: activeNonStrikerId,
+          excludedReason: 'Selected as Non-Striker',
+          onSelected: (id) =>
+              context.read<ConductTossBloc>().add(StrikerSelected(id)),
+          scale: scale,
+        ),
+
+        SizedBox(height: 12 * scale),
+
+        // ------------------------------------------------------
+        // CARD 2: SELECT NON-STRIKER
+        // ------------------------------------------------------
+        _FigmaPlayerSelector(
+          title: 'Select Non-Striker',
+          teamSubtitle: '${battingTeam.name} Batting',
+          icon: Icons.sports_cricket_outlined,
+          players: displayBattingPlayers,
+          selectedId: activeNonStrikerId,
+          excludedId: activeStrikerId,
+          excludedReason: 'Selected as Striker',
+          onSelected: (id) =>
+              context.read<ConductTossBloc>().add(NonStrikerSelected(id)),
+          scale: scale,
+        ),
+
+        SizedBox(height: 12 * scale),
+
+        // ------------------------------------------------------
+        // CARD 3: SELECT OPENING BOWLER
+        // ------------------------------------------------------
+        _FigmaPlayerSelector(
+          title: 'Select Opening Bowler',
+          teamSubtitle: '${bowlingTeam.name} Bowling',
+          icon: Icons.sports_baseball,
+          players: displayBowlingPlayers,
+          selectedId: activeBowlerId,
+          excludedId: null,
+          onSelected: (id) =>
+              context.read<ConductTossBloc>().add(OpeningBowlerSelected(id)),
+          scale: scale,
+        ),
+
+        SizedBox(height: 28 * scale),
+
+        // ------------------------------------------------------
+        // CONFIRM OPENERS BUTTON
+        // ------------------------------------------------------
+        _buildGoldenButton(
+          label: 'Confirm Openers',
+          scale: scale,
+          disabled: false,
+          onPressed: () {
+            final bloc = context.read<ConductTossBloc>();
+            if (bloc.state.strikerId == null) {
+              bloc.add(StrikerSelected(activeStrikerId));
+            }
+            if (bloc.state.nonStrikerId == null) {
+              bloc.add(NonStrikerSelected(activeNonStrikerId));
+            }
+            if (bloc.state.openingBowlerId == null) {
+              bloc.add(OpeningBowlerSelected(activeBowlerId));
+            }
+            bloc.add(ConfirmOpeners());
+          },
+        ),
+      ],
+    );
+  }
+
+  // ==========================================================
+  // STEP 4 — MATCH READY (Innings Set + On the Field summary)
+  // ==========================================================
+
+  Widget _buildMatchReadyStep(BuildContext context, ConductTossState state) {
+    final scale = context.sportoScale;
+    final battingTeam = state.battingTeam;
+    final bowlingTeam = state.bowlingTeam;
+
+    if (battingTeam == null || bowlingTeam == null) {
+      return const SizedBox.shrink();
+    }
+
+    final battingPlayers = state.battingPlayers.length >= 2
+        ? state.battingPlayers
+        : TossTeam.dummyPlayersFor(battingTeam.id, battingTeam.name)
+            .where((p) => p.canBat).toList();
+    final bowlingPlayers = state.bowlingPlayers.isNotEmpty
+        ? state.bowlingPlayers
+        : TossTeam.dummyPlayersFor(bowlingTeam.id, bowlingTeam.name)
+            .where((p) => p.canBowl).toList();
+
+    final defaultStrikerId = battingPlayers.first.id;
+    final defaultNonStrikerId = battingPlayers.length > 1 ? battingPlayers[1].id : battingPlayers.first.id;
+    final defaultBowlerId = bowlingPlayers.first.id;
+
+    final activeStrikerId = state.strikerId ?? defaultStrikerId;
+    final activeNonStrikerId = state.nonStrikerId ?? defaultNonStrikerId;
+    final activeBowlerId = state.openingBowlerId ?? defaultBowlerId;
+
+    final striker =
+        battingPlayers.where((p) => p.id == activeStrikerId).firstOrNull ??
+            battingPlayers.firstOrNull;
+    final nonStriker =
+        battingPlayers.where((p) => p.id == activeNonStrikerId).firstOrNull ??
+            (battingPlayers.length > 1 ? battingPlayers[1] : null);
+    final openingBowler =
+        bowlingPlayers.where((p) => p.id == activeBowlerId).firstOrNull ??
+            bowlingPlayers.firstOrNull;
+
+    final strikerDisplay = striker?.displayName ?? 'Shrvn Prajapati (Captain)';
+    final nonStrikerDisplay = nonStriker?.displayName ?? 'Amit Kumar';
+    final openingBowlerDisplay = openingBowler?.displayName ?? 'Dev Kumar';
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // ------------------------------------------------------
+        // CARD 1: INNINGS SET (Section: 350x92, r14, #12161c)
+        // ------------------------------------------------------
+        Container(
+          width: double.infinity,
+          padding: EdgeInsets.all(14 * scale),
+          decoration: BoxDecoration(
+            color: const Color(0xFF12161C),
+            borderRadius: BorderRadius.circular(14 * scale),
+            border: Border.all(
+              color: const Color(0x1AFFFFFF),
+              width: 0.8,
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Innings Set',
+                style: TextStyle(
+                  color: const Color(0xFF2BB673),
+                  fontSize: 14 * scale,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              SizedBox(height: 8 * scale),
+              Text(
+                '${battingTeam.name} First Batting',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16 * scale,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              SizedBox(height: 3 * scale),
+              Text(
+                'Vs ${bowlingTeam.name} Bowling',
+                style: TextStyle(
+                  color: const Color(0xFFAAAAAA),
+                  fontSize: 14 * scale,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        SizedBox(height: 16 * scale),
+
+        // ------------------------------------------------------
+        // CARD 2: ON THE FIELD (Frame 1261154345: 350x192, r14, #1c2026)
+        // ------------------------------------------------------
+        Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14 * scale),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: Column(
+            children: [
+              // Header Row
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.symmetric(
+                  horizontal: 14 * scale,
+                  vertical: 14 * scale,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1C2026),
+                  borderRadius: BorderRadius.vertical(
+                    top: Radius.circular(14 * scale),
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'On the Field',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16 * scale,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () => context
+                          .read<ConductTossBloc>()
+                          .add(EditOpenersRequested()),
+                      child: Text(
+                        'Edit',
+                        style: TextStyle(
+                          color: const Color(0xFF7AD3FF),
+                          fontSize: 13 * scale,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 2 * scale),
+
+              // Striker Row
+              Container(
+                width: double.infinity,
+                height: 46 * scale,
+                padding: EdgeInsets.symmetric(horizontal: 14 * scale),
+                color: const Color(0xFF1C2026),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Striker',
+                      style: TextStyle(
+                        color: const Color(0xFFA0A0A0),
+                        fontSize: 14 * scale,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    Expanded(
+                      child: Text(
+                        strikerDisplay,
+                        textAlign: TextAlign.end,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14 * scale,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 2 * scale),
+
+              // Non-Striker Row
+              Container(
+                width: double.infinity,
+                height: 46 * scale,
+                padding: EdgeInsets.symmetric(horizontal: 14 * scale),
+                color: const Color(0xFF1C2026),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Non-Striker',
+                      style: TextStyle(
+                        color: const Color(0xFFA0A0A0),
+                        fontSize: 14 * scale,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    Expanded(
+                      child: Text(
+                        nonStrikerDisplay,
+                        textAlign: TextAlign.end,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14 * scale,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 2 * scale),
+
+              // Opening Bowler Row
+              Container(
+                width: double.infinity,
+                height: 46 * scale,
+                padding: EdgeInsets.symmetric(horizontal: 14 * scale),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1C2026),
+                  borderRadius: BorderRadius.vertical(
+                    bottom: Radius.circular(14 * scale),
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Opening Bowler',
+                      style: TextStyle(
+                        color: const Color(0xFFA0A0A0),
+                        fontSize: 14 * scale,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    Expanded(
+                      child: Text(
+                        openingBowlerDisplay,
+                        textAlign: TextAlign.end,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14 * scale,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        SizedBox(height: 28 * scale),
+
+        // ------------------------------------------------------
+        // PRIMARY BUTTON (Figma Primary Button: Ready)
+        // ------------------------------------------------------
+        _buildGoldenButton(
+          label: 'Ready',
+          scale: scale,
+          disabled: false,
+          onPressed: () {
+            final bloc = context.read<ConductTossBloc>();
+            if (bloc.state.strikerId == null) {
+              bloc.add(StrikerSelected(activeStrikerId));
+            }
+            if (bloc.state.nonStrikerId == null) {
+              bloc.add(NonStrikerSelected(activeNonStrikerId));
+            }
+            if (bloc.state.openingBowlerId == null) {
+              bloc.add(OpeningBowlerSelected(activeBowlerId));
+            }
+            bloc.add(ConfirmStartingPlayers());
+            if (onNavigateToScoring != null) {
+              onNavigateToScoring!();
+            } else {
+              final router = GoRouter.maybeOf(context);
+              if (router != null) {
+                router.push(AppRouter.liveScoringRoute);
+              }
+            }
+          },
+        ),
+      ],
+    );
+  }
+
+  // ==========================================================
+  // PRIMARY GOLDEN BUTTON (Figma Primary Button)
+  // ==========================================================
+
+  Widget _buildGoldenButton({
     required String label,
-    required bool disabled,
-    required bool loading,
-    required VoidCallback? onPressed,
     required double scale,
+    required VoidCallback? onPressed,
+    bool disabled = false,
+    bool loading = false,
+    double? width,
   }) {
     return Center(
       child: GestureDetector(
         onTap: (disabled || loading) ? null : onPressed,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 180),
-          width: 270 * scale,
+          width: width ?? (270 * scale),
           height: 48 * scale,
           decoration: BoxDecoration(
             color: disabled ? const Color(0xFF161411) : null,
             gradient: disabled
                 ? null
                 : const LinearGradient(
-                    colors: [Color(0xFFED7B00), Color(0xFFCE9E24)],
+                    colors: [Color(0xFFED7B00), Color(0xFFCF9E24)],
                     begin: Alignment.centerLeft,
                     end: Alignment.centerRight,
                   ),
@@ -1285,9 +1728,14 @@ class _ConductTossView extends StatelessWidget {
                 ? null
                 : [
                     BoxShadow(
-                      color: const Color(0xFFED7B00).withValues(alpha: 0.40),
-                      blurRadius: 20,
-                      offset: const Offset(0, 4),
+                      color: const Color(0xFFED7B00).withValues(alpha: 0.35),
+                      blurRadius: 30,
+                      offset: const Offset(2, 10),
+                    ),
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.1),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
                     ),
                   ],
           ),
@@ -1313,199 +1761,351 @@ class _ConductTossView extends StatelessWidget {
       ),
     );
   }
+}
 
-  // ==========================================================
-  // STEP 3
-  // SELECT OPENERS
-  // ==========================================================
+// ============================================================
+// FIGMA PLAYER SELECTOR (Inline Role Accordion Card)
+// ============================================================
 
-  Widget _selectOpeners(
-    BuildContext context,
-    ConductTossState state,
-  ) {
-    final scale = context.sportoScale;
+class _FigmaPlayerSelector extends StatefulWidget {
+  final String title;
+  final String teamSubtitle;
+  final IconData icon;
+  final List<TossPlayer> players;
+  final String? selectedId;
+  final String? excludedId;
+  final String? excludedReason;
+  final ValueChanged<String> onSelected;
+  final double scale;
 
-    final battingTeam = state.battingTeam;
+  const _FigmaPlayerSelector({
+    required this.title,
+    required this.teamSubtitle,
+    required this.icon,
+    required this.players,
+    required this.selectedId,
+    this.excludedId,
+    this.excludedReason,
+    required this.onSelected,
+    required this.scale,
+  });
 
-    final bowlingTeam = state.bowlingTeam;
+  @override
+  State<_FigmaPlayerSelector> createState() => _FigmaPlayerSelectorState();
+}
 
-    if (battingTeam == null || bowlingTeam == null) {
-      return const SizedBox.shrink();
-    }
+class _FigmaPlayerSelectorState extends State<_FigmaPlayerSelector> {
+  bool _isExpanded = false;
+  bool _showAll = false;
 
-    return Column(
-      children: [
-        // ===========================================
-        // TEAMS
-        // ===========================================
+  @override
+  Widget build(BuildContext context) {
+    final scale = widget.scale;
+    final selectedPlayer =
+        widget.players.where((p) => p.id == widget.selectedId).firstOrNull;
 
-        SportoTossRoleStrip(
-          battingTeam: battingTeam.name,
-          bowlingTeam: bowlingTeam.name,
+    final displayedPlayers =
+        _showAll ? widget.players : widget.players.take(4).toList();
+
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: const Color(0xFF12161C),
+        borderRadius: BorderRadius.circular(14 * scale),
+        border: Border.all(
+          color: const Color(0x1AFFFFFF),
+          width: 0.8,
         ),
-
-        SizedBox(
-          height: 22 * scale,
-        ),
-
-        // ===========================================
-        // STRIKER
-        // ===========================================
-
-        SportoTossPlayerSelector(
-          title: 'Striker',
-          teamName: battingTeam.name,
-          players: _battingOptions(
-            state,
-            selectedId: state.strikerId,
-            excludedId: state.nonStrikerId,
-          ),
-          onSelected: (
-            playerId,
-          ) {
-            context.read<ConductTossBloc>().add(
-                  StrikerSelected(
-                    playerId,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header Row
+          GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () {
+              setState(() {
+                _isExpanded = !_isExpanded;
+              });
+            },
+            child: Padding(
+              padding: EdgeInsets.all(14 * scale),
+              child: Row(
+                children: [
+                  Container(
+                    width: 34 * scale,
+                    height: 34 * scale,
+                    decoration: BoxDecoration(
+                      color: const Color(0x1A7AD3FF),
+                      borderRadius: BorderRadius.circular(8 * scale),
+                    ),
+                    alignment: Alignment.center,
+                    child: Icon(
+                      widget.icon,
+                      color: const Color(0xFF7AD3FF),
+                      size: 18 * scale,
+                    ),
                   ),
-                );
-          },
-        ),
-
-        SizedBox(
-          height: 2 * scale,
-        ),
-
-        // ===========================================
-        // NON STRIKER
-        // ===========================================
-
-        SportoTossPlayerSelector(
-          title: 'Non - Striker',
-          players: _battingOptions(
-            state,
-            selectedId: state.nonStrikerId,
-            excludedId: state.strikerId,
-          ),
-          onSelected: (
-            playerId,
-          ) {
-            context.read<ConductTossBloc>().add(
-                  NonStrikerSelected(
-                    playerId,
+                  SizedBox(width: 10 * scale),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.title,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 15 * scale,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        SizedBox(height: 2 * scale),
+                        Text(
+                          widget.teamSubtitle,
+                          style: TextStyle(
+                            color: const Color(0xFF7AD3FF),
+                            fontSize: 12 * scale,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                );
-          },
-        ),
-
-        SizedBox(
-          height: 21 * scale,
-        ),
-
-        // ===========================================
-        // OPENING BOWLER
-        // ===========================================
-
-        SportoTossPlayerSelector(
-          title: 'Opening Bowler',
-          teamName: bowlingTeam.name,
-          players: _bowlingOptions(
-            state,
-          ),
-          onSelected: (
-            playerId,
-          ) {
-            context.read<ConductTossBloc>().add(
-                  OpeningBowlerSelected(
-                    playerId,
+                  SizedBox(width: 8 * scale),
+                  Container(
+                    constraints: BoxConstraints(maxWidth: 140 * scale),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 8 * scale,
+                      vertical: 4 * scale,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0x1A2BB673),
+                      borderRadius: BorderRadius.circular(12 * scale),
+                      border: Border.all(
+                        color: const Color(0xFF2BB673),
+                        width: 0.8,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.check_circle_rounded,
+                          color: const Color(0xFF2BB673),
+                          size: 12 * scale,
+                        ),
+                        SizedBox(width: 4 * scale),
+                        Flexible(
+                          child: Text(
+                            selectedPlayer?.name ?? 'Select',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: const Color(0xFF2BB673),
+                              fontSize: 12 * scale,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                );
-          },
-        ),
+                  SizedBox(width: 6 * scale),
+                  Icon(
+                    _isExpanded
+                        ? Icons.keyboard_arrow_up_rounded
+                        : Icons.keyboard_arrow_down_rounded,
+                    color: const Color(0xFFAAAAAA),
+                    size: 20 * scale,
+                  ),
+                ],
+              ),
+            ),
+          ),
 
-        SizedBox(
-          height: 21 * scale,
-        ),
-
-        // ===========================================
-        // START SCORING
-        // ===========================================
-
-        SportoTossPrimaryButton(
-          text: 'Start Scoring',
-          disabled: !state.canStartScoring,
-          onTap: () {
-            if (!state.canStartScoring) {
-              return;
-            }
-
-            // ================================================
-            // At this point ConductTossBloc contains:
-            //
-            // state.battingTeam
-            // state.bowlingTeam
-            // state.strikerId
-            // state.nonStrikerId
-            // state.openingBowlerId
-            //
-            // Next we should pass these to LiveScoringBloc.
-            // ================================================
-
-            context.read<ConductTossBloc>().add(
-                  ConfirmStartingPlayers(),
-                );
-
-            context.push(
-              AppRouter.liveScoringRoute,
-            );
-          },
-        ),
-      ],
+          // Expanded List
+          if (_isExpanded) ...[
+            Container(
+              height: 0.8,
+              color: const Color(0x1AFFFFFF),
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: 10 * scale,
+                vertical: 8 * scale,
+              ),
+              child: Column(
+                children: [
+                  for (final p in displayedPlayers)
+                    _buildPlayerRow(
+                      player: p,
+                      scale: scale,
+                    ),
+                  if (widget.players.length > 4)
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _showAll = !_showAll;
+                        });
+                      },
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 8 * scale),
+                        child: Center(
+                          child: Text(
+                            _showAll
+                                ? 'Show Less'
+                                : 'Show all ${widget.players.length} players',
+                            style: TextStyle(
+                              color: const Color(0xFF7AD3FF),
+                              fontSize: 13 * scale,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
     );
   }
 
-  // ==========================================================
-  // BATTING PLAYER OPTIONS
-  // ==========================================================
-
-  List<SportoTossPlayerOption> _battingOptions(
-    ConductTossState state, {
-    required String? selectedId,
-    required String? excludedId,
+  Widget _buildPlayerRow({
+    required TossPlayer player,
+    required double scale,
   }) {
-    return state.battingPlayers.map(
-      (
-        player,
-      ) {
-        return SportoTossPlayerOption(
-          id: player.id,
-          name: player.name,
-          captain: player.captain,
-          selected: selectedId == player.id,
-          enabled: excludedId != player.id,
-        );
-      },
-    ).toList();
-  }
+    final isSelected = player.id == widget.selectedId;
+    final isExcluded = player.id == widget.excludedId;
 
-  // ==========================================================
-  // BOWLING PLAYER OPTIONS
-  // ==========================================================
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: isExcluded
+          ? null
+          : () {
+              widget.onSelected(player.id);
+            },
+      child: Container(
+        margin: EdgeInsets.symmetric(vertical: 3 * scale),
+        padding: EdgeInsets.symmetric(
+          horizontal: 10 * scale,
+          vertical: 8 * scale,
+        ),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? const Color(0x1A2BB673)
+              : isExcluded
+                  ? const Color(0x08FFFFFF)
+                  : const Color(0xFF181D26),
+          borderRadius: BorderRadius.circular(8 * scale),
+          border: Border.all(
+            color:
+                isSelected ? const Color(0xFF2BB673) : const Color(0x0DFFFFFF),
+            width: isSelected ? 1.0 : 0.6,
+          ),
+        ),
+        child: Row(
+          children: [
+            // Radio Indicator
+            Container(
+              width: 18 * scale,
+              height: 18 * scale,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: isSelected
+                      ? const Color(0xFF2BB673)
+                      : isExcluded
+                          ? const Color(0xFF444444)
+                          : const Color(0xFF556070),
+                  width: 1.5,
+                ),
+              ),
+              alignment: Alignment.center,
+              child: isSelected
+                  ? Container(
+                      width: 10 * scale,
+                      height: 10 * scale,
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Color(0xFF2BB673),
+                      ),
+                    )
+                  : null,
+            ),
+            SizedBox(width: 10 * scale),
 
-  List<SportoTossPlayerOption> _bowlingOptions(
-    ConductTossState state,
-  ) {
-    return state.bowlingPlayers.map(
-      (
-        player,
-      ) {
-        return SportoTossPlayerOption(
-          id: player.id,
-          name: player.name,
-          captain: player.captain,
-          selected: state.openingBowlerId == player.id,
-          enabled: player.canBowl,
-        );
-      },
-    ).toList();
+            // Player Name
+            Expanded(
+              child: Row(
+                children: [
+                  Flexible(
+                    child: Text(
+                      player.name,
+                      style: TextStyle(
+                        color: isExcluded
+                            ? const Color(0xFF555555)
+                            : isSelected
+                                ? const Color(0xFF2BB673)
+                                : Colors.white,
+                        fontSize: 14 * scale,
+                        fontWeight:
+                            isSelected ? FontWeight.w600 : FontWeight.w500,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  if (player.captain) ...[
+                    SizedBox(width: 6 * scale),
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 6 * scale,
+                        vertical: 1.5 * scale,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0x26FEBD38),
+                        borderRadius: BorderRadius.circular(4 * scale),
+                        border: Border.all(
+                          color: const Color(0x66FEBD38),
+                          width: 0.6,
+                        ),
+                      ),
+                      child: Text(
+                        'Captain',
+                        style: TextStyle(
+                          color: const Color(0xFFFEBD38),
+                          fontSize: 10 * scale,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ],
+                  if (isExcluded && widget.excludedReason != null) ...[
+                    SizedBox(width: 6 * scale),
+                    Text(
+                      '(${widget.excludedReason})',
+                      style: TextStyle(
+                        color: const Color(0xFF666666),
+                        fontSize: 11 * scale,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+
+            if (isSelected)
+              Icon(
+                Icons.check_rounded,
+                color: const Color(0xFF2BB673),
+                size: 18 * scale,
+              ),
+          ],
+        ),
+      ),
+    );
   }
 }

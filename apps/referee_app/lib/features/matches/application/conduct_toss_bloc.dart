@@ -14,6 +14,7 @@ enum ConductTossStep {
   coinResult,
   chooseBatBowl,
   selectOpeners,
+  matchReady,
 }
 
 // ============================================================
@@ -103,6 +104,43 @@ class TossTeam extends Equatable {
         players,
         logoUrl,
       ];
+
+  static List<TossPlayer> dummyPlayersFor(String teamId, String teamName) {
+    final lower = teamName.toLowerCase();
+    final isTeam1 = teamId == '1' ||
+        lower.contains('delhi') ||
+        lower.contains('warrior');
+
+    if (isTeam1) {
+      return const [
+        TossPlayer(id: '1', name: 'Shrvn Prajapati', captain: true),
+        TossPlayer(id: '2', name: 'Amit Kumar'),
+        TossPlayer(id: '3', name: 'R. Sharma'),
+        TossPlayer(id: '4', name: 'Virat Singh'),
+        TossPlayer(id: '5', name: 'Suresh Raina'),
+        TossPlayer(id: '6', name: 'Hardik Patel'),
+        TossPlayer(id: '7', name: 'Rishabh Pant'),
+        TossPlayer(id: '8', name: 'Ravindra Jadeja'),
+        TossPlayer(id: '9', name: 'Jasprit Bumrah', canBat: false),
+        TossPlayer(id: '10', name: 'Mohammed Shami', canBat: false),
+        TossPlayer(id: '11', name: 'Yuzvendra Chahal', canBat: false),
+      ];
+    } else {
+      return const [
+        TossPlayer(id: '12', name: 'Dev Kumar', captain: true),
+        TossPlayer(id: '13', name: 'David Warner'),
+        TossPlayer(id: '14', name: 'Kane Williamson'),
+        TossPlayer(id: '15', name: 'Rashid Khan'),
+        TossPlayer(id: '16', name: 'Bhuvneshwar Kumar'),
+        TossPlayer(id: '17', name: 'T. Natarajan', canBat: false),
+        TossPlayer(id: '18', name: 'Abhishek Sharma'),
+        TossPlayer(id: '19', name: 'Rahul Tripathi'),
+        TossPlayer(id: '20', name: 'Aiden Markram'),
+        TossPlayer(id: '21', name: 'Heinrich Klaasen'),
+        TossPlayer(id: '22', name: 'Mohammed Siraj', canBat: false),
+      ];
+    }
+  }
 }
 
 // ============================================================
@@ -254,12 +292,9 @@ class ConductTossState extends Equatable {
   // ==========================================================
 
   List<TossPlayer> get battingPlayers {
-    return battingTeam?.players
-            .where(
-              (player) => player.canBat,
-            )
-            .toList() ??
-        const [];
+    final team = battingTeam;
+    if (team == null) return const [];
+    return team.players.where((player) => player.canBat).toList();
   }
 
   // ==========================================================
@@ -267,12 +302,9 @@ class ConductTossState extends Equatable {
   // ==========================================================
 
   List<TossPlayer> get bowlingPlayers {
-    return bowlingTeam?.players
-            .where(
-              (player) => player.canBowl,
-            )
-            .toList() ??
-        const [];
+    final team = bowlingTeam;
+    if (team == null) return const [];
+    return team.players.where((player) => player.canBowl).toList();
   }
 
   // ==========================================================
@@ -295,6 +327,10 @@ class ConductTossState extends Equatable {
   // ==========================================================
 
   String get screenTitle {
+    if (step == ConductTossStep.matchReady) {
+      return 'Match Ready';
+    }
+
     if (step == ConductTossStep.selectOpeners) {
       return 'Select Openers';
     }
@@ -309,9 +345,10 @@ class ConductTossState extends Equatable {
         return 0;
 
       case ConductTossStep.chooseBatBowl:
+      case ConductTossStep.selectOpeners:
         return 1;
 
-      case ConductTossStep.selectOpeners:
+      case ConductTossStep.matchReady:
         return 2;
     }
   }
@@ -529,6 +566,12 @@ class OpeningBowlerSelected extends ConductTossAction {
 
 class ConfirmStartingPlayers extends ConductTossAction {}
 
+class ConfirmOpeners extends ConductTossAction {}
+
+class EditOpenersRequested extends ConductTossAction {}
+
+class StepBackRequested extends ConductTossAction {}
+
 // ============================================================
 // BLOC
 // ============================================================
@@ -555,14 +598,23 @@ class ConductTossBloc extends Bloc<ConductTossAction, ConductTossState> {
     this.forcedCoinSide,
     TossMode tossMode = TossMode.flipCoin,
     bool hasSelectedCaller = false,
+    RefereeTossResponse? initialToss,
   }) : super(
           ConductTossState(
             team1: team1,
             team2: team2,
-            callerTeamId: callerTeamId,
+            callerTeamId: initialToss?.toss.runtime.callingTeamId?.toString() ?? callerTeamId,
             callerChoice: callerChoice,
             tossMode: tossMode,
-            hasSelectedCaller: hasSelectedCaller,
+            hasSelectedCaller: hasSelectedCaller || initialToss?.toss.runtime.callingTeamId != null,
+            step: initialToss?.toss.runtime.nextAction == 'SET_STARTING_PLAYERS'
+                ? ConductTossStep.selectOpeners
+                : initialToss?.toss.runtime.nextAction == 'SET_DECISION'
+                    ? ConductTossStep.chooseBatBowl
+                    : ConductTossStep.flipCoin,
+            landedSide: _coinSideFromApi(initialToss?.toss.runtime.landedSide),
+            tossWinnerTeamId: initialToss?.toss.runtime.winnerTeamId?.toString(),
+            tossChoice: _choiceFromApi(initialToss?.toss.runtime.decision),
           ),
         ) {
     on<SelectTossMode>((event, emit) {
@@ -638,6 +690,20 @@ class ConductTossBloc extends Bloc<ConductTossAction, ConductTossState> {
     on<ConfirmStartingPlayers>(
       _onConfirmStartingPlayers,
     );
+
+    on<ConfirmOpeners>((event, emit) {
+      emit(state.copyWith(step: ConductTossStep.matchReady, clearError: true));
+    });
+
+    on<EditOpenersRequested>((event, emit) {
+      emit(
+          state.copyWith(step: ConductTossStep.selectOpeners, clearError: true));
+    });
+
+    on<StepBackRequested>((event, emit) {
+      emit(
+          state.copyWith(step: ConductTossStep.selectOpeners, clearError: true));
+    });
   }
 
   // ==========================================================
@@ -984,9 +1050,14 @@ class ConductTossBloc extends Bloc<ConductTossAction, ConductTossState> {
     ConfirmStartingPlayers event,
     Emitter<ConductTossState> emit,
   ) async {
-    final strikerId = int.tryParse(state.strikerId ?? '');
-    final nonStrikerId = int.tryParse(state.nonStrikerId ?? '');
-    final openingBowlerId = int.tryParse(state.openingBowlerId ?? '');
+    final cleanStriker = state.strikerId?.replaceAll(RegExp(r'[^0-9]'), '');
+    final cleanNonStriker = state.nonStrikerId?.replaceAll(RegExp(r'[^0-9]'), '');
+    final cleanOpeningBowler =
+        state.openingBowlerId?.replaceAll(RegExp(r'[^0-9]'), '');
+    final strikerId = int.tryParse(cleanStriker ?? state.strikerId ?? '');
+    final nonStrikerId = int.tryParse(cleanNonStriker ?? state.nonStrikerId ?? '');
+    final openingBowlerId =
+        int.tryParse(cleanOpeningBowler ?? state.openingBowlerId ?? '');
 
     if (strikerId == null ||
         nonStrikerId == null ||
@@ -1019,6 +1090,17 @@ class ConductTossBloc extends Bloc<ConductTossAction, ConductTossState> {
       'TAILS' => TossCoinSide.tails,
       _ => null,
     };
+  }
+
+  static TossBatBowlChoice? _choiceFromApi(String? value) {
+    switch (value) {
+      case 'BAT_FIRST':
+        return TossBatBowlChoice.batFirst;
+      case 'BOWL_FIRST':
+        return TossBatBowlChoice.bowlFirst;
+      default:
+        return null;
+    }
   }
 
   static String _decisionToApi(TossBatBowlChoice choice) {

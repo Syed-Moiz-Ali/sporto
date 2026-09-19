@@ -7,6 +7,7 @@ import 'package:ui_kit/ui_kit.dart';
 import '../../../../app/router/app_router.dart';
 import '../../../../core/di/dependency_injector.dart';
 import '../../application/live_scoring/live_scoring_bloc.dart';
+import 'referee_scoring_tab_screen.dart';
 
 // ============================================================
 // LIVE SCORING SCREEN
@@ -53,13 +54,71 @@ class _LiveScoringScreenState extends State<LiveScoringScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.matchId == null || widget.matchId!.isEmpty) {
+      return RefereeScoringTabScreen(
+        onNavigateToScoring: (matchId, matchCode) {
+          context.push(
+            '${AppRouter.liveScoringPath}?matchId=$matchId&matchCode=$matchCode',
+          );
+        },
+      );
+    }
+
     return FutureBuilder<RefereeScoreResponse?>(
       future: _scoreFuture,
       builder: (context, snapshot) {
         final scoreConfig = snapshot.data;
         if (scoreConfig == null) {
-          return const SportoScreenShell(
-            body: Center(child: Text('Unable to load live match data.')),
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Scaffold(
+              backgroundColor: Color(0xFF0E0C08),
+              body: Center(
+                child: CircularProgressIndicator(color: Color(0xFFED7B00)),
+              ),
+            );
+          }
+          return Scaffold(
+            backgroundColor: const Color(0xFF0E0C08),
+            appBar: AppBar(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+                onPressed: () {
+                  if (context.canPop()) {
+                    context.pop();
+                  }
+                },
+              ),
+            ),
+            body: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    'Unable to load live match data.',
+                    style: TextStyle(
+                      color: Color(0xFFAAAAAA),
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        _scoreFuture = _loadScoreConfig();
+                      });
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFED7B00),
+                      foregroundColor: Colors.white,
+                    ),
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            ),
           );
         }
         final teams = _teamsFromScore(scoreConfig);
@@ -418,13 +477,19 @@ class _LiveScoringView extends StatelessWidget {
     bool compact = false,
     bool showScores = false,
   }) {
-    return SportoLiveMatchCard(
+    return _FigmaScoringLiveMatchCard(
+      tournament: scoreConfig?.raw['tournament_name']?.toString() ??
+          scoreConfig?.formatName ??
+          matchCode,
+      location: scoreConfig?.raw['venue_name']?.toString() ?? 'Hyderabad',
       battingTeam: state.currentBattingTeam.name,
       bowlingTeam: state.currentBowlingTeam.name,
       compact: compact,
       showScores: showScores,
       battingScore: showScores ? state.scoreText : null,
       bowlingScore: showScores ? _opponentScore(state) : null,
+      oversText: 'Over - ${state.progressText}',
+      currentBowler: state.currentBowlerName,
     );
   }
 
@@ -1332,5 +1397,386 @@ class _LiveScoringView extends StatelessWidget {
     }
 
     return views;
+  }
+}
+
+/// Live match card component matching Section from `figma/Scoring.json` (350x203, radius 16).
+class _FigmaScoringLiveMatchCard extends StatelessWidget {
+  final String tournament;
+  final String location;
+  final String battingTeam;
+  final String bowlingTeam;
+  final String? battingScore;
+  final String? bowlingScore;
+  final String oversText;
+  final String currentBowler;
+  final bool compact;
+  final bool showScores;
+
+  const _FigmaScoringLiveMatchCard({
+    required this.tournament,
+    required this.location,
+    required this.battingTeam,
+    required this.bowlingTeam,
+    this.battingScore,
+    this.bowlingScore,
+    required this.oversText,
+    required this.currentBowler,
+    this.compact = false,
+    this.showScores = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final scale = context.sportoScale;
+
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: const Color(0x33B40003), // 20% opacity #b40003
+        gradient: const LinearGradient(
+          colors: [
+            Color(0x0AED7B00),
+            Color(0x0ACF9E24),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(16 * scale),
+        border: Border.all(
+          color: const Color(0x4DF53E02),
+          width: 1.0,
+        ),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x80512813),
+            blurRadius: 8,
+            offset: Offset(0, 1),
+          ),
+        ],
+      ),
+      padding: EdgeInsets.all(10 * scale),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 1. Badges Row: Stage badge, Live Now badge, Overs badge (Frame 1261154267)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 6 * scale,
+                      vertical: 2 * scale,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF2BB673),
+                      borderRadius: BorderRadius.circular(10 * scale),
+                      border: Border.all(
+                        color: const Color(0xFF2BB673),
+                        width: 1.0,
+                      ),
+                    ),
+                    child: Text(
+                      'Quarter Final',
+                      style: TextStyle(
+                        fontSize: 11 * scale,
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFFFFFFFF),
+                        height: 1.0,
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 6 * scale),
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 6 * scale,
+                      vertical: 2 * scale,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xCCFFFFFF),
+                      borderRadius: BorderRadius.circular(10 * scale),
+                      border: Border.all(
+                        color: const Color(0x4DFE595C),
+                        width: 1.0,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _ScoringPulsingDot(scale: scale),
+                        SizedBox(width: 4 * scale),
+                        Text(
+                          'Live Now',
+                          style: TextStyle(
+                            fontSize: 11 * scale,
+                            fontWeight: FontWeight.w700,
+                            color: const Color(0xFFFE464B),
+                            height: 1.0,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 8 * scale,
+                  vertical: 2 * scale,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0x661B2335),
+                  borderRadius: BorderRadius.circular(8 * scale),
+                ),
+                child: Text(
+                  oversText,
+                  style: TextStyle(
+                    fontSize: 14 * scale,
+                    fontWeight: FontWeight.w600,
+                    color: const Color(0xFFFFFFFF),
+                    height: 1.0,
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          SizedBox(height: 8 * scale),
+
+          // 2. Tournament Name: Crisp white text (Quicksand 16px, FontWeight.w600)
+          Text(
+            tournament,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 16 * scale,
+              fontWeight: FontWeight.w600,
+              color: const Color(0xFFFFFFFF),
+              height: 1.2,
+            ),
+          ),
+
+          SizedBox(height: 2 * scale),
+
+          // Venue
+          Row(
+            children: [
+              SportoAssetIcon(
+                SportoAssets.locationPin,
+                size: 13 * scale,
+                color: const Color(0xFFAAAAAA),
+              ),
+              SizedBox(width: 4 * scale),
+              Expanded(
+                child: Text(
+                  location,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 12 * scale,
+                    fontWeight: FontWeight.w500,
+                    color: const Color(0xFFAAAAAA),
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          SizedBox(height: 8 * scale),
+
+          // 3. Teams & Scores Matchup
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      battingTeam,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 14 * scale,
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFFFFFFFF),
+                      ),
+                    ),
+                    if (showScores && battingScore != null) ...[
+                      SizedBox(height: 2 * scale),
+                      Text(
+                        battingScore!,
+                        style: TextStyle(
+                          fontSize: 14 * scale,
+                          fontWeight: FontWeight.w700,
+                          color: const Color(0xFFFFFFFF),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 10 * scale),
+                child: Text(
+                  'Vs',
+                  style: TextStyle(
+                    fontSize: 12 * scale,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFFAAAAAA),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      bowlingTeam,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 14 * scale,
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFFFFFFFF),
+                      ),
+                    ),
+                    if (showScores && bowlingScore != null) ...[
+                      SizedBox(height: 2 * scale),
+                      Text(
+                        bowlingScore!,
+                        style: TextStyle(
+                          fontSize: 12 * scale,
+                          fontWeight: FontWeight.w500,
+                          color: const Color(0xFFAAAAAA),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+
+          if (!compact) ...[
+            SizedBox(height: 8 * scale),
+
+            // Line 7: 0.8px, #283040
+            Container(
+              height: 0.8 * scale,
+              color: const Color(0xFF283040),
+            ),
+
+            SizedBox(height: 6 * scale),
+
+            // Bowler info
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'Current Batting: ',
+                      style: TextStyle(
+                        fontSize: 12 * scale,
+                        fontWeight: FontWeight.w500,
+                        color: const Color(0xFFAAAAAA),
+                      ),
+                    ),
+                    Text(
+                      battingTeam,
+                      style: TextStyle(
+                        fontSize: 12 * scale,
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFFFFFFFF),
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'Current Bowler: ',
+                      style: TextStyle(
+                        fontSize: 12 * scale,
+                        fontWeight: FontWeight.w500,
+                        color: const Color(0xFFAAAAAA),
+                      ),
+                    ),
+                    Text(
+                      currentBowler,
+                      style: TextStyle(
+                        fontSize: 12 * scale,
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFFFFFFFF),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// Pulsing red live indicator dot for live scoring screen.
+class _ScoringPulsingDot extends StatefulWidget {
+  final double scale;
+
+  const _ScoringPulsingDot({required this.scale});
+
+  @override
+  State<_ScoringPulsingDot> createState() => _ScoringPulsingDotState();
+}
+
+class _ScoringPulsingDotState extends State<_ScoringPulsingDot>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1000),
+    )..repeat(reverse: true);
+    _animation = Tween<double>(begin: 0.4, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _animation,
+      builder: (context, child) {
+        return Container(
+          width: 7 * widget.scale,
+          height: 7 * widget.scale,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: const Color(0xFFFE464B).withOpacity(_animation.value),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFFFE464B).withOpacity(_animation.value * 0.5),
+                blurRadius: 4 * widget.scale,
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }

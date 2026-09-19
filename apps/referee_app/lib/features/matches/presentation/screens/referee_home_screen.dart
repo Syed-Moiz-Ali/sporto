@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:referee_data/referee_data.dart';
@@ -6,12 +8,20 @@ import 'package:ui_kit/ui_kit.dart';
 import '../../../../app/router/app_router.dart';
 import '../../../../core/di/dependency_injector.dart';
 
+/// Pixel-perfect implementation of the Referee Home Screen matching Home.json
+/// (Canvas: 390x1097, Atmosphere, Stats Overview, Live Match with scoring,
+/// Next Match with countdown, Assigned Matches with View All, and Ads Banner).
+///
+/// Typography cleanly inherits Quicksand from SportoTheme.darkTheme without
+/// redundant hardcoded fontFamily strings.
 class RefereeHomeScreen extends StatefulWidget {
   final VoidCallback? onViewAll;
+  final Future<List<RefereeMatchResponse>>? matchesFuture;
 
   const RefereeHomeScreen({
     super.key,
     this.onViewAll,
+    this.matchesFuture,
   });
 
   @override
@@ -24,153 +34,258 @@ class _RefereeHomeScreenState extends State<RefereeHomeScreen> {
   @override
   void initState() {
     super.initState();
-    _matchesFuture = DependencyInjector.instance.refereeRemoteDataSource
-        .listMyMatchesData(perPage: 50);
+    _fetchMatches();
+  }
+
+  void _fetchMatches() {
+    _matchesFuture = widget.matchesFuture ??
+        DependencyInjector.instance.refereeRemoteDataSource
+            .listMyMatchesData(perPage: 50);
   }
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      bottom: false,
-      child: FutureBuilder<List<RefereeMatchResponse>>(
-        future: _matchesFuture,
-        builder: (context, snapshot) {
-          final matches = snapshot.data ?? const <RefereeMatchResponse>[];
-          final liveCount = matches.where((match) => match.isLive).length;
-          final upcomingCount =
-              matches.where((match) => match.isUpcoming).length;
-          final completedCount =
-              matches.where((match) => match.isCompleted).length;
-          final hasMatches = matches.isNotEmpty;
+    final scale = context.sportoScale;
 
-          return RefreshIndicator(
-            onRefresh: () async {
-              setState(() {
-                _matchesFuture = DependencyInjector
-                    .instance.refereeRemoteDataSource
-                    .listMyMatchesData(perPage: 50);
-              });
-            },
-            child: SingleChildScrollView(
-              physics: const AlwaysScrollableScrollPhysics(
-                parent: BouncingScrollPhysics(),
-              ),
-              padding: const EdgeInsets.fromLTRB(20, 17, 20, 22),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const _HomeHeader(),
-                  const SizedBox(height: 15),
-                  const _HomeSearchBar(),
-                  const SizedBox(height: 24),
-                  _MatchOverview(
-                    liveCount: liveCount,
-                    upcomingCount: upcomingCount,
-                    assignedCount: matches.length,
-                    completedCount: completedCount,
-                  ),
-                  const SizedBox(height: 24),
-                  if (snapshot.connectionState == ConnectionState.waiting)
-                    const Center(child: CircularProgressIndicator())
-                  else if (snapshot.hasError)
-                    _HomeErrorCard(
-                      message: snapshot.error.toString(),
-                      onRetry: () {
-                        setState(() {
-                          _matchesFuture = DependencyInjector
-                              .instance.refereeRemoteDataSource
-                              .listMyMatchesData(perPage: 50);
-                        });
-                      },
-                    )
-                  else if (hasMatches)
-                    _LoadedHomeContent(
-                      matches: matches,
-                      onViewAll: widget.onViewAll,
-                    )
-                  else
-                    const _EmptyHomeContent(),
-                  const SizedBox(height: 21),
-                  const _AdsBanner(),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
-
-class _HomeErrorCard extends StatelessWidget {
-  const _HomeErrorCard({
-    required this.message,
-    required this.onRetry,
-  });
-
-  final String message;
-  final VoidCallback onRetry;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1C2026),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: colors.error.withValues(alpha: .25)),
-      ),
-      child: Column(
+    return Scaffold(
+      backgroundColor: const Color(0xFF0E0C08),
+      body: Stack(
         children: [
-          Text(
-            'Unable to load assigned matches',
-            style: theme.textTheme.titleMedium?.copyWith(
-              color: colors.onSurface,
-              fontWeight: FontWeight.w600,
+          // ====================================================
+          // FIGMA ATMOSPHERE & BACKGROUND (Home.json)
+          // ====================================================
+
+          // Top ambient gradient backdrop (Rectangle 6011: 390x200)
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            height: 200 * scale,
+            child: Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Color(0xFF090C10),
+                    Color(0xFF1B2335),
+                    Color(0xFF090C10),
+                  ],
+                  stops: [0.0, 0.5, 1.0],
+                ),
+              ),
             ),
           ),
-          const SizedBox(height: 8),
-          Text(
-            message,
-            textAlign: TextAlign.center,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: colors.onSurfaceVariant,
+
+          // Ambient Glow Ellipse 17 (Top)
+          Positioned(
+            top: -80 * scale,
+            left: 6.5 * scale,
+            width: 376.9 * scale,
+            height: 280 * scale,
+            child: ImageFiltered(
+              imageFilter: ImageFilter.blur(
+                sigmaX: 70 * scale,
+                sigmaY: 70 * scale,
+              ),
+              child: Container(
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Color(0x4D373E52),
+                ),
+              ),
             ),
           ),
-          const SizedBox(height: 12),
-          FilledButton(onPressed: onRetry, child: const Text('Retry')),
+
+          // Ambient Glow Ellipse 18 (Middle)
+          Positioned(
+            top: 450 * scale,
+            right: -50 * scale,
+            width: 376.9 * scale,
+            height: 280 * scale,
+            child: ImageFiltered(
+              imageFilter: ImageFilter.blur(
+                sigmaX: 80 * scale,
+                sigmaY: 80 * scale,
+              ),
+              child: Container(
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Color(0x4D373E52),
+                ),
+              ),
+            ),
+          ),
+
+          // Ambient Glow Ellipse 19 (Lower)
+          Positioned(
+            top: 850 * scale,
+            left: -50 * scale,
+            width: 376.9 * scale,
+            height: 280 * scale,
+            child: ImageFiltered(
+              imageFilter: ImageFilter.blur(
+                sigmaX: 80 * scale,
+                sigmaY: 80 * scale,
+              ),
+              child: Container(
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Color(0x4D373E52),
+                ),
+              ),
+            ),
+          ),
+
+          // ====================================================
+          // FOREGROUND SCROLLABLE CONTENT
+          // ====================================================
+          SafeArea(
+            bottom: false,
+            child: FutureBuilder<List<RefereeMatchResponse>>(
+              future: _matchesFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return _RefereeHomeSkeletonShimmer(scale: scale);
+                }
+
+                if (snapshot.hasError) {
+                  return RefreshIndicator(
+                    onRefresh: () async {
+                      setState(_fetchMatches);
+                    },
+                    child: SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 20 * scale,
+                        vertical: 16 * scale,
+                      ),
+                      child: Column(
+                        children: [
+                          _FigmaHomeHeader(scale: scale),
+                          SizedBox(height: 24 * scale),
+                          _HomeErrorCard(
+                            scale: scale,
+                            message: snapshot.error.toString(),
+                            onRetry: () => setState(_fetchMatches),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+
+                final matches = snapshot.data ?? const <RefereeMatchResponse>[];
+                final liveCount = matches.where((m) => m.isLive).length;
+                final upcomingCount = matches.where((m) => m.isUpcoming).length;
+                final completedCount =
+                    matches.where((m) => m.isCompleted).length;
+
+                final liveMatch = matches.firstLiveOrNull;
+                final nextMatch = matches.firstUpcomingOrNull;
+                final assignedMatches = matches
+                    .where((m) => m.id != liveMatch?.id && m.id != nextMatch?.id)
+                    .take(3)
+                    .toList();
+
+                return RefreshIndicator(
+                  onRefresh: () async {
+                    setState(_fetchMatches);
+                  },
+                  child: SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(
+                      parent: BouncingScrollPhysics(),
+                    ),
+                    padding: EdgeInsets.fromLTRB(
+                      20 * scale,
+                      12 * scale,
+                      20 * scale,
+                      40 * scale,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Header Bar (Frame 1000003336: 390x49)
+                        _FigmaHomeHeader(scale: scale),
+
+                        SizedBox(height: 14 * scale),
+
+                        // Search Bar (Frame 1000003337: 358x50)
+                        _FigmaHomeSearchBar(scale: scale),
+
+                        SizedBox(height: 18 * scale),
+
+                        // Overview Stats Section (Frame 1261154190: 350x120)
+                        _FigmaOverviewStats(
+                          scale: scale,
+                          liveCount: liveCount,
+                          upcomingCount: upcomingCount,
+                          assignedCount: matches.length,
+                          completedCount: completedCount,
+                          cancelledCount: 0,
+                        ),
+
+                        SizedBox(height: 20 * scale),
+
+                        // Section 1: Live Now Match (Frame 1261154188: 350x206)
+                        if (liveMatch != null) ...[
+                          _FigmaLiveMatchCard(
+                            scale: scale,
+                            match: liveMatch,
+                          ),
+                          SizedBox(height: 20 * scale),
+                        ],
+
+                        // Section 2: Next Match (Frame 1261154189: 350x197)
+                        if (nextMatch != null) ...[
+                          _FigmaNextMatchCard(
+                            scale: scale,
+                            match: nextMatch,
+                          ),
+                          SizedBox(height: 20 * scale),
+                        ],
+
+                        // Section 3: Assigned Matches (Frame 1261154191: 350x197)
+                        if (assignedMatches.isNotEmpty) ...[
+                          _FigmaAssignedSectionHeader(
+                            scale: scale,
+                            count: matches.length,
+                            onViewAll: widget.onViewAll,
+                          ),
+                          SizedBox(height: 10 * scale),
+                          for (final match in assignedMatches)
+                            Padding(
+                              padding: EdgeInsets.only(bottom: 12 * scale),
+                              child: _FigmaAssignedMatchCard(
+                                scale: scale,
+                                match: match,
+                              ),
+                            ),
+                          SizedBox(height: 10 * scale),
+                        ] else if (liveMatch == null && nextMatch == null) ...[
+                          // Clean Empty State Card
+                          _FigmaEmptyMatchesCard(scale: scale),
+                          SizedBox(height: 20 * scale),
+                        ],
+
+                        // Section 4: Ads Banner (Frame 1171275266: 350x60)
+                        _FigmaAdsBanner(scale: scale),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
         ],
       ),
     );
   }
 }
 
-class _HomeApiMatchCard extends StatelessWidget {
-  const _HomeApiMatchCard({
-    required this.match,
-    this.showCountdown = false,
-  });
-
-  final RefereeMatchResponse match;
-  final bool showCountdown;
-
-  @override
-  Widget build(BuildContext context) {
-    return _UpcomingHomeCard(
-      date: match.displaySchedule,
-      tournamentName: match.displayTournament,
-      location: match.displayVenue,
-      leftTeam: match.displayTeamA,
-      rightTeam: match.displayTeamB,
-      status: match.displayStatus,
-      showCountdown: showCountdown,
-    );
-  }
-}
-
+// =============================================================================
+// EXTENSIONS
+// =============================================================================
 extension _RefereeHomeMatchPickers on List<RefereeMatchResponse> {
   RefereeMatchResponse? get firstLiveOrNull {
     for (final match in this) {
@@ -183,209 +298,213 @@ extension _RefereeHomeMatchPickers on List<RefereeMatchResponse> {
     for (final match in this) {
       if (match.isUpcoming) return match;
     }
-    return isEmpty ? null : first;
+    return null;
   }
 
-  List<RefereeMatchResponse> get assignedPreview =>
-      length <= 3 ? this : take(3).toList();
 }
 
-// ============================================================
-// HEADER
-// ============================================================
+// =============================================================================
+// HEADER BAR (Frame 1000003336: 390x49)
+// =============================================================================
+class _FigmaHomeHeader extends StatelessWidget {
+  final double scale;
 
-class _HomeHeader extends StatelessWidget {
-  const _HomeHeader();
+  const _FigmaHomeHeader({
+    required this.scale,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
+    return SizedBox(
+      height: 49 * scale,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          // User Avatar (38x38)
+          Container(
+            width: 38 * scale,
+            height: 38 * scale,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: const Color(0xFF252B38),
+              border: Border.all(
+                color: const Color(0xFF373E52),
+                width: 1.2 * scale,
+              ),
+            ),
+            child: Icon(
+              Icons.person_rounded,
+              size: 22 * scale,
+              color: const Color(0xFFA0A0A0),
+            ),
+          ),
 
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          SizedBox(width: 10 * scale),
+
+          // Greeting Column (Frame 1000003337)
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _GradientText(
+                  'Good Evening',
+                  gradient: const LinearGradient(
+                    colors: [
+                      Color(0xFFED7B00),
+                      Color(0xFFCF9E24),
+                    ],
+                  ),
+                  style: TextStyle(
+                    fontSize: 12 * scale,
+                    fontWeight: FontWeight.w500,
+                    height: 1.1,
+                  ),
+                ),
+                SizedBox(height: 2 * scale),
+                Text(
+                  'Priya Agrawal',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 16 * scale,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFFFFFFFF),
+                    height: 1.1,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Wallet & Bell Container (Frame 1000003338: 123x41)
+          Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                'Good Evening',
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: colors.primary,
-                  fontSize: 13,
-                  height: 1.15,
-                  fontWeight: FontWeight.w500,
+              // Wallet Pill (Frame 1261154256: 85x24)
+              ClipRRect(
+                borderRadius: BorderRadius.circular(6 * scale),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Balance container (Frame 1000003340: 60x24)
+                    Container(
+                      height: 24 * scale,
+                      padding: EdgeInsets.symmetric(horizontal: 8 * scale),
+                      alignment: Alignment.center,
+                      color: const Color(0x33767680),
+                      child: Text(
+                        '₹ 500',
+                        style: TextStyle(
+                          fontSize: 13 * scale,
+                          fontWeight: FontWeight.w600,
+                          color: const Color(0xFFFFFFFF),
+                        ),
+                      ),
+                    ),
+                    // Add button container (Frame 1000003341: 25x24)
+                    Container(
+                      width: 25 * scale,
+                      height: 24 * scale,
+                      alignment: Alignment.center,
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            Color(0xFFED7B00),
+                            Color(0xFFCF9E24),
+                          ],
+                        ),
+                      ),
+                      child: Icon(
+                        Icons.add_rounded,
+                        size: 16 * scale,
+                        color: const Color(0xFFFFFFFF),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 3),
-              Text(
-                'Priya Agrawal',
-                style: theme.textTheme.titleLarge?.copyWith(
-                  color: colors.onSurface,
-                  fontSize: 17,
-                  height: 1.15,
-                  fontWeight: FontWeight.w600,
+
+              SizedBox(width: 12 * scale),
+
+              // Notification Bell (28x28)
+              Container(
+                width: 28 * scale,
+                height: 28 * scale,
+                alignment: Alignment.center,
+                child: Icon(
+                  Icons.notifications_none_rounded,
+                  size: 24 * scale,
+                  color: const Color(0xFFFFFFFF),
                 ),
               ),
             ],
           ),
-        ),
-        const _WalletBalance(),
-        const SizedBox(width: 12),
-        Icon(
-          Icons.notifications_none_rounded,
-          color: colors.onSurface,
-          size: 24,
-        ),
-      ],
-    );
-  }
-}
-
-class _WalletBalance extends StatelessWidget {
-  const _WalletBalance();
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(6),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            height: 24,
-            padding: const EdgeInsets.symmetric(
-              horizontal: 9,
-            ),
-            alignment: Alignment.center,
-            color: const Color(0xFF252B38),
-            child: Text(
-              '₹ 500',
-              style: theme.textTheme.titleMedium?.copyWith(
-                color: colors.onSurface,
-                fontSize: 16,
-                height: 1,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-          Container(
-            width: 25,
-            height: 24,
-            alignment: Alignment.center,
-            color: colors.tertiary,
-            child: const Icon(
-              Icons.add_rounded,
-              size: 20,
-              color: Color(0xFF252119),
-            ),
-          ),
         ],
       ),
     );
   }
 }
 
-// ============================================================
-// SEARCH
-// ============================================================
+// =============================================================================
+// SEARCH BAR (Frame 1000003337 -> Shape: 358x50, radius 16)
+// =============================================================================
+class _FigmaHomeSearchBar extends StatelessWidget {
+  final double scale;
 
-class _HomeSearchBar extends StatelessWidget {
-  const _HomeSearchBar();
+  const _FigmaHomeSearchBar({required this.scale});
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-
     return Container(
-      height: 50,
+      width: double.infinity,
+      height: 50 * scale,
+      padding: EdgeInsets.symmetric(horizontal: 14 * scale),
       decoration: BoxDecoration(
-        color: const Color(0xFF202633),
-        borderRadius: BorderRadius.circular(15),
+        color: const Color(0x1F767680),
+        borderRadius: BorderRadius.circular(16 * scale),
         border: Border.all(
-          color: const Color(0xFF2C3445),
+          color: const Color(0x33767680),
+          width: 1.0,
         ),
-      ),
-      padding: const EdgeInsets.symmetric(
-        horizontal: 13,
       ),
       child: Row(
         children: [
-          SizedBox(
-            width: 27,
-            height: 27,
-            child: Stack(
-              children: [
-                Positioned(
-                  left: 0,
-                  top: 2,
-                  child: SportoAssetIcon(
-                    SportoAssets.searchNormal,
-                    color: colors.onSurfaceVariant,
-                    size: 22,
-                  ),
-                ),
-                Positioned(
-                  right: 0,
-                  bottom: 2,
-                  child: Container(
-                    width: 3,
-                    height: 3,
-                    decoration: BoxDecoration(
-                      color: colors.tertiary,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                ),
-              ],
-            ),
+          // Search Icon (22x22)
+          SportoAssetIcon(
+            SportoAssets.searchNormal,
+            size: 22 * scale,
+            color: const Color(0xFFA0A0A0),
           ),
-          const SizedBox(width: 13),
+
+          SizedBox(width: 10 * scale),
+
+          // Hint text
           Expanded(
             child: Text(
               'Search cricket, football..',
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: colors.onSurfaceVariant,
-                fontSize: 14,
+              style: TextStyle(
+                fontSize: 14 * scale,
                 fontWeight: FontWeight.w500,
+                color: const Color(0xFFA0A0A0),
               ),
             ),
           ),
+
+          // Divider (1x24)
           Container(
-            width: 1,
-            height: 29,
-            color: const Color(0xFF303746),
+            width: 1 * scale,
+            height: 24 * scale,
+            color: const Color(0x33767680),
           ),
-          const SizedBox(width: 12),
-          SizedBox(
-            width: 22,
-            height: 27,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                SportoAssetIcon(
-                  SportoAssets.mic,
-                  color: colors.onSurfaceVariant,
-                  size: 24,
-                ),
-                Positioned(
-                  bottom: 0,
-                  child: Container(
-                    width: 13,
-                    height: 2,
-                    decoration: BoxDecoration(
-                      color: colors.tertiary,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+
+          SizedBox(width: 10 * scale),
+
+          // Mic Icon
+          SportoAssetIcon(
+            SportoAssets.mic,
+            size: 20 * scale,
+            color: const Color(0xFFA0A0A0),
           ),
         ],
       ),
@@ -393,89 +512,146 @@ class _HomeSearchBar extends StatelessWidget {
   }
 }
 
-// ============================================================
-// OVERVIEW
-// ============================================================
-
-class _MatchOverview extends StatelessWidget {
+// =============================================================================
+// OVERVIEW STATS (Frame 1261154190: 350x120)
+// =============================================================================
+class _FigmaOverviewStats extends StatelessWidget {
+  final double scale;
   final int liveCount;
   final int upcomingCount;
   final int assignedCount;
   final int completedCount;
+  final int cancelledCount;
 
-  const _MatchOverview({
+  const _FigmaOverviewStats({
+    required this.scale,
     required this.liveCount,
     required this.upcomingCount,
     required this.assignedCount,
     required this.completedCount,
+    required this.cancelledCount,
   });
 
   @override
   Widget build(BuildContext context) {
-    final sporto = context.sporto;
-
     return Column(
       children: [
-        SizedBox(
-          height: 66,
-          child: Row(
-            children: [
-              Expanded(
-                child: _StatCard(
-                  value: liveCount.toString(),
-                  label: 'Live Now',
-                  color: sporto.live,
-                  hasValue: liveCount > 0,
-                ),
+        // Row 1: 3 Metric Cards (each 108x65, radius 12, fill #1B233599)
+        Row(
+          children: [
+            Expanded(
+              child: _buildMetricCard(
+                count: liveCount.toString(),
+                label: 'Live Now',
+                dotColor: const Color(0xFF2BB673),
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _StatCard(
-                  value: upcomingCount.toString(),
-                  label: 'Upcoming',
-                  color: sporto.upcoming,
-                  hasValue: upcomingCount > 0,
-                ),
+            ),
+            SizedBox(width: 10 * scale),
+            Expanded(
+              child: _buildMetricCard(
+                count: upcomingCount.toString(),
+                label: 'Upcoming',
+                dotColor: const Color(0xFFFEBD38),
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _StatCard(
-                  value: assignedCount.toString(),
-                  label: 'Assigned',
-                  color: sporto.assigned,
-                  hasValue: assignedCount > 0,
-                ),
+            ),
+            SizedBox(width: 10 * scale),
+            Expanded(
+              child: _buildMetricCard(
+                count: assignedCount.toString(),
+                label: 'Assigned',
+                dotColor: const Color(0xFF5C93FF),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
-        const SizedBox(height: 12),
+
+        SizedBox(height: 8 * scale),
+
+        // Row 2: Bottom Completed & Cancelled Strip (350x34, radius 12, fill #1B233599)
         Container(
-          height: 35,
+          width: double.infinity,
+          height: 34 * scale,
+          padding: EdgeInsets.symmetric(horizontal: 14 * scale),
           decoration: BoxDecoration(
-            color: const Color(0xFF161B24),
-            borderRadius: BorderRadius.circular(11),
+            color: const Color(0x991B2335),
+            borderRadius: BorderRadius.circular(12 * scale),
             border: Border.all(
-              color: const Color(0xFF2F4256),
+              color: const Color(0x265C93FF),
+              width: 0.8,
             ),
           ),
-          padding: const EdgeInsets.symmetric(
-            horizontal: 13,
-          ),
           child: Row(
             children: [
-              Expanded(
-                child: _SecondaryStat(
-                  label: 'Completed',
-                  value: completedCount.toString(),
-                ),
+              // Completed
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 6 * scale,
+                    height: 6 * scale,
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Color(0xFF2BB673),
+                    ),
+                  ),
+                  SizedBox(width: 6 * scale),
+                  Text.rich(
+                    TextSpan(
+                      style: TextStyle(
+                        fontSize: 12 * scale,
+                        fontWeight: FontWeight.w500,
+                        color: const Color(0xFFA0A0A0),
+                      ),
+                      children: [
+                        const TextSpan(text: 'Completed  '),
+                        TextSpan(
+                          text: completedCount.toString(),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFFFFFFFF),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              Expanded(
-                child: _SecondaryStat(
-                  label: 'Cancelled',
-                  value: '0',
-                  right: true,
-                ),
+
+              const Spacer(),
+
+              // Cancelled
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 6 * scale,
+                    height: 6 * scale,
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Color(0xFFFE464B),
+                    ),
+                  ),
+                  SizedBox(width: 6 * scale),
+                  Text.rich(
+                    TextSpan(
+                      style: TextStyle(
+                        fontSize: 12 * scale,
+                        fontWeight: FontWeight.w500,
+                        color: const Color(0xFFA0A0A0),
+                      ),
+                      children: [
+                        const TextSpan(text: 'Cancelled  '),
+                        TextSpan(
+                          text: cancelledCount.toString(),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFFFFFFFF),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -483,787 +659,919 @@ class _MatchOverview extends StatelessWidget {
       ],
     );
   }
-}
 
-class _StatCard extends StatelessWidget {
-  final String value;
-  final String label;
-  final Color color;
-  final bool hasValue;
-
-  const _StatCard({
-    required this.value,
-    required this.label,
-    required this.color,
-    required this.hasValue,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-
+  Widget _buildMetricCard({
+    required String count,
+    required String label,
+    required Color dotColor,
+  }) {
     return Container(
+      height: 65 * scale,
+      padding: EdgeInsets.symmetric(
+        horizontal: 8 * scale,
+        vertical: 8 * scale,
+      ),
       decoration: BoxDecoration(
-        color: const Color(0xFF151B29),
-        borderRadius: BorderRadius.circular(11),
+        color: const Color(0x991B2335),
+        borderRadius: BorderRadius.circular(12 * scale),
         border: Border.all(
-          color: color.withValues(
-            alpha: hasValue ? .35 : .20,
-          ),
+          color: const Color(0x265C93FF),
+          width: 0.8,
         ),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            value,
-            style: theme.textTheme.titleLarge?.copyWith(
-              color: hasValue
-                  ? colors.onSurface
-                  : colors.onSurfaceVariant.withValues(alpha: .70),
-              fontSize: 22,
-              height: 1,
-              fontWeight: FontWeight.w500,
+            count,
+            style: TextStyle(
+              fontSize: 22 * scale,
+              fontWeight: FontWeight.w700,
+              color: const Color(0xFFFFFFFF),
+              height: 1.0,
             ),
           ),
-          const SizedBox(height: 7),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                width: 6,
-                height: 6,
-                decoration: BoxDecoration(
-                  color: color,
-                  shape: BoxShape.circle,
+          SizedBox(height: 4 * scale),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 6 * scale,
+                  height: 6 * scale,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: dotColor,
+                  ),
                 ),
-              ),
-              const SizedBox(width: 4),
-              Text(
-                label,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: colors.onSurfaceVariant,
-                  fontSize: 11,
-                  height: 1,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _SecondaryStat extends StatelessWidget {
-  final String label;
-  final String value;
-  final bool right;
-
-  const _SecondaryStat({
-    required this.label,
-    required this.value,
-    this.right = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-
-    return Align(
-      alignment: right ? Alignment.centerRight : Alignment.centerLeft,
-      child: RichText(
-        text: TextSpan(
-          style: theme.textTheme.bodySmall?.copyWith(
-            color: colors.onSurfaceVariant,
-            fontSize: 12,
-          ),
-          children: [
-            TextSpan(
-              text: '$label ',
-            ),
-            TextSpan(
-              text: value,
-              style: TextStyle(
-                color: colors.onSurfaceVariant,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// ============================================================
-// EMPTY STATE
-// ============================================================
-
-class _EmptyHomeContent extends StatelessWidget {
-  const _EmptyHomeContent();
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-
-    return Container(
-      width: double.infinity,
-      height: 314,
-      padding: const EdgeInsets.fromLTRB(
-        20,
-        30,
-        20,
-        18,
-      ),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1C2026),
-        borderRadius: BorderRadius.circular(36),
-      ),
-      child: Column(
-        children: [
-          Container(
-            width: 140,
-            height: 120,
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Color(0xFF372D2E),
-                  Color(0xFF332526),
-                ],
-              ),
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-          const SizedBox(height: 21),
-          Text(
-            'No Assigned Matches',
-            style: theme.textTheme.titleMedium?.copyWith(
-              color: colors.onSurface,
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Enjoy your day!',
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: context.sporto.assigned,
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const Spacer(),
-          Divider(
-            height: 1,
-            thickness: 1,
-            color: colors.outline.withValues(alpha: .35),
-          ),
-          const SizedBox(height: 20),
-          Text(
-            'We\'ll notify you when new matches are\nassigned.',
-            textAlign: TextAlign.center,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: colors.onSurfaceVariant,
-              fontSize: 13,
-              height: 1.3,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ============================================================
-// LOADED CONTENT
-// ============================================================
-
-class _LoadedHomeContent extends StatelessWidget {
-  final List<RefereeMatchResponse> matches;
-  final VoidCallback? onViewAll;
-
-  const _LoadedHomeContent({
-    required this.matches,
-    required this.onViewAll,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final liveMatch = matches.firstLiveOrNull;
-    final nextMatch = matches.firstUpcomingOrNull;
-    final assigned = matches.assignedPreview;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (liveMatch != null) ...[
-          _SectionHeader(
-            title: 'Live Now',
-            color: context.sporto.live,
-          ),
-          const SizedBox(height: 9),
-          _HomeApiMatchCard(match: liveMatch),
-          const SizedBox(height: 21),
-        ],
-        if (nextMatch != null) ...[
-          _SectionHeader(
-            title: 'Next Match',
-            color: context.sporto.upcoming,
-            showArrow: true,
-          ),
-          const SizedBox(height: 10),
-          _HomeApiMatchCard(match: nextMatch, showCountdown: true),
-          const SizedBox(height: 25),
-        ],
-        _SectionHeader(
-          title: 'Assigned Matches (${matches.length})',
-          color: context.sporto.assigned,
-          action: 'View All  →',
-          onAction: onViewAll,
-        ),
-        const SizedBox(height: 10),
-        ...assigned.map(
-          (match) => Padding(
-            padding: const EdgeInsets.only(bottom: 10),
-            child: _HomeApiMatchCard(match: match),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _SectionHeader extends StatelessWidget {
-  final String title;
-  final Color color;
-  final bool showArrow;
-  final String? action;
-  final VoidCallback? onAction;
-
-  const _SectionHeader({
-    required this.title,
-    required this.color,
-    this.showArrow = false,
-    this.action,
-    this.onAction,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-
-    return SizedBox(
-      height: 20,
-      child: Row(
-        children: [
-          Container(
-            width: 11,
-            height: 11,
-            decoration: BoxDecoration(
-              color: color,
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: color.withValues(alpha: .45),
-                  blurRadius: 8,
+                SizedBox(width: 4 * scale),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 11 * scale,
+                    fontWeight: FontWeight.w500,
+                    color: const Color(0xFFA0A0A0),
+                    height: 1.0,
+                  ),
                 ),
               ],
             ),
           ),
-          const SizedBox(width: 7),
-          Expanded(
-            child: Text(
-              title,
-              style: theme.textTheme.titleMedium?.copyWith(
-                color: color,
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-          if (action != null)
-            GestureDetector(
-              onTap: onAction,
-              child: Text(
-                action!,
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: colors.onSurfaceVariant,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            )
-          else if (showArrow)
-            Icon(
-              Icons.arrow_forward_rounded,
-              color: colors.onSurfaceVariant,
-              size: 18,
-            ),
         ],
       ),
     );
   }
 }
 
-// ============================================================
-// LIVE MATCH
-// ============================================================
+// =============================================================================
+// SECTION 1: LIVE NOW MATCH CARD (Frame 1261154188: 350x206, radius 16)
+// =============================================================================
+class _FigmaLiveMatchCard extends StatelessWidget {
+  final double scale;
+  final RefereeMatchResponse match;
 
-// Kept as a design fallback/reference for the referee home live-card style.
-// ignore: unused_element
-class _LiveMatchCard extends StatelessWidget {
-  const _LiveMatchCard();
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-    final sporto = context.sporto;
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
-          colors: [
-            sporto.liveCardStart,
-            const Color(0xFF713313),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(17),
-        border: Border.all(
-          color: const Color(0xFF98400D),
-          width: 1,
-        ),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x283B1B06),
-            blurRadius: 18,
-            offset: Offset(0, 5),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Jaipur Super Over',
-            style: theme.textTheme.titleMedium?.copyWith(
-              color: colors.tertiary,
-              fontSize: 15,
-              height: 1.15,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 9),
-          const _TeamVsRow(
-            leftTeam: 'Thunder Titans',
-            leftScore: '28/1',
-            rightTeam: 'Royal Strikers',
-            rightScore: 'Waiting to Bat',
-          ),
-          const SizedBox(height: 9),
-          const _DottedDivider(),
-          const SizedBox(height: 9),
-          const Row(
-            children: [
-              Expanded(
-                child: _InlineMetric(
-                  label: 'Current Batter',
-                  value: 'Rahul',
-                ),
-              ),
-              Expanded(
-                child: _InlineMetric(
-                  label: 'Current Bowler',
-                  value: 'Amit',
-                  right: true,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 9),
-          const _DottedDivider(),
-          const SizedBox(height: 9),
-          Row(
-            children: [
-              Text(
-                'Over - 2.1/6',
-                style: theme.textTheme.titleMedium?.copyWith(
-                  color: colors.onSurface,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const Spacer(),
-              SizedBox(
-                height: 31,
-                child: FilledButton(
-                  onPressed: () {
-                    context.push(
-                      AppRouter.liveScoringRoute,
-                    );
-                  },
-                  style: FilledButton.styleFrom(
-                    backgroundColor: const Color(0xFFFF4B00),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 13,
-                    ),
-                    minimumSize: Size.zero,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(11),
-                    ),
-                  ),
-                  child: const Text(
-                    'Continue Scoring',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ============================================================
-// UPCOMING CARD
-// ============================================================
-
-class _UpcomingHomeCard extends StatelessWidget {
-  final String date;
-  final String tournamentName;
-  final String location;
-  final String leftTeam;
-  final String rightTeam;
-  final String status;
-  final bool showCountdown;
-
-  const _UpcomingHomeCard({
-    required this.date,
-    this.tournamentName = 'Asia Cup 2026',
-    this.location = 'Hyderabad',
-    required this.leftTeam,
-    required this.rightTeam,
-    this.status = 'Upcoming',
-    this.showCountdown = false,
+  const _FigmaLiveMatchCard({
+    required this.scale,
+    required this.match,
   });
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
+    final team1Score =
+        match.raw['team_a_score'] ?? match.raw['current_score'] ?? '28/1';
+    final team2Score = match.raw['team_b_score'] ?? 'Waiting to Bat';
+    final batter = match.raw['current_batter'] ?? 'Rahul';
+    final bowler = match.raw['current_bowler'] ?? 'Amit';
+    final overs = match.raw['overs_text'] ?? 'Over - 2.1/6';
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1C2026),
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              _StatusChip(
-                text: status,
-                color: context.sporto.upcoming,
-              ),
-              const Spacer(),
-              Text(
-                date,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: colors.onSurfaceVariant,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Live Now Section Header (Red Pulsing Dot + Gradient Text)
+        Row(
+          children: [
+            Container(
+              width: 10 * scale,
+              height: 10 * scale,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: const LinearGradient(
+                  colors: [Color(0xFFFF4444), Color(0xFFFF1919)],
                 ),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFFFF1919).withValues(alpha: 0.5),
+                    blurRadius: 6 * scale,
+                  ),
+                ],
               ),
-            ],
-          ),
-          const SizedBox(height: 9),
-          Text(
-            tournamentName,
-            style: theme.textTheme.titleMedium?.copyWith(
-              color: colors.onSurface,
-              fontSize: 16,
-              height: 1.1,
-              fontWeight: FontWeight.w500,
             ),
-          ),
-          const SizedBox(height: 2),
-          Row(
-            children: [
-              SportoAssetIcon(
-                SportoAssets.locationPin,
-                color: colors.onSurfaceVariant,
-                size: 14,
+            SizedBox(width: 6 * scale),
+            _GradientText(
+              'Live Now',
+              gradient: const LinearGradient(
+                colors: [Color(0xFFFE6C6C), Color(0xFFFE464B)],
               ),
-              const SizedBox(width: 2),
-              Text(
-                location,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: colors.onSurfaceVariant,
-                  fontSize: 11,
-                ),
+              style: TextStyle(
+                fontSize: 16 * scale,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+
+        SizedBox(height: 10 * scale),
+
+        // Live Card (350x176, radius 16, dual gradient & border)
+        Container(
+          width: double.infinity,
+          padding: EdgeInsets.all(12 * scale),
+          decoration: BoxDecoration(
+            color: const Color(0x33B40003),
+            borderRadius: BorderRadius.circular(16 * scale),
+            border: Border.all(
+              color: const Color(0x4DF53E02),
+              width: 1.0,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0x22B40003),
+                blurRadius: 16 * scale,
+                offset: Offset(0, 4 * scale),
               ),
             ],
           ),
-          const SizedBox(height: 10),
-          _TeamVsRow(
-            leftTeam: leftTeam,
-            rightTeam: rightTeam,
-          ),
-          const SizedBox(height: 12),
-          Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (showCountdown)
-                Expanded(
-                  child: RichText(
-                    text: TextSpan(
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        color: colors.onSurface,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
-                      ),
+              // Tournament Name
+              Text(
+                match.displayTournament,
+                style: TextStyle(
+                  fontSize: 14 * scale,
+                  fontWeight: FontWeight.w600,
+                  color: const Color(0xFFFFFFFF),
+                ),
+              ),
+
+              SizedBox(height: 8 * scale),
+
+              // Matchup & Scores Row
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const TextSpan(
-                          text: 'Starts in ',
-                        ),
-                        TextSpan(
-                          text: '00:28:35',
+                        Text(
+                          match.displayTeamA,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            color: context.sporto.assigned,
+                            fontSize: 14 * scale,
                             fontWeight: FontWeight.w600,
+                            color: const Color(0xFFFFFFFF),
+                          ),
+                        ),
+                        SizedBox(height: 2 * scale),
+                        Text(
+                          team1Score,
+                          style: TextStyle(
+                            fontSize: 15 * scale,
+                            fontWeight: FontWeight.w700,
+                            color: const Color(0xFF2BB673),
                           ),
                         ),
                       ],
                     ),
                   ),
-                )
-              else
-                const Spacer(),
-              SizedBox(
-                height: 31,
-                child: FilledButton(
-                  onPressed: () {
-                    context.push(
-                      AppRouter.matchVerificationRoute,
-                    );
-                  },
-                  style: FilledButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                    ),
-                    minimumSize: Size.zero,
-                    backgroundColor: context.sporto.info,
-                    foregroundColor: const Color(0xFF082234),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8 * scale),
+                    child: Text(
+                      'Vs',
+                      style: TextStyle(
+                        fontSize: 12 * scale,
+                        fontWeight: FontWeight.w500,
+                        color: const Color(0xFFA0A0A0),
+                      ),
                     ),
                   ),
-                  child: const Text(
-                    'Verify Teams',
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          match.displayTeamB,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.right,
+                          style: TextStyle(
+                            fontSize: 14 * scale,
+                            fontWeight: FontWeight.w600,
+                            color: const Color(0xFFFFFFFF),
+                          ),
+                        ),
+                        SizedBox(height: 2 * scale),
+                        Text(
+                          team2Score,
+                          textAlign: TextAlign.right,
+                          style: TextStyle(
+                            fontSize: 12 * scale,
+                            fontWeight: FontWeight.w500,
+                            color: const Color(0xFFA0A0A0),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+
+              SizedBox(height: 8 * scale),
+
+              // Divider Line (0.8px, #283040)
+              Container(
+                height: 0.8 * scale,
+                color: const Color(0xFF283040),
+              ),
+
+              SizedBox(height: 8 * scale),
+
+              // Batter & Bowler Row
+              Row(
+                children: [
+                  Expanded(
+                    child: Text.rich(
+                      TextSpan(
+                        style: TextStyle(
+                          fontSize: 11 * scale,
+                          fontWeight: FontWeight.w500,
+                          color: const Color(0xFFA0A0A0),
+                        ),
+                        children: [
+                          const TextSpan(text: 'Current Batter: '),
+                          TextSpan(
+                            text: batter,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFFFFFFFF),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Text.rich(
+                      textAlign: TextAlign.right,
+                      TextSpan(
+                        style: TextStyle(
+                          fontSize: 11 * scale,
+                          fontWeight: FontWeight.w500,
+                          color: const Color(0xFFA0A0A0),
+                        ),
+                        children: [
+                          const TextSpan(text: 'Current Bowler: '),
+                          TextSpan(
+                            text: bowler,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFFFFFFFF),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+              SizedBox(height: 8 * scale),
+
+              // Divider Line (0.8px, #283040)
+              Container(
+                height: 0.8 * scale,
+                color: const Color(0xFF283040),
+              ),
+
+              SizedBox(height: 8 * scale),
+
+              // Overs & Continue Scoring Action
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      overs,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 13 * scale,
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFFA0A0A0),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 8 * scale),
+                  Container(
+                    height: 30 * scale,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [
+                          Color(0xFF7AD3FF),
+                          Color(0xFF4FBAF0),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(10 * scale),
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () {
+                          context.push(
+                            '${AppRouter.liveScoringRoute}?matchId=${match.id}&matchCode=SPT-${match.id}',
+                          );
+                        },
+                        borderRadius: BorderRadius.circular(10 * scale),
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 12 * scale,
+                          ),
+                          child: Center(
+                            child: Text(
+                              'Continue Scoring',
+                              style: TextStyle(
+                                fontSize: 12 * scale,
+                                fontWeight: FontWeight.w700,
+                                color: const Color(0xFF082234),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// =============================================================================
+// SECTION 2: NEXT MATCH CARD (Frame 1261154189: 350x197, radius 14)
+// =============================================================================
+class _FigmaNextMatchCard extends StatelessWidget {
+  final double scale;
+  final RefereeMatchResponse match;
+
+  const _FigmaNextMatchCard({
+    required this.scale,
+    required this.match,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Next Match Section Header
+        Row(
+          children: [
+            Container(
+              width: 10 * scale,
+              height: 10 * scale,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: Color(0xFFFEBD38),
+              ),
+            ),
+            SizedBox(width: 6 * scale),
+            Text(
+              'Next Match',
+              style: TextStyle(
+                fontSize: 16 * scale,
+                fontWeight: FontWeight.w600,
+                color: const Color(0xFFFEBD38),
+              ),
+            ),
+          ],
+        ),
+
+        SizedBox(height: 10 * scale),
+
+        // Match Card (350x167, radius 14, fill #1C2026)
+        Container(
+          width: double.infinity,
+          padding: EdgeInsets.all(12 * scale),
+          decoration: BoxDecoration(
+            color: const Color(0xFF1C2026),
+            borderRadius: BorderRadius.circular(14 * scale),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Top Row: Upcoming Pill + Schedule
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    height: 19 * scale,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 6 * scale,
+                      vertical: 2 * scale,
+                    ),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10 * scale),
+                      gradient: const LinearGradient(
+                        colors: [
+                          Color(0x1AFF9364),
+                          Color(0x1AF25F33),
+                        ],
+                      ),
+                    ),
+                    child: Center(
+                      child: _GradientText(
+                        'Upcoming',
+                        gradient: const LinearGradient(
+                          colors: [
+                            Color(0xFFFF9364),
+                            Color(0xFFF25F33),
+                          ],
+                        ),
+                        style: TextStyle(
+                          fontSize: 11 * scale,
+                          fontWeight: FontWeight.w600,
+                          height: 1.0,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Flexible(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 4 * scale),
+                      child: Text(
+                        match.displaySchedule,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.right,
+                        style: TextStyle(
+                          fontSize: 12 * scale,
+                          fontWeight: FontWeight.w500,
+                          color: const Color(0xFFAAAAAA),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+              SizedBox(height: 8 * scale),
+
+              // Tournament Name
+              Text(
+                match.displayTournament,
+                style: TextStyle(
+                  fontSize: 15 * scale,
+                  fontWeight: FontWeight.w600,
+                  color: const Color(0xFFFFFFFF),
+                ),
+              ),
+
+              SizedBox(height: 2 * scale),
+
+              // Location Row
+              Row(
+                children: [
+                  SportoAssetIcon(
+                    SportoAssets.locationPin,
+                    size: 13 * scale,
+                    color: const Color(0xFFA0A0A0),
+                  ),
+                  SizedBox(width: 4 * scale),
+                  Expanded(
+                    child: Text(
+                      match.displayVenue,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 12 * scale,
+                        fontWeight: FontWeight.w500,
+                        color: const Color(0xFFA0A0A0),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+              SizedBox(height: 8 * scale),
+
+              // Teams Row
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      match.displayTeamA,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 14 * scale,
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFFFFFFFF),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8 * scale),
+                    child: Text(
+                      'Vs',
+                      style: TextStyle(
+                        fontSize: 12 * scale,
+                        fontWeight: FontWeight.w500,
+                        color: const Color(0xFFA0A0A0),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Text(
+                      match.displayTeamB,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.right,
+                      style: TextStyle(
+                        fontSize: 14 * scale,
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFFFFFFFF),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+              SizedBox(height: 8 * scale),
+
+              // Divider
+              Container(
+                height: 0.8 * scale,
+                color: const Color(0xFF283040),
+              ),
+
+              SizedBox(height: 8 * scale),
+
+              // Countdown & Verify Teams Action
+              Row(
+                children: [
+                  Expanded(
+                    child: FittedBox(
+                      alignment: Alignment.centerLeft,
+                      fit: BoxFit.scaleDown,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'Starts in ',
+                            style: TextStyle(
+                              fontSize: 13 * scale,
+                              fontWeight: FontWeight.w500,
+                              color: const Color(0xFFA0A0A0),
+                            ),
+                          ),
+                          Text(
+                            '00:28:35',
+                            style: TextStyle(
+                              fontSize: 13 * scale,
+                              fontWeight: FontWeight.w700,
+                              color: const Color(0xFF2BB673),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 8 * scale),
+                  Container(
+                    height: 30 * scale,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [
+                          Color(0xFF7AD3FF),
+                          Color(0xFF4FBAF0),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(10 * scale),
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () {
+                          context.push(
+                            '${AppRouter.matchVerificationRoute}?matchId=${match.id}',
+                          );
+                        },
+                        borderRadius: BorderRadius.circular(10 * scale),
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 12 * scale,
+                          ),
+                          child: Center(
+                            child: Text(
+                              'Verify Teams',
+                              style: TextStyle(
+                                fontSize: 12 * scale,
+                                fontWeight: FontWeight.w700,
+                                color: const Color(0xFF082234),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// =============================================================================
+// SECTION 3: ASSIGNED MATCHES (Frame 1261154191: 350x197, radius 14)
+// =============================================================================
+class _FigmaAssignedSectionHeader extends StatelessWidget {
+  final double scale;
+  final int count;
+  final VoidCallback? onViewAll;
+
+  const _FigmaAssignedSectionHeader({
+    required this.scale,
+    required this.count,
+    this.onViewAll,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Container(
+          width: 10 * scale,
+          height: 10 * scale,
+          decoration: const BoxDecoration(
+            shape: BoxShape.circle,
+            color: Color(0xFF2BB673),
+          ),
+        ),
+        SizedBox(width: 6 * scale),
+        Text(
+          'Assigned Matches ($count)',
+          style: TextStyle(
+            fontSize: 16 * scale,
+            fontWeight: FontWeight.w600,
+            color: const Color(0xFF2BB673),
+          ),
+        ),
+        const Spacer(),
+        if (onViewAll != null)
+          GestureDetector(
+            onTap: onViewAll,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'View All',
+                  style: TextStyle(
+                    fontSize: 12 * scale,
+                    fontWeight: FontWeight.w500,
+                    color: const Color(0xFFA0A0A0),
+                  ),
+                ),
+                SizedBox(width: 4 * scale),
+                Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  size: 11 * scale,
+                  color: const Color(0xFFA0A0A0),
+                ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _FigmaAssignedMatchCard extends StatelessWidget {
+  final double scale;
+  final RefereeMatchResponse match;
+
+  const _FigmaAssignedMatchCard({
+    required this.scale,
+    required this.match,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(12 * scale),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1C2026),
+        borderRadius: BorderRadius.circular(14 * scale),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Top Row: Upcoming Pill + Schedule
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                height: 19 * scale,
+                padding: EdgeInsets.symmetric(
+                  horizontal: 6 * scale,
+                  vertical: 2 * scale,
+                ),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10 * scale),
+                  gradient: const LinearGradient(
+                    colors: [
+                      Color(0x1AFF9364),
+                      Color(0x1AF25F33),
+                    ],
+                  ),
+                ),
+                child: Center(
+                  child: _GradientText(
+                    'Upcoming',
+                    gradient: const LinearGradient(
+                      colors: [
+                        Color(0xFFFF9364),
+                        Color(0xFFF25F33),
+                      ],
+                    ),
                     style: TextStyle(
-                      fontSize: 13,
+                      fontSize: 11 * scale,
+                      fontWeight: FontWeight.w600,
+                      height: 1.0,
+                    ),
+                  ),
+                ),
+              ),
+              Flexible(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 4 * scale),
+                  child: Text(
+                    match.displaySchedule,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.right,
+                    style: TextStyle(
+                      fontSize: 12 * scale,
                       fontWeight: FontWeight.w500,
+                      color: const Color(0xFFAAAAAA),
                     ),
                   ),
                 ),
               ),
             ],
           ),
-        ],
-      ),
-    );
-  }
-}
 
-// ============================================================
-// REUSABLE LOCAL ELEMENTS
-// ============================================================
+          SizedBox(height: 8 * scale),
 
-class _StatusChip extends StatelessWidget {
-  final String text;
-  final Color color;
-
-  const _StatusChip({
-    required this.text,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 7,
-        vertical: 3,
-      ),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: .13),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Text(
-        text,
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: color,
-              fontSize: 11,
-              fontWeight: FontWeight.w500,
-            ),
-      ),
-    );
-  }
-}
-
-class _TeamVsRow extends StatelessWidget {
-  final String leftTeam;
-  final String? leftScore;
-
-  final String rightTeam;
-  final String? rightScore;
-
-  const _TeamVsRow({
-    required this.leftTeam,
-    this.leftScore,
-    required this.rightTeam,
-    this.rightScore,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-
-    return Row(
-      children: [
-        Expanded(
-          child: _Team(
-            name: leftTeam,
-            score: leftScore,
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 8,
-          ),
-          child: Text(
-            'Vs',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: colors.onSurfaceVariant,
-                  fontSize: 12,
-                ),
-          ),
-        ),
-        Expanded(
-          child: _Team(
-            name: rightTeam,
-            score: rightScore,
-            right: true,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _Team extends StatelessWidget {
-  final String name;
-  final String? score;
-  final bool right;
-
-  const _Team({
-    required this.name,
-    this.score,
-    this.right = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-
-    return Column(
-      crossAxisAlignment:
-          right ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-      children: [
-        Text(
-          name,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          textAlign: right ? TextAlign.right : TextAlign.left,
-          style: theme.textTheme.titleMedium?.copyWith(
-            color: colors.onSurface,
-            fontSize: 15,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        if (score != null) ...[
-          const SizedBox(height: 2),
+          // Tournament Name
           Text(
-            score!,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            textAlign: right ? TextAlign.right : TextAlign.left,
-            style: theme.textTheme.titleMedium?.copyWith(
-              color: colors.onSurface,
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ],
-    );
-  }
-}
-
-class _InlineMetric extends StatelessWidget {
-  final String label;
-  final String value;
-  final bool right;
-
-  const _InlineMetric({
-    required this.label,
-    required this.value,
-    this.right = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-
-    return RichText(
-      textAlign: right ? TextAlign.right : TextAlign.left,
-      text: TextSpan(
-        style: theme.textTheme.bodySmall?.copyWith(
-          color: colors.onSurfaceVariant,
-          fontSize: 12,
-        ),
-        children: [
-          TextSpan(
-            text: '$label ',
-          ),
-          TextSpan(
-            text: value,
+            match.displayTournament,
             style: TextStyle(
-              color: colors.onSurface,
+              fontSize: 15 * scale,
               fontWeight: FontWeight.w600,
+              color: const Color(0xFFFFFFFF),
+            ),
+          ),
+
+          SizedBox(height: 2 * scale),
+
+          // Location
+          Row(
+            children: [
+              SportoAssetIcon(
+                SportoAssets.locationPin,
+                size: 13 * scale,
+                color: const Color(0xFFA0A0A0),
+              ),
+              SizedBox(width: 4 * scale),
+              Expanded(
+                child: Text(
+                  match.displayVenue,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 12 * scale,
+                    fontWeight: FontWeight.w500,
+                    color: const Color(0xFFA0A0A0),
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          SizedBox(height: 8 * scale),
+
+          // Teams Row
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  match.displayTeamA,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 14 * scale,
+                    fontWeight: FontWeight.w600,
+                    color: const Color(0xFFFFFFFF),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8 * scale),
+                child: Text(
+                  'Vs',
+                  style: TextStyle(
+                    fontSize: 12 * scale,
+                    fontWeight: FontWeight.w500,
+                    color: const Color(0xFFA0A0A0),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Text(
+                  match.displayTeamB,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.right,
+                  style: TextStyle(
+                    fontSize: 14 * scale,
+                    fontWeight: FontWeight.w600,
+                    color: const Color(0xFFFFFFFF),
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          SizedBox(height: 8 * scale),
+
+          // Divider Line
+          Container(
+            height: 0.8 * scale,
+            color: const Color(0xFF283040),
+          ),
+
+          SizedBox(height: 8 * scale),
+
+          // Action Button Row
+          Align(
+            alignment: Alignment.centerRight,
+            child: Container(
+              height: 30 * scale,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [
+                    Color(0xFF7AD3FF),
+                    Color(0xFF4FBAF0),
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(10 * scale),
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () {
+                    context.push(
+                      '${AppRouter.matchVerificationRoute}?matchId=${match.id}',
+                    );
+                  },
+                  borderRadius: BorderRadius.circular(10 * scale),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 14 * scale,
+                    ),
+                    child: Center(
+                      child: Text(
+                        'Verify Teams',
+                        style: TextStyle(
+                          fontSize: 12 * scale,
+                          fontWeight: FontWeight.w700,
+                          color: const Color(0xFF082234),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ),
           ),
         ],
@@ -1272,121 +1580,394 @@ class _InlineMetric extends StatelessWidget {
   }
 }
 
-class _DottedDivider extends StatelessWidget {
-  const _DottedDivider();
+// =============================================================================
+// SECTION 4: ADS BANNER (Frame 1171275266: 350x60, radius 20)
+// =============================================================================
+class _FigmaAdsBanner extends StatelessWidget {
+  final double scale;
+
+  const _FigmaAdsBanner({required this.scale});
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 1,
-      width: double.infinity,
-      child: CustomPaint(
-        painter: _DottedDividerPainter(
-          Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: .25),
-        ),
-      ),
-    );
-  }
-}
-
-class _DottedDividerPainter extends CustomPainter {
-  final Color color;
-
-  const _DottedDividerPainter(
-    this.color,
-  );
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..strokeWidth = 1;
-
-    for (double x = 0; x < size.width; x += 6) {
-      canvas.drawLine(
-        Offset(x, 0),
-        Offset(
-          (x + 2).clamp(0, size.width).toDouble(),
-          0,
-        ),
-        paint,
-      );
-    }
-  }
-
-  @override
-  bool shouldRepaint(
-    covariant _DottedDividerPainter oldDelegate,
-  ) {
-    return oldDelegate.color != color;
-  }
-}
-
-// ============================================================
-// ADS
-// ============================================================
-
-class _AdsBanner extends StatelessWidget {
-  const _AdsBanner();
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-
     return Container(
       width: double.infinity,
-      height: 60,
+      height: 60 * scale,
+      padding: EdgeInsets.symmetric(horizontal: 20 * scale),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
+        gradient: const LinearGradient(
           colors: [
-            colors.primary,
-            colors.tertiary,
+            Color(0xFFED7B00),
+            Color(0xFFCF9E24),
           ],
         ),
-        borderRadius: BorderRadius.circular(18),
-      ),
-      padding: const EdgeInsets.fromLTRB(
-        20,
-        0,
-        12,
-        0,
+        borderRadius: BorderRadius.circular(20 * scale),
       ),
       child: Row(
         children: [
           Text(
             'Ads Banner',
-            style: theme.textTheme.titleLarge?.copyWith(
-              color: Colors.white,
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
+            style: TextStyle(
+              fontSize: 16 * scale,
+              fontWeight: FontWeight.w700,
+              color: const Color(0xFFFFFFFF),
             ),
           ),
           const Spacer(),
           Container(
-            width: 38,
-            height: 38,
+            width: 36 * scale,
+            height: 36 * scale,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: .12),
-              borderRadius: BorderRadius.circular(11),
-              boxShadow: const [
-                BoxShadow(
-                  color: Color(0x22000000),
-                  blurRadius: 4,
-                  offset: Offset(0, 2),
-                ),
-              ],
+              color: const Color(0x1AFFFFFF),
+              borderRadius: BorderRadius.circular(10 * scale),
             ),
-            child: const Icon(
-              Icons.arrow_forward_ios_rounded,
-              color: Colors.white,
-              size: 18,
+            child: Icon(
+              Icons.chevron_right_rounded,
+              size: 22 * scale,
+              color: const Color(0xFFFFFFFF),
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// =============================================================================
+// CLEAN EMPTY STATE CARD
+// =============================================================================
+class _FigmaEmptyMatchesCard extends StatelessWidget {
+  final double scale;
+
+  const _FigmaEmptyMatchesCard({required this.scale});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.fromLTRB(
+        20 * scale,
+        24 * scale,
+        20 * scale,
+        20 * scale,
+      ),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1C2026),
+        borderRadius: BorderRadius.circular(24 * scale),
+      ),
+      child: Column(
+        children: [
+          Container(
+            width: 64 * scale,
+            height: 64 * scale,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: const Color(0xFF252B38),
+              border: Border.all(
+                color: const Color(0xFF373E52),
+                width: 1.5,
+              ),
+            ),
+            child: Icon(
+              Icons.sports_cricket_rounded,
+              size: 32 * scale,
+              color: const Color(0xFFFEBD38),
+            ),
+          ),
+          SizedBox(height: 14 * scale),
+          Text(
+            'No Assigned Matches',
+            style: TextStyle(
+              fontSize: 16 * scale,
+              fontWeight: FontWeight.w700,
+              color: const Color(0xFFFFFFFF),
+            ),
+          ),
+          SizedBox(height: 6 * scale),
+          Text(
+            'Enjoy your day!',
+            style: TextStyle(
+              fontSize: 13 * scale,
+              fontWeight: FontWeight.w500,
+              color: const Color(0xFF2BB673),
+            ),
+          ),
+          SizedBox(height: 16 * scale),
+          Container(
+            height: 0.8 * scale,
+            color: const Color(0xFF283040),
+          ),
+          SizedBox(height: 14 * scale),
+          Text(
+            'We\'ll notify you when new matches are assigned.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 12 * scale,
+              fontWeight: FontWeight.w500,
+              color: const Color(0xFFA0A0A0),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// =============================================================================
+// ERROR CARD
+// =============================================================================
+class _HomeErrorCard extends StatelessWidget {
+  final double scale;
+  final String message;
+  final VoidCallback onRetry;
+
+  const _HomeErrorCard({
+    required this.scale,
+    required this.message,
+    required this.onRetry,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(18 * scale),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1C2026),
+        borderRadius: BorderRadius.circular(16 * scale),
+        border: Border.all(
+          color: const Color(0xFFFE464B).withValues(alpha: 0.4),
+        ),
+      ),
+      child: Column(
+        children: [
+          Text(
+            'Unable to load assigned matches',
+            style: TextStyle(
+              fontSize: 15 * scale,
+              fontWeight: FontWeight.w700,
+              color: const Color(0xFFFFFFFF),
+            ),
+          ),
+          SizedBox(height: 8 * scale),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 12 * scale,
+              color: const Color(0xFFA0A0A0),
+            ),
+          ),
+          SizedBox(height: 14 * scale),
+          FilledButton(
+            onPressed: onRetry,
+            style: FilledButton.styleFrom(
+              backgroundColor: const Color(0xFF2BB673),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10 * scale),
+              ),
+            ),
+            child: const Text('Retry'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// =============================================================================
+// HIGH-FIDELITY SKELETON SHIMMER (Matching Figma Layout)
+// =============================================================================
+class _RefereeHomeSkeletonShimmer extends StatefulWidget {
+  final double scale;
+
+  const _RefereeHomeSkeletonShimmer({required this.scale});
+
+  @override
+  State<_RefereeHomeSkeletonShimmer> createState() =>
+      _RefereeHomeSkeletonShimmerState();
+}
+
+class _RefereeHomeSkeletonShimmerState
+    extends State<_RefereeHomeSkeletonShimmer>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1400),
+    )..repeat(reverse: true);
+    _animation = Tween<double>(begin: 0.25, end: 0.65).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Widget _shimmerBox({
+    required double width,
+    required double height,
+    double radius = 8,
+  }) {
+    final s = widget.scale;
+    return AnimatedBuilder(
+      animation: _animation,
+      builder: (context, _) {
+        return Container(
+          width: width * s,
+          height: height * s,
+          decoration: BoxDecoration(
+            color: Color(0xFF283040).withValues(alpha: _animation.value),
+            borderRadius: BorderRadius.circular(radius * s),
+          ),
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final s = widget.scale;
+
+    return SingleChildScrollView(
+      physics: const NeverScrollableScrollPhysics(),
+      padding: EdgeInsets.fromLTRB(20 * s, 12 * s, 20 * s, 40 * s),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header Shimmer
+          Row(
+            children: [
+              _shimmerBox(width: 38, height: 38, radius: 19),
+              SizedBox(width: 10 * s),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _shimmerBox(width: 80, height: 12),
+                  SizedBox(height: 6 * s),
+                  _shimmerBox(width: 120, height: 16),
+                ],
+              ),
+              const Spacer(),
+              _shimmerBox(width: 85, height: 24, radius: 6),
+            ],
+          ),
+
+          SizedBox(height: 14 * s),
+
+          // Search Bar Shimmer
+          _shimmerBox(width: 350, height: 50, radius: 16),
+
+          SizedBox(height: 18 * s),
+
+          // Stats Shimmer (3 cards)
+          Row(
+            children: [
+              Expanded(child: _shimmerBox(width: 108, height: 65, radius: 12)),
+              SizedBox(width: 10 * s),
+              Expanded(child: _shimmerBox(width: 108, height: 65, radius: 12)),
+              SizedBox(width: 10 * s),
+              Expanded(child: _shimmerBox(width: 108, height: 65, radius: 12)),
+            ],
+          ),
+
+          SizedBox(height: 8 * s),
+
+          _shimmerBox(width: 350, height: 34, radius: 12),
+
+          SizedBox(height: 20 * s),
+
+          // Section Title Shimmer
+          _shimmerBox(width: 100, height: 18),
+
+          SizedBox(height: 10 * s),
+
+          // Live / Next Match Card Shimmer
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.all(12 * s),
+            decoration: BoxDecoration(
+              color: const Color(0xFF1C2026),
+              borderRadius: BorderRadius.circular(14 * s),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _shimmerBox(width: 70, height: 19, radius: 10),
+                    _shimmerBox(width: 90, height: 14),
+                  ],
+                ),
+                SizedBox(height: 10 * s),
+                _shimmerBox(width: 160, height: 16),
+                SizedBox(height: 8 * s),
+                _shimmerBox(width: 100, height: 12),
+                SizedBox(height: 12 * s),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _shimmerBox(width: 100, height: 16),
+                    _shimmerBox(width: 20, height: 14),
+                    _shimmerBox(width: 100, height: 16),
+                  ],
+                ),
+                SizedBox(height: 12 * s),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _shimmerBox(width: 120, height: 14),
+                    _shimmerBox(width: 108, height: 30, radius: 10),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          SizedBox(height: 20 * s),
+
+          // Banner Shimmer
+          _shimmerBox(width: 350, height: 60, radius: 20),
+        ],
+      ),
+    );
+  }
+}
+
+// =============================================================================
+// REUSABLE GRADIENT TEXT (Inherits Theme Quicksand)
+// =============================================================================
+class _GradientText extends StatelessWidget {
+  final String text;
+  final TextStyle? style;
+  final Gradient gradient;
+
+  const _GradientText(
+    this.text, {
+    required this.gradient,
+    this.style,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ShaderMask(
+      blendMode: BlendMode.srcIn,
+      shaderCallback: (bounds) => gradient.createShader(
+        Rect.fromLTWH(0, 0, bounds.width, bounds.height),
+      ),
+      child: Text(
+        text,
+        style: style,
       ),
     );
   }

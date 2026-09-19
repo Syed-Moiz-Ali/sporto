@@ -1,4 +1,5 @@
 import 'package:go_router/go_router.dart';
+import 'package:shared_domain/shared_domain.dart';
 import 'package:ui_kit/ui_kit.dart';
 
 import '../../../features/auth/presentation/views/auth_flow_view.dart';
@@ -40,7 +41,12 @@ abstract final class AppRouter {
       GoRoute(
         path: matchVerificationPath,
         name: 'matchVerification',
-        builder: (context, state) => const MatchVerificationScreen(),
+        builder: (context, state) => MatchVerificationScreen(
+          matchId: state.uri.queryParameters['matchId'],
+          match: state.extra is CricketMatchEntity
+              ? state.extra as CricketMatchEntity
+              : null,
+        ),
       ),
       GoRoute(
         path: conductTossPath,

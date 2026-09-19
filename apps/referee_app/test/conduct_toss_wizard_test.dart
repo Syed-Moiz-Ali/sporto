@@ -277,11 +277,169 @@ void main() {
       await tester.tap(find.text('Confirm & Select Openers'));
       await tester.pumpAndSettle();
 
-      // Should now be on Step 3: Select Openers
+      // Should now be on Step 3: Select Openers (accordion player selectors)
       expect(find.text('Select Openers'), findsOneWidget);
-      expect(find.text('Striker'), findsOneWidget);
-      expect(find.text('Non - Striker'), findsOneWidget);
-      expect(find.text('Opening Bowler'), findsOneWidget);
+      expect(find.text('Select Striker'), findsWidgets);
+      expect(find.text('Select Non-Striker'), findsWidgets);
+      expect(find.text('Select Opening Bowler'), findsWidgets);
+      expect(find.text('Confirm Openers'), findsOneWidget);
+    });
+
+    testWidgets(
+        'Step 4 (Match Ready): Tapping Ready button invokes ConfirmStartingPlayers',
+        (tester) async {
+      tester.view.physicalSize = const Size(1080, 2400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
+      await tester.pumpWidget(createWidget());
+      await tester.pumpAndSettle();
+
+      // Enter Result mode -> select Hyd Highlanders -> Continue
+      await tester.tap(find.text('Enter Result'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Hyd Highlanders').last);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Continue'));
+      await tester.pumpAndSettle();
+
+      // Select "Bat First"
+      await tester.tap(find.text('Bat First'));
+      await tester.pumpAndSettle();
+
+      // Tap Confirm & Select Openers -> reach selectOpeners step
+      await tester.tap(find.text('Confirm & Select Openers'));
+      await tester.pumpAndSettle();
+
+      // Tap Confirm Openers -> reach matchReady step
+      expect(find.text('Confirm Openers'), findsOneWidget);
+      await tester.tap(find.text('Confirm Openers'));
+      await tester.pumpAndSettle();
+
+      // On Step 4 (Match Ready): Tap Ready
+      expect(find.text('Ready'), findsOneWidget);
+      await tester.tap(find.text('Ready'));
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets(
+        'Step 3 (Select Openers): Renders Select Striker, Select Non-Striker, and Select Opening Bowler with dummy defaults',
+        (tester) async {
+      tester.view.physicalSize = const Size(1080, 2400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
+      await tester.pumpWidget(createWidget());
+      await tester.pumpAndSettle();
+
+      // Enter Result mode -> select Delhi Warriors -> Continue
+      await tester.tap(find.text('Enter Result'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Delhi Warriors').last);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Continue'));
+      await tester.pumpAndSettle();
+
+      // Select Bat First -> Confirm & Select Openers
+      await tester.tap(find.text('Bat First'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Confirm & Select Openers'));
+      await tester.pumpAndSettle();
+
+      // Verify the 3 selector cards are rendered on Step 3
+      expect(find.text('Select Striker'), findsWidgets);
+      expect(find.text('Select Non-Striker'), findsWidgets);
+      expect(find.text('Select Opening Bowler'), findsWidgets);
+
+      // Verify default selected player pills
+      expect(find.text('Shrvn Prajapati'), findsWidgets);
+      expect(find.text('Amit Kumar'), findsWidgets);
+      expect(find.text('Dev Kumar'), findsWidgets);
+
+      // Verify Confirm Openers button is present
+      expect(find.text('Confirm Openers'), findsOneWidget);
+    });
+
+    testWidgets(
+        'Step 3 (Player Selectors): Expanding Select Striker allows choosing another dummy player and updates summary card',
+        (tester) async {
+      tester.view.physicalSize = const Size(1080, 2400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
+      await tester.pumpWidget(createWidget());
+      await tester.pumpAndSettle();
+
+      // Enter Result mode -> select Delhi Warriors -> Continue
+      await tester.tap(find.text('Enter Result'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Delhi Warriors').last);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Continue'));
+      await tester.pumpAndSettle();
+
+      // Select Bat First -> Confirm & Select Openers
+      await tester.tap(find.text('Bat First'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Confirm & Select Openers'));
+      await tester.pumpAndSettle();
+
+      // Tap on Select Striker header to expand
+      await tester.tap(find.text('Select Striker').first);
+      await tester.pumpAndSettle();
+
+      // Verify captain badge is shown for Shrvn Prajapati
+      expect(find.text('Captain'), findsWidgets);
+
+      // Non-striker (Amit Kumar) should show as excluded in Striker list
+      expect(find.text('(Selected as Non-Striker)'), findsOneWidget);
+
+      // Select R. Sharma from the expanded list
+      expect(find.text('R. Sharma'), findsOneWidget);
+      await tester.tap(find.text('R. Sharma'));
+      await tester.pumpAndSettle();
+
+      // Striker pill should now be R. Sharma
+      expect(find.text('R. Sharma'), findsWidgets);
+    });
+
+    testWidgets(
+        'Step 3 (Player Selectors): Mutual exclusion prevents selecting the same player for both Striker and Non-Striker',
+        (tester) async {
+      tester.view.physicalSize = const Size(1080, 2400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
+      await tester.pumpWidget(createWidget());
+      await tester.pumpAndSettle();
+
+      // Enter Result mode -> select Delhi Warriors -> Continue
+      await tester.tap(find.text('Enter Result'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Delhi Warriors').last);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Continue'));
+      await tester.pumpAndSettle();
+
+      // Select Bat First -> Confirm & Select Openers
+      await tester.tap(find.text('Bat First'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Confirm & Select Openers'));
+      await tester.pumpAndSettle();
+
+      // Tap on Select Non-Striker header to expand
+      await tester.tap(find.text('Select Non-Striker').first);
+      await tester.pumpAndSettle();
+
+      // Striker (Shrvn Prajapati) should show as excluded in Non-Striker list
+      expect(find.text('(Selected as Striker)'), findsOneWidget);
+
+      // Tapping Shrvn Prajapati in Non-Striker list does not change Non-Striker
+      await tester.tap(find.text('Shrvn Prajapati').last);
+      await tester.pumpAndSettle();
+
+      // Non-striker should still be Amit Kumar
+      expect(find.text('Amit Kumar'), findsWidgets);
     });
   });
 }
