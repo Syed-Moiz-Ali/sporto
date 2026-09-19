@@ -193,19 +193,16 @@ class _ConductTossView extends StatelessWidget {
                   // HEADER
                   // ===========================================
 
-                  SportoTossHeader(
+                  _buildHeader(
+                    context: context,
                     title: state.screenTitle,
-                    matchId: matchCode,
+                    matchCode: matchCode,
                     currentStep: state.progressStep,
-                    onBack: () {
-                      if (context.canPop()) {
-                        context.pop();
-                      }
-                    },
+                    scale: context.sportoScale,
                   ),
 
                   SizedBox(
-                    height: 25 * context.sportoScale,
+                    height: 24 * context.sportoScale,
                   ),
 
                   // ===========================================
@@ -289,9 +286,10 @@ class _ConductTossView extends StatelessWidget {
     if (state.tossMode == TossMode.enterResult) {
       return Column(
         children: [
-          SportoTossMatchStrip(
+          _buildMatchStrip(
             team1: state.team1.name,
             team2: state.team2.name,
+            scale: scale,
           ),
           SizedBox(height: 16 * scale),
           _buildModeSelector(context, state, scale),
@@ -348,9 +346,10 @@ class _ConductTossView extends StatelessWidget {
     if (!state.hasSelectedCaller) {
       return Column(
         children: [
-          SportoTossMatchStrip(
+          _buildMatchStrip(
             team1: state.team1.name,
             team2: state.team2.name,
+            scale: scale,
           ),
           SizedBox(height: 16 * scale),
           _buildModeSelector(context, state, scale),
@@ -397,9 +396,10 @@ class _ConductTossView extends StatelessWidget {
     final callingTeam = state.teamById(state.callerTeamId);
     return Column(
       children: [
-        SportoTossMatchStrip(
+        _buildMatchStrip(
           team1: state.team1.name,
           team2: state.team2.name,
+          scale: scale,
         ),
         SizedBox(height: 16 * scale),
         _buildCallingBar(context, state, scale),
@@ -791,48 +791,51 @@ class _ConductTossView extends StatelessWidget {
     return Center(
       child: GestureDetector(
         onTap: (disabled || loading) ? null : onPressed,
-        child: AnimatedOpacity(
+        child: AnimatedContainer(
           duration: const Duration(milliseconds: 180),
-          opacity: disabled ? 0.45 : 1.0,
-          child: Container(
-            width: double.infinity,
-            height: 52 * scale,
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFFE58A13), Color(0xFFF5A623)],
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-              ),
-              borderRadius: BorderRadius.circular(16 * scale),
-              boxShadow: disabled
-                  ? null
-                  : [
-                      BoxShadow(
-                        color: const Color(0xFFE58A13).withValues(alpha: 0.35),
-                        blurRadius: 18,
-                        offset: const Offset(0, 6),
-                      ),
-                    ],
-            ),
-            alignment: Alignment.center,
-            child: loading
-                ? const SizedBox(
-                    width: 22,
-                    height: 22,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2.5,
-                      color: Colors.white,
-                    ),
-                  )
-                : Text(
-                    label,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16 * scale,
-                      fontWeight: FontWeight.w600,
-                    ),
+          width: double.infinity,
+          height: 52 * scale,
+          decoration: BoxDecoration(
+            color: disabled ? const Color(0xFF151A22) : null,
+            gradient: disabled
+                ? null
+                : const LinearGradient(
+                    colors: [Color(0xFFE58A13), Color(0xFFF5A623)],
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
                   ),
+            borderRadius: BorderRadius.circular(16 * scale),
+            border: disabled
+                ? Border.all(color: const Color(0xFF202633), width: 1.0)
+                : null,
+            boxShadow: disabled
+                ? null
+                : [
+                    BoxShadow(
+                      color: const Color(0xFFE58A13).withValues(alpha: 0.35),
+                      blurRadius: 18,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
           ),
+          alignment: Alignment.center,
+          child: loading
+              ? const SizedBox(
+                  width: 22,
+                  height: 22,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.5,
+                    color: Colors.white,
+                  ),
+                )
+              : Text(
+                  label,
+                  style: TextStyle(
+                    color: disabled ? const Color(0xFF4A5568) : Colors.white,
+                    fontSize: 16 * scale,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
         ),
       ),
     );
@@ -860,9 +863,10 @@ class _ConductTossView extends StatelessWidget {
 
     return Column(
       children: [
-        SportoTossMatchStrip(
+        _buildMatchStrip(
           team1: state.team1.name,
           team2: state.team2.name,
+          scale: scale,
         ),
         SizedBox(
           height: 21 * scale,
@@ -889,110 +893,424 @@ class _ConductTossView extends StatelessWidget {
   // BAT / BOWL
   // ==========================================================
 
+  Widget _buildHeader({
+    required BuildContext context,
+    required String title,
+    required String matchCode,
+    required int currentStep,
+    required double scale,
+  }) {
+    return Column(
+      children: [
+        SizedBox(
+          height: 36 * scale,
+          child: Row(
+            children: [
+              GestureDetector(
+                onTap: () {
+                  if (context.canPop()) {
+                    context.pop();
+                  }
+                },
+                child: Container(
+                  width: 36 * scale,
+                  height: 36 * scale,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF2E3341),
+                    borderRadius: BorderRadius.circular(10 * scale),
+                  ),
+                  alignment: Alignment.center,
+                  child: Icon(
+                    Icons.chevron_left_rounded,
+                    color: Colors.white,
+                    size: 26 * scale,
+                  ),
+                ),
+              ),
+              SizedBox(width: 14 * scale),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18 * scale,
+                      fontWeight: FontWeight.w600,
+                      height: 1.1,
+                    ),
+                  ),
+                  SizedBox(height: 3 * scale),
+                  Text(
+                    'Match #$matchCode',
+                    style: TextStyle(
+                      color: const Color(0xFFA0A5B0),
+                      fontSize: 12 * scale,
+                      fontWeight: FontWeight.w400,
+                      height: 1.1,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        SizedBox(height: 20 * scale),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(3, (index) {
+            final active = index <= currentStep;
+            return Container(
+              margin: EdgeInsets.only(right: index == 2 ? 0 : 13 * scale),
+              width: 50 * scale,
+              height: 4 * scale,
+              decoration: BoxDecoration(
+                gradient: active
+                    ? const LinearGradient(
+                        colors: [Color(0xFFED7B00), Color(0xFFCE9E24)],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                      )
+                    : null,
+                color: active ? null : const Color(0xFF283040),
+                borderRadius: BorderRadius.circular(2 * scale),
+              ),
+            );
+          }),
+        ),
+      ],
+    );
+  }
+
+  // ==========================================================
+  // STEP 2
+  // BAT / BOWL (Exact match to Conduct Toss.png & Conduct Toss-1.png)
+  // ==========================================================
+
   Widget _chooseBatBowl(
     BuildContext context,
     ConductTossState state,
   ) {
     final scale = context.sportoScale;
-
     final winner = state.tossWinner;
 
     if (winner == null) {
       return const SizedBox.shrink();
     }
 
-    SportoTossChoice? selected;
-
-    if (state.tossChoice == TossBatBowlChoice.batFirst) {
-      selected = SportoTossChoice.bat;
-    }
-
-    if (state.tossChoice == TossBatBowlChoice.bowlFirst) {
-      selected = SportoTossChoice.bowl;
-    }
-
     return Column(
       children: [
-        // ===========================================
-        // WINNER
-        // ===========================================
-
-        SportoTossWinnerCard(
-          winner: winner.name,
+        _buildTossWinnerCard(
+          winnerName: winner.name,
+          scale: scale,
         ),
-
-        SizedBox(
-          height: 22 * scale,
-        ),
-
-        // ===========================================
-        // TEAMS
-        // ===========================================
-
-        SportoTossMatchStrip(
+        SizedBox(height: 20 * scale),
+        _buildMatchStrip(
           team1: state.team1.name,
           team2: state.team2.name,
+          scale: scale,
         ),
-
-        SizedBox(
-          height: 20 * scale,
+        SizedBox(height: 20 * scale),
+        _buildBatBowlPanel(
+          context: context,
+          winnerName: winner.name,
+          selectedChoice: state.tossChoice,
+          scale: scale,
         ),
-
-        // ===========================================
-        // CHOICE
-        // ===========================================
-
-        SportoTossChoicePanel(
-          winner: winner.name,
-          selected: selected,
-          onSelected: (
-            choice,
-          ) {
-            final bloc = context.read<ConductTossBloc>();
-
-            if (choice == SportoTossChoice.bat) {
-              bloc.add(
-                const TossChoiceSelected(
-                  TossBatBowlChoice.batFirst,
-                ),
-              );
-
-              return;
-            }
-
-            bloc.add(
-              const TossChoiceSelected(
-                TossBatBowlChoice.bowlFirst,
-              ),
-            );
-          },
-        ),
-
-        SizedBox(
-          height: 20 * scale,
-        ),
-
-        // ===========================================
-        // CONFIRM
-        //
-        // IMPORTANT:
-        // No MatchScoringBloc.
-        // No TossResultEntity in UI.
-        // No repository in UI.
-        // ===========================================
-
-        SportoTossPrimaryButton(
-          text: state.isSavingToss
+        SizedBox(height: 22 * scale),
+        _buildConfirmButton(
+          label: state.isSavingToss
               ? 'Saving Toss...'
               : 'Confirm & Select Openers',
           disabled: !state.canConfirmTossChoice,
-          onTap: () {
-            context.read<ConductTossBloc>().add(
-                  ConfirmTossChoice(),
-                );
+          loading: state.isSavingToss,
+          scale: scale,
+          onPressed: () {
+            context.read<ConductTossBloc>().add(ConfirmTossChoice());
           },
         ),
       ],
+    );
+  }
+
+  Widget _buildTossWinnerCard({
+    required String winnerName,
+    required double scale,
+  }) {
+    return Container(
+      width: double.infinity,
+      constraints: BoxConstraints(minHeight: 70 * scale),
+      padding: EdgeInsets.symmetric(
+        horizontal: 16 * scale,
+        vertical: 12 * scale,
+      ),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1C2026),
+        borderRadius: BorderRadius.circular(18 * scale),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            'Toss Winner',
+            style: TextStyle(
+              color: const Color(0xFF2BB673),
+              fontSize: 13 * scale,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          SizedBox(height: 4 * scale),
+          Text(
+            winnerName,
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18 * scale,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMatchStrip({
+    required String team1,
+    required String team2,
+    required double scale,
+  }) {
+    return Container(
+      width: double.infinity,
+      constraints: BoxConstraints(minHeight: 46 * scale),
+      padding: EdgeInsets.symmetric(
+        horizontal: 16 * scale,
+        vertical: 12 * scale,
+      ),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1C2026),
+        borderRadius: BorderRadius.circular(14 * scale),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              team1,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 14 * scale,
+                fontWeight: FontWeight.w500,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          Text(
+            'Vs',
+            style: TextStyle(
+              color: const Color(0xFFAAAAAA),
+              fontSize: 13 * scale,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          Expanded(
+            child: Text(
+              team2,
+              textAlign: TextAlign.end,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 14 * scale,
+                fontWeight: FontWeight.w500,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBatBowlPanel({
+    required BuildContext context,
+    required String winnerName,
+    required TossBatBowlChoice? selectedChoice,
+    required double scale,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(14 * scale),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1C2026),
+        borderRadius: BorderRadius.circular(18 * scale),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '$winnerName chooses to',
+            style: TextStyle(
+              color: const Color(0xFF2BB673),
+              fontSize: 16 * scale,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          SizedBox(height: 14 * scale),
+          Row(
+            children: [
+              Expanded(
+                child: _buildDecisionChoiceCard(
+                  label: 'Bat First',
+                  assetPath: 'assets/images/bat_first.png',
+                  selected: selectedChoice == TossBatBowlChoice.batFirst,
+                  onTap: () {
+                    context.read<ConductTossBloc>().add(
+                          const TossChoiceSelected(TossBatBowlChoice.batFirst),
+                        );
+                  },
+                  scale: scale,
+                ),
+              ),
+              SizedBox(width: 14 * scale),
+              Expanded(
+                child: _buildDecisionChoiceCard(
+                  label: 'Bowl First',
+                  assetPath: 'assets/images/bowl_first.png',
+                  selected: selectedChoice == TossBatBowlChoice.bowlFirst,
+                  onTap: () {
+                    context.read<ConductTossBloc>().add(
+                          const TossChoiceSelected(TossBatBowlChoice.bowlFirst),
+                        );
+                  },
+                  scale: scale,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDecisionChoiceCard({
+    required String label,
+    required String assetPath,
+    required bool selected,
+    required VoidCallback onTap,
+    required double scale,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        height: 140 * scale,
+        decoration: BoxDecoration(
+          color: selected ? const Color(0xFF2A4250) : const Color(0xFF1B222F),
+          borderRadius: BorderRadius.circular(16 * scale),
+          border: Border.all(
+            color: selected ? const Color(0xFF5185A1) : const Color(0xFF28394B),
+            width: selected ? 1.8 : 1.0,
+          ),
+          boxShadow: selected
+              ? [
+                  BoxShadow(
+                    color: const Color(0xFF5185A1).withValues(alpha: 0.35),
+                    blurRadius: 16,
+                    spreadRadius: 0,
+                  ),
+                ]
+              : null,
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(
+              width: 68 * scale,
+              height: 68 * scale,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(14 * scale),
+                child: Image.asset(
+                  assetPath,
+                  fit: BoxFit.contain,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Icon(
+                      label.contains('Bat')
+                          ? Icons.sports_cricket
+                          : Icons.sports_baseball,
+                      color: const Color(0xFF5185A1),
+                      size: 38 * scale,
+                    );
+                  },
+                ),
+              ),
+            ),
+            SizedBox(height: 14 * scale),
+            Text(
+              label,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 14 * scale,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildConfirmButton({
+    required String label,
+    required bool disabled,
+    required bool loading,
+    required VoidCallback? onPressed,
+    required double scale,
+  }) {
+    return Center(
+      child: GestureDetector(
+        onTap: (disabled || loading) ? null : onPressed,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          width: 270 * scale,
+          height: 48 * scale,
+          decoration: BoxDecoration(
+            color: disabled ? const Color(0xFF161411) : null,
+            gradient: disabled
+                ? null
+                : const LinearGradient(
+                    colors: [Color(0xFFED7B00), Color(0xFFCE9E24)],
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                  ),
+            borderRadius: BorderRadius.circular(16 * scale),
+            boxShadow: disabled
+                ? null
+                : [
+                    BoxShadow(
+                      color: const Color(0xFFED7B00).withValues(alpha: 0.40),
+                      blurRadius: 20,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+          ),
+          alignment: Alignment.center,
+          child: loading
+              ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.5,
+                    color: Colors.white,
+                  ),
+                )
+              : Text(
+                  label,
+                  style: TextStyle(
+                    color: disabled ? const Color(0xFF4A4540) : Colors.white,
+                    fontSize: 15 * scale,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+        ),
+      ),
     );
   }
 

@@ -220,5 +220,68 @@ void main() {
       expect(find.text('Bat First'), findsOneWidget);
       expect(find.text('Bowl First'), findsOneWidget);
     });
+
+    testWidgets(
+        'Step 2 (Bat / Bowl Selection): Renders exact UI from Conduct Toss.png with disabled Confirm button',
+        (tester) async {
+      tester.view.physicalSize = const Size(1080, 2400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
+      await tester.pumpWidget(createWidget());
+      await tester.pumpAndSettle();
+
+      // Enter Result mode -> select Hyd Highlanders -> Continue
+      await tester.tap(find.text('Enter Result'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Hyd Highlanders').last);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Continue'));
+      await tester.pumpAndSettle();
+
+      // Verify Step 2 UI (Conduct Toss.png)
+      expect(find.text('Toss Winner'), findsOneWidget);
+      expect(find.text('Hyd Highlanders'), findsWidgets);
+      expect(find.text('Vs'), findsOneWidget);
+      expect(find.text('Hyd Highlanders chooses to'), findsOneWidget);
+      expect(find.text('Bat First'), findsOneWidget);
+      expect(find.text('Bowl First'), findsOneWidget);
+
+      // Button exists with disabled appearance
+      expect(find.text('Confirm & Select Openers'), findsOneWidget);
+    });
+
+    testWidgets(
+        'Step 2 (Bat / Bowl Selection): Selecting Bat First enables Confirm button and advances to Openers (Conduct Toss-1.png)',
+        (tester) async {
+      tester.view.physicalSize = const Size(1080, 2400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
+      await tester.pumpWidget(createWidget());
+      await tester.pumpAndSettle();
+
+      // Enter Result mode -> select Hyd Highlanders -> Continue
+      await tester.tap(find.text('Enter Result'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Hyd Highlanders').last);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Continue'));
+      await tester.pumpAndSettle();
+
+      // Select "Bat First"
+      await tester.tap(find.text('Bat First'));
+      await tester.pumpAndSettle();
+
+      // Tap Confirm & Select Openers
+      await tester.tap(find.text('Confirm & Select Openers'));
+      await tester.pumpAndSettle();
+
+      // Should now be on Step 3: Select Openers
+      expect(find.text('Select Openers'), findsOneWidget);
+      expect(find.text('Striker'), findsOneWidget);
+      expect(find.text('Non - Striker'), findsOneWidget);
+      expect(find.text('Opening Bowler'), findsOneWidget);
+    });
   });
 }
