@@ -36,6 +36,7 @@ class SportoApiClient {
     this.dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) async {
         final token = await _tokenProvider?.call();
+        log('Token: $token');
         if (token != null && token.isNotEmpty) {
           options.headers['Authorization'] = 'Bearer $token';
         }

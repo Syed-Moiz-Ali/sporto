@@ -45,7 +45,9 @@ abstract final class AppRouter {
       GoRoute(
         path: conductTossPath,
         name: 'conductToss',
-        builder: (context, state) => const ConductTossWizard(),
+        builder: (context, state) => ConductTossWizard(
+          matchId: state.uri.queryParameters['matchId'],
+        ),
       ),
       GoRoute(
         path: matchHistoryPath,
@@ -54,7 +56,10 @@ abstract final class AppRouter {
       GoRoute(
         path: liveScoringPath,
         name: 'liveScoring',
-        builder: (context, state) => const LiveScoringScreen(),
+        builder: (context, state) => LiveScoringScreen(
+          matchId: state.uri.queryParameters['matchId'],
+          matchCode: state.uri.queryParameters['matchCode'],
+        ),
       ),
     ],
   );

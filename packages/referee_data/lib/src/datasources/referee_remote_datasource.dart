@@ -8,6 +8,14 @@ class RefereeRemoteDataSource {
 
   final SportoApiClient _apiClient;
 
+  Future<RefereeProfileResponse> getProfile() async {
+    final response = await _get(SportoApiEndpoints.refereeProfile.profile);
+    final data = response.data;
+    if (data is! Map)
+      throw const SportoApiException('Profile response data is invalid.');
+    return RefereeProfileResponse.fromJson(Map<String, dynamic>.from(data));
+  }
+
   Future<RefereeApplicationResponse?> getApplicationData() async {
     final response = await _get(
       SportoApiEndpoints.refereeApplication.application,

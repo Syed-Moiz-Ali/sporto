@@ -381,6 +381,11 @@ sealed class ConductTossAction extends Equatable {
 
 class FlipCoinRequested extends ConductTossAction {}
 
+class CallingTeamSelected extends ConductTossAction {
+  CallingTeamSelected(this.teamId);
+  final String teamId;
+}
+
 // ============================================================
 // CONTINUE
 // ============================================================
@@ -490,6 +495,11 @@ class ConductTossBloc extends Bloc<ConductTossAction, ConductTossState> {
     on<FlipCoinRequested>(
       _onFlipCoin,
     );
+    on<CallingTeamSelected>((event, emit) {
+      if (event.teamId == state.team1.id || event.teamId == state.team2.id) {
+        emit(state.copyWith(callerTeamId: event.teamId, clearError: true));
+      }
+    });
 
     on<ContinueAfterCoinResult>(
       _onContinueAfterCoinResult,
@@ -553,6 +563,7 @@ class ConductTossBloc extends Bloc<ConductTossAction, ConductTossState> {
         matchId,
         RefereeTossUpdateRequest.call(
           calledSide: _coinSideToApi(state.callerChoice),
+          callingTeamId: int.parse(state.callerTeamId),
         ),
       );
       final flip = await refereeRemoteDataSource?.updateMatchTossData(

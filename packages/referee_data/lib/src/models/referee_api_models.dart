@@ -10,6 +10,13 @@ Map<String, dynamic> _mapValue(Object? value) {
   return value is Map ? Map<String, dynamic>.from(value) : const {};
 }
 
+abstract final class RefereeAssignmentStatus {
+  static const assigned = 1;
+  static const accepted = 2;
+  static const rejected = 3;
+  static const cancelled = 4;
+}
+
 List<dynamic> _listValue(Object? value) => value is List ? value : const [];
 
 class RefereePersonalRequest {
@@ -280,8 +287,8 @@ class RefereeApplicationResponse {
   final List<RefereeApplicationTimeline> timeline;
 
   bool get isDraft => applicationStatus == 1;
-  bool get isPendingReview => applicationStatus == 2;
-  bool get isApproved => applicationStatus == 3;
+  bool get isPendingReview => applicationStatus == 2 || applicationStatus == 3;
+  bool get isApproved => applicationStatus == 4;
 
   factory RefereeApplicationResponse.fromJson(Map<String, dynamic> json) =>
       RefereeApplicationResponse(
@@ -340,6 +347,41 @@ class RefereeApplicationStatusResponse {
       );
 }
 
+class RefereeProfileResponse {
+  const RefereeProfileResponse(
+      {required this.name,
+      this.email,
+      this.mobile,
+      this.sports = const [],
+      this.experienceYears});
+  final String name;
+  final String? email;
+  final String? mobile;
+  final List<String> sports;
+  final int? experienceYears;
+
+  factory RefereeProfileResponse.fromJson(Map<String, dynamic> json) {
+    final profile =
+        Map<String, dynamic>.from((json['profile'] as Map?) ?? const {});
+    final sports = (json['sports'] as List? ?? const [])
+        .whereType<Map>()
+        .map((s) => _stringValue(s['name']) ?? '')
+        .where((s) => s.isNotEmpty)
+        .toList();
+    final experience =
+        Map<String, dynamic>.from((json['experience'] as Map?) ?? const {});
+    return RefereeProfileResponse(
+      name: _stringValue(profile['name']) ?? 'Referee',
+      email: _stringValue(profile['email']),
+      mobile: _stringValue(profile['mobile_number']),
+      sports: sports,
+      experienceYears: experience['experience_years'] == null
+          ? null
+          : _intValue(experience['experience_years']),
+    );
+  }
+}
+
 class RefereeMatchTeam {
   const RefereeMatchTeam({
     this.id,
@@ -382,6 +424,7 @@ class RefereeMatchResponse {
     this.status,
     this.statusLabel,
     this.role,
+    this.assignmentStatus,
     this.notes,
     this.teamA,
     this.teamB,
@@ -402,6 +445,7 @@ class RefereeMatchResponse {
   final int? status;
   final String? statusLabel;
   final String? role;
+  final int? assignmentStatus;
   final String? notes;
   final RefereeMatchTeam? teamA;
   final RefereeMatchTeam? teamB;
@@ -442,13 +486,17 @@ class RefereeMatchResponse {
       match['tournament'] ?? json['tournament'] ?? assignment['tournament'],
     );
     final venue = _mapValue(match['venue'] ?? json['venue']);
+    final participants = _mapValue(
+      match['participants'] ?? json['participants'],
+    );
     final teamA = _teamFromAny(
       match['team_a'] ??
           match['team1'] ??
           match['home_team'] ??
           json['team_a'] ??
           json['team1'] ??
-          json['home_team'],
+          json['home_team'] ??
+          participants['team_a'],
     );
     final teamB = _teamFromAny(
       match['team_b'] ??
@@ -456,7 +504,8 @@ class RefereeMatchResponse {
           match['away_team'] ??
           json['team_b'] ??
           json['team2'] ??
-          json['away_team'],
+          json['away_team'] ??
+          participants['team_b'],
     );
 
     return RefereeMatchResponse(
@@ -478,7 +527,11 @@ class RefereeMatchResponse {
             match['code'],
       ),
       roundName: _stringValue(
-        match['round_name'] ?? match['round'] ?? match['stage'],
+        match['round_name'] ??
+            match['round']?['name'] ??
+            match['stage']?['name'] ??
+            match['round'] ??
+            match['stage'],
       ),
       scheduledAt: _stringValue(
         match['scheduled_at'] ??
@@ -510,6 +563,9 @@ class RefereeMatchResponse {
         match['status_label'] ?? json['status_label'] ?? match['status_text'],
       ),
       role: _stringValue(json['role'] ?? assignment['role']),
+      assignmentStatus: _nullableInt(
+        assignment['status'] ?? json['assignment_status'],
+      ),
       notes: _stringValue(json['notes'] ?? assignment['notes']),
       teamA: teamA,
       teamB: teamB,
@@ -543,6 +599,7 @@ class RefereeMatchRequestResponse extends RefereeMatchResponse {
     super.status,
     super.statusLabel,
     super.role,
+    super.assignmentStatus,
     super.notes,
     super.teamA,
     super.teamB,
@@ -802,10 +859,14 @@ class RefereeTossUpdateRequest {
 
   final Map<String, dynamic> body;
 
-  factory RefereeTossUpdateRequest.call({required String calledSide}) {
+  factory RefereeTossUpdateRequest.call({
+    required String calledSide,
+    required int callingTeamId,
+  }) {
     return RefereeTossUpdateRequest._({
       'action': 'CALL',
       'called_side': calledSide,
+      'calling_team_id': callingTeamId,
     });
   }
 

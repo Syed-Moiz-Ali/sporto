@@ -29,6 +29,8 @@ class SportoApiEndpoints {
       PartnerTournamentApiEndpoints._();
   static final RefereeApplicationApiEndpoints refereeApplication =
       RefereeApplicationApiEndpoints._();
+  static final RefereeProfileApiEndpoints refereeProfile =
+      RefereeProfileApiEndpoints._();
   static final RefereeMatchApiEndpoints refereeMatches =
       RefereeMatchApiEndpoints._();
 }
@@ -47,6 +49,11 @@ class RefereeApplicationApiEndpoints {
   String get review => '/v1/referee/application/review';
   String get submit => '/v1/referee/application/submit';
   String get status => '/v1/referee/application/status';
+}
+
+class RefereeProfileApiEndpoints {
+  RefereeProfileApiEndpoints._();
+  String get profile => '/v1/referee/profile';
 }
 
 class RefereeMatchApiEndpoints {

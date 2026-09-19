@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:referee_data/referee_data.dart';
 import 'package:ui_kit/ui_kit.dart';
 
 import '../../../../app/router/app_router.dart';
@@ -15,10 +16,10 @@ class ConductTossWizard extends StatelessWidget {
   /// Actual repository match id.
   ///
   /// Current repository mock has ids such as m-901 / m-902.
-  final String matchId;
+  final String? matchId;
 
   /// What designer wants displayed.
-  final String matchCode;
+  final String? matchCode;
 
   /// Null = actual random toss.
   ///
@@ -32,78 +33,10 @@ class ConductTossWizard extends StatelessWidget {
 
     // Current local mock repository contains m-902.
     // Replace with actual selected match id later.
-    this.matchId = 'm-902',
-    this.matchCode = 'SPT-20481',
+    this.matchId,
+    this.matchCode,
     this.debugForcedCoinSide,
   });
-
-  // ==========================================================
-  // TEAM 1
-  // ==========================================================
-
-  static const TossTeam _delhiWarriors = TossTeam(
-    id: 'delhi',
-    name: 'Delhi Warriors',
-    players: [
-      TossPlayer(
-        id: 'shrvn',
-        name: 'Shrvn Prajapati',
-        captain: true,
-      ),
-      TossPlayer(
-        id: 'amit',
-        name: 'Amit Kumar',
-      ),
-      TossPlayer(
-        id: 'manish',
-        name: 'Manish K',
-      ),
-      TossPlayer(
-        id: 'sumit',
-        name: 'Sumit Nai',
-      ),
-      TossPlayer(
-        id: 'mayank',
-        name: 'Mayank S',
-      ),
-    ],
-  );
-
-  // ==========================================================
-  // TEAM 2
-  // ==========================================================
-
-  static const TossTeam _hydHighlanders = TossTeam(
-    id: 'hyd',
-    name: 'Hyd Highlanders',
-    players: [
-      TossPlayer(
-        id: 'vikram',
-        name: 'Vikram Reddy',
-        captain: true,
-
-        // Matches your design where captain
-        // isn't available as opening bowler.
-        canBowl: false,
-      ),
-      TossPlayer(
-        id: 'dev',
-        name: 'Dev Kumar',
-      ),
-      TossPlayer(
-        id: 'pankaj',
-        name: 'Pankaj S',
-      ),
-      TossPlayer(
-        id: 'rohan',
-        name: 'Rohan A',
-      ),
-      TossPlayer(
-        id: 'vinayak',
-        name: 'Vinayak L',
-      ),
-    ],
-  );
 
   // ==========================================================
   // BUILD
@@ -112,29 +45,56 @@ class ConductTossWizard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final di = DependencyInjector.instance;
-
-    return BlocProvider(
-      create: (_) {
-        return di.createConductTossBloc(
-          matchId: matchId,
-
-          team1: _delhiWarriors,
-
-          team2: _hydHighlanders,
-
-          // Screenshot flow:
-          // Hyd calls tails.
-          callerTeamId: _hydHighlanders.id,
-
-          callerChoice: TossCoinSide.tails,
-
-          // Null = actual random.
-          forcedCoinSide: debugForcedCoinSide,
+    return FutureBuilder<RefereeMatchResponse>(
+      future: _loadMatch(di),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          if (snapshot.hasError) {
+            return SportoScreenShell(
+              body: Center(
+                  child: Text('Unable to load match: ${snapshot.error}')),
+            );
+          }
+          return const SportoScreenShell(
+              body: Center(child: CircularProgressIndicator()));
+        }
+        final match = snapshot.data!;
+        final team1 = _apiTeam(match.teamA, 'team-a');
+        final team2 = _apiTeam(match.teamB, 'team-b');
+        return BlocProvider(
+          create: (_) => di.createConductTossBloc(
+            matchId: match.id.toString(),
+            team1: team1,
+            team2: team2,
+            callerTeamId: team2.id,
+            callerChoice: TossCoinSide.tails,
+            forcedCoinSide: debugForcedCoinSide,
+          ),
+          child: _ConductTossView(
+            matchCode: matchCode ??
+                '${match.displayTournament} • ${match.displayRound}',
+          ),
         );
       },
-      child: _ConductTossView(
-        matchCode: matchCode,
-      ),
+    );
+  }
+
+  Future<RefereeMatchResponse> _loadMatch(DependencyInjector di) async {
+    if (matchId != null && matchId!.trim().isNotEmpty) {
+      return di.refereeRemoteDataSource.showMyMatchData(matchId!);
+    }
+    final matches = await di.refereeRemoteDataSource.listMyMatchesData();
+    if (matches.isEmpty) {
+      throw StateError('No assigned referee matches available.');
+    }
+    return matches.first;
+  }
+
+  TossTeam _apiTeam(RefereeMatchTeam? team, String fallbackId) {
+    return TossTeam(
+      id: (team?.id ?? fallbackId.hashCode).toString(),
+      name: team?.name ?? 'Team',
+      players: const [],
     );
   }
 }
@@ -297,6 +257,18 @@ class _ConductTossView extends StatelessWidget {
           team1: state.team1.name,
           team2: state.team2.name,
         ),
+        SizedBox(height: 14 * scale),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Text('Who is calling?',
+              style: Theme.of(context).textTheme.titleMedium),
+        ),
+        SizedBox(height: 8 * scale),
+        Row(children: [
+          Expanded(child: _callingTeamCard(context, state, state.team1)),
+          SizedBox(width: 10 * scale),
+          Expanded(child: _callingTeamCard(context, state, state.team2)),
+        ]),
         SizedBox(
           height: 21 * scale,
         ),
@@ -311,6 +283,44 @@ class _ConductTossView extends StatelessWidget {
           },
         ),
       ],
+    );
+  }
+
+  Widget _callingTeamCard(
+      BuildContext context, ConductTossState state, TossTeam team) {
+    final selected = state.callerTeamId == team.id;
+    return GestureDetector(
+      onTap: state.isFlipping
+          ? null
+          : () => context.read<ConductTossBloc>().add(
+                CallingTeamSelected(team.id),
+              ),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 160),
+        height: 54,
+        padding: const EdgeInsets.all(10),
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: selected
+              ? const Color(0xFF103126)
+              : Theme.of(context).colorScheme.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: selected
+                ? const Color(0xFF20C783)
+                : Theme.of(context).colorScheme.outline,
+          ),
+        ),
+        child: Text(team.name,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+                color: selected
+                    ? const Color(0xFF20C783)
+                    : Theme.of(context).colorScheme.onSurface,
+                fontSize: 12)),
+      ),
     );
   }
 

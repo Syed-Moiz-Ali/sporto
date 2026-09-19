@@ -13,15 +13,15 @@ import '../../application/live_scoring/live_scoring_bloc.dart';
 // ============================================================
 
 class LiveScoringScreen extends StatefulWidget {
-  final String matchId;
-  final String matchCode;
+  final String? matchId;
+  final String? matchCode;
 
   final int totalOvers;
 
   const LiveScoringScreen({
     super.key,
-    this.matchId = 'm-902',
-    this.matchCode = 'SPT-20481',
+    this.matchId,
+    this.matchCode,
     this.totalOvers = 5,
   });
 
@@ -42,7 +42,7 @@ class _LiveScoringScreenState extends State<LiveScoringScreen> {
   }
 
   Future<RefereeScoreResponse?> _loadScoreConfig() async {
-    final numericMatchId = int.tryParse(widget.matchId);
+    final numericMatchId = int.tryParse(widget.matchId ?? '');
     if (numericMatchId == null) return null;
     try {
       return await _remote.getMatchScoreData(numericMatchId);
@@ -123,6 +123,11 @@ class _LiveScoringScreenState extends State<LiveScoringScreen> {
       future: _scoreFuture,
       builder: (context, snapshot) {
         final scoreConfig = snapshot.data;
+        if (scoreConfig == null) {
+          return const SportoScreenShell(
+            body: Center(child: Text('Unable to load live match data.')),
+          );
+        }
         final teams = _teamsFromScore(scoreConfig);
         final firstBattingTeamId = teams.$1.id;
 
@@ -137,8 +142,8 @@ class _LiveScoringScreenState extends State<LiveScoringScreen> {
             );
           },
           child: _LiveScoringView(
-            matchId: widget.matchId,
-            matchCode: widget.matchCode,
+            matchId: widget.matchId!,
+            matchCode: widget.matchCode ?? 'Match ${widget.matchId}',
             scoreConfig: scoreConfig,
           ),
         );
@@ -148,7 +153,10 @@ class _LiveScoringScreenState extends State<LiveScoringScreen> {
 
   (ScoringTeam, ScoringTeam) _teamsFromScore(RefereeScoreResponse? score) {
     if (score == null || score.teams.length < 2) {
-      return (_hydHighlanders, _delhiWarriors);
+      return (
+        const ScoringTeam(id: 'team-a', name: 'Team A', bowlers: []),
+        const ScoringTeam(id: 'team-b', name: 'Team B', bowlers: []),
+      );
     }
     return (
       _teamFromScore(score.teams[0]),

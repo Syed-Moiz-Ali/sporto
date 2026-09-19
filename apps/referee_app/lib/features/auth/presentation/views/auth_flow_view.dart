@@ -148,7 +148,7 @@ class _RefereeApplicationGateState extends State<_RefereeApplicationGate> {
             application?.applicationStatus ??
             1;
 
-        if (status == 3) return const RefereeShellScreen();
+        if (status == 4) return const RefereeShellScreen();
         if (application != null && !application.isDraft) {
           return ApplicationStatusScreen(
             applicationRef: application.applicationNumber,

@@ -2354,19 +2354,35 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
         ? state.prizeCategories
         : const <TournamentPrizeCategoryResponse>[];
     final selected = _prizeCategoryName(fieldKey, preferredSlugs);
+    final label = switch (fieldKey) {
+      'winnerPrize' => 'Winner award type',
+      'runnerUpPrize' => 'Runner-up award type',
+      'semiFinalistPrize' => 'Semi-finalist award type',
+      'quarterFinalistPrize' => 'Quarter-finalist award type',
+      'batsmanMostRuns' => 'Most runs award type',
+      'batsmanMoreFours' => 'Most 4s award type',
+      'batsmanMoreSixes' => 'Most 6s award type',
+      'batsmanStrikeRate' => 'Strike rate award type',
+      'bowlerMostWickets' => 'Most wickets award type',
+      'bowlerBestEconomy' => 'Best economy award type',
+      _ => 'Award type',
+    };
 
     return DropdownButtonFormField<String>(
       value: selected,
       isExpanded: true,
       decoration: InputDecoration(
-        labelText: 'Prize Category',
+        labelText: label,
+        helperText:
+            selected == null ? 'Choose how this award is presented' : null,
         filled: true,
         fillColor: cs.surfaceContainerHighest.withOpacity(0.35),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       ),
-      hint: Text(categories.isEmpty ? 'Loading categories...' : 'Select'),
+      hint: Text(
+          categories.isEmpty ? 'Loading award types…' : 'Select award type'),
       items: categories
           .map((category) => DropdownMenuItem<String>(
                 value: category.name,

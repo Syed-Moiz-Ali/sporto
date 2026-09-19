@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:referee_data/referee_data.dart';
 import 'package:ui_kit/ui_kit.dart';
 
+import '../../../../app/router/app_router.dart';
 import '../../../../core/di/dependency_injector.dart';
 
 class MatchesListScreen extends StatefulWidget {
@@ -229,8 +230,8 @@ class _MatchesListScreenState extends State<MatchesListScreen> {
                             SizedBox(height: layout.space12),
                         itemBuilder: (context, index) => _RefereeApiMatchCard(
                           match: visibleMatches[index],
-                          onTap: () => _showMatchDetails(
-                            visibleMatches[index],
+                          onTap: () => context.push(
+                            '${AppRouter.conductTossRoute}?matchId=${visibleMatches[index].id}',
                           ),
                         ),
                       );

@@ -64,6 +64,8 @@ class SportoTossHeader extends StatelessWidget {
                   children: [
                     Text(
                       title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: theme.textTheme.headlineMedium?.copyWith(
                         fontSize: 18 * scale,
                         height: 1,
@@ -75,6 +77,8 @@ class SportoTossHeader extends StatelessWidget {
                     ),
                     Text(
                       'Match #$matchId',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: theme.colorScheme.onSurface,
                         fontSize: 11 * scale,
@@ -167,6 +171,8 @@ class SportoTossMatchStrip extends StatelessWidget {
           Expanded(
             child: Text(
               team1,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: colors.onSurface,
                 fontSize: 13 * scale,
@@ -184,6 +190,8 @@ class SportoTossMatchStrip extends StatelessWidget {
           Expanded(
             child: Text(
               team2,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.end,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: colors.onSurface,
