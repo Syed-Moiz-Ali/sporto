@@ -42,6 +42,7 @@ class _AssignRefereeScreenState extends State<AssignRefereeScreen> {
   List<PartnerEligibleRefereeResponse>? _apiReferees;
   bool _isLoading = false;
   bool _isLoadingMatch = false;
+  int? _assigningRefereeId;
 
   @override
   void initState() {
@@ -131,6 +132,8 @@ class _AssignRefereeScreenState extends State<AssignRefereeScreen> {
   }
 
   Future<void> _onAssign(String refereeName, [int? refereeId]) async {
+    if (_assigningRefereeId != null) return;
+    if (refereeId != null) setState(() => _assigningRefereeId = refereeId);
     if (widget.tournamentId != null &&
         widget.matchId != null &&
         refereeId != null) {
@@ -145,10 +148,12 @@ class _AssignRefereeScreenState extends State<AssignRefereeScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Unable to assign referee: $error')),
         );
+        if (mounted) setState(() => _assigningRefereeId = null);
         return;
       }
     }
     if (!mounted) return;
+    setState(() => _assigningRefereeId = null);
     Navigator.pop(context, refereeName);
   }
 
@@ -175,9 +180,7 @@ class _AssignRefereeScreenState extends State<AssignRefereeScreen> {
     }).toList();
 
     if (query.isNotEmpty) {
-      items = items
-          .where((r) => r.name.toLowerCase().contains(query))
-          .toList();
+      items = items.where((r) => r.name.toLowerCase().contains(query)).toList();
     }
 
     if (_sortIndex == 0) {
@@ -267,8 +270,7 @@ class _AssignRefereeScreenState extends State<AssignRefereeScreen> {
               else
                 for (var i = 0; i < items.length; i++) ...[
                   _buildRefereeCard(items[i]),
-                  if (i != items.length - 1)
-                    const SizedBox(height: 12),
+                  if (i != items.length - 1) const SizedBox(height: 12),
                 ],
             ],
           ),
@@ -346,7 +348,9 @@ class _AssignRefereeScreenState extends State<AssignRefereeScreen> {
     final formattedDate = _formatApiDate(rawDate);
     final displayDate = formattedDate != null && formattedDate.isNotEmpty
         ? formattedDate
-        : (match?.isNeedsReview == true ? 'Schedule Pending' : (formattedDate ?? ''));
+        : (match?.isNeedsReview == true
+            ? 'Schedule Pending'
+            : (formattedDate ?? ''));
     final displayRound = match?.displayRound ?? '';
     final displayVenue = match?.displayVenue ?? '';
     final statusText = match?.isLive == true
@@ -694,7 +698,9 @@ class _AssignRefereeScreenState extends State<AssignRefereeScreen> {
               if (isAvailable) ...[
                 const SizedBox(width: 10),
                 GestureDetector(
-                  onTap: () => _onAssign(ref.name, ref.id),
+                  onTap: _assigningRefereeId == ref.id
+                      ? null
+                      : () => _onAssign(ref.name, ref.id),
                   child: Container(
                     height: 30,
                     padding: const EdgeInsets.symmetric(horizontal: 26),
@@ -703,14 +709,23 @@ class _AssignRefereeScreenState extends State<AssignRefereeScreen> {
                       color: const Color(0xFFFEC144),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Text(
-                      'Assign',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+                    child: _assigningRefereeId == ref.id
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.black,
+                            ),
+                          )
+                        : const Text(
+                            'Assign',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                   ),
                 ),
               ],

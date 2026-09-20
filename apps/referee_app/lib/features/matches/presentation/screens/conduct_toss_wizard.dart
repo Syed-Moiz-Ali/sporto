@@ -9,6 +9,7 @@ import 'package:ui_kit/ui_kit.dart';
 import '../../../../app/router/app_router.dart';
 import '../../../../core/di/dependency_injector.dart';
 import '../../application/conduct_toss_bloc.dart';
+import 'live_scoring_screen.dart';
 
 // ============================================================
 // CONDUCT TOSS WIZARD (Figma: figma/toss)
@@ -62,6 +63,12 @@ class ConductTossWizard extends StatelessWidget {
             return const SportoScreenShell(
                 body: Center(child: CircularProgressIndicator()));
           }
+          if (toss?.toss.runtime.isCompleted == true) {
+            return LiveScoringScreen(
+              matchId: match.id.toString(),
+              matchCode: matchCode ?? 'SPT-${match.id}',
+            );
+          }
           return BlocProvider(
             create: (_) => di.createConductTossBloc(
               matchId: match.id.toString(),
@@ -103,6 +110,12 @@ class ConductTossWizard extends StatelessWidget {
           );
         }
         final (match, toss) = snapshot.data!;
+        if (toss?.toss.runtime.isCompleted == true) {
+          return LiveScoringScreen(
+            matchId: match.id.toString(),
+            matchCode: matchCode ?? 'SPT-${match.id}',
+          );
+        }
         final team1 = _apiTeamWithRoster(match.teamA, toss, 0, 'team-a');
         final team2 = _apiTeamWithRoster(match.teamB, toss, 1, 'team-b');
         return BlocProvider(

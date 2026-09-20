@@ -46,6 +46,7 @@ class _MatchesListScreenState extends State<MatchesListScreen> {
   int _selectedTab =
       0; // 0: All, 1: Upcoming, 2: Live, 3: Completed, 4: Requests
   late Future<RefereeMatchesPayload> _future;
+  int? _processingRequestId;
 
   RefereeRemoteDataSource get _remote =>
       DependencyInjector.instance.refereeRemoteDataSource;
@@ -73,18 +74,36 @@ class _MatchesListScreenState extends State<MatchesListScreen> {
   }
 
   Future<void> _accept(RefereeMatchRequestResponse request) async {
-    await _remote.acceptMatchRequest(request.assignmentId ?? request.id);
-    if (!mounted) return;
-    _showSnack('Match request accepted.');
-    setState(() => _selectedTab = 0);
-    await _refresh();
+    final requestId = request.assignmentId ?? request.id;
+    if (_processingRequestId != null) return;
+    setState(() => _processingRequestId = requestId);
+    try {
+      await _remote.acceptMatchRequest(requestId);
+      if (!mounted) return;
+      _showSnack('Match request accepted.');
+      setState(() => _selectedTab = 0);
+      await _refresh();
+    } catch (error) {
+      if (mounted) _showSnack('Unable to accept match request: $error');
+    } finally {
+      if (mounted) setState(() => _processingRequestId = null);
+    }
   }
 
   Future<void> _reject(RefereeMatchRequestResponse request) async {
-    await _remote.rejectMatchRequest(request.assignmentId ?? request.id);
-    if (!mounted) return;
-    _showSnack('Match request rejected.');
-    await _refresh();
+    final requestId = request.assignmentId ?? request.id;
+    if (_processingRequestId != null) return;
+    setState(() => _processingRequestId = requestId);
+    try {
+      await _remote.rejectMatchRequest(requestId);
+      if (!mounted) return;
+      _showSnack('Match request rejected.');
+      await _refresh();
+    } catch (error) {
+      if (mounted) _showSnack('Unable to reject match request: $error');
+    } finally {
+      if (mounted) setState(() => _processingRequestId = null);
+    }
   }
 
   Future<void> _showMatchDetails(RefereeMatchResponse match) async {
@@ -303,6 +322,8 @@ class _MatchesListScreenState extends State<MatchesListScreen> {
                                     request: req,
                                     onAccept: () => _accept(req),
                                     onReject: () => _reject(req),
+                                    isProcessing: _processingRequestId ==
+                                        (req.assignmentId ?? req.id),
                                   );
                                 },
                               );
@@ -2056,12 +2077,14 @@ class _FigmaRequestMatchCard extends StatelessWidget {
   final RefereeMatchRequestResponse request;
   final VoidCallback onAccept;
   final VoidCallback onReject;
+  final bool isProcessing;
 
   const _FigmaRequestMatchCard({
     required this.scale,
     required this.request,
     required this.onAccept,
     required this.onReject,
+    this.isProcessing = false,
   });
 
   @override
@@ -2192,7 +2215,7 @@ class _FigmaRequestMatchCard extends StatelessWidget {
             children: [
               Expanded(
                 child: OutlinedButton(
-                  onPressed: onReject,
+                  onPressed: isProcessing ? null : onReject,
                   style: OutlinedButton.styleFrom(
                     side: const BorderSide(color: Color(0xFFFE464B)),
                     shape: RoundedRectangleBorder(
@@ -2200,14 +2223,23 @@ class _FigmaRequestMatchCard extends StatelessWidget {
                     ),
                     padding: EdgeInsets.symmetric(vertical: 8 * scale),
                   ),
-                  child: Text(
-                    'Reject',
-                    style: TextStyle(
-                      fontSize: 12 * scale,
-                      fontWeight: FontWeight.w600,
-                      color: const Color(0xFFFE464B),
-                    ),
-                  ),
+                  child: isProcessing
+                      ? SizedBox(
+                          width: 16 * scale,
+                          height: 16 * scale,
+                          child: const CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Color(0xFFFE464B),
+                          ),
+                        )
+                      : Text(
+                          'Reject',
+                          style: TextStyle(
+                            fontSize: 12 * scale,
+                            fontWeight: FontWeight.w600,
+                            color: const Color(0xFFFE464B),
+                          ),
+                        ),
                 ),
               ),
               SizedBox(width: 10 * scale),
@@ -2226,17 +2258,26 @@ class _FigmaRequestMatchCard extends StatelessWidget {
                   child: Material(
                     color: Colors.transparent,
                     child: InkWell(
-                      onTap: onAccept,
+                      onTap: isProcessing ? null : onAccept,
                       borderRadius: BorderRadius.circular(10 * scale),
                       child: Center(
-                        child: Text(
-                          'Accept',
-                          style: TextStyle(
-                            fontSize: 12 * scale,
-                            fontWeight: FontWeight.w700,
-                            color: const Color(0xFF000000),
-                          ),
-                        ),
+                        child: isProcessing
+                            ? SizedBox(
+                                width: 16 * scale,
+                                height: 16 * scale,
+                                child: const CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Color(0xFF000000),
+                                ),
+                              )
+                            : Text(
+                                'Accept',
+                                style: TextStyle(
+                                  fontSize: 12 * scale,
+                                  fontWeight: FontWeight.w700,
+                                  color: const Color(0xFF000000),
+                                ),
+                              ),
                       ),
                     ),
                   ),

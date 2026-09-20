@@ -122,7 +122,11 @@ class _LiveScoringScreenState extends State<LiveScoringScreen> {
           );
         }
         final teams = _teamsFromScore(scoreConfig);
-        final firstBattingTeamId = teams.$1.id;
+        final toss = _tossRuntime(scoreConfig);
+        final firstBattingTeamId = _stringId(
+              _map(toss['batting_team'])['id'],
+            ) ??
+            teams.$1.id;
 
         return BlocProvider(
           create: (_) {
@@ -132,6 +136,12 @@ class _LiveScoringScreenState extends State<LiveScoringScreen> {
               firstBattingTeamId: firstBattingTeamId,
               regulationOvers: widget.totalOvers,
               maxWickets: 10,
+              initialStrikerId:
+                  _stringId(_map(toss['starting_setup'])['STRIKER']),
+              initialNonStrikerId:
+                  _stringId(_map(toss['starting_setup'])['NON_STRIKER']),
+              initialBowlerId:
+                  _stringId(_map(toss['starting_setup'])['OPENING_BOWLER']),
             );
           },
           child: _LiveScoringView(
@@ -143,6 +153,21 @@ class _LiveScoringScreenState extends State<LiveScoringScreen> {
       },
     );
   }
+
+  Map<String, dynamic> _tossRuntime(RefereeScoreResponse score) {
+    final toss = score.raw['toss'];
+    if (toss is! Map) return const {};
+    final runtime = toss['runtime'];
+    return runtime is Map
+        ? Map<String, dynamic>.from(runtime)
+        : Map<String, dynamic>.from(toss);
+  }
+
+  Map<String, dynamic> _map(Object? value) => value is Map
+      ? Map<String, dynamic>.from(value)
+      : const <String, dynamic>{};
+
+  String? _stringId(Object? value) => value == null ? null : value.toString();
 
   (ScoringTeam, ScoringTeam) _teamsFromScore(RefereeScoreResponse? score) {
     if (score == null || score.teams.length < 2) {
@@ -584,6 +609,7 @@ class _LiveScoringView extends StatelessWidget {
           onSelected: (
             bowlerId,
           ) {
+            if (state.isFirstBall && state.selectedBowlerId != null) return;
             context.read<LiveScoringBloc>().add(
                   SelectBowlerEvent(
                     bowlerId,
@@ -639,6 +665,21 @@ class _LiveScoringView extends StatelessWidget {
           height: state.isSuperOver ? 212 : 225,
           balls: _ballViews(state),
         ),
+
+        if (state.strikerName.isNotEmpty ||
+            state.nonStrikerName.isNotEmpty) ...[
+          SizedBox(height: 8 * scale),
+          Text(
+            'Batters: ${state.strikerName} (Striker)  •  ${state.nonStrikerName} (Non-Striker)',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: Colors.white70,
+              fontSize: 12 * scale,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
 
         // ===========================================
         // CHASE INFO
@@ -1317,9 +1358,9 @@ class _LiveScoringView extends StatelessWidget {
           id: bowler.id,
           name: bowler.displayName,
           selected: state.selectedBowlerId == bowler.id,
-          enabled: state.isBowlerEligible(
-            bowler,
-          ),
+          enabled: state.isFirstBall && state.selectedBowlerId != null
+              ? state.selectedBowlerId == bowler.id
+              : state.isBowlerEligible(bowler),
         );
       },
     ).toList();
@@ -1588,7 +1629,7 @@ class _FigmaScoringLiveMatchCard extends StatelessWidget {
           // 3. Teams & Scores Matchup
           Row(
             children: [
-              Expanded(
+              Flexible(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -1627,7 +1668,7 @@ class _FigmaScoringLiveMatchCard extends StatelessWidget {
                   ),
                 ),
               ),
-              Expanded(
+              Flexible(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -1770,7 +1811,8 @@ class _ScoringPulsingDotState extends State<_ScoringPulsingDot>
             color: const Color(0xFFFE464B).withOpacity(_animation.value),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFFFE464B).withOpacity(_animation.value * 0.5),
+                color:
+                    const Color(0xFFFE464B).withOpacity(_animation.value * 0.5),
                 blurRadius: 4 * widget.scale,
               ),
             ],

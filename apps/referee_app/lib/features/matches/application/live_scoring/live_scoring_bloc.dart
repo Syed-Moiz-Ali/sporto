@@ -165,6 +165,8 @@ class LiveScoringState extends Equatable {
   final List<ScoringDelivery> currentOverDeliveries;
 
   final String? selectedBowlerId;
+  final String? strikerId;
+  final String? nonStrikerId;
   final String? previousBowlerId;
 
   final ScoringInningsResult? firstInnings;
@@ -197,6 +199,8 @@ class LiveScoringState extends Equatable {
     this.wickets = 0,
     this.currentOverDeliveries = const [],
     this.selectedBowlerId,
+    this.strikerId,
+    this.nonStrikerId,
     this.previousBowlerId,
     this.firstInnings,
     this.secondInnings,
@@ -248,6 +252,9 @@ class LiveScoringState extends Equatable {
 
   bool get overComplete => legalBallCount >= 6;
 
+  bool get isFirstBall =>
+      currentOverIndex == 0 && currentOverDeliveries.isEmpty;
+
   bool get isLastOver => displayOver >= totalOvers;
 
   bool get isAllOut => wickets >= maxWickets;
@@ -273,6 +280,14 @@ class LiveScoringState extends Equatable {
   bool get canStartOver => selectedBowler != null;
 
   String get currentBowlerName => selectedBowler?.name ?? '';
+
+  String get strikerName => _playerName(currentBattingTeam, strikerId);
+  String get nonStrikerName => _playerName(currentBattingTeam, nonStrikerId);
+
+  String _playerName(ScoringTeam team, String? id) => team.bowlers
+      .firstWhere((player) => player.id == id,
+          orElse: () => const ScoringBowler(id: '', name: ''))
+      .name;
 
   bool isBowlerEligible(
     ScoringBowler bowler,
@@ -412,6 +427,8 @@ class LiveScoringState extends Equatable {
     List<ScoringDelivery>? currentOverDeliveries,
     String? selectedBowlerId,
     bool clearSelectedBowler = false,
+    String? strikerId,
+    String? nonStrikerId,
     String? previousBowlerId,
     bool clearPreviousBowler = false,
     ScoringInningsResult? firstInnings,
@@ -440,6 +457,8 @@ class LiveScoringState extends Equatable {
       selectedBowlerId: clearSelectedBowler
           ? null
           : selectedBowlerId ?? this.selectedBowlerId,
+      strikerId: strikerId ?? this.strikerId,
+      nonStrikerId: nonStrikerId ?? this.nonStrikerId,
       previousBowlerId: clearPreviousBowler
           ? null
           : previousBowlerId ?? this.previousBowlerId,
@@ -472,6 +491,8 @@ class LiveScoringState extends Equatable {
         wickets,
         currentOverDeliveries,
         selectedBowlerId,
+        strikerId,
+        nonStrikerId,
         previousBowlerId,
         firstInnings,
         secondInnings,
@@ -547,6 +568,9 @@ class LiveScoringBloc extends Bloc<LiveScoringEvent, LiveScoringState> {
     required String firstBattingTeamId,
     int regulationOvers = 5,
     int maxWickets = 10,
+    String? initialBowlerId,
+    String? initialStrikerId,
+    String? initialNonStrikerId,
   }) : super(
           LiveScoringState(
             teamA: teamA,
@@ -554,6 +578,9 @@ class LiveScoringBloc extends Bloc<LiveScoringEvent, LiveScoringState> {
             firstBattingTeamId: firstBattingTeamId,
             regulationOvers: regulationOvers,
             maxWickets: maxWickets,
+            selectedBowlerId: initialBowlerId,
+            strikerId: initialStrikerId,
+            nonStrikerId: initialNonStrikerId,
           ),
         ) {
     on<SelectBowlerEvent>(
