@@ -1042,7 +1042,8 @@ class _FigmaUpcomingMatchCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final statusText = match.displayStatus.toLowerCase();
     final label = (match.statusLabel ?? '').toLowerCase();
-    final rawTossDone = match.raw['toss_done'] == true ||
+    final rawTossDone = match.isTossCompleted ||
+        match.raw['toss_done'] == true ||
         match.raw['toss_winner'] != null ||
         match.raw['toss_decision'] != null;
     final rawTeamsVerified =

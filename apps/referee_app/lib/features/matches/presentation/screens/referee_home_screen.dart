@@ -184,7 +184,8 @@ class _RefereeHomeScreenState extends State<RefereeHomeScreen> {
                 final liveMatch = matches.firstLiveOrNull;
                 final nextMatch = matches.firstUpcomingOrNull;
                 final assignedMatches = matches
-                    .where((m) => m.id != liveMatch?.id && m.id != nextMatch?.id)
+                    .where(
+                        (m) => m.id != liveMatch?.id && m.id != nextMatch?.id)
                     .take(3)
                     .toList();
 
@@ -300,7 +301,6 @@ extension _RefereeHomeMatchPickers on List<RefereeMatchResponse> {
     }
     return null;
   }
-
 }
 
 // =============================================================================
@@ -1268,7 +1268,9 @@ class _FigmaNextMatchCard extends StatelessWidget {
                       child: InkWell(
                         onTap: () {
                           context.push(
-                            '${AppRouter.matchVerificationRoute}?matchId=${match.id}',
+                            match.isTossCompleted
+                                ? '${AppRouter.liveScoringRoute}?matchId=${match.id}&matchCode=SPT-${match.id}'
+                                : '${AppRouter.matchVerificationRoute}?matchId=${match.id}',
                           );
                         },
                         borderRadius: BorderRadius.circular(10 * scale),
@@ -1278,7 +1280,9 @@ class _FigmaNextMatchCard extends StatelessWidget {
                           ),
                           child: Center(
                             child: Text(
-                              'Verify Teams',
+                              match.isTossCompleted
+                                  ? 'Start Scoring'
+                                  : 'Verify Teams',
                               style: TextStyle(
                                 fontSize: 12 * scale,
                                 fontWeight: FontWeight.w700,
@@ -1551,7 +1555,9 @@ class _FigmaAssignedMatchCard extends StatelessWidget {
                 child: InkWell(
                   onTap: () {
                     context.push(
-                      '${AppRouter.matchVerificationRoute}?matchId=${match.id}',
+                      match.isTossCompleted
+                          ? '${AppRouter.liveScoringRoute}?matchId=${match.id}&matchCode=SPT-${match.id}'
+                          : '${AppRouter.matchVerificationRoute}?matchId=${match.id}',
                     );
                   },
                   borderRadius: BorderRadius.circular(10 * scale),
@@ -1561,7 +1567,9 @@ class _FigmaAssignedMatchCard extends StatelessWidget {
                     ),
                     child: Center(
                       child: Text(
-                        'Verify Teams',
+                        match.isTossCompleted
+                            ? 'Start Scoring'
+                            : 'Verify Teams',
                         style: TextStyle(
                           fontSize: 12 * scale,
                           fontWeight: FontWeight.w700,

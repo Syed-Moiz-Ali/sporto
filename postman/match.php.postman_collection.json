@@ -105,7 +105,7 @@
                         },
                         {
                             "name": "Update Toss",
-                            "description": "Action depends on current state:\n- `TOSS_PENDING` \u2192 `CALL` (or `ENTER_RESULT` for manual)\n- `TOSS_CALLING` \u2192 `FLIP` (or `ENTER_RESULT`)\n- `DECISION_PENDING` \u2192 `SET_DECISION`\n- `STARTING_SETUP_PENDING` \u2192 `SET_STARTING_PLAYERS`\n- `TOSS_COMPLETED` \u2192 NO further mutation allowed",
+                            "description": "Action depends on current state:\n- `TOSS_PENDING` \u00e2\u2020\u2019 `CALL` (or `ENTER_RESULT` for manual)\n- `TOSS_CALLING` \u00e2\u2020\u2019 `FLIP` (or `ENTER_RESULT`)\n- `DECISION_PENDING` \u00e2\u2020\u2019 `SET_DECISION`\n- `STARTING_SETUP_PENDING` \u00e2\u2020\u2019 `SET_STARTING_PLAYERS`\n- `TOSS_COMPLETED` \u00e2\u2020\u2019 NO further mutation allowed",
                             "request": {
                                 "method": "PUT",
                                 "header": [
@@ -1235,6 +1235,258 @@
                                     "header": [],
                                     "cookie": [],
                                     "body": "{\n    \"success\": true,\n    \"message\": \"Score updated successfully.\",\n    \"data\": {}\n}"
+                                },
+                                {
+                                    "name": "409 Toss Not Completed",
+                                    "originalRequest": {
+                                        "method": "PUT",
+                                        "header": [
+                                            {
+                                                "key": "Accept",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            },
+                                            {
+                                                "key": "Content-Type",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            }
+                                        ],
+                                        "body": {
+                                            "mode": "raw",
+                                            "raw": "{\n    \"action\": \"START\"\n}"
+                                        },
+                                        "url": {
+                                            "raw": "{{base_url}}/api/v1/referee/matches/{{match_id}}/score",
+                                            "host": [
+                                                "{{base_url}}"
+                                            ],
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "referee",
+                                                "matches",
+                                                "{{match_id}}",
+                                                "score"
+                                            ]
+                                        }
+                                    },
+                                    "status": "Conflict",
+                                    "code": 409,
+                                    "_postman_previewlanguage": "json",
+                                    "header": [],
+                                    "cookie": [],
+                                    "body": "{\n    \"success\": false,\n    \"message\": \"Match toss is not completed.\",\n    \"data\": {}\n}"
+                                },
+                                {
+                                    "name": "409 Already Started",
+                                    "originalRequest": {
+                                        "method": "PUT",
+                                        "header": [
+                                            {
+                                                "key": "Accept",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            },
+                                            {
+                                                "key": "Content-Type",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            }
+                                        ],
+                                        "body": {
+                                            "mode": "raw",
+                                            "raw": "{\n    \"action\": \"START\"\n}"
+                                        },
+                                        "url": {
+                                            "raw": "{{base_url}}/api/v1/referee/matches/{{match_id}}/score",
+                                            "host": [
+                                                "{{base_url}}"
+                                            ],
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "referee",
+                                                "matches",
+                                                "{{match_id}}",
+                                                "score"
+                                            ]
+                                        }
+                                    },
+                                    "status": "Conflict",
+                                    "code": 409,
+                                    "_postman_previewlanguage": "json",
+                                    "header": [],
+                                    "cookie": [],
+                                    "body": "{\n    \"success\": false,\n    \"message\": \"Match has already started.\",\n    \"data\": {}\n}"
+                                },
+                                {
+                                    "name": "409 Completed",
+                                    "originalRequest": {
+                                        "method": "PUT",
+                                        "header": [
+                                            {
+                                                "key": "Accept",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            },
+                                            {
+                                                "key": "Content-Type",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            }
+                                        ],
+                                        "body": {
+                                            "mode": "raw",
+                                            "raw": "{\n    \"action\": \"START\"\n}"
+                                        },
+                                        "url": {
+                                            "raw": "{{base_url}}/api/v1/referee/matches/{{match_id}}/score",
+                                            "host": [
+                                                "{{base_url}}"
+                                            ],
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "referee",
+                                                "matches",
+                                                "{{match_id}}",
+                                                "score"
+                                            ]
+                                        }
+                                    },
+                                    "status": "Conflict",
+                                    "code": 409,
+                                    "_postman_previewlanguage": "json",
+                                    "header": [],
+                                    "cookie": [],
+                                    "body": "{\n    \"success\": false,\n    \"message\": \"Match is already completed.\",\n    \"data\": {}\n}"
+                                },
+                                {
+                                    "name": "409 Cancelled",
+                                    "originalRequest": {
+                                        "method": "PUT",
+                                        "header": [
+                                            {
+                                                "key": "Accept",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            },
+                                            {
+                                                "key": "Content-Type",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            }
+                                        ],
+                                        "body": {
+                                            "mode": "raw",
+                                            "raw": "{\n    \"action\": \"START\"\n}"
+                                        },
+                                        "url": {
+                                            "raw": "{{base_url}}/api/v1/referee/matches/{{match_id}}/score",
+                                            "host": [
+                                                "{{base_url}}"
+                                            ],
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "referee",
+                                                "matches",
+                                                "{{match_id}}",
+                                                "score"
+                                            ]
+                                        }
+                                    },
+                                    "status": "Conflict",
+                                    "code": 409,
+                                    "_postman_previewlanguage": "json",
+                                    "header": [],
+                                    "cookie": [],
+                                    "body": "{\n    \"success\": false,\n    \"message\": \"Match is cancelled.\",\n    \"data\": {}\n}"
+                                },
+                                {
+                                    "name": "403 Unauthorized",
+                                    "originalRequest": {
+                                        "method": "PUT",
+                                        "header": [
+                                            {
+                                                "key": "Accept",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            },
+                                            {
+                                                "key": "Content-Type",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            }
+                                        ],
+                                        "body": {
+                                            "mode": "raw",
+                                            "raw": "{\n    \"action\": \"START\"\n}"
+                                        },
+                                        "url": {
+                                            "raw": "{{base_url}}/api/v1/referee/matches/{{match_id}}/score",
+                                            "host": [
+                                                "{{base_url}}"
+                                            ],
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "referee",
+                                                "matches",
+                                                "{{match_id}}",
+                                                "score"
+                                            ]
+                                        }
+                                    },
+                                    "status": "Forbidden",
+                                    "code": 403,
+                                    "_postman_previewlanguage": "json",
+                                    "header": [],
+                                    "cookie": [],
+                                    "body": "{\n    \"success\": false,\n    \"message\": \"This action is unauthorized.\"\n}"
+                                },
+                                {
+                                    "name": "404 Match Not Found",
+                                    "originalRequest": {
+                                        "method": "PUT",
+                                        "header": [
+                                            {
+                                                "key": "Accept",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            },
+                                            {
+                                                "key": "Content-Type",
+                                                "value": "application/json",
+                                                "type": "text"
+                                            }
+                                        ],
+                                        "body": {
+                                            "mode": "raw",
+                                            "raw": "{\n    \"action\": \"START\"\n}"
+                                        },
+                                        "url": {
+                                            "raw": "{{base_url}}/api/v1/referee/matches/{{match_id}}/score",
+                                            "host": [
+                                                "{{base_url}}"
+                                            ],
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "referee",
+                                                "matches",
+                                                "{{match_id}}",
+                                                "score"
+                                            ]
+                                        }
+                                    },
+                                    "status": "Not Found",
+                                    "code": 404,
+                                    "_postman_previewlanguage": "json",
+                                    "header": [],
+                                    "cookie": [],
+                                    "body": "{\n    \"success\": false,\n    \"message\": \"Match not found or you do not have permission to modify it.\"\n}"
                                 }
                             ],
                             "item": [

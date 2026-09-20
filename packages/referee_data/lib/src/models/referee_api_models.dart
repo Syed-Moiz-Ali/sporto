@@ -468,6 +468,13 @@ class RefereeMatchResponse {
       _firstText([statusLabel, raw['status_text'], raw['state']]) ??
       _statusFromValue(status);
 
+  Map<String, dynamic> get tossData => _mapValue(raw['toss']);
+  String? get tossState => _stringValue(tossData['state']);
+  String? get tossNextAction => _stringValue(tossData['next_action']);
+  bool get isTossCompleted =>
+      tossData['is_completed'] == true ||
+      _stringValue(tossData['state']) == 'TOSS_COMPLETED';
+
   bool get isLive {
     final value = displayStatus.toLowerCase();
     return value.contains('live') || value.contains('progress');
