@@ -107,9 +107,8 @@ class TossTeam extends Equatable {
 
   static List<TossPlayer> dummyPlayersFor(String teamId, String teamName) {
     final lower = teamName.toLowerCase();
-    final isTeam1 = teamId == '1' ||
-        lower.contains('delhi') ||
-        lower.contains('warrior');
+    final isTeam1 =
+        teamId == '1' || lower.contains('delhi') || lower.contains('warrior');
 
     if (isTeam1) {
       return const [
@@ -603,17 +602,20 @@ class ConductTossBloc extends Bloc<ConductTossAction, ConductTossState> {
           ConductTossState(
             team1: team1,
             team2: team2,
-            callerTeamId: initialToss?.toss.runtime.callingTeamId?.toString() ?? callerTeamId,
+            callerTeamId: initialToss?.toss.runtime.callingTeamId?.toString() ??
+                callerTeamId,
             callerChoice: callerChoice,
             tossMode: tossMode,
-            hasSelectedCaller: hasSelectedCaller || initialToss?.toss.runtime.callingTeamId != null,
+            hasSelectedCaller: hasSelectedCaller ||
+                initialToss?.toss.runtime.callingTeamId != null,
             step: initialToss?.toss.runtime.nextAction == 'SET_STARTING_PLAYERS'
                 ? ConductTossStep.selectOpeners
                 : initialToss?.toss.runtime.nextAction == 'SET_DECISION'
                     ? ConductTossStep.chooseBatBowl
                     : ConductTossStep.flipCoin,
             landedSide: _coinSideFromApi(initialToss?.toss.runtime.landedSide),
-            tossWinnerTeamId: initialToss?.toss.runtime.winnerTeamId?.toString(),
+            tossWinnerTeamId:
+                initialToss?.toss.runtime.winnerTeamId?.toString(),
             tossChoice: _choiceFromApi(initialToss?.toss.runtime.decision),
           ),
         ) {
@@ -696,13 +698,13 @@ class ConductTossBloc extends Bloc<ConductTossAction, ConductTossState> {
     });
 
     on<EditOpenersRequested>((event, emit) {
-      emit(
-          state.copyWith(step: ConductTossStep.selectOpeners, clearError: true));
+      emit(state.copyWith(
+          step: ConductTossStep.selectOpeners, clearError: true));
     });
 
     on<StepBackRequested>((event, emit) {
-      emit(
-          state.copyWith(step: ConductTossStep.selectOpeners, clearError: true));
+      emit(state.copyWith(
+          step: ConductTossStep.selectOpeners, clearError: true));
     });
   }
 
@@ -1051,11 +1053,13 @@ class ConductTossBloc extends Bloc<ConductTossAction, ConductTossState> {
     Emitter<ConductTossState> emit,
   ) async {
     final cleanStriker = state.strikerId?.replaceAll(RegExp(r'[^0-9]'), '');
-    final cleanNonStriker = state.nonStrikerId?.replaceAll(RegExp(r'[^0-9]'), '');
+    final cleanNonStriker =
+        state.nonStrikerId?.replaceAll(RegExp(r'[^0-9]'), '');
     final cleanOpeningBowler =
         state.openingBowlerId?.replaceAll(RegExp(r'[^0-9]'), '');
     final strikerId = int.tryParse(cleanStriker ?? state.strikerId ?? '');
-    final nonStrikerId = int.tryParse(cleanNonStriker ?? state.nonStrikerId ?? '');
+    final nonStrikerId =
+        int.tryParse(cleanNonStriker ?? state.nonStrikerId ?? '');
     final openingBowlerId =
         int.tryParse(cleanOpeningBowler ?? state.openingBowlerId ?? '');
 

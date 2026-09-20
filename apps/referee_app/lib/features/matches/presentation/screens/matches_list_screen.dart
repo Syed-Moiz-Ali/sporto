@@ -65,24 +65,26 @@ class _MatchesListScreenState extends State<MatchesListScreen> {
     );
   }
 
-  void _refresh() {
+  Future<void> _refresh() async {
     setState(() {
       _future = _load();
     });
+    await _future;
   }
 
   Future<void> _accept(RefereeMatchRequestResponse request) async {
     await _remote.acceptMatchRequest(request.assignmentId ?? request.id);
     if (!mounted) return;
     _showSnack('Match request accepted.');
-    _refresh();
+    setState(() => _selectedTab = 0);
+    await _refresh();
   }
 
   Future<void> _reject(RefereeMatchRequestResponse request) async {
     await _remote.rejectMatchRequest(request.assignmentId ?? request.id);
     if (!mounted) return;
     _showSnack('Match request rejected.');
-    _refresh();
+    await _refresh();
   }
 
   Future<void> _showMatchDetails(RefereeMatchResponse match) async {

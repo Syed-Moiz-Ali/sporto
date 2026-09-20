@@ -847,6 +847,7 @@ class RefereeTossResponse {
     this.formatId,
     this.formatName,
     required this.toss,
+    this.teams = const [],
     this.raw = const {},
   });
 
@@ -855,6 +856,7 @@ class RefereeTossResponse {
   final int? formatId;
   final String? formatName;
   final RefereeTossStateResponse toss;
+  final List<RefereeTossTeamResponse> teams;
   final Map<String, dynamic> raw;
 
   factory RefereeTossResponse.fromJson(Map<String, dynamic> json) {
@@ -866,9 +868,51 @@ class RefereeTossResponse {
       formatId: _nullableInt(format['id']),
       formatName: _stringValue(format['name']),
       toss: RefereeTossStateResponse.fromJson(_mapValue(json['toss'])),
+      teams: _listValue(json['teams'])
+          .whereType<Map>()
+          .map((item) =>
+              RefereeTossTeamResponse.fromJson(Map<String, dynamic>.from(item)))
+          .toList(),
       raw: Map<String, dynamic>.from(json),
     );
   }
+}
+
+class RefereeTossTeamResponse {
+  const RefereeTossTeamResponse(
+      {required this.id,
+      required this.name,
+      this.logoUrl,
+      this.members = const []});
+  final int id;
+  final String name;
+  final String? logoUrl;
+  final List<RefereeTossMemberResponse> members;
+  factory RefereeTossTeamResponse.fromJson(Map<String, dynamic> json) =>
+      RefereeTossTeamResponse(
+        id: _intValue(json['id']),
+        name: _stringValue(json['name']) ?? 'Team',
+        logoUrl: _stringValue(json['logo_url']),
+        members: _listValue(json['members'])
+            .whereType<Map>()
+            .map((m) => RefereeTossMemberResponse.fromJson(
+                Map<String, dynamic>.from(m)))
+            .toList(),
+      );
+}
+
+class RefereeTossMemberResponse {
+  const RefereeTossMemberResponse(
+      {required this.userId, required this.name, this.isCaptain = false});
+  final int userId;
+  final String name;
+  final bool isCaptain;
+  factory RefereeTossMemberResponse.fromJson(Map<String, dynamic> json) =>
+      RefereeTossMemberResponse(
+        userId: _intValue(json['user_id'] ?? json['id']),
+        name: _stringValue(json['name']) ?? 'Player',
+        isCaptain: json['is_captain'] == true,
+      );
 }
 
 class RefereeTossUpdateRequest {

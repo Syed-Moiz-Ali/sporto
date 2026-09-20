@@ -44,6 +44,7 @@ class ConductTossWizard extends StatelessWidget {
         value: bloc!,
         child: _ConductTossView(
           matchCode: matchCode ?? 'SPT-${initialMatch?.id ?? 20481}',
+          matchId: matchId ?? initialMatch?.id.toString(),
           onNavigateToScoring: onNavigateToScoring,
         ),
       );
@@ -74,6 +75,7 @@ class ConductTossWizard extends StatelessWidget {
             ),
             child: _ConductTossView(
               matchCode: matchCode ?? 'SPT-${match.id}',
+              matchId: match.id.toString(),
               onNavigateToScoring: onNavigateToScoring,
             ),
           );
@@ -116,6 +118,7 @@ class ConductTossWizard extends StatelessWidget {
           ),
           child: _ConductTossView(
             matchCode: matchCode ?? 'SPT-${match.id}',
+            matchId: match.id.toString(),
             onNavigateToScoring: onNavigateToScoring,
           ),
         );
@@ -145,20 +148,13 @@ class ConductTossWizard extends StatelessWidget {
     return (match, toss);
   }
 
-  static List<TossPlayer> dummyPlayersForTeam(
-    String teamId,
-    String teamName,
-  ) {
-    return TossTeam.dummyPlayersFor(teamId, teamName);
-  }
-
   TossTeam _apiTeam(RefereeMatchTeam? team, String fallbackId) {
     final teamId = (team?.id ?? fallbackId.hashCode).toString();
     final teamName = team?.name ?? 'Team';
     return TossTeam(
       id: teamId,
       name: teamName,
-      players: dummyPlayersForTeam(teamId, teamName),
+      players: const <TossPlayer>[],
       logoUrl: team?.logoUrl,
     );
   }
@@ -166,18 +162,16 @@ class ConductTossWizard extends StatelessWidget {
   TossTeam _apiTeamWithRoster(RefereeMatchTeam? team, RefereeTossResponse? toss,
       int index, String fallbackId) {
     final base = _apiTeam(team, fallbackId);
-    final teams = (toss?.raw['teams'] as List?)?.whereType<Map>().toList();
-    final members = teams != null && index < teams.length
-        ? (teams[index]['members'] as List?)?.whereType<Map>().toList() ??
-            const []
-        : const [];
-    final players = members
-        .map((member) => TossPlayer(
-              id: (member['user_id'] ?? member['id']).toString(),
-              name: member['name']?.toString() ?? 'Player',
-              captain: member['is_captain'] == true,
-            ))
-        .toList();
+    final apiTeam =
+        toss != null && index < toss.teams.length ? toss.teams[index] : null;
+    final players = apiTeam?.members
+            .map((member) => TossPlayer(
+                  id: member.userId.toString(),
+                  name: member.name,
+                  captain: member.isCaptain,
+                ))
+            .toList() ??
+        const <TossPlayer>[];
     return TossTeam(
         id: base.id, name: base.name, players: players, logoUrl: base.logoUrl);
   }
@@ -189,10 +183,12 @@ class ConductTossWizard extends StatelessWidget {
 
 class _ConductTossView extends StatelessWidget {
   final String matchCode;
+  final String? matchId;
   final VoidCallback? onNavigateToScoring;
 
   const _ConductTossView({
     required this.matchCode,
+    this.matchId,
     this.onNavigateToScoring,
   });
 
@@ -1299,19 +1295,13 @@ class _ConductTossView extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    final battingPlayers = state.battingPlayers;
-    final bowlingPlayers = state.bowlingPlayers;
-
-    // Use the design roster for now; backend player members are incomplete
-    // for QA matches (including match 95), so the UI must remain populated.
-    final displayBattingPlayers = TossTeam.dummyPlayersFor(
-      battingTeam.id,
-      battingTeam.name,
-    ).where((p) => p.canBat).toList();
-    final displayBowlingPlayers = TossTeam.dummyPlayersFor(
-      bowlingTeam.id,
-      bowlingTeam.name,
-    ).where((p) => p.canBowl).toList();
+    final displayBattingPlayers = state.battingPlayers;
+    final displayBowlingPlayers = state.bowlingPlayers;
+    if (displayBattingPlayers.length < 2 || displayBowlingPlayers.isEmpty) {
+      return const SportoCard(
+          child: Text(
+              'Starting players are not available from the match roster yet.'));
+    }
 
     final defaultStrikerId = displayBattingPlayers.first.id;
     final defaultNonStrikerId = displayBattingPlayers[1].id;
@@ -1418,14 +1408,18 @@ class _ConductTossView extends StatelessWidget {
     final battingPlayers = state.battingPlayers.length >= 2
         ? state.battingPlayers
         : TossTeam.dummyPlayersFor(battingTeam.id, battingTeam.name)
-            .where((p) => p.canBat).toList();
+            .where((p) => p.canBat)
+            .toList();
     final bowlingPlayers = state.bowlingPlayers.isNotEmpty
         ? state.bowlingPlayers
         : TossTeam.dummyPlayersFor(bowlingTeam.id, bowlingTeam.name)
-            .where((p) => p.canBowl).toList();
+            .where((p) => p.canBowl)
+            .toList();
 
     final defaultStrikerId = battingPlayers.first.id;
-    final defaultNonStrikerId = battingPlayers.length > 1 ? battingPlayers[1].id : battingPlayers.first.id;
+    final defaultNonStrikerId = battingPlayers.length > 1
+        ? battingPlayers[1].id
+        : battingPlayers.first.id;
     final defaultBowlerId = bowlingPlayers.first.id;
 
     final activeStrikerId = state.strikerId ?? defaultStrikerId;
@@ -1686,7 +1680,9 @@ class _ConductTossView extends StatelessWidget {
             } else {
               final router = GoRouter.maybeOf(context);
               if (router != null) {
-                router.push(AppRouter.liveScoringRoute);
+                router.replace(
+                  '${AppRouter.liveScoringRoute}?matchId=${matchId ?? ''}&matchCode=${Uri.encodeComponent(matchCode)}',
+                );
               }
             }
           },
