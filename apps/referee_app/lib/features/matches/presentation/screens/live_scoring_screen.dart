@@ -142,6 +142,11 @@ class _LiveScoringScreenState extends State<LiveScoringScreen> {
                   _stringId(_map(toss['starting_setup'])['NON_STRIKER']),
               initialBowlerId:
                   _stringId(_map(toss['starting_setup'])['OPENING_BOWLER']),
+              initialRuns: _initialRuns(scoreConfig, firstBattingTeamId),
+              initialStep:
+                  scoreConfig.scoring.runtime['state']?.toString() == 'LIVE'
+                      ? LiveScoringStep.scoring
+                      : null,
             );
           },
           child: _LiveScoringView(
@@ -168,6 +173,12 @@ class _LiveScoringScreenState extends State<LiveScoringScreen> {
       : const <String, dynamic>{};
 
   String? _stringId(Object? value) => value == null ? null : value.toString();
+
+  int _initialRuns(RefereeScoreResponse score, String teamId) {
+    final teams = _map(score.scoring.score['teams']);
+    final team = _map(teams[teamId]);
+    return int.tryParse(team['score']?.toString() ?? '') ?? 0;
+  }
 
   (ScoringTeam, ScoringTeam) _teamsFromScore(RefereeScoreResponse? score) {
     if (score == null || score.teams.length < 2) {
@@ -216,6 +227,22 @@ class _LiveScoringView extends StatelessWidget {
       DependencyInjector.instance.refereeRemoteDataSource;
 
   bool get _scoreApiEnabled => scoreConfig?.scoring.enabled ?? true;
+  bool get _readOnly => scoreConfig?.isReadOnly ?? false;
+  bool get _matchAlreadyLive =>
+      scoreConfig?.statusText == 'LIVE' ||
+      scoreConfig?.scoring.runtime['state']?.toString() == 'LIVE';
+  Set<String> get _availableEventCodes => {
+        for (final event in scoreConfig?.scoring.availableEvents ?? const [])
+          event.code,
+      };
+  List<int> get _allowedRunValues {
+    for (final event in scoreConfig?.scoring.availableEvents ?? const []) {
+      if (event.code == 'RUN' && event.allowedValues.isNotEmpty) {
+        return event.allowedValues;
+      }
+    }
+    return const [0, 1, 2, 4, 6];
+  }
 
   int? get _numericMatchId => int.tryParse(matchId);
 
@@ -225,14 +252,17 @@ class _LiveScoringView extends StatelessWidget {
   ) async {
     final numericMatchId = _numericMatchId;
     if (scoreConfig == null || numericMatchId == null) return true;
+    if (_readOnly) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('This match is read-only.')),
+      );
+      return false;
+    }
     if (!_scoreApiEnabled) {
-      if (!_scoreApiEnabled) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Scoring API is disabled for this match.'),
-          ),
-        );
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Scoring API is disabled for this match.')),
+      );
       return false;
     }
     try {
@@ -250,15 +280,24 @@ class _LiveScoringView extends StatelessWidget {
 
   int? _teamId(String teamId) => int.tryParse(teamId);
 
-  int? _selectedPlayerId(LiveScoringState state) {
-    return int.tryParse(state.selectedBowlerId ?? '');
+  int? _selectedPlayerId(LiveScoringState state, String eventCode) {
+    final requiresPlayer = scoreConfig?.scoring.availableEvents
+        .where((event) => event.code == eventCode)
+        .map((event) => event.requiresPlayer)
+        .firstWhere((value) => true,
+            orElse: () => eventCode == 'RUN' || eventCode == 'WICKET');
+    if (requiresPlayer != true) return null;
+    final playerId = eventCode == 'RUN' || eventCode == 'WICKET'
+        ? state.strikerId
+        : state.selectedBowlerId;
+    return int.tryParse(playerId ?? '');
   }
 
   Future<void> _startOver(BuildContext context) async {
-    final synced = await _syncScore(
-      context,
-      RefereeScoreUpdateRequest.start(),
-    );
+    final state = context.read<LiveScoringBloc>().state;
+    final synced = state.currentOverIndex == 0 && !_matchAlreadyLive
+        ? await _syncScore(context, RefereeScoreUpdateRequest.start())
+        : true;
     if (!context.mounted || !synced) return;
     context.read<LiveScoringBloc>().add(StartSelectedOverEvent());
   }
@@ -269,6 +308,30 @@ class _LiveScoringView extends StatelessWidget {
     required String eventCode,
     int? value,
   }) async {
+    RefereeScoreEventResponse? configuredEvent;
+    for (final event in scoreConfig?.scoring.availableEvents ?? const []) {
+      if (event.code == eventCode) {
+        configuredEvent = event;
+        break;
+      }
+    }
+    if (scoreConfig != null &&
+        scoreConfig!.scoring.availableEvents.isNotEmpty &&
+        configuredEvent == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('$eventCode is not available for this match.')),
+      );
+      return;
+    }
+    if (configuredEvent != null &&
+        configuredEvent.allowedValues.isNotEmpty &&
+        value != null &&
+        !configuredEvent.allowedValues.contains(value)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Invalid value for $eventCode.')),
+      );
+      return;
+    }
     final teamId = _teamId(state.currentBattingTeam.id);
     if (teamId == null) return;
     final synced = await _syncScore(
@@ -276,7 +339,7 @@ class _LiveScoringView extends StatelessWidget {
       RefereeScoreUpdateRequest.addEvent(
         eventCode: eventCode,
         teamId: teamId,
-        playerId: _selectedPlayerId(state),
+        playerId: _selectedPlayerId(state, eventCode),
         value: value,
       ),
     );
@@ -704,6 +767,8 @@ class _LiveScoringView extends StatelessWidget {
 
         SportoLiveScoringControls(
           bowler: state.currentBowlerName,
+          availableEvents: _availableEventCodes,
+          allowedRunValues: _allowedRunValues,
           onRun: (
             runs,
           ) {
@@ -736,6 +801,29 @@ class _LiveScoringView extends StatelessWidget {
             );
           },
         ),
+        if (state.awaitingReplacement) ...[
+          SizedBox(height: 16 * scale),
+          Text(
+            'Select replacement batter',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 15 * scale,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          SizedBox(height: 8 * scale),
+          ...state.replacementBatters.map(
+            (player) => Padding(
+              padding: EdgeInsets.only(bottom: 8 * scale),
+              child: OutlinedButton(
+                onPressed: () => context
+                    .read<LiveScoringBloc>()
+                    .add(ReplacementBatterSelected(player.id)),
+                child: Text(player.displayName),
+              ),
+            ),
+          ),
+        ],
       ],
     );
   }

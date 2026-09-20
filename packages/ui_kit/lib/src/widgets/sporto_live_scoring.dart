@@ -810,6 +810,8 @@ class SportoLiveScoringControls extends StatelessWidget {
   final VoidCallback onWicket;
   final VoidCallback onWide;
   final VoidCallback onNoBall;
+  final Set<String> availableEvents;
+  final List<int> allowedRunValues;
 
   const SportoLiveScoringControls({
     super.key,
@@ -818,6 +820,8 @@ class SportoLiveScoringControls extends StatelessWidget {
     required this.onWicket,
     required this.onWide,
     required this.onNoBall,
+    this.availableEvents = const {'RUN', 'WICKET', 'WIDE', 'NO_BALL'},
+    this.allowedRunValues = const [0, 1, 2, 4, 6],
   });
 
   @override
@@ -838,7 +842,7 @@ class SportoLiveScoringControls extends StatelessWidget {
         SizedBox(height: 14 * scale),
         Row(
           children: [
-            for (final run in const [0, 1, 2, 4, 6]) ...[
+            for (final run in allowedRunValues) ...[
               Expanded(
                 child: _ScoringButton(
                   label: '$run',
@@ -852,29 +856,34 @@ class SportoLiveScoringControls extends StatelessWidget {
         SizedBox(height: 20 * scale),
         Row(
           children: [
-            Expanded(
-              child: _ScoringButton(
-                label: 'WKT',
-                danger: true,
-                onTap: onWicket,
+            if (availableEvents.contains('WICKET')) ...[
+              Expanded(
+                child: _ScoringButton(
+                  label: 'WKT',
+                  danger: true,
+                  onTap: onWicket,
+                ),
               ),
-            ),
-            SizedBox(width: 16 * scale),
-            Expanded(
-              child: _ScoringButton(
-                label: 'Wide',
-                accent: true,
-                onTap: onWide,
+              SizedBox(width: 16 * scale),
+            ],
+            if (availableEvents.contains('WIDE')) ...[
+              Expanded(
+                child: _ScoringButton(
+                  label: 'Wide',
+                  accent: true,
+                  onTap: onWide,
+                ),
               ),
-            ),
-            SizedBox(width: 16 * scale),
-            Expanded(
-              child: _ScoringButton(
-                label: 'No Ball',
-                accent: true,
-                onTap: onNoBall,
+              SizedBox(width: 16 * scale),
+            ],
+            if (availableEvents.contains('NO_BALL'))
+              Expanded(
+                child: _ScoringButton(
+                  label: 'No Ball',
+                  accent: true,
+                  onTap: onNoBall,
+                ),
               ),
-            ),
           ],
         ),
         SizedBox(height: 19 * scale),

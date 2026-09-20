@@ -167,6 +167,8 @@ class LiveScoringState extends Equatable {
   final String? selectedBowlerId;
   final String? strikerId;
   final String? nonStrikerId;
+  final Set<String> dismissedPlayerIds;
+  final bool awaitingReplacement;
   final String? previousBowlerId;
 
   final ScoringInningsResult? firstInnings;
@@ -201,6 +203,8 @@ class LiveScoringState extends Equatable {
     this.selectedBowlerId,
     this.strikerId,
     this.nonStrikerId,
+    this.dismissedPlayerIds = const {},
+    this.awaitingReplacement = false,
     this.previousBowlerId,
     this.firstInnings,
     this.secondInnings,
@@ -283,6 +287,12 @@ class LiveScoringState extends Equatable {
 
   String get strikerName => _playerName(currentBattingTeam, strikerId);
   String get nonStrikerName => _playerName(currentBattingTeam, nonStrikerId);
+  List<ScoringBowler> get replacementBatters => currentBattingTeam.bowlers
+      .where((p) =>
+          !dismissedPlayerIds.contains(p.id) &&
+          p.id != nonStrikerId &&
+          p.id != strikerId)
+      .toList();
 
   String _playerName(ScoringTeam team, String? id) => team.bowlers
       .firstWhere((player) => player.id == id,
@@ -429,6 +439,8 @@ class LiveScoringState extends Equatable {
     bool clearSelectedBowler = false,
     String? strikerId,
     String? nonStrikerId,
+    Set<String>? dismissedPlayerIds,
+    bool? awaitingReplacement,
     String? previousBowlerId,
     bool clearPreviousBowler = false,
     ScoringInningsResult? firstInnings,
@@ -459,6 +471,8 @@ class LiveScoringState extends Equatable {
           : selectedBowlerId ?? this.selectedBowlerId,
       strikerId: strikerId ?? this.strikerId,
       nonStrikerId: nonStrikerId ?? this.nonStrikerId,
+      dismissedPlayerIds: dismissedPlayerIds ?? this.dismissedPlayerIds,
+      awaitingReplacement: awaitingReplacement ?? this.awaitingReplacement,
       previousBowlerId: clearPreviousBowler
           ? null
           : previousBowlerId ?? this.previousBowlerId,
@@ -493,6 +507,8 @@ class LiveScoringState extends Equatable {
         selectedBowlerId,
         strikerId,
         nonStrikerId,
+        dismissedPlayerIds,
+        awaitingReplacement,
         previousBowlerId,
         firstInnings,
         secondInnings,
@@ -547,6 +563,13 @@ class RecordWideEvent extends LiveScoringEvent {}
 
 class RecordNoBallEvent extends LiveScoringEvent {}
 
+class ReplacementBatterSelected extends LiveScoringEvent {
+  final String playerId;
+  const ReplacementBatterSelected(this.playerId);
+  @override
+  List<Object?> get props => [playerId];
+}
+
 class ContinueAfterOverEvent extends LiveScoringEvent {}
 
 class StartSecondInningsEvent extends LiveScoringEvent {}
@@ -571,6 +594,9 @@ class LiveScoringBloc extends Bloc<LiveScoringEvent, LiveScoringState> {
     String? initialBowlerId,
     String? initialStrikerId,
     String? initialNonStrikerId,
+    int initialRuns = 0,
+    int initialWickets = 0,
+    LiveScoringStep? initialStep,
   }) : super(
           LiveScoringState(
             teamA: teamA,
@@ -578,6 +604,9 @@ class LiveScoringBloc extends Bloc<LiveScoringEvent, LiveScoringState> {
             firstBattingTeamId: firstBattingTeamId,
             regulationOvers: regulationOvers,
             maxWickets: maxWickets,
+            step: initialStep ?? LiveScoringStep.selectBowler,
+            runs: initialRuns,
+            wickets: initialWickets,
             selectedBowlerId: initialBowlerId,
             strikerId: initialStrikerId,
             nonStrikerId: initialNonStrikerId,
@@ -606,6 +635,16 @@ class LiveScoringBloc extends Bloc<LiveScoringEvent, LiveScoringState> {
     on<RecordNoBallEvent>(
       _recordNoBall,
     );
+    on<ReplacementBatterSelected>((event, emit) {
+      if (!state.awaitingReplacement ||
+          !state.replacementBatters.any((p) => p.id == event.playerId)) {
+        return;
+      }
+      emit(state.copyWith(
+        strikerId: event.playerId,
+        awaitingReplacement: false,
+      ));
+    });
 
     on<ContinueAfterOverEvent>(
       _continueAfterOver,
@@ -759,11 +798,29 @@ class LiveScoringBloc extends Bloc<LiveScoringEvent, LiveScoringState> {
 
     final legalBalls = deliveries.where((d) => d.isLegal).length;
 
-    final updated = state.copyWith(
+    var updated = state.copyWith(
       runs: newRuns,
       wickets: newWickets,
       currentOverDeliveries: deliveries,
     );
+
+    if (delivery.type == ScoringDeliveryType.wicket &&
+        state.strikerId != null) {
+      updated = updated.copyWith(
+        dismissedPlayerIds: {...state.dismissedPlayerIds, state.strikerId!},
+        awaitingReplacement: true,
+      );
+    }
+
+    // An odd number of runs changes the striker for the next delivery.
+    if (delivery.runs.isOdd &&
+        state.strikerId != null &&
+        state.nonStrikerId != null) {
+      updated = updated.copyWith(
+        strikerId: state.nonStrikerId,
+        nonStrikerId: state.strikerId,
+      );
+    }
 
     // ========================================================
     // SECOND INNINGS CHASE COMPLETED EARLY
@@ -974,15 +1031,20 @@ class LiveScoringBloc extends Bloc<LiveScoringEvent, LiveScoringState> {
       return;
     }
 
-    emit(
-      state.copyWith(
-        currentOverIndex: state.currentOverIndex + 1,
-        previousBowlerId: state.selectedBowlerId,
-        currentOverDeliveries: const [],
-        clearSelectedBowler: true,
-        step: LiveScoringStep.selectBowler,
-      ),
+    var next = state.copyWith(
+      currentOverIndex: state.currentOverIndex + 1,
+      previousBowlerId: state.selectedBowlerId,
+      currentOverDeliveries: const [],
+      clearSelectedBowler: true,
+      step: LiveScoringStep.selectBowler,
     );
+    if (state.strikerId != null && state.nonStrikerId != null) {
+      next = next.copyWith(
+        strikerId: state.nonStrikerId,
+        nonStrikerId: state.strikerId,
+      );
+    }
+    emit(next);
   }
 
   // ==========================================================

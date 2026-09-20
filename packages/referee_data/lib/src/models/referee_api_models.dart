@@ -835,7 +835,9 @@ class RefereeTossStateResponse {
               ))
           .toList(),
       runtime: RefereeTossRuntimeResponse.fromJson(
-        _mapValue(json['runtime']),
+        _mapValue(json['runtime']).isNotEmpty
+            ? _mapValue(json['runtime'])
+            : json,
       ),
       resultMethods: _listValue(json['result_methods'])
           .whereType<Map>()
@@ -1027,6 +1029,8 @@ class RefereeScoreEventResponse {
     this.type,
     this.value,
     this.requiresPlayer = false,
+    this.variableValue = false,
+    this.allowedValues = const [],
   });
 
   final String code;
@@ -1034,6 +1038,8 @@ class RefereeScoreEventResponse {
   final String? type;
   final int? value;
   final bool requiresPlayer;
+  final bool variableValue;
+  final List<int> allowedValues;
 
   factory RefereeScoreEventResponse.fromJson(Map<String, dynamic> json) {
     final code = _stringValue(json['code'] ?? json['event_code']) ?? '';
@@ -1044,6 +1050,12 @@ class RefereeScoreEventResponse {
       value: _nullableInt(json['value']),
       requiresPlayer: json['requires_player'] == true ||
           json['requires_player']?.toString() == '1',
+      variableValue: json['variable_value'] == true ||
+          json['variable_value']?.toString() == '1',
+      allowedValues: _listValue(json['allowed_values'])
+          .map((value) => _nullableInt(value))
+          .whereType<int>()
+          .toList(),
     );
   }
 }
@@ -1101,6 +1113,7 @@ class RefereeScoreResponse {
     this.formatName,
     this.teams = const [],
     required this.scoring,
+    this.toss,
     this.raw = const {},
   });
 
@@ -1115,7 +1128,11 @@ class RefereeScoreResponse {
   final String? formatName;
   final List<RefereeScoreTeamResponse> teams;
   final RefereeScoreStateResponse scoring;
+  final RefereeTossStateResponse? toss;
   final Map<String, dynamic> raw;
+
+  String? get statusText => _stringValue(_mapValue(raw['match'])['status']);
+  bool get isReadOnly => statusText == 'COMPLETED' || statusText == 'CANCELLED';
 
   factory RefereeScoreResponse.fromJson(Map<String, dynamic> json) {
     final match = _mapValue(json['match']);
@@ -1139,6 +1156,9 @@ class RefereeScoreResponse {
               ))
           .toList(),
       scoring: RefereeScoreStateResponse.fromJson(_mapValue(json['scoring'])),
+      toss: _mapValue(json['toss']).isEmpty
+          ? null
+          : RefereeTossStateResponse.fromJson(_mapValue(json['toss'])),
       raw: Map<String, dynamic>.from(json),
     );
   }
