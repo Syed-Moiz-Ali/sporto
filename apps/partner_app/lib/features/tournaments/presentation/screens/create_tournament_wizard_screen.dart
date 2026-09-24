@@ -13,6 +13,32 @@ import 'venue_location_picker_screen.dart';
 // ============================================================
 enum _TournamentSport { cricket, badminton, football }
 
+class TournamentVenueDraft {
+  const TournamentVenueDraft({
+    required this.name,
+    required this.location,
+    required this.capacity,
+    required this.date,
+    required this.startTime,
+    required this.groundType,
+    required this.stageIndex,
+    required this.roundName,
+    this.latitude,
+    this.longitude,
+  });
+
+  final String name;
+  final String location;
+  final String capacity;
+  final String date;
+  final String startTime;
+  final String groundType;
+  final int stageIndex;
+  final String roundName;
+  final double? latitude;
+  final double? longitude;
+}
+
 class CreateTournamentWizardScreen extends StatefulWidget {
   final int initialStep;
 
@@ -144,7 +170,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
     if (teams == 2) return 'Final';
     if (teams == 4) return 'Semi Finals';
     if (teams == 8) return 'Quarter Finals';
-    return '$teams Teams';
+    return 'Round of $teams';
   }
 
   String _venueRoundLabelFor(int venueIndex) {
@@ -170,7 +196,55 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
     return teams < 2 ? 2 : teams;
   }
 
-  final List<Map<String, dynamic>> _venues = [];
+  final List<TournamentVenueDraft> _venues = [];
+  int _venueStageIndex = 0;
+
+  List<int> get _venueStageTeams {
+    if (!_hasValidTeamCount) return const [2];
+    final values = <int>[];
+    var teams = _numberOfTeams;
+    while (teams >= 2) {
+      values.add(teams);
+      teams ~/= 2;
+    }
+    return values;
+  }
+
+  String _venueStageLabel(int index) {
+    final teams = _venueStageTeams[index];
+    return _roundLabelForTeams(teams);
+  }
+
+  int _venueStageMatches(int index) => _venueStageTeams[index] ~/ 2;
+
+  void _handleTeamCountChanged() {
+    final teams = int.tryParse(_numberOfTeamsCtrl.text.trim());
+    if (_venues.isNotEmpty &&
+        teams != null &&
+        teams >= 2 &&
+        _isPowerOfTwo(teams)) {
+      _venues.clear();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text(
+                'Venue assignments were reset because the tournament bracket changed.')),
+      );
+    }
+  }
+
+  int _assignedMatchesForStage(int stageIndex) => _venues
+      .where((venue) => venue.stageIndex == stageIndex)
+      .fold<int>(0, (sum, venue) => sum + (int.tryParse(venue.capacity) ?? 0));
+
+  int _remainingMatchesForStage(int stageIndex) => math.max(
+        0,
+        _venueStageMatches(stageIndex) - _assignedMatchesForStage(stageIndex),
+      );
+
+  List<int> get _incompleteVenueStages => [
+        for (var index = 0; index < _venueStageTeams.length; index++)
+          if (_remainingMatchesForStage(index) > 0) index,
+      ];
 
   @override
   void initState() {
@@ -600,9 +674,11 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                     final teams = _numberOfTeams;
                     if (teams > 2) {
                       _numberOfTeamsCtrl.text = (teams ~/ 2).toString();
+                      _handleTeamCountChanged();
                       _clearFieldError('numberOfTeams');
                     } else if (teams <= 0) {
                       _numberOfTeamsCtrl.text = '2';
+                      _handleTeamCountChanged();
                       _clearFieldError('numberOfTeams');
                     }
                   })),
@@ -617,6 +693,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
               errorText: _fieldErrors['numberOfTeams'],
               onChanged: (_) {
                 _clearFieldError('numberOfTeams');
+                _handleTeamCountChanged();
                 setState(() {});
               },
             ),
@@ -628,9 +705,11 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                     final teams = _numberOfTeams;
                     if (teams <= 0) {
                       _numberOfTeamsCtrl.text = '2';
+                      _handleTeamCountChanged();
                       _clearFieldError('numberOfTeams');
                     } else if (teams < 256) {
                       _numberOfTeamsCtrl.text = (teams * 2).toString();
+                      _handleTeamCountChanged();
                       _clearFieldError('numberOfTeams');
                     }
                   })),
@@ -1082,10 +1161,9 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
           ..._venues.asMap().entries.map((entry) {
             final index = entry.key;
             final venue = entry.value;
-            final displayName =
-                venue['name']?.toString().trim().isNotEmpty == true
-                    ? venue['name'].toString().trim()
-                    : 'Venue ${index + 1}';
+            final displayName = venue.name.trim().isNotEmpty
+                ? venue.name.trim()
+                : 'Venue ${index + 1}';
             return Padding(
               padding: const EdgeInsets.only(bottom: 12),
               child: SportoCard(
@@ -1121,14 +1199,20 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(_venueRoundLabelFor(index),
+                            Text(venue.roundName,
                                 style: TextStyle(
                                     color: cs.onSurface,
                                     fontSize: 14,
                                     fontWeight: FontWeight.w500)),
-                            Text(_venueMatchesLabelFor(index),
+                            Text(
+                                '${_venueStageTeams[venue.stageIndex]} teams • Daily capacity: ${venue.capacity.isNotEmpty ? venue.capacity : 'Not set'} matches/day',
                                 style: TextStyle(
                                     color: cs.onSurfaceVariant, fontSize: 12)),
+                            if (_remainingMatchesForStage(venue.stageIndex) > 0)
+                              Text(
+                                  'Capacity remaining for this round: ${_remainingMatchesForStage(venue.stageIndex)} matches',
+                                  style: TextStyle(
+                                      color: cs.tertiary, fontSize: 12)),
                           ],
                         ),
                         TextButton(
@@ -1162,7 +1246,9 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
             child: Material(
               color: Colors.transparent,
               child: InkWell(
-                onTap: () => _showVenueModal(context),
+                onTap: _incompleteVenueStages.isEmpty
+                    ? null
+                    : () => _showVenueModal(context),
                 borderRadius: BorderRadius.circular(20),
                 child: Container(
                   padding:
@@ -1173,10 +1259,18 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                           style: BorderStyle.solid),
                       borderRadius: BorderRadius.circular(20)),
                   child: Row(mainAxisSize: MainAxisSize.min, children: [
-                    Icon(Icons.add, color: cs.onTertiary, size: 16),
+                    Icon(Icons.add,
+                        color: _incompleteVenueStages.isEmpty
+                            ? cs.onSurfaceVariant
+                            : cs.onTertiary,
+                        size: 16),
                     const SizedBox(width: 4),
                     Text('Add another venue',
-                        style: TextStyle(color: cs.onTertiary, fontSize: 12))
+                        style: TextStyle(
+                            color: _incompleteVenueStages.isEmpty
+                                ? cs.onSurfaceVariant
+                                : cs.onTertiary,
+                            fontSize: 12))
                   ]),
                 ),
               ),
@@ -1197,6 +1291,16 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                   ),
                 );
                 _showVenueModal(context);
+              } else if (_incompleteVenueStages.isNotEmpty) {
+                final stage = _incompleteVenueStages.first;
+                final remaining = _remainingMatchesForStage(stage);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                        '${_venueStageLabel(stage)} needs $remaining more match capacity.'),
+                  ),
+                );
+                _showVenueModal(context, stageIndex: stage);
               } else {
                 _goToStep(4);
               }
@@ -1206,19 +1310,22 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
   }
 
   // VENUE MODAL
-  void _showVenueModal(BuildContext context, {int? venueIndex}) {
+  void _showVenueModal(BuildContext context,
+      {int? venueIndex, int? stageIndex}) {
     final cs = Theme.of(context).colorScheme;
     if (venueIndex != null && venueIndex < _venues.length) {
       final v = _venues[venueIndex];
-      _venueNameCtrl.text = v['name']?.toString() ?? '';
-      _locationCtrl.text = v['location']?.toString() ?? '';
-      _selectedVenueLatitude = (v['latitude'] as num?)?.toDouble();
-      _selectedVenueLongitude = (v['longitude'] as num?)?.toDouble();
-      _capacityCtrl.text = v['capacity']?.toString() ?? '';
-      _venueDateCtrl.text = v['date']?.toString() ?? '';
-      _venueStartTimeCtrl.text = v['start_time']?.toString() ?? '';
-      _selectedGroundType = v['ground_type']?.toString() ?? 'indoor';
+      _venueStageIndex = v.stageIndex;
+      _venueNameCtrl.text = v.name;
+      _locationCtrl.text = v.location;
+      _selectedVenueLatitude = v.latitude;
+      _selectedVenueLongitude = v.longitude;
+      _capacityCtrl.text = v.capacity;
+      _venueDateCtrl.text = v.date;
+      _venueStartTimeCtrl.text = v.startTime;
+      _selectedGroundType = v.groundType;
     } else {
+      _venueStageIndex = stageIndex ?? 0;
       _venueNameCtrl.clear();
       _locationCtrl.clear();
       _selectedVenueLatitude = null;
@@ -1281,6 +1388,30 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                                       onPressed: () => Navigator.pop(ctx)),
                                 ]),
                             const SizedBox(height: 24),
+                            DropdownButtonFormField<int>(
+                                value: _venueStageIndex.clamp(
+                                    0, _venueStageTeams.length - 1),
+                                decoration: const InputDecoration(
+                                    labelText: 'Tournament Round'),
+                                items: [
+                                  for (var index = 0;
+                                      index < _venueStageTeams.length;
+                                      index++)
+                                    if (_remainingMatchesForStage(index) > 0 ||
+                                        (venueIndex != null &&
+                                            index == _venueStageIndex))
+                                      DropdownMenuItem(
+                                          value: index,
+                                          child: Text(
+                                              '${_venueStageLabel(index)} • ${_venueStageMatches(index)} matches')),
+                                ],
+                                onChanged: (value) {
+                                  if (value != null) {
+                                    sheetSetState(
+                                        () => _venueStageIndex = value);
+                                  }
+                                }),
+                            const SizedBox(height: 16),
                             SportoTextField(
                                 label: 'Venue Name',
                                 hint: 'e.g. Hyderabad Cricket Ground',
@@ -1420,17 +1551,20 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                                             .isNotEmpty
                                         ? _venueNameCtrl.text.trim()
                                         : 'Venue ${(venueIndex ?? _venues.length) + 1}';
-                                    final vData = {
-                                      'name': name,
-                                      'location': _locationCtrl.text.trim(),
-                                      'latitude': _selectedVenueLatitude,
-                                      'longitude': _selectedVenueLongitude,
-                                      'capacity': _capacityCtrl.text.trim(),
-                                      'date': _venueDateCtrl.text.trim(),
-                                      'start_time':
+                                    final vData = TournamentVenueDraft(
+                                      name: name,
+                                      location: _locationCtrl.text.trim(),
+                                      latitude: _selectedVenueLatitude,
+                                      longitude: _selectedVenueLongitude,
+                                      capacity: _capacityCtrl.text.trim(),
+                                      date: _venueDateCtrl.text.trim(),
+                                      startTime:
                                           _venueStartTimeCtrl.text.trim(),
-                                      'ground_type': _selectedGroundType,
-                                    };
+                                      groundType: _selectedGroundType,
+                                      stageIndex: _venueStageIndex,
+                                      roundName:
+                                          _venueStageLabel(_venueStageIndex),
+                                    );
                                     setState(() {
                                       final idx = venueIndex;
                                       if (idx != null && idx < _venues.length) {
@@ -1923,16 +2057,26 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                     fontSize: 20,
                     fontWeight: FontWeight.w600)),
             const SizedBox(height: 16),
-            Row(children: [
-              SportoAssetIcon(SportoAssets.locationPin,
-                  color: cs.secondary, size: 16),
-              const SizedBox(width: 4),
-              Text(_venueNameCtrl.text.trim(),
-                  style: TextStyle(color: cs.secondary, fontSize: 14))
-            ]),
-            const SizedBox(height: 4),
-            Text(_venueDateCtrl.text.trim(),
-                style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)),
+            if (_venues.isNotEmpty)
+              ..._venues.take(3).map((venue) => Padding(
+                    padding: const EdgeInsets.only(bottom: 6),
+                    child: Row(children: [
+                      SportoAssetIcon(SportoAssets.locationPin,
+                          color: cs.secondary, size: 16),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          '${venue.roundName} • ${venue.name} • ${venue.location}',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(color: cs.secondary, fontSize: 14),
+                        ),
+                      ),
+                    ]),
+                  )),
+            if (_venues.length > 3)
+              Text('+ ${_venues.length - 3} more venue assignments',
+                  style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
           ]),
         ),
         const SizedBox(height: 16),
@@ -1983,7 +2127,8 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            Text('Venue & Schedule (1 Venue)',
+            Text(
+                'Venue & Schedule (${_venues.length} ${_venues.length == 1 ? 'Venue' : 'Venues'})',
                 style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)),
             TextButton(
                 onPressed: () => _goToStep(3),
@@ -1999,9 +2144,63 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                 ]))
           ]),
           const SizedBox(height: 12),
-          SportoSummaryRow(label: 'Location', value: _locationCtrl.text.trim()),
-          SportoSummaryRow(
-              label: 'Daily Match Capacity', value: _capacityCtrl.text.trim()),
+          ..._venues.map((venue) => Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: cs.surface.withOpacity(0.45),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: cs.outline.withOpacity(0.35)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(venue.roundName,
+                          style: TextStyle(
+                              color: cs.tertiary,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700)),
+                      const SizedBox(height: 5),
+                      Text(venue.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                              color: cs.onSurface,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600)),
+                      if (venue.location.isNotEmpty) ...[
+                        const SizedBox(height: 8),
+                        Row(children: [
+                          Icon(Icons.location_on_outlined,
+                              size: 15, color: cs.onSurfaceVariant),
+                          const SizedBox(width: 5),
+                          Expanded(
+                              child: Text(venue.location,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                      color: cs.onSurfaceVariant,
+                                      fontSize: 12))),
+                        ]),
+                      ],
+                      const SizedBox(height: 6),
+                      Wrap(spacing: 12, runSpacing: 4, children: [
+                        Text('Capacity: ${venue.capacity}/day',
+                            style: TextStyle(
+                                color: cs.onSurfaceVariant, fontSize: 12)),
+                        Text('Date: ${venue.date}',
+                            style: TextStyle(
+                                color: cs.onSurfaceVariant, fontSize: 12)),
+                        Text('Start: ${venue.startTime}',
+                            style: TextStyle(
+                                color: cs.onSurfaceVariant, fontSize: 12)),
+                      ]),
+                    ],
+                  ),
+                ),
+              )),
           SportoSummaryRow(
               label: 'Max Duration',
               value: '${_matchDurationCtrl.text.trim()} mins'),
@@ -2155,26 +2354,27 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
 
       for (var i = 0; i < _venues.length; i++) {
         final venueData = _venues[i];
-        final venueName = venueData['name']?.toString().trim();
-        final location = venueData['location']?.toString().trim() ?? '';
-        final capacity =
-            int.tryParse(venueData['capacity']?.toString().trim() ?? '');
-        final date = venueData['date']?.toString().trim() ?? '';
-        final startTime = venueData['start_time']?.toString().trim() ?? '';
+        final venueName = venueData.name.trim();
+        final location = venueData.location;
+        final capacity = int.tryParse(venueData.capacity.trim());
+        final date = venueData.date;
+        final startTime = venueData.startTime;
 
         await remoteDataSource.storeTournamentVenueData(
           draft.id,
           TournamentVenueRequest(
-            venueId: i + 1,
-            venueName:
-                (venueName?.isNotEmpty == true) ? venueName! : 'Venue ${i + 1}',
+            // These wizard entries are custom venue details. Do not invent a
+            // system venue id; the API accepts venue_name when venue_id is
+            // unavailable and will create the custom venue mapping.
+            venueId: null,
+            venueName: venueName.isNotEmpty ? venueName : 'Venue ${i + 1}',
             notes: location,
             location: location,
             dailyMatchCapacity: capacity,
-            groundType: venueData['ground_type']?.toString() ?? 'indoor',
+            groundType: venueData.groundType,
             date: date,
             startTime: startTime,
-            roundName: _venueRoundLabelFor(i),
+            roundName: venueData.roundName,
           ),
         );
       }
