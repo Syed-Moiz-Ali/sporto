@@ -6,16 +6,13 @@ import 'package:ui_kit/ui_kit.dart';
 
 import '../../../../app/router/app_router.dart';
 import '../../../partner_api/application/partner_api_bloc.dart';
+import '../widgets/partner_tournament_card.dart';
 
 class TournamentsScreen extends StatefulWidget {
   final bool embedded;
   final bool? isLoading;
 
-  const TournamentsScreen({
-    super.key,
-    this.embedded = false,
-    this.isLoading,
-  });
+  const TournamentsScreen({super.key, this.embedded = false, this.isLoading});
 
   @override
   State<TournamentsScreen> createState() => _TournamentsScreenState();
@@ -58,7 +55,8 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
   }
 
   List<PartnerTournamentResponse> _filterTournaments(
-      List<PartnerTournamentResponse> all) {
+    List<PartnerTournamentResponse> all,
+  ) {
     switch (_selectedTab) {
       case 1: // Live
         return all.where((t) => t.status == 6).toList();
@@ -114,9 +112,12 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text("Today's Matches",
-                            style: theme.textTheme.titleLarge
-                                ?.copyWith(fontSize: 18 * scale)),
+                        Text(
+                          "Today's Matches",
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            fontSize: 18 * scale,
+                          ),
+                        ),
                         if (isLoading)
                           Padding(
                             padding: EdgeInsets.only(top: 4 * scale),
@@ -127,9 +128,12 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
                             ),
                           )
                         else
-                          Text('$count Matches Assigned',
-                              style: theme.textTheme.bodyMedium
-                                  ?.copyWith(color: context.sporto.info)),
+                          Text(
+                            '$count Matches Assigned',
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: context.sporto.info,
+                            ),
+                          ),
                       ],
                     ),
                   ),
@@ -142,8 +146,7 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
                     height: 32 * scale,
                     padding: EdgeInsets.symmetric(horizontal: 12 * scale),
                     fontSize: 12 * scale,
-                    onTap: () =>
-                        context.push(AppRouter.createTournamentRoute),
+                    onTap: () => context.push(AppRouter.createTournamentRoute),
                   ),
                 ],
               ),
@@ -163,28 +166,32 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
                       setState(() => _selectedTab = index);
                       final apiStatus = _getApiStatusForTab(index);
                       try {
-                        context
-                            .read<PartnerApiBloc>()
-                            .add(LoadPartnerTournamentsEvent(status: apiStatus));
+                        context.read<PartnerApiBloc>().add(
+                              LoadPartnerTournamentsEvent(status: apiStatus),
+                            );
                       } catch (_) {}
                     }
                   },
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      Text(_tabs[index],
-                          style: theme.textTheme.bodyLarge?.copyWith(
-                              fontSize: 13 * scale,
-                              color: index == _selectedTab
-                                  ? cs.onSurface
-                                  : cs.onSurfaceVariant)),
+                      Text(
+                        _tabs[index],
+                        style: theme.textTheme.bodyLarge?.copyWith(
+                          fontSize: 13 * scale,
+                          color: index == _selectedTab
+                              ? cs.onSurface
+                              : cs.onSurfaceVariant,
+                        ),
+                      ),
                       SizedBox(height: 8 * scale),
                       Container(
-                          width: 18 * scale,
-                          height: 2 * scale,
-                          color: index == _selectedTab
-                              ? cs.tertiary
-                              : Colors.transparent),
+                        width: 18 * scale,
+                        height: 2 * scale,
+                        color: index == _selectedTab
+                            ? cs.tertiary
+                            : Colors.transparent,
+                      ),
                     ],
                   ),
                 ),
@@ -210,8 +217,10 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
   }
 
   List<Widget> _matchCards(
-      double scale, List<PartnerTournamentResponse> tournaments,
-      {bool isLoading = false}) {
+    double scale,
+    List<PartnerTournamentResponse> tournaments, {
+    bool isLoading = false,
+  }) {
     if (isLoading) {
       // Skeleton shimmer placeholders matching match card layout
       return [
@@ -239,7 +248,7 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
       ];
     }
 
-    // Dynamic rendering using exact SportoCricketMatchCard UI populated with API properties
+    // Partner-only cards populated with tournament API data.
     return [
       for (var index = 0; index < tournaments.length; index++) ...[
         _buildDynamicMatchCard(tournaments[index]),
@@ -319,10 +328,7 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
             ],
           ),
           SizedBox(height: 10 * scale),
-          Container(
-            height: 1,
-            color: const Color(0xFF1F242C),
-          ),
+          Container(height: 1, color: const Color(0xFF1F242C)),
           SizedBox(height: 10 * scale),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -345,12 +351,6 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
   }
 
   Widget _buildDynamicMatchCard(PartnerTournamentResponse t) {
-    final matchState = switch (t.status) {
-      6 => SportoCricketMatchState.live,
-      7 => SportoCricketMatchState.completed,
-      8 => SportoCricketMatchState.delayed,
-      _ => SportoCricketMatchState.upcoming,
-    };
     final venue =
         t.tournamentVenues.isNotEmpty ? t.tournamentVenues.first : null;
     final timeStr = t.tournamentStartAt != null
@@ -358,17 +358,15 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
         : 'Today, 06:30 PM';
     final venueLocation = venue?.location ?? venue?.venueName ?? 'Hyderabad';
 
-    return SportoCricketMatchCard(
-      state: matchState,
-      tournamentName: t.name,
-      locationName: venueLocation,
-      stageName: venue?.roundName ?? t.workflowStatus.label,
-      statusLabel: t.workflowStatus.label,
-      timeLabel: timeStr,
-      teamALabel: 'Registered: ${t.registeredTeams ?? 0} Teams',
-      teamBLabel: t.maximumTeams != null
-          ? 'Max: ${t.maximumTeams} Teams'
-          : 'Open Registration',
+    return PartnerTournamentCard(
+      name: t.name,
+      location: venueLocation,
+      stage: venue?.roundName ?? t.workflowStatus.label,
+      status: t.workflowStatus.label,
+      date: timeStr,
+      registeredTeams: t.registeredTeams ?? 0,
+      maximumTeams: t.maximumTeams,
+      isLive: t.status == 6,
       onTap: () => context.push(AppRouter.tournamentDetailRoute('${t.id}')),
     );
   }
@@ -388,7 +386,7 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
         'Sep',
         'Oct',
         'Nov',
-        'Dec'
+        'Dec',
       ];
       return '${dt.day} ${months[dt.month - 1]} ${dt.year}';
     } catch (_) {

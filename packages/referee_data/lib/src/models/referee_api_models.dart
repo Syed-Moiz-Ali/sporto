@@ -901,8 +901,13 @@ class RefereeTossTeamResponse {
       RefereeTossTeamResponse(
         id: _intValue(json['id']),
         name: _stringValue(json['name']) ?? 'Team',
-        logoUrl: _stringValue(json['logo_url']),
-        members: _listValue(json['members'])
+        logoUrl: _stringValue(json['logo_url'] ?? json['team_logo_url']),
+        members: _listValue(
+          json['members'] ??
+              json['players'] ??
+              json['roster'] ??
+              json['playing_xi'],
+        )
             .whereType<Map>()
             .map((m) => RefereeTossMemberResponse.fromJson(
                 Map<String, dynamic>.from(m)))
@@ -916,12 +921,25 @@ class RefereeTossMemberResponse {
   final int userId;
   final String name;
   final bool isCaptain;
-  factory RefereeTossMemberResponse.fromJson(Map<String, dynamic> json) =>
-      RefereeTossMemberResponse(
-        userId: _intValue(json['user_id'] ?? json['id']),
-        name: _stringValue(json['name']) ?? 'Player',
-        isCaptain: json['is_captain'] == true,
-      );
+  factory RefereeTossMemberResponse.fromJson(Map<String, dynamic> json) {
+    final user = _mapValue(json['user'] ?? json['player']);
+    final role = _stringValue(json['role'] ?? user['role'])?.toLowerCase();
+    return RefereeTossMemberResponse(
+      userId: _intValue(
+        json['user_id'] ?? json['player_id'] ?? user['id'] ?? json['id'],
+      ),
+      name: _stringValue(
+            json['name'] ??
+                json['player_name'] ??
+                user['name'] ??
+                user['full_name'],
+          ) ??
+          'Player',
+      isCaptain: json['is_captain'] == true ||
+          json['is_captain']?.toString() == '1' ||
+          role == 'captain',
+    );
+  }
 }
 
 class RefereeTossUpdateRequest {

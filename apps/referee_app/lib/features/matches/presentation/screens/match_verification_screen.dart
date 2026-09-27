@@ -1,13 +1,13 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:referee_data/referee_data.dart';
 import 'package:shared_domain/shared_domain.dart';
 import 'package:ui_kit/ui_kit.dart';
 
 import '../../../../app/router/app_router.dart';
-import '../../application/match_scoring_bloc.dart';
+import '../../../../core/di/dependency_injector.dart';
 
 /// Exact Figma copy of the Match Verification Screen based on Match_Verification.json.
 ///
@@ -36,6 +36,8 @@ class MatchVerificationScreen extends StatefulWidget {
 }
 
 class _MatchVerificationScreenState extends State<MatchVerificationScreen> {
+  Future<CricketMatchEntity>? _matchFuture;
+
   // Check-in states for teams
   bool _team1Present = true;
   bool _team2Present = true;
@@ -44,13 +46,79 @@ class _MatchVerificationScreenState extends State<MatchVerificationScreen> {
   @override
   void initState() {
     super.initState();
-    if (widget.match == null && widget.matchId != null) {
-      try {
-        context.read<MatchScoringBloc>().add(
-              LoadMatchDetailEvent(widget.matchId!),
-            );
-      } catch (_) {}
+    if (widget.match == null && widget.matchId?.trim().isNotEmpty == true) {
+      _matchFuture = _loadMatchFromApi();
     }
+  }
+
+  Future<CricketMatchEntity> _loadMatchFromApi() async {
+    final id = widget.matchId!.trim();
+    final remote = DependencyInjector.instance.refereeRemoteDataSource;
+    final match = await remote.showMyMatchData(id);
+
+    RefereeTossResponse? toss;
+    try {
+      // The toss payload is also the backend source for both team rosters.
+      toss = await remote.getMatchTossData(id);
+    } catch (_) {
+      // Match details are still useful when a tournament has no toss endpoint.
+    }
+
+    RefereeTossTeamResponse? rosterFor(RefereeMatchTeam? team, int index) {
+      if (toss == null) return null;
+      final teamId = team?.id;
+      for (final candidate in toss.teams) {
+        if (teamId != null && candidate.id == teamId) return candidate;
+      }
+      return index < toss.teams.length ? toss.teams[index] : null;
+    }
+
+    TeamEntity mapTeam(RefereeMatchTeam? summary, int index) {
+      final roster = rosterFor(summary, index);
+      final players = roster?.members
+              .map(
+                (member) => PlayerEntity(
+                  id: member.userId.toString(),
+                  name: member.name,
+                  role: member.isCaptain ? 'captain' : 'player',
+                  jerseyNumber: 0,
+                ),
+              )
+              .toList() ??
+          const <PlayerEntity>[];
+      return TeamEntity(
+        id: (summary?.id ?? roster?.id ?? index).toString(),
+        name: summary?.name ?? roster?.name ?? 'Team ${index + 1}',
+        logoEmoji: '',
+        players: players,
+      );
+    }
+
+    final scheduled = DateTime.tryParse(
+          match.scheduledAt ??
+              [match.matchDate, match.startTime].whereType<String>().join('T'),
+        ) ??
+        DateTime.now();
+    final statusText = match.displayStatus.toLowerCase();
+    final status =
+        statusText.contains('live') || statusText.contains('progress')
+            ? MatchStatus.live
+            : statusText.contains('complete') || statusText.contains('finish')
+                ? MatchStatus.completed
+                : toss?.toss.runtime.isCompleted == true
+                    ? MatchStatus.toss
+                    : MatchStatus.verification;
+
+    return CricketMatchEntity(
+      id: match.id.toString(),
+      tournamentName: match.tournamentName ?? 'Tournament not provided',
+      teamA: mapTeam(match.teamA, 0),
+      teamB: mapTeam(match.teamB, 1),
+      venue: match.venueName ?? match.location ?? 'Venue not provided',
+      scheduledTime: scheduled,
+      status: status,
+      refereeName: '',
+    );
   }
 
   // ==========================================================
@@ -100,12 +168,23 @@ class _MatchVerificationScreenState extends State<MatchVerificationScreen> {
       return _buildScaffold(context, scale, widget.match, false);
     }
 
-    return BlocBuilder<MatchScoringBloc, MatchScoringState>(
-      builder: (context, state) {
-        final isLoading = state is MatchScoringLoadingState;
-        final currentMatch =
-            state is MatchScoringLoadedState ? state.match : null;
-        return _buildScaffold(context, scale, currentMatch, isLoading);
+    return FutureBuilder<CricketMatchEntity>(
+      future: _matchFuture,
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return _MatchLoadError(
+            message: snapshot.error.toString(),
+            onRetry: () => setState(() {
+              _matchFuture = _loadMatchFromApi();
+            }),
+          );
+        }
+        return _buildScaffold(
+          context,
+          scale,
+          snapshot.data,
+          snapshot.connectionState != ConnectionState.done,
+        );
       },
     );
   }
@@ -116,283 +195,310 @@ class _MatchVerificationScreenState extends State<MatchVerificationScreen> {
     CricketMatchEntity? currentMatch,
     bool isLoading,
   ) {
+    final matchCode = currentMatch != null
+        ? 'SPT-${currentMatch.id}'
+        : (widget.matchId != null ? 'SPT-${widget.matchId}' : '');
 
-        // Match properties with fallbacks matching Figma JSON
-        final matchCode = currentMatch != null
-            ? 'SPT-${currentMatch.id}'
-            : (widget.matchId != null ? 'SPT-${widget.matchId}' : 'SPT-20481');
+    final tournamentName =
+        currentMatch?.tournamentName ?? 'Tournament not provided';
+    final venueName = currentMatch?.venue ?? 'Venue not provided';
 
-        final tournamentName =
-            currentMatch?.tournamentName ?? 'Asia Cup 2026';
-        final venueName = currentMatch?.venue ?? 'Hyderabad';
+    final team1Name = currentMatch?.teamA.name ?? 'Team 1';
+    final team2Name = currentMatch?.teamB.name ?? 'Team 2';
 
-        final team1Name = currentMatch?.teamA.name ?? 'Delhi Warriors';
-        final team2Name = currentMatch?.teamB.name ?? 'Hyd Highlanders';
+    final List<String> team1Players = currentMatch == null
+        ? const []
+        : currentMatch.teamA.players.map((p) {
+            final isCap = p.role.toLowerCase() == 'captain';
+            return isCap ? '${p.name} (Captain)' : p.name;
+          }).toList();
 
-        // Extract players or fallback to Figma design list
-        final List<String> team1Players = (currentMatch?.teamA.players != null &&
-                currentMatch!.teamA.players.isNotEmpty)
-            ? currentMatch.teamA.players.map((p) {
-                final isCap = p.role.toLowerCase() == 'captain';
-                return isCap ? '${p.name} (Captain)' : p.name;
-              }).toList()
-            : const [
-                'Shrvn Prajapati (Captain)',
-                'Amit Kumar',
-                'Manish K',
-                'Sumit Nai',
-                'Mayank S',
-              ];
+    final List<String> team2Players = currentMatch == null
+        ? const []
+        : currentMatch.teamB.players.map((p) {
+            final isCap = p.role.toLowerCase() == 'captain';
+            return isCap ? '${p.name} (Captain)' : p.name;
+          }).toList();
 
-        final List<String> team2Players = (currentMatch?.teamB.players != null &&
-                currentMatch!.teamB.players.isNotEmpty)
-            ? currentMatch.teamB.players.map((p) {
-                final isCap = p.role.toLowerCase() == 'captain';
-                return isCap ? '${p.name} (Captain)' : p.name;
-              }).toList()
-            : const [
-                'Vikram Reddy (Captain)',
-                'Dev Kumar',
-                'Pankaj S',
-                'Rohan A',
-                'Vinayak L',
-              ];
+    final absentTeamLabel = !_team1Present ? 'Team 1' : 'Team 2';
+    final absentTeamName = !_team1Present ? team1Name : team2Name;
+    final walkoverWinner = !_team1Present ? team2Name : team1Name;
 
-        final absentTeamLabel = !_team1Present ? 'Team 1' : 'Team 2';
-        final absentTeamName = !_team1Present ? team1Name : team2Name;
-        final walkoverWinner = !_team1Present ? team2Name : team1Name;
+    return Scaffold(
+      backgroundColor: const Color(0xFF0E0C08),
+      body: Stack(
+        children: [
+          // ====================================================
+          // FIGMA ATMOSPHERE & BACKGROUND
+          // ====================================================
 
-        return Scaffold(
-          backgroundColor: const Color(0xFF0E0C08),
-          body: Stack(
-            children: [
-              // ====================================================
-              // FIGMA ATMOSPHERE & BACKGROUND
-              // ====================================================
-
-              // Ambient Top Header Gradient (Rectangle 6011: 390x129)
-              Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                height: 129 * scale,
-                child: Container(
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Color(0xFF090C10),
-                        Color(0xFF1B2335),
-                        Color(0xFF090C10),
-                      ],
-                      stops: [0.0, 0.5, 1.0],
-                    ),
-                  ),
-                ),
-              ),
-
-              // Ambient Glow Ellipse 17 (Top)
-              Positioned(
-                top: -80 * scale,
-                left: 6.5 * scale,
-                width: 376.9 * scale,
-                height: 280 * scale,
-                child: ImageFiltered(
-                  imageFilter: ImageFilter.blur(
-                    sigmaX: 70 * scale,
-                    sigmaY: 70 * scale,
-                  ),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: const Color(0xFF373E52).withValues(alpha: 0.30),
-                    ),
-                  ),
-                ),
-              ),
-
-              // Ambient Glow Ellipse 18 (Lower body)
-              Positioned(
-                top: 450 * scale,
-                right: -50 * scale,
-                width: 376.9 * scale,
-                height: 280 * scale,
-                child: ImageFiltered(
-                  imageFilter: ImageFilter.blur(
-                    sigmaX: 80 * scale,
-                    sigmaY: 80 * scale,
-                  ),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: const Color(0xFF373E52).withValues(alpha: 0.30),
-                    ),
-                  ),
-                ),
-              ),
-
-              // ====================================================
-              // FOREGROUND CONTENT
-              // ====================================================
-              SafeArea(
-                bottom: false,
-                child: Column(
-                  children: [
-                    // Figma AppBar Header (Frame 1000003336: 390x46)
-                    _FigmaAppBar(
-                      scale: scale,
-                      matchCode: matchCode,
-                      onBack: () {
-                        if (context.canPop()) {
-                          context.pop();
-                        }
-                      },
-                    ),
-
-                    // Scrollable Body (Frame 1261154190: padding 20, gap 20)
-                    Expanded(
-                      child: isLoading
-                          ? _FigmaSkeletonShimmer(scale: scale)
-                          : SingleChildScrollView(
-                              physics: const ClampingScrollPhysics(),
-                              padding: EdgeInsets.fromLTRB(
-                                20 * scale,
-                                16 * scale,
-                                20 * scale,
-                                40 * scale,
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  // SECTION 0: Match Summary Card
-                                  _FigmaMatchSummaryCard(
-                                    scale: scale,
-                                    tournamentName: tournamentName,
-                                    venueName: venueName,
-                                    team1: team1Name,
-                                    team2: team2Name,
-                                  ),
-
-                                  SizedBox(height: 20 * scale),
-
-                                  // SECTION 1: Team Verification Title
-                                  Text(
-                                    'Team Verification',
-                                    style: TextStyle(
-                                      fontSize: 16 * scale,
-                                      fontWeight: FontWeight.w600,
-                                      color: const Color(0xFFA0A0A0),
-                                    ),
-                                  ),
-
-                                  SizedBox(height: 10 * scale),
-
-                                  // Team 1 Split Card
-                                  _FigmaSplitTeamCard(
-                                    scale: scale,
-                                    teamLabel: 'Team 1',
-                                    teamName: team1Name,
-                                    players: team1Players,
-                                    isPresent: _team1Present,
-                                    onMarkPresent: () {
-                                      setState(() {
-                                        _team1Present = true;
-                                      });
-                                    },
-                                    onMarkAbsent: () {
-                                      setState(() {
-                                        _team1Present = false;
-                                      });
-                                    },
-                                  ),
-
-                                  SizedBox(height: 10 * scale),
-
-                                  // Team 2 Split Card
-                                  _FigmaSplitTeamCard(
-                                    scale: scale,
-                                    teamLabel: 'Team 2',
-                                    teamName: team2Name,
-                                    players: team2Players,
-                                    isPresent: _team2Present,
-                                    onMarkPresent: () {
-                                      setState(() {
-                                        _team2Present = true;
-                                      });
-                                    },
-                                    onMarkAbsent: () {
-                                      setState(() {
-                                        _team2Present = false;
-                                      });
-                                    },
-                                  ),
-
-                                  SizedBox(height: 20 * scale),
-
-                                  // SECTION 2: Final Checklist Title
-                                  Text(
-                                    'Final Checklist',
-                                    style: TextStyle(
-                                      fontSize: 16 * scale,
-                                      fontWeight: FontWeight.w600,
-                                      color: const Color(0xFFA0A0A0),
-                                    ),
-                                  ),
-
-                                  SizedBox(height: 10 * scale),
-
-                                  // Final Checklist Card
-                                  _FigmaFinalChecklistCard(
-                                    scale: scale,
-                                    team1Checked: _team1Present,
-                                    team2Checked: _team2Present,
-                                    tossChecked: _tossDone,
-                                  ),
-
-                                  // SECTION 3: Absent Decision Card (If any team absent)
-                                  if (_hasAbsentTeam) ...[
-                                    SizedBox(height: 20 * scale),
-                                    _FigmaAbsentDecisionCard(
-                                      scale: scale,
-                                      absentTeamLabel: absentTeamLabel,
-                                      absentTeamName: absentTeamName,
-                                      team1Checked: _team1Present,
-                                      team2Checked: _team2Present,
-                                    ),
-                                  ],
-
-                                  SizedBox(height: 24 * scale),
-
-                                  // SECTION 4: Bottom Action Buttons
-                                  _FigmaBottomActionButtons(
-                                    scale: scale,
-                                    bothTeamsReady: _bothTeamsReady,
-                                    hasAbsentTeam: _hasAbsentTeam,
-                                    walkoverWinner: walkoverWinner,
-                                    absentTeamName: absentTeamName,
-                                    onReadyToToss: () {
-                                      context.push(
-                                        '${AppRouter.conductTossRoute}?matchId=${widget.matchId ?? ''}',
-                                      );
-                                    },
-                                    onAwardWalkover: () {
-                                      _awardWalkover(walkoverWinner);
-                                    },
-                                    onMarkAbsent: () {
-                                      _confirmAbsent(absentTeamName);
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ),
-                    ),
+          // Ambient Top Header Gradient (Rectangle 6011: 390x129)
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            height: 129 * scale,
+            child: Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Color(0xFF090C10),
+                    Color(0xFF1B2335),
+                    Color(0xFF090C10),
                   ],
+                  stops: [0.0, 0.5, 1.0],
                 ),
               ),
-            ],
+            ),
           ),
-        );
+
+          // Ambient Glow Ellipse 17 (Top)
+          Positioned(
+            top: -80 * scale,
+            left: 6.5 * scale,
+            width: 376.9 * scale,
+            height: 280 * scale,
+            child: ImageFiltered(
+              imageFilter: ImageFilter.blur(
+                sigmaX: 70 * scale,
+                sigmaY: 70 * scale,
+              ),
+              child: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: const Color(0xFF373E52).withValues(alpha: 0.30),
+                ),
+              ),
+            ),
+          ),
+
+          // Ambient Glow Ellipse 18 (Lower body)
+          Positioned(
+            top: 450 * scale,
+            right: -50 * scale,
+            width: 376.9 * scale,
+            height: 280 * scale,
+            child: ImageFiltered(
+              imageFilter: ImageFilter.blur(
+                sigmaX: 80 * scale,
+                sigmaY: 80 * scale,
+              ),
+              child: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: const Color(0xFF373E52).withValues(alpha: 0.30),
+                ),
+              ),
+            ),
+          ),
+
+          // ====================================================
+          // FOREGROUND CONTENT
+          // ====================================================
+          SafeArea(
+            bottom: false,
+            child: Column(
+              children: [
+                // Figma AppBar Header (Frame 1000003336: 390x46)
+                _FigmaAppBar(
+                  scale: scale,
+                  matchCode: matchCode,
+                  onBack: () {
+                    if (context.canPop()) {
+                      context.pop();
+                    }
+                  },
+                ),
+
+                // Scrollable Body (Frame 1261154190: padding 20, gap 20)
+                Expanded(
+                  child: isLoading
+                      ? _FigmaSkeletonShimmer(scale: scale)
+                      : SingleChildScrollView(
+                          physics: const ClampingScrollPhysics(),
+                          padding: EdgeInsets.fromLTRB(
+                            20 * scale,
+                            16 * scale,
+                            20 * scale,
+                            40 * scale,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // SECTION 0: Match Summary Card
+                              _FigmaMatchSummaryCard(
+                                scale: scale,
+                                tournamentName: tournamentName,
+                                venueName: venueName,
+                                team1: team1Name,
+                                team2: team2Name,
+                              ),
+
+                              SizedBox(height: 20 * scale),
+
+                              // SECTION 1: Team Verification Title
+                              Text(
+                                'Team Verification',
+                                style: TextStyle(
+                                  fontSize: 16 * scale,
+                                  fontWeight: FontWeight.w600,
+                                  color: const Color(0xFFA0A0A0),
+                                ),
+                              ),
+
+                              SizedBox(height: 10 * scale),
+
+                              // Team 1 Split Card
+                              _FigmaSplitTeamCard(
+                                scale: scale,
+                                teamLabel: 'Team 1',
+                                teamName: team1Name,
+                                players: team1Players,
+                                isPresent: _team1Present,
+                                onMarkPresent: () {
+                                  setState(() {
+                                    _team1Present = true;
+                                  });
+                                },
+                                onMarkAbsent: () {
+                                  setState(() {
+                                    _team1Present = false;
+                                  });
+                                },
+                              ),
+
+                              SizedBox(height: 10 * scale),
+
+                              // Team 2 Split Card
+                              _FigmaSplitTeamCard(
+                                scale: scale,
+                                teamLabel: 'Team 2',
+                                teamName: team2Name,
+                                players: team2Players,
+                                isPresent: _team2Present,
+                                onMarkPresent: () {
+                                  setState(() {
+                                    _team2Present = true;
+                                  });
+                                },
+                                onMarkAbsent: () {
+                                  setState(() {
+                                    _team2Present = false;
+                                  });
+                                },
+                              ),
+
+                              SizedBox(height: 20 * scale),
+
+                              // SECTION 2: Final Checklist Title
+                              Text(
+                                'Final Checklist',
+                                style: TextStyle(
+                                  fontSize: 16 * scale,
+                                  fontWeight: FontWeight.w600,
+                                  color: const Color(0xFFA0A0A0),
+                                ),
+                              ),
+
+                              SizedBox(height: 10 * scale),
+
+                              // Final Checklist Card
+                              _FigmaFinalChecklistCard(
+                                scale: scale,
+                                team1Checked: _team1Present,
+                                team2Checked: _team2Present,
+                                tossChecked: _tossDone,
+                              ),
+
+                              // SECTION 3: Absent Decision Card (If any team absent)
+                              if (_hasAbsentTeam) ...[
+                                SizedBox(height: 20 * scale),
+                                _FigmaAbsentDecisionCard(
+                                  scale: scale,
+                                  absentTeamLabel: absentTeamLabel,
+                                  absentTeamName: absentTeamName,
+                                  team1Checked: _team1Present,
+                                  team2Checked: _team2Present,
+                                ),
+                              ],
+
+                              SizedBox(height: 24 * scale),
+
+                              // SECTION 4: Bottom Action Buttons
+                              _FigmaBottomActionButtons(
+                                scale: scale,
+                                bothTeamsReady: _bothTeamsReady,
+                                hasAbsentTeam: _hasAbsentTeam,
+                                walkoverWinner: walkoverWinner,
+                                absentTeamName: absentTeamName,
+                                onReadyToToss: () {
+                                  context.push(
+                                    '${AppRouter.conductTossRoute}?matchId=${widget.matchId ?? ''}',
+                                  );
+                                },
+                                onAwardWalkover: () {
+                                  _awardWalkover(walkoverWinner);
+                                },
+                                onMarkAbsent: () {
+                                  _confirmAbsent(absentTeamName);
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MatchLoadError extends StatelessWidget {
+  const _MatchLoadError({required this.message, required this.onRetry});
+
+  final String message;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFF0E0C08),
+      body: SafeArea(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.error_outline, color: Color(0xFFFE464B)),
+                const SizedBox(height: 12),
+                const Text(
+                  'Unable to load match details',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  message,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: Color(0xFFA0A0A0)),
+                ),
+                const SizedBox(height: 18),
+                FilledButton(onPressed: onRetry, child: const Text('Retry')),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 
@@ -880,6 +986,15 @@ class _FigmaSplitTeamCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  if (players.isEmpty)
+                    Text(
+                      'No roster players received from the server',
+                      style: TextStyle(
+                        fontSize: 12 * scale,
+                        fontWeight: FontWeight.w500,
+                        color: const Color(0xFFA0A0A0),
+                      ),
+                    ),
                   for (int i = 0; i < players.take(5).length; i++) ...[
                     if (i > 0) SizedBox(height: 5 * scale),
                     _buildPlayerRow(players[i]),
@@ -1089,9 +1204,8 @@ class _FigmaFinalChecklistCard extends StatelessWidget {
             style: TextStyle(
               fontSize: 14 * scale,
               fontWeight: FontWeight.w500,
-              color: checked
-                  ? const Color(0xFFFFFFFF)
-                  : const Color(0xFFA0A0A0),
+              color:
+                  checked ? const Color(0xFFFFFFFF) : const Color(0xFFA0A0A0),
             ),
           ),
         ],
@@ -1202,9 +1316,7 @@ class _FigmaAbsentDecisionCard extends StatelessWidget {
           style: TextStyle(
             fontSize: 14 * scale,
             fontWeight: FontWeight.w500,
-            color: checked
-                ? const Color(0xFFFFFFFF)
-                : const Color(0xFFA0A0A0),
+            color: checked ? const Color(0xFFFFFFFF) : const Color(0xFFA0A0A0),
           ),
         ),
       ],

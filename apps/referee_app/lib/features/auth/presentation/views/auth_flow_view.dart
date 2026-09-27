@@ -7,6 +7,7 @@ import 'package:shared_domain/shared_domain.dart';
 import 'package:ui_kit/ui_kit.dart';
 
 import '../../../application/application/referee_application_cubit.dart';
+import '../../../../core/upload_image_compressor.dart';
 import '../../../matches/presentation/screens/referee_shell_screen.dart';
 
 /// Routes an authenticated referee using the server application state.
@@ -110,7 +111,8 @@ class _RefereeApplicationGate extends StatefulWidget {
 }
 
 class _RefereeApplicationGateState extends State<_RefereeApplicationGate> {
-  final Set<int> _savedDocumentTypes = <int>{};
+  final Map<int, String> _savedDocuments = {};
+  final UploadImageCompressor _imageCompressor = const UploadImageCompressor();
   late final CommonRemoteDataSource _commonRemoteDataSource =
       CommonRemoteDataSource(
     apiClient: SportoApiClient(tokenProvider: AuthSessionStore().getToken),
@@ -140,10 +142,9 @@ class _RefereeApplicationGateState extends State<_RefereeApplicationGate> {
 
         final loaded = state as RefereeApplicationLoaded;
         final application = loaded.application;
-        _savedDocumentTypes.addAll(
-          application?.documents.map((document) => document.type) ??
-              const <int>[],
-        );
+        _savedDocuments.addEntries(application?.documents
+                .map((document) => MapEntry(document.type, document.fileUrl)) ??
+            const <MapEntry<int, String>>[]);
         final status = loaded.status?.applicationStatus ??
             application?.applicationStatus ??
             1;
@@ -152,6 +153,7 @@ class _RefereeApplicationGateState extends State<_RefereeApplicationGate> {
         if (application != null && !application.isDraft) {
           return ApplicationStatusScreen(
             applicationRef: application.applicationNumber,
+            applicationStatus: status,
             onRefresh: context.read<RefereeApplicationCubit>().load,
           );
         }
@@ -257,11 +259,11 @@ class _RefereeApplicationGateState extends State<_RefereeApplicationGate> {
     }
     for (final entry in documents.entries) {
       if (entry.value?.isNotEmpty == true &&
-          !_savedDocumentTypes.contains(entry.key)) {
+          _savedDocuments[entry.key] != entry.value) {
         await cubit.addDocument(
           RefereeDocumentRequest(type: entry.key, filePath: entry.value!),
         );
-        _savedDocumentTypes.add(entry.key);
+        _savedDocuments[entry.key] = entry.value!;
       }
     }
   }
@@ -281,13 +283,21 @@ class _RefereeApplicationGateState extends State<_RefereeApplicationGate> {
     OnboardingUploadType type,
     String filePath,
   ) async {
-    final upload = await _commonRemoteDataSource.uploadFile(
-      filePath: filePath,
-      folder: 'referee/documents',
-    );
-    if (upload.path.isNotEmpty) return upload.path;
-    if (upload.url.isNotEmpty) return upload.url;
-    throw const SportoApiException('The uploaded file path is missing.');
+    final isImage = type != OnboardingUploadType.resume;
+    final prepared = isImage
+        ? await _imageCompressor.prepare(filePath)
+        : PreparedImageUpload(path: filePath, isTemporary: false);
+    try {
+      final upload = await _commonRemoteDataSource.uploadFile(
+        filePath: prepared.path,
+        folder: 'referee/documents',
+      );
+      if (upload.path.isNotEmpty) return upload.path;
+      if (upload.url.isNotEmpty) return upload.url;
+      throw const SportoApiException('The uploaded file path is missing.');
+    } finally {
+      await prepared.dispose();
+    }
   }
 
   Future<String?> _pickAndUploadDocument(OnboardingUploadType type) async {

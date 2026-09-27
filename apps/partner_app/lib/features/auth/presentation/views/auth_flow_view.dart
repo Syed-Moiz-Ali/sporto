@@ -25,6 +25,7 @@ class AuthFlowView extends StatefulWidget {
 
 class _AuthFlowViewState extends State<AuthFlowView> {
   bool _splashFinished = false;
+  final Map<String, String> _savedDocuments = {};
   Future<_ServerGateResult>? _serverGateFuture;
   late final PartnerRemoteDataSource _partnerRemoteDataSource =
       PartnerRemoteDataSource(
@@ -111,7 +112,13 @@ class _AuthFlowViewState extends State<AuthFlowView> {
         }
 
         if (snapshot.hasError) {
-          debugPrint('[SportoApi] AUTH_GATE error ${snapshot.error}');
+          return Scaffold(
+              body: Center(
+                  child: Column(mainAxisSize: MainAxisSize.min, children: [
+            const Text('Unable to refresh application status.'),
+            TextButton(
+                onPressed: _refreshServerGate, child: const Text('Try Again')),
+          ])));
         }
 
         final result = snapshot.data;
@@ -152,6 +159,7 @@ class _AuthFlowViewState extends State<AuthFlowView> {
           );
           return ApplicationStatusScreen(
             applicationRef: result.applicationNumber ?? 'PARTNER',
+            applicationStatus: result.applicationStatus ?? 2,
             onRefresh: _refreshServerGate,
           );
         }
@@ -207,7 +215,6 @@ class _AuthFlowViewState extends State<AuthFlowView> {
       },
     );
   }
-
 
   Future<Map<String, bool>> _checkPartnerPermissions() async {
     try {
@@ -271,7 +278,8 @@ class _AuthFlowViewState extends State<AuthFlowView> {
           profile.application.applicationNumber;
       final personal = profile.personalInformation;
       final storedUser = await AuthRepositoryImpl().getCurrentUser();
-      final mobileNumber = (personal.mobileNumber != null && personal.mobileNumber!.trim().isNotEmpty)
+      final mobileNumber = (personal.mobileNumber != null &&
+              personal.mobileNumber!.trim().isNotEmpty)
           ? personal.mobileNumber!
           : (storedUser?.mobileNumber ?? '');
       final user = UserEntity(
@@ -289,12 +297,12 @@ class _AuthFlowViewState extends State<AuthFlowView> {
       final initialData = _buildInitialOnboardingData(profile, application);
       return _ServerGateResult(
         hasValidSession: true,
-        needsOnboarding: initialStep != null,
+        needsOnboarding: applicationStatus == 1 && initialStep != null,
         initialStep: initialStep ?? 1,
-        showApplicationStatus:
-            initialStep == null && !_shouldOpenDashboard(workflowStatus),
+        showApplicationStatus: !_shouldOpenDashboard(workflowStatus),
         applicationNumber: applicationNumber,
         applicationStatusLabel: workflowStatus.label,
+        applicationStatus: applicationStatus,
         user: user,
         initialData: initialData,
       );
@@ -307,6 +315,7 @@ class _AuthFlowViewState extends State<AuthFlowView> {
         await AuthRepositoryImpl().logout();
         return _ServerGateResult.noSession();
       }
+      if (error.statusCode != 404) rethrow;
       final storedUser = await AuthRepositoryImpl().getCurrentUser();
       return _ServerGateResult(
         hasValidSession: true,
@@ -339,6 +348,7 @@ class _AuthFlowViewState extends State<AuthFlowView> {
         '[SportoApi] $gateName application check skipped '
         'status=${error.statusCode} message=${error.message}',
       );
+      if (error.statusCode != 404) rethrow;
       return null;
     }
   }
@@ -372,19 +382,7 @@ class _AuthFlowViewState extends State<AuthFlowView> {
   }
 
   bool _shouldOpenDashboard(PartnerApplicationWorkflowStatus status) {
-    return switch (status) {
-      PartnerApplicationWorkflowStatus.published ||
-      PartnerApplicationWorkflowStatus.registrationOpen ||
-      PartnerApplicationWorkflowStatus.registrationClosed ||
-      PartnerApplicationWorkflowStatus.checkIn ||
-      PartnerApplicationWorkflowStatus.inProgress ||
-      PartnerApplicationWorkflowStatus.completed =>
-        true,
-      PartnerApplicationWorkflowStatus.draft ||
-      PartnerApplicationWorkflowStatus.cancelled ||
-      PartnerApplicationWorkflowStatus.archived =>
-        false,
-    };
+    return status == PartnerApplicationWorkflowStatus.approved;
   }
 
   int? _firstIncompleteOnboardingStep(
@@ -581,15 +579,21 @@ class _AuthFlowViewState extends State<AuthFlowView> {
   Future<void> _saveGovernmentIdDocument(
     OnboardingSubmission submission,
   ) async {
-    if (submission.hasGovernmentId && submission.governmentIdPath != null) {
-      await _partnerRemoteDataSource.addDocumentData(
-        PartnerDocumentRequest(
-          documentType: 'government_id',
-          documentPath: submission.governmentIdPath!,
-        ),
-      );
-    } else {
+    if (!submission.hasGovernmentId || submission.governmentIdPath?.isNotEmpty != true) {
       throw const SportoApiException('Government ID document is required.');
+    }
+    final documents = {
+      'profile_photo': submission.profilePhotoPath,
+      'government_id': submission.governmentIdPath,
+      'sports_certificate': submission.sportsCertificatePath,
+      'resume': submission.resumePath,
+    };
+    for (final entry in documents.entries) {
+      final path = entry.value;
+      if (path == null || path.isEmpty || _savedDocuments[entry.key] == path) continue;
+      await _partnerRemoteDataSource.addDocumentData(
+        PartnerDocumentRequest(documentType: entry.key, documentPath: path));
+      _savedDocuments[entry.key] = path;
     }
   }
 
@@ -661,6 +665,7 @@ class _AuthFlowViewState extends State<AuthFlowView> {
       for (final doc in application!.documents) {
         if (doc.documentPath.isNotEmpty) {
           docsMap[doc.documentType] = doc.documentPath;
+          _savedDocuments[doc.documentType] = doc.documentPath;
         }
       }
     }
@@ -677,14 +682,17 @@ class _AuthFlowViewState extends State<AuthFlowView> {
     }
 
     return InitialOnboardingData(
-      addressLine1: profile.address.addressLine1 ?? application?.address.addressLine1,
-      addressLine2: profile.address.addressLine2 ?? application?.address.addressLine2,
+      addressLine1:
+          profile.address.addressLine1 ?? application?.address.addressLine1,
+      addressLine2:
+          profile.address.addressLine2 ?? application?.address.addressLine2,
       city: profile.address.city ?? application?.address.city,
       state: profile.address.state ?? application?.address.state,
       pincode: profile.address.pincode ?? application?.address.pincode,
       country: profile.address.country ?? application?.address.country,
-      highestQualification: profile.professionalInformation.highestQualification ??
-          application?.professionalInformation.highestQualification,
+      highestQualification:
+          profile.professionalInformation.highestQualification ??
+              application?.professionalInformation.highestQualification,
       presentOccupation: profile.professionalInformation.presentOccupation ??
           application?.professionalInformation.presentOccupation,
       sports: sportsNames,
@@ -726,6 +734,7 @@ class _ServerGateResult {
     required this.applicationStatusLabel,
     required this.user,
     this.initialData,
+    this.applicationStatus,
   });
 
   const _ServerGateResult.noSession()
@@ -742,8 +751,10 @@ class _ServerGateResult {
           mobileNumber: '',
           role: 'partner',
         ),
-        initialData = null;
+        initialData = null,
+        applicationStatus = null;
 
+  final int? applicationStatus;
   final bool hasValidSession;
   final bool needsOnboarding;
   final int initialStep;

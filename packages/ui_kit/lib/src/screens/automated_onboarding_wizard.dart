@@ -609,49 +609,47 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
     });
   }
 
-  bool _isLocalFile(String? path) {
-    if (path == null || path.trim().isEmpty) return false;
-    final trimmed = path.trim();
-    if (trimmed.startsWith('http://') || trimmed.startsWith('https://'))
-      return false;
-    return true;
-  }
+  final Set<OnboardingUploadType> _pendingUploads = {};
 
   Future<void> _uploadPendingDocuments() async {
-    if (_profilePhotoUploaded && _isLocalFile(_profilePhotoPath)) {
+    if (_pendingUploads.contains(OnboardingUploadType.profilePhoto)) {
       final serverUrl = await _uploadSingleDocument(
         OnboardingUploadType.profilePhoto,
         _profilePhotoPath!,
       );
       if (serverUrl != null && serverUrl.isNotEmpty) {
         _profilePhotoPath = serverUrl;
+        _pendingUploads.remove(OnboardingUploadType.profilePhoto);
       }
     }
-    if (_govIdUploaded && _isLocalFile(_governmentIdPath)) {
+    if (_pendingUploads.contains(OnboardingUploadType.governmentId)) {
       final serverUrl = await _uploadSingleDocument(
         OnboardingUploadType.governmentId,
         _governmentIdPath!,
       );
       if (serverUrl != null && serverUrl.isNotEmpty) {
         _governmentIdPath = serverUrl;
+        _pendingUploads.remove(OnboardingUploadType.governmentId);
       }
     }
-    if (_sportsCertUploaded && _isLocalFile(_sportsCertificatePath)) {
+    if (_pendingUploads.contains(OnboardingUploadType.sportsCertificate)) {
       final serverUrl = await _uploadSingleDocument(
         OnboardingUploadType.sportsCertificate,
         _sportsCertificatePath!,
       );
       if (serverUrl != null && serverUrl.isNotEmpty) {
         _sportsCertificatePath = serverUrl;
+        _pendingUploads.remove(OnboardingUploadType.sportsCertificate);
       }
     }
-    if (_resumeUploaded && _isLocalFile(_resumePath)) {
+    if (_pendingUploads.contains(OnboardingUploadType.resume)) {
       final serverUrl = await _uploadSingleDocument(
         OnboardingUploadType.resume,
         _resumePath!,
       );
       if (serverUrl != null && serverUrl.isNotEmpty) {
         _resumePath = serverUrl;
+        _pendingUploads.remove(OnboardingUploadType.resume);
       }
     }
   }
@@ -661,7 +659,11 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
     String localPath,
   ) async {
     if (widget.onUploadDocumentFile != null) {
-      return await widget.onUploadDocumentFile!(type, localPath);
+      final uploaded = await widget.onUploadDocumentFile!(type, localPath);
+      if (uploaded == null || uploaded.trim().isEmpty) {
+        throw StateError('Document upload did not return a file path. Please retry.');
+      }
+      return uploaded;
     }
     if (widget.onUploadDocument != null) {
       return await widget.onUploadDocument!(type);
@@ -755,6 +757,11 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
       if (localPath == null || localPath.trim().isEmpty) return;
       if (!mounted) return;
       setState(() {
+        if (widget.onPickDocument != null) {
+          _pendingUploads.add(type);
+        } else {
+          _pendingUploads.remove(type);
+        }
         switch (type) {
           case OnboardingUploadType.profilePhoto:
             _profilePhotoUploaded = true;
@@ -2110,11 +2117,6 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
                         widget.onComplete(_pendingUser!);
                       if (widget.onTrackApplication != null) {
                         widget.onTrackApplication!();
-                      } else {
-                        Navigator.of(context).push(MaterialPageRoute(
-                          builder: (_) => ApplicationStatusScreen(
-                              applicationRef: _pendingUser?.badgeId),
-                        ));
                       }
                     },
                   ),
@@ -2148,18 +2150,20 @@ class _AutomatedOnboardingWizardState extends State<AutomatedOnboardingWizard> {
 // ============================================================
 class ApplicationStatusScreen extends StatelessWidget {
   final String? applicationRef;
+  final int applicationStatus;
   final VoidCallback? onRefresh;
   const ApplicationStatusScreen({
     super.key,
     this.applicationRef,
+    this.applicationStatus = 2,
     this.onRefresh,
   });
 
-  static const List<MapEntry<String, bool>> _stages = [
-    MapEntry('Documents Uploaded', true),
-    MapEntry('Application Submitted', true),
-    MapEntry('Under Review', true),
-    MapEntry('Approved', false),
+  List<MapEntry<String, bool>> get _stages => [
+    MapEntry('Documents Uploaded', applicationStatus >= 2),
+    MapEntry('Application Submitted', applicationStatus >= 2),
+    MapEntry('Under Review', applicationStatus >= 3),
+    MapEntry(applicationStatus == 5 ? 'Rejected' : 'Approved', applicationStatus == 4),
   ];
 
   @override
@@ -2311,7 +2315,7 @@ class ApplicationStatusScreen extends StatelessWidget {
                           child: Column(
                             children: [
                               Text(
-                                'Your application has been sent for review.',
+                                applicationStatus == 5 ? 'Your application was rejected.' : 'Your application has been sent for review.',
                                 textAlign: TextAlign.center,
                                 style: tt.bodyLarge?.copyWith(
                                   color: cs.secondary,
@@ -2321,7 +2325,7 @@ class ApplicationStatusScreen extends StatelessWidget {
                               ),
                               SizedBox(height: 6 * scale),
                               Text(
-                                'Estimated Approval 2 Days Remaining',
+                                'Refresh to check the latest application status.',
                                 textAlign: TextAlign.center,
                                 style: tt.bodyMedium?.copyWith(
                                   color: cs.onSurfaceVariant,

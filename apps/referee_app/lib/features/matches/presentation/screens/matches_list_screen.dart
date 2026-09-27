@@ -54,7 +54,18 @@ class _MatchesListScreenState extends State<MatchesListScreen> {
   @override
   void initState() {
     super.initState();
-    _future = widget.payloadFuture ?? _load();
+    _future = _preparePayload(widget.payloadFuture ?? _load());
+  }
+
+  Future<RefereeMatchesPayload> _preparePayload(
+    Future<RefereeMatchesPayload> source,
+  ) async {
+    final payload = await source;
+    // Pending assignment requests need attention first. Once the final request
+    // is handled, return to All so the newly accepted match is immediately
+    // visible.
+    _selectedTab = payload.requests.isNotEmpty ? 4 : 0;
+    return payload;
   }
 
   Future<RefereeMatchesPayload> _load() async {
@@ -68,7 +79,7 @@ class _MatchesListScreenState extends State<MatchesListScreen> {
 
   Future<void> _refresh() async {
     setState(() {
-      _future = _load();
+      _future = _preparePayload(_load());
     });
     await _future;
   }
@@ -81,7 +92,6 @@ class _MatchesListScreenState extends State<MatchesListScreen> {
       await _remote.acceptMatchRequest(requestId);
       if (!mounted) return;
       _showSnack('Match request accepted.');
-      setState(() => _selectedTab = 0);
       await _refresh();
     } catch (error) {
       if (mounted) _showSnack('Unable to accept match request: $error');
@@ -310,7 +320,8 @@ class _MatchesListScreenState extends State<MatchesListScreen> {
                                   20 * scale,
                                   4 * scale,
                                   20 * scale,
-                                  30 * scale,
+                                  78 * scale +
+                                      MediaQuery.paddingOf(context).bottom,
                                 ),
                                 itemCount: payload.requests.length,
                                 separatorBuilder: (_, __) =>
@@ -351,7 +362,8 @@ class _MatchesListScreenState extends State<MatchesListScreen> {
                                 20 * scale,
                                 4 * scale,
                                 20 * scale,
-                                30 * scale,
+                                78 * scale +
+                                    MediaQuery.paddingOf(context).bottom,
                               ),
                               itemCount: visibleMatches.length,
                               separatorBuilder: (_, __) =>
@@ -2124,13 +2136,18 @@ class _FigmaRequestMatchCard extends StatelessWidget {
                   ),
                 ),
               ),
-              const Spacer(),
-              Text(
-                request.displaySchedule,
-                style: TextStyle(
-                  fontSize: 12 * scale,
-                  fontWeight: FontWeight.w500,
-                  color: const Color(0xFFAAAAAA),
+              SizedBox(width: 8 * scale),
+              Expanded(
+                child: Text(
+                  request.displaySchedule,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.right,
+                  style: TextStyle(
+                    fontSize: 12 * scale,
+                    fontWeight: FontWeight.w500,
+                    color: const Color(0xFFAAAAAA),
+                  ),
                 ),
               ),
             ],

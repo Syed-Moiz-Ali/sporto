@@ -11,7 +11,6 @@ class PartnerProfileScreen extends StatelessWidget {
 
   static const _gold = Color(0xFFFFB600);
   static const _green = Color(0xFF20C783);
-  static const _blue = Color(0xFF57C8F5);
   static const _surface = Color(0xE6171A20);
 
   void _open(BuildContext context, Widget screen) {
@@ -31,23 +30,33 @@ class PartnerProfileScreen extends StatelessWidget {
         final loaded = state is PartnerApiLoadedState ? state : null;
         final info = loaded?.profile.personalInformation;
         final application = loaded?.profile.application;
-        final name = loaded?.displayName ?? 'Priya Agrawal';
+        final name = loaded?.displayName ?? 'Partner';
         final phone = loaded?.mobileNumber.isNotEmpty == true
-            ? '+91 ${loaded!.mobileNumber}'
-            : '+91 98765 43210';
+            ? loaded!.mobileNumber
+            : 'Not provided';
         final email = info?.email?.trim().isNotEmpty == true
             ? info!.email!
-            : 'priyag@spoto.com';
-        final partnerId = application?.applicationNumber ?? 'SPT-ORG-000045';
+            : 'Not provided';
+        final partnerId = application?.applicationNumber ?? '—';
         final tournaments = loaded?.tournaments ?? const [];
-        final teams = tournaments.fold<int>(
-          0,
-          (sum, tournament) => sum + (tournament.registeredTeams ?? 0),
-        );
-        final players = teams * 5;
-        final tournamentCount = loaded == null ? 42 : tournaments.length;
-        final teamCount = loaded == null ? 386 : teams;
-        final playerCount = loaded == null ? 1930 : players;
+        final dashboard = loaded?.dashboard;
+        final tournamentCount = dashboard?.count('total_tournaments') ?? '—';
+        final matchCount = dashboard?.count('total_matches') ?? '—';
+        final registrationCount =
+            dashboard?.count('total_registrations') ?? '—';
+        if (state is PartnerApiErrorState) {
+          return Center(
+              child: Column(mainAxisSize: MainAxisSize.min, children: [
+            Text(state.message),
+            TextButton(
+                onPressed: () => context
+                    .read<PartnerApiBloc>()
+                    .add(const LoadPartnerApiBootstrapEvent()),
+                child: const Text('Try Again')),
+          ]));
+        }
+        if (loaded == null)
+          return const Center(child: CircularProgressIndicator());
 
         return MediaQuery.withNoTextScaling(
           child: SafeArea(
@@ -75,28 +84,34 @@ class PartnerProfileScreen extends StatelessWidget {
                         PartnerEditProfileScreen(
                           firstName: info?.firstName ?? '',
                           lastName: info?.lastName ?? '',
-                          mobile: loaded?.mobileNumber ?? '',
+                          mobile: loaded.mobileNumber,
                         ),
                       ),
                     ),
                     const SizedBox(height: 20),
                     Row(
                       children: [
-                        Expanded(child: _stat('$tournamentCount', 'Tournaments')),
+                        Expanded(
+                            child: _stat('$tournamentCount', 'Tournaments')),
                         const SizedBox(width: 10),
-                        Expanded(child: _stat('$teamCount', 'Teams')),
+                        Expanded(child: _stat(matchCount, 'Matches')),
                         const SizedBox(width: 10),
-                        Expanded(child: _stat('$playerCount', 'Players')),
+                        Expanded(
+                            child: _stat(registrationCount, 'Registrations')),
                       ],
                     ),
                     const SizedBox(height: 12),
+                    if (loaded.dashboardError != null)
+                      TextButton(
+                          onPressed: () => context
+                              .read<PartnerApiBloc>()
+                              .add(const RefreshPartnerProfileEvent()),
+                          child: Text(loaded.dashboardError!)),
                     _earningsCard(
-                      onTap: () => _open(context, const PartnerWalletScreen()),
+                      value: dashboard?.revenueLabel ?? '—',
+                      onTap: () => _notice(context, 'Wallet'),
                     ),
                     const SizedBox(height: 20),
-                    _scoreCard(
-                      onTap: () => _open(context, const PartnerScoreScreen()),
-                    ),
                     const SizedBox(height: 14),
                     _menuGroup([
                       _ProfileAction(
@@ -112,36 +127,41 @@ class PartnerProfileScreen extends StatelessWidget {
                       _ProfileAction(
                         'Statistic',
                         Icons.notifications_none_rounded,
-                        () => _open(context, const PartnerScoreScreen()),
+                        () => _notice(context, 'Partner score'),
                       ),
                       _ProfileAction(
                         'Bank Account',
                         Icons.notifications_none_rounded,
-                        () => _open(context, const PartnerBankAccountScreen()),
+                        () => _notice(context, 'Bank account'),
                       ),
                       _ProfileAction(
                         'Settlements & Transactions',
                         Icons.notifications_none_rounded,
-                        () => _open(
-                          context,
-                          const PartnerSettlementsScreen(),
-                        ),
+                        () => _notice(context, 'Settlements & Transactions'),
                       ),
                       _ProfileAction(
                         'Verification & Documents',
                         Icons.notifications_none_rounded,
-                        () => _open(
-                          context,
-                          const PartnerVerificationScreen(),
-                        ),
+                        () => _open(context, Scaffold(
+                          appBar: AppBar(title: const Text('Verification & Documents')),
+                          body: ListView(children: [
+                            if (loaded.application.documents.isEmpty)
+                              const ListTile(title: Text('No documents available')),
+                            for (final document in loaded.application.documents)
+                              ListTile(title: Text(document.documentType.replaceAll('_', ' ')),
+                                subtitle: Text(document.rejectionReason ?? document.documentPath)),
+                          ]),
+                        )),
                       ),
                     ]),
                     const SizedBox(height: 14),
                     _menuGroup([
-                      _ProfileAction('Ratings & Reviews',
+                      _ProfileAction(
+                          'Ratings & Reviews',
                           Icons.notifications_none_rounded,
                           () => _notice(context, 'Ratings & Reviews')),
-                      _ProfileAction('Notifications',
+                      _ProfileAction(
+                          'Notifications',
                           Icons.notifications_none_rounded,
                           () => _notice(context, 'Notifications')),
                       _ProfileAction(
@@ -152,7 +172,7 @@ class PartnerProfileScreen extends StatelessWidget {
                           PartnerAccountSettingsScreen(
                             firstName: info?.firstName ?? '',
                             lastName: info?.lastName ?? '',
-                            mobile: loaded?.mobileNumber ?? '',
+                            mobile: loaded.mobileNumber,
                           ),
                         ),
                       ),
@@ -242,17 +262,10 @@ class PartnerProfileScreen extends StatelessWidget {
                         LinearGradient(colors: [_gold, Color(0xFFFF6B31)]),
                   ),
                   child: ClipOval(
-                    child: Image.asset(
-                      'assets/images/profile_avatar.png',
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => const ColoredBox(
-                        color: Color(0xFF22252D),
-                        child: Icon(
-                          Icons.person_rounded,
-                          color: Color(0xFFA6A1A8),
-                          size: 34,
-                        ),
-                      ),
+                    child: const ColoredBox(
+                      color: Color(0xFF22252D),
+                      child: Icon(Icons.person_rounded,
+                          color: Color(0xFFA6A1A8), size: 34),
                     ),
                   ),
                 ),
@@ -269,14 +282,14 @@ class PartnerProfileScreen extends StatelessWidget {
                               fontSize: 16,
                               fontWeight: FontWeight.w700)),
                       const SizedBox(height: 4),
-                      Text('$partnerId  •  Joined: Jan 2026',
+                      Text(partnerId,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                               color: Color(0xFFA6A1A8), fontSize: 11)),
                       const SizedBox(height: 7),
                       const SportoBadge(
-                        text: 'Certified Referee  ·  Cricket',
+                        text: 'Partner',
                         color: _green,
                         outlined: true,
                         icon: Icons.check_circle_outline_rounded,
@@ -295,7 +308,7 @@ class PartnerProfileScreen extends StatelessWidget {
               children: [
                 const Icon(Icons.star_rounded, color: _gold, size: 15),
                 const SizedBox(width: 3),
-                const Text('4.8',
+                const Text('—',
                     style: TextStyle(color: Colors.white, fontSize: 11)),
                 const Spacer(),
                 Flexible(
@@ -341,7 +354,8 @@ class PartnerProfileScreen extends StatelessWidget {
         ),
       );
 
-  Widget _earningsCard({required VoidCallback onTap}) => SizedBox(
+  Widget _earningsCard({required VoidCallback onTap, required String value}) =>
+      SizedBox(
         height: 42,
         child: SportoCard(
           onTap: onTap,
@@ -349,63 +363,18 @@ class PartnerProfileScreen extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 12),
           backgroundColor: _surface,
           borderColor: const Color(0x222C405A),
-          child: const Row(
+          child: Row(
             children: [
-              Text('Total Earnings',
+              const Text('Registration Revenue',
                   style: TextStyle(color: Color(0xFFAAA5AC), fontSize: 15)),
               Spacer(),
-              Text('₹8.42L',
+              Text(value,
                   style: TextStyle(
                       color: _green,
                       fontSize: 18,
                       fontWeight: FontWeight.w800)),
             ],
           ),
-        ),
-      );
-
-  Widget _scoreCard({required VoidCallback onTap}) => SportoCard(
-        onTap: onTap,
-        radius: 20,
-        padding: const EdgeInsets.fromLTRB(16, 15, 16, 14),
-        backgroundColor: const Color(0xB817120F),
-        borderColor: Colors.transparent,
-        child: Column(
-          children: [
-            Row(children: const [
-              Text('Spoto Partner Score',
-                  style: TextStyle(color: Colors.white, fontSize: 13)),
-              Spacer(),
-              Text('92/100',
-                  style: TextStyle(color: Colors.white, fontSize: 12)),
-            ]),
-            const SizedBox(height: 9),
-            const LinearProgressIndicator(
-              value: .92,
-              minHeight: 4,
-              backgroundColor: Color(0xFF263044),
-              color: _gold,
-            ),
-            const SizedBox(height: 8),
-            Row(children: [
-              const Expanded(
-                child: Row(
-                  children: [
-                    Icon(Icons.check_circle_outline_rounded,
-                        color: _green, size: 13),
-                    SizedBox(width: 4),
-                    Text('Excellent standing',
-                        style: TextStyle(color: _green, fontSize: 11)),
-                  ],
-                ),
-              ),
-              InkWell(
-                onTap: onTap,
-                child: const Text('View Detailed Score ›',
-                    style: TextStyle(color: _blue, fontSize: 10)),
-              ),
-            ]),
-          ],
         ),
       );
 

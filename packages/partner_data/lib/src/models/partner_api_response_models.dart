@@ -109,14 +109,10 @@ enum PartnerTournamentVisibility {
 
 enum PartnerApplicationWorkflowStatus {
   draft(1, 'Draft'),
-  published(2, 'Published'),
-  registrationOpen(3, 'Registration Open'),
-  registrationClosed(4, 'Registration Closed'),
-  checkIn(5, 'Check In'),
-  inProgress(6, 'In Progress'),
-  completed(7, 'Completed'),
-  cancelled(8, 'Cancelled'),
-  archived(9, 'Archived');
+  submitted(2, 'Submitted'),
+  underReview(3, 'Under Review'),
+  approved(4, 'Approved'),
+  rejected(5, 'Rejected');
 
   const PartnerApplicationWorkflowStatus(this.value, this.label);
 

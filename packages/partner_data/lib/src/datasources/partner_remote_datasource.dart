@@ -1,12 +1,19 @@
 import 'package:core/core.dart';
 
 import '../models/partner_api_response_models.dart';
+import '../models/partner_dashboard.dart';
 
 class PartnerRemoteDataSource {
   PartnerRemoteDataSource({SportoApiClient? apiClient})
       : _apiClient = apiClient ?? SportoApiClient();
 
   final SportoApiClient _apiClient;
+
+  Future<PartnerDashboard> getDashboardData({int page = 1, int perPage = 15}) async {
+    final response = await _get(SportoApiEndpoints.partnerDashboard,
+      queryParameters: {'page': page, 'per_page': perPage});
+    return PartnerDashboard.fromJson(_mapData(response.data));
+  }
 
   Future<SportoApiResponse> getProfile() {
     return _get(SportoApiEndpoints.partnerProfile.profile);

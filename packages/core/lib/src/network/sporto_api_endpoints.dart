@@ -14,6 +14,8 @@ class SportoApiEndpoints {
 
   static AuthApiEndpoints auth(SportoAppRole role) => AuthApiEndpoints(role);
 
+  static const partnerDashboard = '/v1/partner/dashboard';
+
   static final CommonApiEndpoints common = CommonApiEndpoints._();
   static final PartnerProfileApiEndpoints partnerProfile =
       PartnerProfileApiEndpoints._();

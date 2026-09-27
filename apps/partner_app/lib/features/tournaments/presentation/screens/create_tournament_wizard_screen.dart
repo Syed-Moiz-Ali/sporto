@@ -90,6 +90,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
 
   // State
   bool _isPaid = true;
+  bool _lunchBreakEnabled = false;
   bool _confirmReview = false;
   late String _selectedSport;
   _TournamentSport _selectedSportPreset = _TournamentSport.cricket;
@@ -312,6 +313,18 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
     } else {
       setState(() {});
     }
+  }
+
+  void _setLunchBreakEnabled(bool enabled) {
+    setState(() {
+      _lunchBreakEnabled = enabled;
+      if (!enabled) {
+        _lunchFromCtrl.clear();
+        _lunchToCtrl.clear();
+        _fieldErrors.remove('lunchFrom');
+        _fieldErrors.remove('lunchTo');
+      }
+    });
   }
 
   @override
@@ -620,43 +633,82 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
               errorText: _fieldErrors['breakBetweenMatches'],
               onChanged: (_) => _clearFieldError('breakBetweenMatches')),
           const SizedBox(height: 16),
-          Text('Lunch Break',
-              style: TextStyle(
-                  color: cs.onSurface,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500)),
+          InkWell(
+            onTap: () => _setLunchBreakEnabled(!_lunchBreakEnabled),
+            borderRadius: BorderRadius.circular(8),
+            child: Row(
+              children: [
+                Checkbox(
+                  value: _lunchBreakEnabled,
+                  onChanged: (value) => _setLunchBreakEnabled(value ?? false),
+                  activeColor: cs.secondary,
+                  checkColor: Colors.black,
+                  side: BorderSide(color: cs.onSurfaceVariant),
+                ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Enable Lunch Break',
+                        style: TextStyle(
+                          color: cs.onSurface,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      Text(
+                        'Optional',
+                        style: TextStyle(
+                          color: cs.onSurfaceVariant,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
           const SizedBox(height: 8),
-          Row(children: [
-            Expanded(
-                child: SportoTextField(
-                    label: 'From',
-                    hint: 'Select time',
-                    controller: _lunchFromCtrl,
-                    readOnly: true,
-                    onTap: () => _pickTime(
-                          controller: _lunchFromCtrl,
-                          fieldKey: 'lunchFrom',
-                          helpText: 'Select lunch start time',
-                        ),
-                    errorText: _fieldErrors['lunchFrom'],
-                    suffixIcon: Icon(Icons.access_time_outlined,
-                        color: cs.onSurfaceVariant, size: 18))),
-            const SizedBox(width: 12),
-            Expanded(
-                child: SportoTextField(
-                    label: 'To',
-                    hint: 'Select time',
-                    controller: _lunchToCtrl,
-                    readOnly: true,
-                    onTap: () => _pickTime(
-                          controller: _lunchToCtrl,
-                          fieldKey: 'lunchTo',
-                          helpText: 'Select lunch end time',
-                        ),
-                    errorText: _fieldErrors['lunchTo'],
-                    suffixIcon: Icon(Icons.access_time_outlined,
-                        color: cs.onSurfaceVariant, size: 18))),
-          ]),
+          IgnorePointer(
+            ignoring: !_lunchBreakEnabled,
+            child: AnimatedOpacity(
+              duration: const Duration(milliseconds: 180),
+              opacity: _lunchBreakEnabled ? 1 : .42,
+              child: Row(children: [
+                Expanded(
+                    child: SportoTextField(
+                        label: 'From',
+                        hint: 'Select time',
+                        controller: _lunchFromCtrl,
+                        readOnly: true,
+                        onTap: () => _pickTime(
+                              controller: _lunchFromCtrl,
+                              fieldKey: 'lunchFrom',
+                              helpText: 'Select lunch start time',
+                            ),
+                        errorText: _fieldErrors['lunchFrom'],
+                        suffixIcon: Icon(Icons.access_time_outlined,
+                            color: cs.onSurfaceVariant, size: 18))),
+                const SizedBox(width: 12),
+                Expanded(
+                    child: SportoTextField(
+                        label: 'To',
+                        hint: 'Select time',
+                        controller: _lunchToCtrl,
+                        readOnly: true,
+                        onTap: () => _pickTime(
+                              controller: _lunchToCtrl,
+                              fieldKey: 'lunchTo',
+                              helpText: 'Select lunch end time',
+                            ),
+                        errorText: _fieldErrors['lunchTo'],
+                        suffixIcon: Icon(Icons.access_time_outlined,
+                            color: cs.onSurfaceVariant, size: 18))),
+              ]),
+            ),
+          ),
         ])),
         const SizedBox(height: 24),
 
@@ -2116,6 +2168,12 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
           const SizedBox(height: 12),
           SportoSummaryRow(
               label: 'Maximum Teams', value: '$_numberOfTeams Teams'),
+          if (_lunchBreakEnabled)
+            SportoSummaryRow(
+              label: 'Lunch Break',
+              value:
+                  '${_lunchFromCtrl.text.trim()} - ${_lunchToCtrl.text.trim()}',
+            ),
           SportoSummaryRow(
               label: 'Registration Fee',
               value: _isPaid ? 'Rs ${_entryFeeCtrl.text.trim()}' : 'Free'),
@@ -2503,6 +2561,12 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
         'half_duration' => _matchDurationCtrl.text.trim().isNotEmpty
             ? _matchDurationCtrl.text.trim()
             : (field.masterDefaultValue ?? ''),
+        'lunch_break_from' ||
+        'lunch_from' =>
+          _lunchBreakEnabled ? _lunchFromCtrl.text.trim() : '',
+        'lunch_break_to' ||
+        'lunch_to' =>
+          _lunchBreakEnabled ? _lunchToCtrl.text.trim() : '',
         'points_per_set' => _miniOvers.toString(),
         _ => field.masterDefaultValue ?? '',
       };
@@ -2664,18 +2728,20 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
       min: 0,
       max: 240,
     );
-    _validateTimeField(
-      errors,
-      'lunchFrom',
-      _lunchFromCtrl.text.trim(),
-      'Lunch from time',
-    );
-    _validateTimeField(
-      errors,
-      'lunchTo',
-      _lunchToCtrl.text.trim(),
-      'Lunch to time',
-    );
+    if (_lunchBreakEnabled) {
+      _validateTimeField(
+        errors,
+        'lunchFrom',
+        _lunchFromCtrl.text.trim(),
+        'Lunch from time',
+      );
+      _validateTimeField(
+        errors,
+        'lunchTo',
+        _lunchToCtrl.text.trim(),
+        'Lunch to time',
+      );
+    }
     final teamsText = _numberOfTeamsCtrl.text.trim();
     final teams = int.tryParse(teamsText);
     if (teamsText.isEmpty) {

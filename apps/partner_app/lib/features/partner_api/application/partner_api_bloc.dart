@@ -77,8 +77,12 @@ class PartnerApiLoadedState extends PartnerApiState {
     required this.configSportId,
     required this.configSportFormatId,
     this.tournaments = const [],
+    this.dashboard,
+    this.dashboardError,
   });
 
+  final PartnerDashboard? dashboard;
+  final String? dashboardError;
   final PartnerProfileResponseData profile;
   final List<SportMasterResponse> availableSports;
   final List<PartnerSportResponse> selectedSports;
@@ -137,6 +141,8 @@ class PartnerApiLoadedState extends PartnerApiState {
         configSportId,
         configSportFormatId,
         tournaments,
+        dashboard,
+        dashboardError,
       ];
 }
 
@@ -181,7 +187,17 @@ class PartnerApiBloc extends Bloc<PartnerApiEvent, PartnerApiState> {
         // Non-fatal: home screen can still show with empty list.
       }
 
+      PartnerDashboard? dashboard;
+      String? dashboardError;
+      try {
+        dashboard = await _remoteDataSource.getDashboardData();
+      } catch (_) {
+        dashboardError =
+            'Dashboard totals could not be loaded. Please refresh.';
+      }
       emit(PartnerApiLoadedState(
+        dashboard: dashboard,
+        dashboardError: dashboardError,
         profile: profile,
         availableSports: const [],
         selectedSports: const [],
@@ -255,6 +271,9 @@ class PartnerApiBloc extends Bloc<PartnerApiEvent, PartnerApiState> {
         configSportId: event.sportId,
         configSportFormatId: resolvedSportFormatId,
         tournaments: existingTournaments,
+        dashboard: current is PartnerApiLoadedState ? current.dashboard : null,
+        dashboardError:
+            current is PartnerApiLoadedState ? current.dashboardError : null,
       ));
     } catch (error) {
       // Keep existing state if loading tournament config fails.
@@ -273,12 +292,14 @@ class PartnerApiBloc extends Bloc<PartnerApiEvent, PartnerApiState> {
 
     try {
       final profile = await _remoteDataSource.getProfileData();
+      final application = await _remoteDataSource.getApplicationData();
+      final dashboard = await _remoteDataSource.getDashboardData();
       emit(PartnerApiLoadedState(
         profile: profile,
         availableSports: current.availableSports,
         selectedSports: current.selectedSports,
         documents: current.documents,
-        application: current.application,
+        application: application,
         tournamentTypes: current.tournamentTypes,
         tournamentSports: current.tournamentSports,
         cricketFormats: current.cricketFormats,
@@ -287,6 +308,7 @@ class PartnerApiBloc extends Bloc<PartnerApiEvent, PartnerApiState> {
         configSportId: current.configSportId,
         configSportFormatId: current.configSportFormatId,
         tournaments: current.tournaments,
+        dashboard: dashboard,
       ));
     } catch (error) {
       emit(PartnerApiErrorState('Failed to refresh profile: $error'));
@@ -318,6 +340,7 @@ class PartnerApiBloc extends Bloc<PartnerApiEvent, PartnerApiState> {
         configSportId: current.configSportId,
         configSportFormatId: current.configSportFormatId,
         tournaments: tournaments,
+        dashboard: await _remoteDataSource.getDashboardData(),
       ));
     } catch (_) {
       // Silently ignore — keep existing tournament list.

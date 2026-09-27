@@ -118,7 +118,7 @@ void main() {
   }
 
   group('MatchesListScreen - Exact Figma matches.json UI Tests', () {
-    testWidgets('Renders Header with Title and Gradient Matches Count',
+    testWidgets('Opens Requests first when pending assignments exist',
         (tester) async {
       final payload = RefereeMatchesPayload(
         matches: [
@@ -135,8 +135,8 @@ void main() {
       );
       await pumpScreen(tester);
 
-      expect(find.text("Today's Matches"), findsOneWidget);
-      expect(find.text('4 Matches Assigned'), findsOneWidget);
+      expect(find.text('Match Requests'), findsOneWidget);
+      expect(find.text('1 Pending Requests'), findsOneWidget);
     });
 
     testWidgets('Renders Filter Tab Bar with dynamic tab badges',
@@ -157,7 +157,8 @@ void main() {
       expect(find.byKey(const ValueKey('filter_tab_All')), findsOneWidget);
       expect(find.byKey(const ValueKey('filter_tab_Upcoming')), findsOneWidget);
       expect(find.byKey(const ValueKey('filter_tab_Live')), findsOneWidget);
-      expect(find.byKey(const ValueKey('filter_tab_Completed')), findsOneWidget);
+      expect(
+          find.byKey(const ValueKey('filter_tab_Completed')), findsOneWidget);
       expect(
         find.byKey(const ValueKey('filter_tab_Requests (1)')),
         findsOneWidget,
@@ -208,8 +209,7 @@ void main() {
       expect(find.text('Toss Pending'), findsOneWidget);
     });
 
-    testWidgets(
-        'Renders Conduct Toss state when teams are verified',
+    testWidgets('Renders Conduct Toss state when teams are verified',
         (tester) async {
       final match = RefereeMatchResponse(
         id: 105,
@@ -241,8 +241,7 @@ void main() {
       expect(find.text('Conduct Toss'), findsOneWidget);
     });
 
-    testWidgets(
-        'Renders Start Scoring state when toss is completed',
+    testWidgets('Renders Start Scoring state when toss is completed',
         (tester) async {
       final match = RefereeMatchResponse(
         id: 106,
@@ -468,7 +467,7 @@ void main() {
       await pumpScreen(tester);
 
       expect(tester.takeException(), isNull);
-      expect(find.text("Today's Matches"), findsOneWidget);
+      expect(find.text('Match Requests'), findsOneWidget);
     });
   });
 }

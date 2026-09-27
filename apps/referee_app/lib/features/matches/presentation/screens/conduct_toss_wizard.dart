@@ -1449,9 +1449,9 @@ class _ConductTossView extends StatelessWidget {
         bowlingPlayers.where((p) => p.id == activeBowlerId).firstOrNull ??
             bowlingPlayers.firstOrNull;
 
-    final strikerDisplay = striker?.displayName ?? 'Shrvn Prajapati (Captain)';
-    final nonStrikerDisplay = nonStriker?.displayName ?? 'Amit Kumar';
-    final openingBowlerDisplay = openingBowler?.displayName ?? 'Dev Kumar';
+    final strikerDisplay = striker?.displayName ?? 'Not selected';
+    final nonStrikerDisplay = nonStriker?.displayName ?? 'Not selected';
+    final openingBowlerDisplay = openingBowler?.displayName ?? 'Not selected';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

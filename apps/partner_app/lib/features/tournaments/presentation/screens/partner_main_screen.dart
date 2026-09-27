@@ -285,12 +285,10 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
   }) {
     final scale = context.sportoScale;
     final loading = isLoading ?? (loaded == null);
-    final tournaments = loaded?.tournaments ?? [];
-    final live = tournaments.where((t) => t.status == 6).length;
-    final active =
-        tournaments.where((t) => t.status >= 1 && t.status <= 6).length;
-    final players =
-        tournaments.fold<int>(0, (sum, t) => sum + (t.registeredTeams ?? 0));
+    final dashboard = loaded?.dashboard;
+    final live = dashboard?.count('upcoming_tournaments') ?? '—';
+    final active = dashboard?.count('active_tournaments') ?? '—';
+    final players = dashboard?.count('total_registrations') ?? '—';
 
     final availableWidth = (context.sportoResponsive.contentMaxWidth -
             context.sportoResponsive.horizontalPadding * 2)
@@ -330,7 +328,7 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
             children: [
               SportoStatCard(
                 label: 'Revenue',
-                value: 'Rs 0',
+                value: dashboard?.revenueLabel ?? '—',
                 highlight: true,
                 highlightColor: cs.tertiary,
                 fontSize: 16 * scale,
@@ -342,7 +340,7 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
                 ),
               ),
               SportoStatCard(
-                label: 'Pending Tournaments',
+                label: 'Upcoming Tournaments',
                 value: '$live',
                 fontSize: 16 * scale,
                 labelSize: 11 * scale,
@@ -353,7 +351,7 @@ class _PartnerMainScreenState extends State<PartnerMainScreen> {
                 ),
               ),
               SportoStatCard(
-                label: 'Approved Tournaments ',
+                label: 'Registrations',
                 value: '$players',
                 fontSize: 16 * scale,
                 labelSize: 11 * scale,
