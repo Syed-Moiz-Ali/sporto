@@ -209,18 +209,31 @@ class _ConductTossView extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocConsumer<ConductTossBloc, ConductTossState>(
       listenWhen: (previous, current) =>
-          previous.errorMessage != current.errorMessage,
+          previous.errorMessage != current.errorMessage ||
+          previous.step != current.step,
       listener: (context, state) {
         final error = state.errorMessage;
-        if (error == null) return;
-        ScaffoldMessenger.of(context)
-          ..hideCurrentSnackBar()
-          ..showSnackBar(
-            SnackBar(
-              content: Text(error),
-              backgroundColor: const Color(0xFFB40003),
-            ),
-          );
+        if (error != null) {
+          ScaffoldMessenger.of(context)
+            ..hideCurrentSnackBar()
+            ..showSnackBar(
+              SnackBar(
+                content: Text(error),
+                backgroundColor: const Color(0xFFB40003),
+              ),
+            );
+        }
+        if (state.step == ConductTossStep.matchReady &&
+            error == null) {
+          if (onNavigateToScoring != null) {
+            onNavigateToScoring!();
+          } else {
+            final router = GoRouter.maybeOf(context);
+            router?.replace(
+              '${AppRouter.liveScoringRoute}?matchId=${matchId ?? ''}&matchCode=${Uri.encodeComponent(matchCode)}',
+            );
+          }
+        }
       },
       builder: (context, state) {
         final scale = context.sportoScale;
@@ -1688,16 +1701,6 @@ class _ConductTossView extends StatelessWidget {
               bloc.add(OpeningBowlerSelected(activeBowlerId));
             }
             bloc.add(ConfirmStartingPlayers());
-            if (onNavigateToScoring != null) {
-              onNavigateToScoring!();
-            } else {
-              final router = GoRouter.maybeOf(context);
-              if (router != null) {
-                router.replace(
-                  '${AppRouter.liveScoringRoute}?matchId=${matchId ?? ''}&matchCode=${Uri.encodeComponent(matchCode)}',
-                );
-              }
-            }
           },
         ),
       ],

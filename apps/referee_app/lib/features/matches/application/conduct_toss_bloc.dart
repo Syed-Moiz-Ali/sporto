@@ -725,16 +725,12 @@ class ConductTossBloc extends Bloc<ConductTossAction, ConductTossState> {
 
     try {
       final parsedWinnerId = int.tryParse(winnerId) ?? 1;
-      try {
-        await refereeRemoteDataSource?.updateMatchTossData(
-          matchId,
-          RefereeTossUpdateRequest.enterResult(
-            winnerTeamId: parsedWinnerId,
-          ),
-        );
-      } catch (_) {
-        // Backend toss fallback
-      }
+      await refereeRemoteDataSource?.updateMatchTossData(
+        matchId,
+        RefereeTossUpdateRequest.enterResult(
+          winnerTeamId: parsedWinnerId,
+        ),
+      );
 
       emit(
         state.copyWith(
@@ -801,8 +797,11 @@ class ConductTossBloc extends Bloc<ConductTossAction, ConductTossState> {
         remoteWinnerTeamId = winnerTeamId.toString();
       }
     } catch (_) {
-      // Backend toss is still returning 404 for some QA matches. Keep the
-      // existing local toss flow usable until backend test data is available.
+      emit(state.copyWith(
+        isFlipping: false,
+        errorMessage: 'Unable to flip the toss. Please try again.',
+      ));
+      return;
     }
 
     final result = remoteLandedSide ??
@@ -918,16 +917,12 @@ class ConductTossBloc extends Bloc<ConductTossAction, ConductTossState> {
         tossResult,
       );
 
-      try {
-        await refereeRemoteDataSource?.updateMatchTossData(
-          matchId,
-          RefereeTossUpdateRequest.setDecision(
-            decision: _decisionToApi(choice),
-          ),
-        );
-      } catch (_) {
-        // Local repository save above remains the fallback source.
-      }
+      await refereeRemoteDataSource?.updateMatchTossData(
+        matchId,
+        RefereeTossUpdateRequest.setDecision(
+          decision: _decisionToApi(choice),
+        ),
+      );
 
       // ======================================================
       // Set sensible default selections.
@@ -1070,6 +1065,7 @@ class ConductTossBloc extends Bloc<ConductTossAction, ConductTossState> {
       return;
     }
 
+    emit(state.copyWith(isSavingToss: true, clearError: true));
     try {
       await refereeRemoteDataSource?.updateMatchTossData(
         matchId,
@@ -1079,8 +1075,16 @@ class ConductTossBloc extends Bloc<ConductTossAction, ConductTossState> {
           openingBowlerUserId: openingBowlerId,
         ),
       );
+      emit(state.copyWith(
+        isSavingToss: false,
+        step: ConductTossStep.matchReady,
+        clearError: true,
+      ));
     } catch (_) {
-      // Do not block navigation while backend toss data is not available.
+      emit(state.copyWith(
+        isSavingToss: false,
+        errorMessage: 'Unable to save starting players. Please try again.',
+      ));
     }
   }
 
