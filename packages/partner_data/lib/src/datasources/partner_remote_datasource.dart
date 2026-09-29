@@ -334,6 +334,17 @@ class PartnerRemoteDataSource {
     );
   }
 
+  /// Persists the scheduler constraints as the backend's nested JSON object.
+  Future<SportoApiResponse> updateTournamentMatchConfiguration(
+    Object tournamentId,
+    Map<String, dynamic> configuration,
+  ) {
+    return _put(
+      SportoApiEndpoints.partnerTournaments.byId(tournamentId),
+      body: {'match_configuration': configuration},
+    );
+  }
+
   Future<PartnerTournamentResponse> updateTournamentDetailsData(
     Object tournamentId,
     TournamentDetailsRequest request,

@@ -23,6 +23,7 @@ class TournamentVenueDraft {
     required this.groundType,
     required this.stageIndex,
     required this.roundName,
+    this.isPrimary = false,
     this.latitude,
     this.longitude,
   });
@@ -35,6 +36,7 @@ class TournamentVenueDraft {
   final String groundType;
   final int stageIndex;
   final String roundName;
+  final bool isPrimary;
   final double? latitude;
   final double? longitude;
 }
@@ -99,6 +101,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
   int _ballsPerOver = 3;
   int _playersPerTeam = 5;
   String _selectedGroundType = 'indoor';
+  bool _venueIsPrimary = false;
   double? _selectedVenueLatitude;
   double? _selectedVenueLongitude;
   bool _isSubmitting = false;
@@ -1376,6 +1379,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
       _venueDateCtrl.text = v.date;
       _venueStartTimeCtrl.text = v.startTime;
       _selectedGroundType = v.groundType;
+      _venueIsPrimary = v.isPrimary;
     } else {
       _venueStageIndex = stageIndex ?? 0;
       _venueNameCtrl.clear();
@@ -1386,6 +1390,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
       _venueDateCtrl.clear();
       _venueStartTimeCtrl.clear();
       _selectedGroundType = 'indoor';
+      _venueIsPrimary = _venues.isEmpty;
     }
 
     showModalBottomSheet(
@@ -1519,6 +1524,20 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                                   sheetSetState(() {});
                                 }),
                             const SizedBox(height: 20),
+                            SwitchListTile.adaptive(
+                              contentPadding: EdgeInsets.zero,
+                              title: Text('Primary venue',
+                                  style: TextStyle(color: cs.onSurface)),
+                              subtitle: Text(
+                                  'Mark this as the main venue for the tournament',
+                                  style: TextStyle(
+                                      color: cs.onSurfaceVariant, fontSize: 12)),
+                              value: _venueIsPrimary,
+                              activeColor: cs.primary,
+                              onChanged: (value) => sheetSetState(
+                                  () => _venueIsPrimary = value),
+                            ),
+                            const SizedBox(height: 8),
                             Text('Ground Type',
                                 style: TextStyle(
                                     color: cs.onSurface,
@@ -1616,6 +1635,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                                       stageIndex: _venueStageIndex,
                                       roundName:
                                           _venueStageLabel(_venueStageIndex),
+                                      isPrimary: _venueIsPrimary,
                                     );
                                     setState(() {
                                       final idx = venueIndex;
@@ -2403,6 +2423,35 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
         ),
       );
 
+      // Scheduler settings are persisted through the backend's nested JSON
+      // match_configuration payload (separate from the multipart details form).
+      final durationText = _matchDurationCtrl.text.trim();
+      final startTime = _matchStartTimeCtrl.text.trim();
+      final gapText = _breakBetweenMatchesCtrl.text.trim();
+      final duration = int.tryParse(durationText);
+      final matchGap = int.tryParse(gapText);
+      if (duration == null || duration <= 0 ||
+          startTime.isEmpty || matchGap == null || matchGap < 0) {
+        throw StateError(
+          'Enter match duration, daily start time, and break between matches.',
+        );
+      }
+
+      final matchConfiguration = <String, dynamic>{
+        'match_duration_minutes': duration,
+        'start_time': startTime,
+        'break_between_matches_minutes': matchGap,
+        if (_lunchBreakEnabled && _lunchFromCtrl.text.trim().isNotEmpty &&
+            _lunchToCtrl.text.trim().isNotEmpty) ...{
+          'lunch_break_from': _lunchFromCtrl.text.trim(),
+          'lunch_break_to': _lunchToCtrl.text.trim(),
+        },
+      };
+      await remoteDataSource.updateTournamentMatchConfiguration(
+        draft.id,
+        matchConfiguration,
+      );
+
       await remoteDataSource.updateTournamentRulesData(
         draft.id,
         TournamentRuleRequest(
@@ -2433,6 +2482,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
             date: date,
             startTime: startTime,
             roundName: venueData.roundName,
+            isPrimary: venueData.isPrimary,
           ),
         );
       }

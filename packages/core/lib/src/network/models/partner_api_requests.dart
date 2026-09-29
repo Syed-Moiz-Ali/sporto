@@ -145,6 +145,8 @@ class TournamentDetailsRequest with _$TournamentDetailsRequest {
     String? timezone,
     String? code,
     String? description,
+    @JsonKey(name: 'match_configuration')
+    Map<String, dynamic>? matchConfiguration,
   }) = _TournamentDetailsRequest;
 
   factory TournamentDetailsRequest.fromJson(Map<String, dynamic> json) =>
@@ -184,6 +186,7 @@ class TournamentVenueRequest with _$TournamentVenueRequest {
     String? date,
     @JsonKey(name: 'start_time') String? startTime,
     @JsonKey(name: 'round_name') String? roundName,
+    @JsonKey(name: 'is_primary') bool? isPrimary,
   }) = _TournamentVenueRequest;
 
   factory TournamentVenueRequest.fromJson(Map<String, dynamic> json) =>

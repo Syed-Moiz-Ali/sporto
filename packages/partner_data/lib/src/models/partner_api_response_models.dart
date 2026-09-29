@@ -472,6 +472,7 @@ class PartnerTournamentVenueResponse with _$PartnerTournamentVenueResponse {
     String? date,
     @JsonKey(name: 'start_time') String? startTime,
     @JsonKey(name: 'round_name') String? roundName,
+    @JsonKey(name: 'is_primary') bool? isPrimary,
     @JsonKey(name: 'display_order', fromJson: _nullableIntFromJson)
     int? displayOrder,
     @JsonKey(fromJson: _nullableIntFromJson) int? status,
