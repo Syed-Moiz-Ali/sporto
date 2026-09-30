@@ -1203,6 +1203,33 @@ class RefereeScoreUpdateRequest {
     return const RefereeScoreUpdateRequest._({'action': 'COMPLETE'});
   }
 
+  factory RefereeScoreUpdateRequest.setBowler({required int bowlerUserId}) {
+    return RefereeScoreUpdateRequest._({
+      'action': 'SET_BOWLER',
+      'bowler_user_id': bowlerUserId,
+    });
+  }
+
+  factory RefereeScoreUpdateRequest.setBatters({
+    required int strikerUserId,
+    required int nonStrikerUserId,
+  }) {
+    return RefereeScoreUpdateRequest._({
+      'action': 'SET_BATTERS',
+      'striker_user_id': strikerUserId,
+      'non_striker_user_id': nonStrikerUserId,
+    });
+  }
+
+  factory RefereeScoreUpdateRequest.setWicketKeeper({
+    required int wicketKeeperUserId,
+  }) {
+    return RefereeScoreUpdateRequest._({
+      'action': 'SET_WICKET_KEEPER',
+      'wicket_keeper_user_id': wicketKeeperUserId,
+    });
+  }
+
   factory RefereeScoreUpdateRequest.addEvent({
     required String eventCode,
     required int teamId,

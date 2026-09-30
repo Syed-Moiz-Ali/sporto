@@ -216,8 +216,9 @@ class _LiveScoringView extends StatelessWidget {
   final String matchId;
   final String matchCode;
   final RefereeScoreResponse? scoreConfig;
+  final ValueNotifier<bool> _scoreApiLoading = ValueNotifier<bool>(false);
 
-  const _LiveScoringView({
+  _LiveScoringView({
     required this.matchId,
     required this.matchCode,
     required this.scoreConfig,
@@ -265,6 +266,7 @@ class _LiveScoringView extends StatelessWidget {
       );
       return false;
     }
+    _scoreApiLoading.value = true;
     try {
       await _remote.updateMatchScoreData(numericMatchId, request);
       return true;
@@ -275,6 +277,8 @@ class _LiveScoringView extends StatelessWidget {
         );
       }
       return false;
+    } finally {
+      _scoreApiLoading.value = false;
     }
   }
 
@@ -295,10 +299,42 @@ class _LiveScoringView extends StatelessWidget {
 
   Future<void> _startOver(BuildContext context) async {
     final state = context.read<LiveScoringBloc>().state;
+    final bowlerId = int.tryParse(state.selectedBowlerId ?? '');
+    if (bowlerId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Select a valid bowler first.')),
+      );
+      return;
+    }
     final synced = state.currentOverIndex == 0 && !_matchAlreadyLive
         ? await _syncScore(context, RefereeScoreUpdateRequest.start())
         : true;
     if (!context.mounted || !synced) return;
+
+    final strikerId = int.tryParse(state.strikerId ?? '');
+    final nonStrikerId = int.tryParse(state.nonStrikerId ?? '');
+    if (strikerId == null || nonStrikerId == null || strikerId == nonStrikerId) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Select both batters first.')),
+      );
+      return;
+    }
+    final battersSynced = await _syncScore(
+      context,
+      RefereeScoreUpdateRequest.setBatters(
+        strikerUserId: strikerId,
+        nonStrikerUserId: nonStrikerId,
+      ),
+    );
+    if (!context.mounted || !battersSynced) return;
+
+    // Bowler selection is a server-side scoring action. Persist it before
+    // entering the over so ADD_EVENT uses the backend's current bowler.
+    final bowlerSynced = await _syncScore(
+      context,
+      RefereeScoreUpdateRequest.setBowler(bowlerUserId: bowlerId),
+    );
+    if (!context.mounted || !bowlerSynced) return;
     context.read<LiveScoringBloc>().add(StartSelectedOverEvent());
   }
 
@@ -458,9 +494,13 @@ class _LiveScoringView extends StatelessWidget {
                         '${state.superOverInningsNumber}-'
                         '${state.currentOverIndex}',
                       ),
-                      child: _buildStep(
-                        context,
-                        state,
+                      child: ValueListenableBuilder<bool>(
+                        valueListenable: _scoreApiLoading,
+                        builder: (context, loading, _) => _buildStep(
+                          context,
+                          state,
+                          apiLoading: loading,
+                        ),
                       ),
                     ),
                   ),
@@ -479,13 +519,16 @@ class _LiveScoringView extends StatelessWidget {
 
   Widget _buildStep(
     BuildContext context,
-    LiveScoringState state,
+    LiveScoringState state, {
+    bool apiLoading = false,
+  }
   ) {
     switch (state.step) {
       case LiveScoringStep.selectBowler:
         return _selectBowler(
           context,
           state,
+          apiLoading: apiLoading,
         );
 
       case LiveScoringStep.scoring:
@@ -614,7 +657,9 @@ class _LiveScoringView extends StatelessWidget {
 
   Widget _selectBowler(
     BuildContext context,
-    LiveScoringState state,
+    LiveScoringState state, {
+    bool apiLoading = false,
+  }
   ) {
     final scale = context.sportoScale;
 
@@ -681,6 +726,7 @@ class _LiveScoringView extends StatelessWidget {
           },
           buttonText: 'Start Over ${state.displayOver}',
           buttonEnabled: state.canStartOver,
+          loading: apiLoading,
           onContinue: () {
             _startOver(context);
           },

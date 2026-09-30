@@ -664,6 +664,7 @@ class SportoLiveBowlerSelector extends StatelessWidget {
   final String buttonText;
 
   final bool buttonEnabled;
+  final bool loading;
 
   final VoidCallback onContinue;
 
@@ -674,6 +675,7 @@ class SportoLiveBowlerSelector extends StatelessWidget {
     required this.onSelected,
     required this.buttonText,
     required this.buttonEnabled,
+    this.loading = false,
     required this.onContinue,
   });
 
@@ -717,6 +719,7 @@ class SportoLiveBowlerSelector extends StatelessWidget {
         SportoLivePrimaryButton(
           text: buttonText,
           disabled: !buttonEnabled,
+          loading: loading,
           onTap: onContinue,
         ),
       ],
@@ -1298,12 +1301,14 @@ class SportoLivePrimaryButton extends StatelessWidget {
   final bool disabled;
 
   final VoidCallback? onTap;
+  final bool loading;
 
   const SportoLivePrimaryButton({
     super.key,
     required this.text,
     this.disabled = false,
     this.onTap,
+    this.loading = false,
   });
 
   @override
@@ -1317,6 +1322,7 @@ class SportoLivePrimaryButton extends StatelessWidget {
         radius: 14 * scale,
         label: text,
         disabled: disabled,
+        loading: loading,
         onPressed: onTap,
       ),
     );
