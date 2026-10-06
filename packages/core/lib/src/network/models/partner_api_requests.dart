@@ -122,6 +122,7 @@ class TournamentDraftRequest with _$TournamentDraftRequest {
     @JsonKey(name: 'sport_id') required int sportId,
     @JsonKey(name: 'sport_format_id') required int sportFormatId,
     @JsonKey(name: 'tournament_type_id') required int tournamentTypeId,
+    String? name,
   }) = _TournamentDraftRequest;
 
   factory TournamentDraftRequest.fromJson(Map<String, dynamic> json) =>

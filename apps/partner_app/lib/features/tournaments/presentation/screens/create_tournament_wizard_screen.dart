@@ -2405,6 +2405,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
           sportId: _sportId,
           sportFormatId: _sportFormatId!,
           tournamentTypeId: _tournamentTypeId,
+          name: _tournamentNameCtrl.text.trim(),
         ),
       );
 
