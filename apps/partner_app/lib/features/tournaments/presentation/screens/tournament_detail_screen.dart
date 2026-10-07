@@ -4,6 +4,7 @@ import 'package:partner_data/partner_data.dart';
 import 'package:ui_kit/ui_kit.dart';
 
 import 'assign_referee_screen.dart';
+import 'tournament_workflow_screen.dart';
 
 // ============================================================
 // MAIN TOURNAMENT DETAIL SCREEN
@@ -158,6 +159,17 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
 
     return SportoScreenShell(
       appBar: AppBar(
+        actions: [
+          if (widget.tournamentId != null)
+            IconButton(
+              tooltip: 'Manage registrations and scheduling',
+              icon: const Icon(Icons.event_note),
+              onPressed: () async {
+                await Navigator.push(context, MaterialPageRoute(builder: (_) => TournamentWorkflowScreen(tournamentId: widget.tournamentId!, api: _remoteDataSource)));
+                if (mounted) _fetchTournamentDetails(widget.tournamentId!);
+              },
+            ),
+        ],
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: Padding(

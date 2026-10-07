@@ -2440,7 +2440,6 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
 
       final matchConfiguration = <String, dynamic>{
         'match_duration_minutes': duration,
-        'start_time': startTime,
         'break_between_matches_minutes': matchGap,
         if (_lunchBreakEnabled && _lunchFromCtrl.text.trim().isNotEmpty &&
             _lunchToCtrl.text.trim().isNotEmpty) ...{

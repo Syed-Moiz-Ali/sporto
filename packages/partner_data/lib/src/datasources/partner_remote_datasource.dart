@@ -2,6 +2,7 @@ import 'package:core/core.dart';
 
 import '../models/partner_api_response_models.dart';
 import '../models/partner_dashboard.dart';
+import '../models/tournament_workflow_models.dart';
 
 class PartnerRemoteDataSource {
   PartnerRemoteDataSource({SportoApiClient? apiClient})
@@ -9,9 +10,59 @@ class PartnerRemoteDataSource {
 
   final SportoApiClient _apiClient;
 
-  Future<PartnerDashboard> getDashboardData({int page = 1, int perPage = 15}) async {
+  Future<List<TournamentRegistration>> getRegistrations(Object id) async =>
+      workflowList((await tournamentWorkflow(id, 'registrations'))['data'],
+          TournamentRegistration.fromJson);
+  Future<TournamentRegistration> getRegistration(
+          Object id, int registrationId) async =>
+      TournamentRegistration.fromJson(_mapData((await tournamentWorkflow(
+          id, 'registrations/$registrationId'))['data']));
+  Future<List<TournamentRound>> getRounds(Object id) async => workflowList(
+      (await tournamentWorkflow(id, 'rounds'))['data'],
+      TournamentRound.fromJson);
+  Future<List<TournamentRoundAllocation>> getAllocations(
+          Object id, Object roundId) async =>
+      workflowList(
+          (await tournamentWorkflow(id, 'rounds/$roundId/allocations'))['data'],
+          TournamentRoundAllocation.fromJson);
+  Future<TournamentSchedule?> getSchedule(Object id) async {
+    final data = (await tournamentWorkflow(id, 'schedule'))['data'];
+    return data == null ? null : TournamentSchedule.fromJson(_mapData(data));
+  }
+
+  Future<void> saveAllocation(
+      Object id, Object roundId, TournamentAllocationRequest request,
+      {int? allocationId}) async {
+    await tournamentWorkflow(id,
+        'rounds/$roundId/allocations${allocationId == null ? '' : '/$allocationId'}',
+        method: allocationId == null ? 'POST' : 'PUT', body: request.toJson());
+  }
+
+  /// Tournament management resources defined by the October backend contract.
+  Future<Map<String, dynamic>> tournamentWorkflow(
+    Object tournamentId,
+    String resource, {
+    String method = 'GET',
+    Map<String, dynamic>? body,
+  }) async {
+    final path =
+        '${SportoApiEndpoints.partnerTournaments.byId(tournamentId)}/$resource';
+    final response = switch (method) {
+      'POST' => await _apiClient.postJson(path, body: body ?? {}),
+      'PUT' => await _apiClient.putJson(path, body: body ?? {}),
+      'DELETE' => await _apiClient.deleteJson(path),
+      _ => await _apiClient.getJson(path),
+    };
+    if (response['success'] == false) {
+      throw StateError(response['message']?.toString() ?? 'Operation failed');
+    }
+    return response;
+  }
+
+  Future<PartnerDashboard> getDashboardData(
+      {int page = 1, int perPage = 15}) async {
     final response = await _get(SportoApiEndpoints.partnerDashboard,
-      queryParameters: {'page': page, 'per_page': perPage});
+        queryParameters: {'page': page, 'per_page': perPage});
     return PartnerDashboard.fromJson(_mapData(response.data));
   }
 
@@ -384,7 +435,10 @@ class PartnerRemoteDataSource {
   ) {
     return _postForm(
       SportoApiEndpoints.partnerTournaments.venues(tournamentId),
-      fields: request.toJson(),
+      fields: request.toJson()
+        ..remove('date')
+        ..remove('start_time')
+        ..remove('round_name'),
     );
   }
 
@@ -403,7 +457,10 @@ class PartnerRemoteDataSource {
   ) {
     return _postForm(
       SportoApiEndpoints.partnerTournaments.venueById(tournamentId, venueId),
-      fields: request.toJson(),
+      fields: request.toJson()
+        ..remove('date')
+        ..remove('start_time')
+        ..remove('round_name'),
       methodOverride: 'PUT',
     );
   }
