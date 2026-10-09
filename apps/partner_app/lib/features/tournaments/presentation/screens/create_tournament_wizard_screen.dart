@@ -6,47 +6,21 @@ import 'package:core/core.dart';
 import 'package:partner_data/partner_data.dart';
 import 'package:ui_kit/ui_kit.dart';
 import '../../../partner_api/application/partner_api_bloc.dart';
-import 'venue_location_picker_screen.dart';
+import 'tournament_venue_planner.dart';
 
 // ============================================================
 // MAIN WIZARD SCREEN
 // ============================================================
 enum _TournamentSport { cricket, badminton, football }
 
-class TournamentVenueDraft {
-  const TournamentVenueDraft({
-    required this.name,
-    required this.location,
-    required this.capacity,
-    required this.date,
-    required this.startTime,
-    required this.groundType,
-    required this.stageIndex,
-    required this.roundName,
-    this.isPrimary = false,
-    this.latitude,
-    this.longitude,
-  });
-
-  final String name;
-  final String location;
-  final String capacity;
-  final String date;
-  final String startTime;
-  final String groundType;
-  final int stageIndex;
-  final String roundName;
-  final bool isPrimary;
-  final double? latitude;
-  final double? longitude;
-}
-
 class CreateTournamentWizardScreen extends StatefulWidget {
   final int initialStep;
+  final PartnerRemoteDataSource? api;
 
   const CreateTournamentWizardScreen({
     super.key,
     this.initialStep = 0,
+    this.api,
   });
 
   @override
@@ -69,11 +43,17 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
   final _lunchFromCtrl = TextEditingController();
   final _lunchToCtrl = TextEditingController();
   final _numberOfTeamsCtrl = TextEditingController();
-  final _venueNameCtrl = TextEditingController();
-  final _locationCtrl = TextEditingController();
-  final _capacityCtrl = TextEditingController();
-  final _venueDateCtrl = TextEditingController();
-  final _venueStartTimeCtrl = TextEditingController();
+  final _minimumTeamsCtrl = TextEditingController(text: '2');
+  int? _draftId;
+  bool _savingDetails = false;
+  bool _savingBudget = false;
+  int? _deletingVenue;
+  List<TournamentRound> _rounds = [];
+  List<PlannedTournamentVenue> _plannedVenues = [];
+  late final _api = widget.api ??
+      PartnerRemoteDataSource(
+          apiClient:
+              SportoApiClient(tokenProvider: AuthSessionStore().getToken));
   final _entryFeeCtrl = TextEditingController();
   final _prizePoolCtrl = TextEditingController();
   final _winnerPrizeCtrl = TextEditingController();
@@ -100,10 +80,6 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
   int _miniOvers = 3;
   int _ballsPerOver = 3;
   int _playersPerTeam = 5;
-  String _selectedGroundType = 'indoor';
-  bool _venueIsPrimary = false;
-  double? _selectedVenueLatitude;
-  double? _selectedVenueLongitude;
   bool _isSubmitting = false;
   String? _submitError;
   final Map<String, String> _selectedPrizeCategories = {};
@@ -119,13 +95,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
     'lunchFrom',
     'lunchTo',
     'numberOfTeams',
-  };
-  static const _venueFieldKeys = {
-    'venueName',
-    'location',
-    'capacity',
-    'venueDate',
-    'venueStartTime',
+    'minimumTeams',
   };
   static const _budgetFieldKeys = {
     'entryFee',
@@ -149,106 +119,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
     return teams > 0 ? teams : 16;
   }
 
-  bool get _hasValidTeamCount {
-    final teams = _numberOfTeams;
-    return teams >= 2 && teams <= 256 && _isPowerOfTwo(teams);
-  }
-
-  String get _bracketPreviewText {
-    if (!_hasValidTeamCount) {
-      return 'Enter 2, 4, 8, 16, 32, 64, 128, or 256 teams to generate the bracket.';
-    }
-    final stages = <String>[];
-    var teams = _numberOfTeams;
-    while (teams > 2) {
-      stages.add(_roundLabelForTeams(teams));
-      teams ~/= 2;
-    }
-    stages.add('Final');
-    return stages.join(' → ');
-  }
-
-  bool _isPowerOfTwo(int value) => value > 0 && (value & (value - 1)) == 0;
-
-  String _roundLabelForTeams(int teams) {
-    if (teams == 2) return 'Final';
-    if (teams == 4) return 'Semi Finals';
-    if (teams == 8) return 'Quarter Finals';
-    return 'Round of $teams';
-  }
-
-  String _venueRoundLabelFor(int venueIndex) {
-    if (_venues.length <= 1) return 'All Tournament Rounds';
-    if (!_hasValidTeamCount) return 'Round ${venueIndex + 1}';
-    final teamsForRound = _teamsForVenueRound(venueIndex);
-    return 'Round ${venueIndex + 1} (${_roundLabelForTeams(teamsForRound)})';
-  }
-
-  String _venueMatchesLabelFor(int venueIndex) {
-    if (_venues.length <= 1) return 'All Matches';
-    if (!_hasValidTeamCount) return 'Matches TBD';
-    final teamsForRound = _teamsForVenueRound(venueIndex);
-    final matches = (teamsForRound / 2).ceil();
-    return '$matches ${matches == 1 ? 'Match' : 'Matches'}';
-  }
-
-  int _teamsForVenueRound(int venueIndex) {
-    var teams = _numberOfTeams;
-    for (var index = 0; index < venueIndex && teams > 2; index++) {
-      teams ~/= 2;
-    }
-    return teams < 2 ? 2 : teams;
-  }
-
-  final List<TournamentVenueDraft> _venues = [];
-  int _venueStageIndex = 0;
-
-  List<int> get _venueStageTeams {
-    if (!_hasValidTeamCount) return const [2];
-    final values = <int>[];
-    var teams = _numberOfTeams;
-    while (teams >= 2) {
-      values.add(teams);
-      teams ~/= 2;
-    }
-    return values;
-  }
-
-  String _venueStageLabel(int index) {
-    final teams = _venueStageTeams[index];
-    return _roundLabelForTeams(teams);
-  }
-
-  int _venueStageMatches(int index) => _venueStageTeams[index] ~/ 2;
-
-  void _handleTeamCountChanged() {
-    final teams = int.tryParse(_numberOfTeamsCtrl.text.trim());
-    if (_venues.isNotEmpty &&
-        teams != null &&
-        teams >= 2 &&
-        _isPowerOfTwo(teams)) {
-      _venues.clear();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text(
-                'Venue assignments were reset because the tournament bracket changed.')),
-      );
-    }
-  }
-
-  int _assignedMatchesForStage(int stageIndex) => _venues
-      .where((venue) => venue.stageIndex == stageIndex)
-      .fold<int>(0, (sum, venue) => sum + (int.tryParse(venue.capacity) ?? 0));
-
-  int _remainingMatchesForStage(int stageIndex) => math.max(
-        0,
-        _venueStageMatches(stageIndex) - _assignedMatchesForStage(stageIndex),
-      );
-
-  List<int> get _incompleteVenueStages => [
-        for (var index = 0; index < _venueStageTeams.length; index++)
-          if (_remainingMatchesForStage(index) > 0) index,
-      ];
+  List<PlannedTournamentVenue> get _venues => _plannedVenues;
 
   @override
   void initState() {
@@ -273,11 +144,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
     _lunchFromCtrl.dispose();
     _lunchToCtrl.dispose();
     _numberOfTeamsCtrl.dispose();
-    _venueNameCtrl.dispose();
-    _locationCtrl.dispose();
-    _capacityCtrl.dispose();
-    _venueDateCtrl.dispose();
-    _venueStartTimeCtrl.dispose();
+    _minimumTeamsCtrl.dispose();
     _entryFeeCtrl.dispose();
     _prizePoolCtrl.dispose();
     _winnerPrizeCtrl.dispose();
@@ -611,7 +478,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
             const SizedBox(width: 12),
             Expanded(
                 child: SportoTextField(
-                    label: 'Start Time',
+                    label: 'Tournament Start Time',
                     hint: 'Select time',
                     controller: _matchStartTimeCtrl,
                     readOnly: true,
@@ -716,7 +583,13 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
         const SizedBox(height: 24),
 
         // Number of Teams Stepper
-        Text('Number of Teams',
+        SportoTextField(
+            label: 'Minimum approved teams',
+            controller: _minimumTeamsCtrl,
+            keyboardType: TextInputType.number,
+            errorText: _fieldErrors['minimumTeams']),
+        const SizedBox(height: 16),
+        Text('Maximum Teams',
             style: TextStyle(
                 color: cs.onSurface,
                 fontSize: 14,
@@ -729,11 +602,9 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                     final teams = _numberOfTeams;
                     if (teams > 2) {
                       _numberOfTeamsCtrl.text = (teams ~/ 2).toString();
-                      _handleTeamCountChanged();
                       _clearFieldError('numberOfTeams');
                     } else if (teams <= 0) {
                       _numberOfTeamsCtrl.text = '2';
-                      _handleTeamCountChanged();
                       _clearFieldError('numberOfTeams');
                     }
                   })),
@@ -748,7 +619,6 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
               errorText: _fieldErrors['numberOfTeams'],
               onChanged: (_) {
                 _clearFieldError('numberOfTeams');
-                _handleTeamCountChanged();
                 setState(() {});
               },
             ),
@@ -760,11 +630,9 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                     final teams = _numberOfTeams;
                     if (teams <= 0) {
                       _numberOfTeamsCtrl.text = '2';
-                      _handleTeamCountChanged();
                       _clearFieldError('numberOfTeams');
                     } else if (teams < 256) {
                       _numberOfTeamsCtrl.text = (teams * 2).toString();
-                      _handleTeamCountChanged();
                       _clearFieldError('numberOfTeams');
                     }
                   })),
@@ -780,13 +648,14 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
           padding: const EdgeInsets.all(16),
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text('Tournament Bracket',
+            Text('Automatic tournament rounds',
                 style: TextStyle(
                     color: cs.secondary,
                     fontSize: 14,
                     fontWeight: FontWeight.w600)),
             const SizedBox(height: 8),
-            Text(_bracketPreviewText,
+            Text(
+                'Rounds are created automatically when you save the tournament. Configure their venues next.',
                 style: TextStyle(
                     color: cs.onSurfaceVariant, fontSize: 12, height: 1.5)),
           ]),
@@ -796,11 +665,11 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
             width: double.infinity,
             height: 56,
             label: 'Continue',
-            onPressed: () {
-              if (_validateTournamentDetailsFields()) {
-                _goToStep(3);
-              }
-            }),
+            loading: _savingDetails,
+            disabled: false,
+            onPressed: _saveDetailsAndLoadRounds),
+        if (_submitError != null)
+          Text(_submitError!, style: TextStyle(color: cs.error)),
       ],
     );
   }
@@ -1128,31 +997,9 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SportoSectionTitle(
-            title: 'Venue Setup & Schedule',
+            title: 'Venue Setup',
             subtitle: 'Where will the tournament be played?'),
         const SizedBox(height: 16),
-
-        // Tournament Bracket Card
-        Container(
-          decoration: BoxDecoration(
-              color: cs.secondary.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: cs.secondary.withOpacity(0.3))),
-          padding: const EdgeInsets.all(16),
-          child:
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text('Tournament Bracket',
-                style: TextStyle(
-                    color: cs.secondary,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600)),
-            const SizedBox(height: 8),
-            Text(_bracketPreviewText,
-                style: TextStyle(
-                    color: cs.onSurfaceVariant, fontSize: 12, height: 1.5)),
-          ]),
-        ),
-        const SizedBox(height: 24),
 
         // Tournament Venues Section Header
         Column(
@@ -1179,6 +1026,8 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
         ),
         const SizedBox(height: 16),
 
+        if (_submitError != null)
+          Text(_submitError!, style: TextStyle(color: cs.error)),
         // Venue List & Empty State
         if (_venues.isEmpty) ...[
           SportoCard(
@@ -1239,11 +1088,16 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                           ),
                         ),
                         IconButton(
-                          icon: Icon(Icons.delete_outline_rounded,
-                              color: cs.error, size: 20),
-                          onPressed: () {
-                            setState(() => _venues.removeAt(index));
-                          },
+                          icon: _deletingVenue == venue.id
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator())
+                              : Icon(Icons.delete_outline_rounded,
+                                  color: cs.error, size: 20),
+                          onPressed: _deletingVenue == null
+                              ? () => _deleteVenue(index)
+                              : null,
                         ),
                       ],
                     ),
@@ -1251,25 +1105,22 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Column(
+                        Expanded(
+                            child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(venue.roundName,
-                                style: TextStyle(
-                                    color: cs.onSurface,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500)),
+                            Text(venue.isPrimary
+                                ? 'Primary venue'
+                                : venue.groundType),
                             Text(
-                                '${_venueStageTeams[venue.stageIndex]} teams • Daily capacity: ${venue.capacity.isNotEmpty ? venue.capacity : 'Not set'} matches/day',
-                                style: TextStyle(
-                                    color: cs.onSurfaceVariant, fontSize: 12)),
-                            if (_remainingMatchesForStage(venue.stageIndex) > 0)
-                              Text(
-                                  'Capacity remaining for this round: ${_remainingMatchesForStage(venue.stageIndex)} matches',
-                                  style: TextStyle(
-                                      color: cs.tertiary, fontSize: 12)),
+                                'Daily capacity: ${venue.capacity} matches/day'),
+                            ...venue.allocations.map((a) => Text(
+                                '${_rounds.where((r) => r.id == a.roundId).map((r) => r.name).firstOrNull ?? 'Round'} • ${a.date} • ${a.startTime}',
+                                softWrap: true)),
+                            Text(venue.location,
+                                maxLines: 2, overflow: TextOverflow.ellipsis),
                           ],
-                        ),
+                        )),
                         TextButton(
                           key: const Key('add_venue_details'),
                           onPressed: () =>
@@ -1301,9 +1152,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
             child: Material(
               color: Colors.transparent,
               child: InkWell(
-                onTap: _incompleteVenueStages.isEmpty
-                    ? null
-                    : () => _showVenueModal(context),
+                onTap: () => _showVenueModal(context),
                 borderRadius: BorderRadius.circular(20),
                 child: Container(
                   padding:
@@ -1314,18 +1163,10 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                           style: BorderStyle.solid),
                       borderRadius: BorderRadius.circular(20)),
                   child: Row(mainAxisSize: MainAxisSize.min, children: [
-                    Icon(Icons.add,
-                        color: _incompleteVenueStages.isEmpty
-                            ? cs.onSurfaceVariant
-                            : cs.onTertiary,
-                        size: 16),
+                    Icon(Icons.add, color: cs.onTertiary, size: 16),
                     const SizedBox(width: 4),
                     Text('Add another venue',
-                        style: TextStyle(
-                            color: _incompleteVenueStages.isEmpty
-                                ? cs.onSurfaceVariant
-                                : cs.onTertiary,
-                            fontSize: 12))
+                        style: TextStyle(color: cs.onTertiary, fontSize: 12))
                   ]),
                 ),
               ),
@@ -1346,16 +1187,15 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                   ),
                 );
                 _showVenueModal(context);
-              } else if (_incompleteVenueStages.isNotEmpty) {
-                final stage = _incompleteVenueStages.first;
-                final remaining = _remainingMatchesForStage(stage);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
+              } else if (!_venues.any((v) => v.isPrimary)) {
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                    content:
+                        Text('Choose a primary venue before continuing.')));
+              } else if (_rounds.any((r) => !_venues
+                  .any((v) => v.allocations.any((a) => a.roundId == r.id)))) {
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                     content: Text(
-                        '${_venueStageLabel(stage)} needs $remaining more match capacity.'),
-                  ),
-                );
-                _showVenueModal(context, stageIndex: stage);
+                        'Add a venue allocation for each tournament round before continuing.')));
               } else {
                 _goToStep(4);
               }
@@ -1365,295 +1205,77 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
   }
 
   // VENUE MODAL
-  void _showVenueModal(BuildContext context,
-      {int? venueIndex, int? stageIndex}) {
-    final cs = Theme.of(context).colorScheme;
-    if (venueIndex != null && venueIndex < _venues.length) {
-      final v = _venues[venueIndex];
-      _venueStageIndex = v.stageIndex;
-      _venueNameCtrl.text = v.name;
-      _locationCtrl.text = v.location;
-      _selectedVenueLatitude = v.latitude;
-      _selectedVenueLongitude = v.longitude;
-      _capacityCtrl.text = v.capacity;
-      _venueDateCtrl.text = v.date;
-      _venueStartTimeCtrl.text = v.startTime;
-      _selectedGroundType = v.groundType;
-      _venueIsPrimary = v.isPrimary;
-    } else {
-      _venueStageIndex = stageIndex ?? 0;
-      _venueNameCtrl.clear();
-      _locationCtrl.clear();
-      _selectedVenueLatitude = null;
-      _selectedVenueLongitude = null;
-      _capacityCtrl.clear();
-      _venueDateCtrl.clear();
-      _venueStartTimeCtrl.clear();
-      _selectedGroundType = 'indoor';
-      _venueIsPrimary = _venues.isEmpty;
+  Future<void> _showVenueModal(BuildContext context, {int? venueIndex}) async {
+    if (_draftId == null || _rounds.isEmpty) {
+      setState(() =>
+          _submitError = 'Save tournament details and load its rounds first.');
+      return;
     }
+    final saved = await showModalBottomSheet<PlannedTournamentVenue>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      builder: (_) => FractionallySizedBox(
+          heightFactor: .9,
+          child: TournamentVenuePlanner(
+            rounds: _rounds,
+            startDate: DateTime.parse(_tournamentStartDateCtrl.text.trim()),
+            initial: venueIndex == null ? null : _venues[venueIndex],
+            save: (venue) => _api.savePlannedVenue(_draftId!, venue),
+          )),
+    );
+    if (saved == null || !mounted) return;
+    setState(() {
+      final index = _plannedVenues.indexWhere((v) => v.id == saved.id);
+      if (index < 0) {
+        _plannedVenues.add(saved);
+      } else {
+        _plannedVenues[index] = saved;
+      }
+    });
+    try {
+      final venues = await _api.getPlannedVenues(_draftId!);
+      final rounds = await _api.getRounds(_draftId!);
+      if (mounted)
+        setState(() {
+          _plannedVenues = venues;
+          _rounds = rounds;
+        });
+    } catch (e) {
+      if (mounted) setState(() => _submitError = _readableSubmitError(e));
+    }
+  }
 
-    showModalBottomSheet(
+  Future<void> _deleteVenue(int index) async {
+    if (_deletingVenue != null) return;
+    final venue = _venues[index];
+    final confirmed = await showDialog<bool>(
         context: context,
-        isScrollControlled: true,
-        backgroundColor: Colors.transparent,
-        builder: (ctx) => StatefulBuilder(
-            builder: (ctx, sheetSetState) => DraggableScrollableSheet(
-                  initialChildSize: 0.9,
-                  minChildSize: 0.5,
-                  maxChildSize: 0.95,
-                  builder: (_, controller) => Container(
-                    decoration: BoxDecoration(
-                        color: const Color(0xFF121418),
-                        borderRadius: const BorderRadius.vertical(
-                            top: Radius.circular(24))),
-                    padding: const EdgeInsets.all(24),
-                    child: SingleChildScrollView(
-                      controller: controller,
-                      child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                            _venueNameCtrl.text
-                                                    .trim()
-                                                    .isNotEmpty
-                                                ? _venueNameCtrl.text.trim()
-                                                : (venueIndex != null
-                                                    ? 'Edit Venue'
-                                                    : 'Add Venue Details'),
-                                            style: TextStyle(
-                                                color: cs.onTertiary,
-                                                fontSize: 20,
-                                                fontWeight: FontWeight.w600)),
-                                        Text(
-                                            '${_venueRoundLabelFor(venueIndex ?? _venues.length)} • ${_venueMatchesLabelFor(venueIndex ?? _venues.length)}',
-                                            style: TextStyle(
-                                                color: cs.onSurfaceVariant,
-                                                fontSize: 13)),
-                                      ]),
-                                  IconButton(
-                                      icon: Icon(Icons.close_rounded,
-                                          color: cs.onSurface),
-                                      onPressed: () => Navigator.pop(ctx)),
-                                ]),
-                            const SizedBox(height: 24),
-                            DropdownButtonFormField<int>(
-                                value: _venueStageIndex.clamp(
-                                    0, _venueStageTeams.length - 1),
-                                decoration: const InputDecoration(
-                                    labelText: 'Tournament Round'),
-                                items: [
-                                  for (var index = 0;
-                                      index < _venueStageTeams.length;
-                                      index++)
-                                    if (_remainingMatchesForStage(index) > 0 ||
-                                        (venueIndex != null &&
-                                            index == _venueStageIndex))
-                                      DropdownMenuItem(
-                                          value: index,
-                                          child: Text(
-                                              '${_venueStageLabel(index)} • ${_venueStageMatches(index)} matches')),
-                                ],
-                                onChanged: (value) {
-                                  if (value != null) {
-                                    sheetSetState(
-                                        () => _venueStageIndex = value);
-                                  }
-                                }),
-                            const SizedBox(height: 16),
-                            SportoTextField(
-                                label: 'Venue Name',
-                                hint: 'e.g. Hyderabad Cricket Ground',
-                                controller: _venueNameCtrl,
-                                errorText: _fieldErrors['venueName'],
-                                onChanged: (_) {
-                                  _clearFieldError('venueName');
-                                  sheetSetState(() {});
-                                }),
-                            const SizedBox(height: 20),
-                            SportoTextField(
-                              label: 'Location',
-                              hint: 'Search and select on map',
-                              controller: _locationCtrl,
-                              readOnly: true,
-                              suffixIcon: Icon(Icons.map_outlined,
-                                  color: cs.primary, size: 20),
-                              onTap: () async {
-                                final selection = await Navigator.of(context)
-                                    .push<VenueLocationSelection>(
-                                  MaterialPageRoute(
-                                    builder: (_) => VenueLocationPickerScreen(
-                                      initialAddress: _locationCtrl.text.trim(),
-                                      initialLatitude: _selectedVenueLatitude,
-                                      initialLongitude: _selectedVenueLongitude,
-                                    ),
-                                  ),
-                                );
-                                if (selection == null || !mounted) return;
-                                setState(() {
-                                  _locationCtrl.text = selection.address;
-                                  _selectedVenueLatitude = selection.latitude;
-                                  _selectedVenueLongitude = selection.longitude;
-                                  _fieldErrors.remove('location');
-                                  _submitError = null;
-                                });
-                                sheetSetState(() {});
-                              },
-                              errorText: _fieldErrors['location'],
-                            ),
-                            const SizedBox(height: 20),
-                            SportoTextField(
-                                label: 'Daily Match Capacity',
-                                hint: 'e.g. 20',
-                                controller: _capacityCtrl,
-                                keyboardType: TextInputType.number,
-                                inputFormatters: [
-                                  FilteringTextInputFormatter.digitsOnly,
-                                ],
-                                errorText: _fieldErrors['capacity'],
-                                onChanged: (_) {
-                                  _clearFieldError('capacity');
-                                  sheetSetState(() {});
-                                }),
-                            const SizedBox(height: 20),
-                            SwitchListTile.adaptive(
-                              contentPadding: EdgeInsets.zero,
-                              title: Text('Primary venue',
-                                  style: TextStyle(color: cs.onSurface)),
-                              subtitle: Text(
-                                  'Mark this as the main venue for the tournament',
-                                  style: TextStyle(
-                                      color: cs.onSurfaceVariant, fontSize: 12)),
-                              value: _venueIsPrimary,
-                              activeColor: cs.primary,
-                              onChanged: (value) => sheetSetState(
-                                  () => _venueIsPrimary = value),
-                            ),
-                            const SizedBox(height: 8),
-                            Text('Ground Type',
-                                style: TextStyle(
-                                    color: cs.onSurface,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500)),
-                            const SizedBox(height: 12),
-                            Row(children: [
-                              SportoFilterChip(
-                                  type: SportoFilterChipType.pill,
-                                  inactiveFill: true,
-                                  label: 'Indoor',
-                                  active: _selectedGroundType == 'indoor',
-                                  hasCheck: true,
-                                  onTap: () {
-                                    setState(
-                                        () => _selectedGroundType = 'indoor');
-                                    sheetSetState(() {});
-                                  }),
-                              const SizedBox(width: 12),
-                              SportoFilterChip(
-                                  type: SportoFilterChipType.pill,
-                                  inactiveFill: true,
-                                  label: 'Outdoor',
-                                  active: _selectedGroundType == 'outdoor',
-                                  onTap: () {
-                                    setState(
-                                        () => _selectedGroundType = 'outdoor');
-                                    sheetSetState(() {});
-                                  }),
-                            ]),
-                            const SizedBox(height: 20),
-                            Row(children: [
-                              Expanded(
-                                  child: SportoTextField(
-                                      label: 'Date',
-                                      hint: 'Select date',
-                                      controller: _venueDateCtrl,
-                                      readOnly: true,
-                                      onTap: () async {
-                                        await _pickDate(
-                                          controller: _venueDateCtrl,
-                                          fieldKey: 'venueDate',
-                                          helpText: 'Select venue date',
-                                        );
-                                        sheetSetState(() {});
-                                      },
-                                      errorText: _fieldErrors['venueDate'],
-                                      onChanged: (_) {
-                                        _clearFieldError('venueDate');
-                                        sheetSetState(() {});
-                                      })),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                  child: SportoTextField(
-                                      label: 'Start Time',
-                                      hint: 'Select time',
-                                      controller: _venueStartTimeCtrl,
-                                      readOnly: true,
-                                      onTap: () async {
-                                        await _pickTime(
-                                          controller: _venueStartTimeCtrl,
-                                          fieldKey: 'venueStartTime',
-                                          helpText: 'Select venue start time',
-                                        );
-                                        sheetSetState(() {});
-                                      },
-                                      errorText: _fieldErrors['venueStartTime'],
-                                      onChanged: (_) {
-                                        _clearFieldError('venueStartTime');
-                                        sheetSetState(() {});
-                                      })),
-                            ]),
-                            const SizedBox(height: 32),
-                            PrimaryButton(
-                                width: double.infinity,
-                                height: 56,
-                                label: 'Save Venue',
-                                onPressed: () {
-                                  if (_validateVenueFields()) {
-                                    final name = _venueNameCtrl.text
-                                            .trim()
-                                            .isNotEmpty
-                                        ? _venueNameCtrl.text.trim()
-                                        : 'Venue ${(venueIndex ?? _venues.length) + 1}';
-                                    final vData = TournamentVenueDraft(
-                                      name: name,
-                                      location: _locationCtrl.text.trim(),
-                                      latitude: _selectedVenueLatitude,
-                                      longitude: _selectedVenueLongitude,
-                                      capacity: _capacityCtrl.text.trim(),
-                                      date: _venueDateCtrl.text.trim(),
-                                      startTime:
-                                          _venueStartTimeCtrl.text.trim(),
-                                      groundType: _selectedGroundType,
-                                      stageIndex: _venueStageIndex,
-                                      roundName:
-                                          _venueStageLabel(_venueStageIndex),
-                                      isPrimary: _venueIsPrimary,
-                                    );
-                                    setState(() {
-                                      final idx = venueIndex;
-                                      if (idx != null && idx < _venues.length) {
-                                        _venues[idx] = vData;
-                                      } else {
-                                        _venues.add(vData);
-                                      }
-                                    });
-                                    Navigator.pop(ctx);
-                                  } else {
-                                    sheetSetState(() {});
-                                  }
-                                }),
-                          ]),
-                    ),
-                  ),
-                )));
+        builder: (ctx) =>
+            AlertDialog(title: Text('Remove ${venue.name}?'), actions: [
+              TextButton(
+                  onPressed: () => Navigator.pop(ctx, false),
+                  child: const Text('Cancel')),
+              TextButton(
+                  onPressed: () => Navigator.pop(ctx, true),
+                  child: const Text('Remove'))
+            ]));
+    if (confirmed != true || !mounted) return;
+    setState(() => _deletingVenue = venue.id);
+    try {
+      await _api.removeTournamentVenue(_draftId!, venue.id!);
+      final venues = await _api.getPlannedVenues(_draftId!);
+      final rounds = await _api.getRounds(_draftId!);
+      if (mounted)
+        setState(() {
+          _plannedVenues = venues;
+          _rounds = rounds;
+        });
+    } catch (e) {
+      if (mounted) setState(() => _submitError = _readableSubmitError(e));
+    } finally {
+      if (mounted) setState(() => _deletingVenue = null);
+    }
   }
 
   // ============================================================
@@ -2090,11 +1712,11 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
             width: double.infinity,
             height: 56,
             label: 'Continue',
-            onPressed: () {
-              if (_validateBudgetFields()) {
-                _goToStep(5);
-              }
-            }),
+            loading: _savingBudget,
+            disabled: false,
+            onPressed: _saveBudgetAndReview),
+        if (_submitError != null)
+          Text(_submitError!, style: TextStyle(color: cs.error)),
       ],
     );
   }
@@ -2138,7 +1760,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
-                          '${venue.roundName} • ${venue.name} • ${venue.location}',
+                          '${venue.name} • ${venue.location}',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(color: cs.secondary, fontSize: 14),
@@ -2147,7 +1769,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                     ]),
                   )),
             if (_venues.length > 3)
-              Text('+ ${_venues.length - 3} more venue assignments',
+              Text('+ ${_venues.length - 3} more venues',
                   style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
           ]),
         ),
@@ -2188,6 +1810,9 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
           const SizedBox(height: 12),
           SportoSummaryRow(
               label: 'Maximum Teams', value: '$_numberOfTeams Teams'),
+          SportoSummaryRow(
+              label: 'Minimum approved teams',
+              value: _minimumTeamsCtrl.text.trim()),
           if (_lunchBreakEnabled)
             SportoSummaryRow(
               label: 'Lunch Break',
@@ -2206,7 +1831,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
             Text(
-                'Venue & Schedule (${_venues.length} ${_venues.length == 1 ? 'Venue' : 'Venues'})',
+                'Venues (${_venues.length} ${_venues.length == 1 ? 'Venue' : 'Venues'})',
                 style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)),
             TextButton(
                 onPressed: () => _goToStep(3),
@@ -2235,12 +1860,8 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(venue.roundName,
-                          style: TextStyle(
-                              color: cs.tertiary,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700)),
-                      const SizedBox(height: 5),
+                      ...venue.allocations.map((a) => Text(
+                          '${_rounds.where((r) => r.id == a.roundId).map((r) => r.name).firstOrNull ?? 'Round'} • ${a.date} • ${a.startTime} • ${a.capacity} matches/day')),
                       Text(venue.name,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -2268,12 +1889,9 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                         Text('Capacity: ${venue.capacity}/day',
                             style: TextStyle(
                                 color: cs.onSurfaceVariant, fontSize: 12)),
-                        Text('Date: ${venue.date}',
-                            style: TextStyle(
-                                color: cs.onSurfaceVariant, fontSize: 12)),
-                        Text('Start: ${venue.startTime}',
-                            style: TextStyle(
-                                color: cs.onSurfaceVariant, fontSize: 12)),
+                        Text(venue.isPrimary
+                            ? 'Primary venue'
+                            : venue.groundType),
                       ]),
                     ],
                   ),
@@ -2282,10 +1900,8 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
           SportoSummaryRow(
               label: 'Max Duration',
               value: '${_matchDurationCtrl.text.trim()} mins'),
-          SportoSummaryRow(
-              label: 'Tournament Date', value: _venueDateCtrl.text.trim()),
-          SportoSummaryRow(
-              label: 'Start Time', value: _venueStartTimeCtrl.text.trim()),
+          const Text(
+              'Venue round allocations are saved. Review these details before submitting.'),
         ])),
         const SizedBox(height: 16),
 
@@ -2373,6 +1989,124 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
     );
   }
 
+  Future<void> _saveDetailsAndLoadRounds() async {
+    if (_savingDetails || !_validateTournamentDetailsFields()) return;
+    setState(() {
+      _savingDetails = true;
+      _submitError = null;
+    });
+    try {
+      if (_sportFormatId == null)
+        throw StateError('Sport configuration is still loading.');
+      final request = TournamentPlanningRequest(
+          name: _tournamentNameCtrl.text.trim(),
+          sportId: _sportId,
+          formatId: _sportFormatId!,
+          typeId: _tournamentTypeId,
+          minimumTeams: int.parse(_minimumTeamsCtrl.text.trim()),
+          maximumTeams: _numberOfTeams,
+          registrationEnd:
+              '${_registrationEndDateCtrl.text.trim()}T${_registrationEndTimeCtrl.text.trim()}:00+05:30',
+          startAt:
+              '${_tournamentStartDateCtrl.text.trim()}T${_matchStartTimeCtrl.text.trim()}:00+05:30');
+      final saved = await _api.saveTournamentPlanning(request, id: _draftId);
+      _draftId = saved.id;
+      await _api.showTournamentData(_draftId!);
+      final rounds = await _api.getRounds(_draftId!);
+      final venues = await _api.getPlannedVenues(_draftId!);
+      if (rounds.isEmpty)
+        throw StateError(
+            'Tournament saved, but no rounds returned. Retry to reload this draft.');
+      if (!mounted) return;
+      setState(() {
+        _rounds = rounds;
+        _plannedVenues = venues;
+      });
+      _goToStep(3);
+    } catch (e) {
+      if (mounted) setState(() => _submitError = _readableSubmitError(e));
+    } finally {
+      if (mounted) setState(() => _savingDetails = false);
+    }
+  }
+
+  Future<void> _saveRulesAndConfiguration() async {
+    final configState = context.read<PartnerApiBloc>().state;
+    if (configState is! PartnerApiLoadedState ||
+        configState.configSportId != _sportId ||
+        _sportFormatId == null)
+      throw StateError('Sport configuration is still loading.');
+    // Scheduler settings are persisted through the backend's nested JSON
+    // match_configuration payload (separate from the multipart details form).
+    final durationText = _matchDurationCtrl.text.trim();
+    final startTime = _matchStartTimeCtrl.text.trim();
+    final gapText = _breakBetweenMatchesCtrl.text.trim();
+    final duration = int.tryParse(durationText);
+    final matchGap = int.tryParse(gapText);
+    if (duration == null ||
+        duration <= 0 ||
+        startTime.isEmpty ||
+        matchGap == null ||
+        matchGap < 0) {
+      throw StateError(
+        'Enter match duration, tournament start time, and break between matches.',
+      );
+    }
+
+    final matchConfiguration = <String, dynamic>{
+      'match_duration_minutes': duration,
+      'break_between_matches_minutes': matchGap,
+      if (_lunchBreakEnabled &&
+          _lunchFromCtrl.text.trim().isNotEmpty &&
+          _lunchToCtrl.text.trim().isNotEmpty) ...{
+        'lunch_break_from': _lunchFromCtrl.text.trim(),
+        'lunch_break_to': _lunchToCtrl.text.trim(),
+      },
+    };
+    await _api.updateTournamentMatchConfiguration(
+      _draftId!,
+      matchConfiguration,
+    );
+
+    await _api.updateTournamentRulesData(
+      _draftId!,
+      TournamentRuleRequest(
+        rules: _buildTournamentRules(configState.cricketFormConfig),
+      ),
+    );
+  }
+
+  Future<void> _saveBudgetAndReview() async {
+    if (_savingBudget || !_validateBudgetFields()) return;
+    if (_draftId == null) {
+      setState(() => _submitError = 'Save tournament details first.');
+      return;
+    }
+    setState(() {
+      _savingBudget = true;
+      _submitError = null;
+    });
+    try {
+      await _saveRulesAndConfiguration();
+      await _api.updateTournamentBudgetData(
+          _draftId!,
+          TournamentBudgetRequest(
+              registrationFee: _entryFee,
+              currency: 'INR',
+              prizes: _buildPrizesList(),
+              sponsors: const []));
+      final review = await _api.reviewTournamentData(_draftId!);
+      if (!review.canSubmit)
+        throw StateError(
+            'Review reports missing configuration. Check tournament details and venue allocations.');
+      if (mounted) _goToStep(5);
+    } catch (e) {
+      if (mounted) setState(() => _submitError = _readableSubmitError(e));
+    } finally {
+      if (mounted) setState(() => _savingBudget = false);
+    }
+  }
+
   Future<void> _submitTournament() async {
     if (!_confirmReview || _isSubmitting) return;
     final validationError = _validateTournamentSubmission();
@@ -2386,9 +2120,7 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
       _submitError = null;
     });
 
-    final remoteDataSource = PartnerRemoteDataSource(
-      apiClient: SportoApiClient(tokenProvider: AuthSessionStore().getToken),
-    );
+    final remoteDataSource = _api;
 
     try {
       final configState = context.read<PartnerApiBloc>().state;
@@ -2400,95 +2132,14 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
         );
       }
 
-      final draft = await remoteDataSource.storeTournamentDraftData(
-        TournamentDraftRequest(
-          sportId: _sportId,
-          sportFormatId: _sportFormatId!,
-          tournamentTypeId: _tournamentTypeId,
-          name: _tournamentNameCtrl.text.trim(),
-        ),
-      );
+      if (_draftId == null)
+        throw StateError('Save tournament details before submitting.');
+      final tournamentId = _draftId!;
 
-      await remoteDataSource.updateTournamentDetailsData(
-        draft.id,
-        TournamentDetailsRequest(
-          name: _tournamentNameCtrl.text.trim(),
-          registrationEndAt:
-              '${_registrationEndDateCtrl.text.trim()} ${_registrationEndTimeCtrl.text.trim()}:00',
-          tournamentStartAt: _tournamentStartDateCtrl.text.trim().isNotEmpty
-              ? '${_tournamentStartDateCtrl.text.trim()} ${_matchStartTimeCtrl.text.trim().isNotEmpty ? '${_matchStartTimeCtrl.text.trim()}:00' : '00:00:00'}'
-              : null,
-          minimumTeams: _numberOfTeams > 0 ? _numberOfTeams : null,
-          maximumTeams: _numberOfTeams > 0 ? _numberOfTeams : null,
-          visibility: 1, // Public
-        ),
-      );
-
-      // Scheduler settings are persisted through the backend's nested JSON
-      // match_configuration payload (separate from the multipart details form).
-      final durationText = _matchDurationCtrl.text.trim();
-      final startTime = _matchStartTimeCtrl.text.trim();
-      final gapText = _breakBetweenMatchesCtrl.text.trim();
-      final duration = int.tryParse(durationText);
-      final matchGap = int.tryParse(gapText);
-      if (duration == null || duration <= 0 ||
-          startTime.isEmpty || matchGap == null || matchGap < 0) {
-        throw StateError(
-          'Enter match duration, daily start time, and break between matches.',
-        );
-      }
-
-      final matchConfiguration = <String, dynamic>{
-        'match_duration_minutes': duration,
-        'break_between_matches_minutes': matchGap,
-        if (_lunchBreakEnabled && _lunchFromCtrl.text.trim().isNotEmpty &&
-            _lunchToCtrl.text.trim().isNotEmpty) ...{
-          'lunch_break_from': _lunchFromCtrl.text.trim(),
-          'lunch_break_to': _lunchToCtrl.text.trim(),
-        },
-      };
-      await remoteDataSource.updateTournamentMatchConfiguration(
-        draft.id,
-        matchConfiguration,
-      );
-
-      await remoteDataSource.updateTournamentRulesData(
-        draft.id,
-        TournamentRuleRequest(
-          rules: _buildTournamentRules(configState.cricketFormConfig),
-        ),
-      );
-
-      for (var i = 0; i < _venues.length; i++) {
-        final venueData = _venues[i];
-        final venueName = venueData.name.trim();
-        final location = venueData.location;
-        final capacity = int.tryParse(venueData.capacity.trim());
-        final date = venueData.date;
-        final startTime = venueData.startTime;
-
-        await remoteDataSource.storeTournamentVenueData(
-          draft.id,
-          TournamentVenueRequest(
-            // These wizard entries are custom venue details. Do not invent a
-            // system venue id; the API accepts venue_name when venue_id is
-            // unavailable and will create the custom venue mapping.
-            venueId: null,
-            venueName: venueName.isNotEmpty ? venueName : 'Venue ${i + 1}',
-            notes: location,
-            location: location,
-            dailyMatchCapacity: capacity,
-            groundType: venueData.groundType,
-            date: date,
-            startTime: startTime,
-            roundName: venueData.roundName,
-            isPrimary: venueData.isPrimary,
-          ),
-        );
-      }
+      await _saveRulesAndConfiguration();
 
       await remoteDataSource.updateTournamentBudgetData(
-        draft.id,
+        tournamentId,
         TournamentBudgetRequest(
           registrationFee: _entryFee,
           currency: 'INR',
@@ -2497,9 +2148,12 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
         ),
       );
 
-      await remoteDataSource.reviewTournament(draft.id);
+      final review = await remoteDataSource.reviewTournamentData(tournamentId);
+      if (!review.canSubmit)
+        throw StateError(
+            'Tournament is not ready to submit. Check the required details and venues.');
       final submitted = await remoteDataSource.submitTournamentData(
-        draft.id,
+        tournamentId,
         const TournamentSubmitRequest(confirmation: true),
       );
 
@@ -2714,11 +2368,16 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
 
   String? _validateTournamentSubmission() {
     final detailsValid = _validateTournamentDetailsFields();
-    final venueValid = _validateVenueFields();
+    final venueValid = _venues.isNotEmpty &&
+        _venues.any((v) => v.isPrimary) &&
+        _rounds.isNotEmpty &&
+        _rounds.every((r) =>
+            _venues.any((v) => v.allocations.any((a) => a.roundId == r.id)));
     final budgetValid = _validateBudgetFields();
     if (!detailsValid)
       return 'Please fix tournament details before submitting.';
-    if (!venueValid) return 'Please fix venue details before submitting.';
+    if (!venueValid)
+      return 'Add at least one venue and choose a primary venue.';
     if (!budgetValid) return 'Please fix budget details before submitting.';
     return null;
   }
@@ -2792,66 +2451,21 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
         'Lunch to time',
       );
     }
+    final minimum = int.tryParse(_minimumTeamsCtrl.text.trim());
+    if (minimum == null || minimum < 2 || minimum > _numberOfTeams) {
+      errors['minimumTeams'] =
+          'Minimum must be at least 2 and no greater than maximum teams.';
+    }
     final teamsText = _numberOfTeamsCtrl.text.trim();
     final teams = int.tryParse(teamsText);
     if (teamsText.isEmpty) {
       errors['numberOfTeams'] = 'Number of teams is required.';
     } else if (teams == null || teams < 2 || teams > 256) {
       errors['numberOfTeams'] = 'Teams must be between 2 and 256.';
-    } else if (!_isPowerOfTwo(teams)) {
-      errors['numberOfTeams'] =
-          'Use a valid bracket size: 2, 4, 8, 16, 32, 64, 128, or 256.';
     }
 
     setState(() {
       _fieldErrors.removeWhere((key, _) => _detailsFieldKeys.contains(key));
-      _fieldErrors.addAll(errors);
-    });
-    return errors.isEmpty;
-  }
-
-  bool _validateVenueFields() {
-    final errors = <String, String>{};
-    final venueName = _venueNameCtrl.text.trim();
-    final location = _locationCtrl.text.trim();
-    final capacityText = _capacityCtrl.text.trim();
-    final capacity = int.tryParse(capacityText);
-
-    if (venueName.isEmpty) {
-      errors['venueName'] = 'Venue name is required.';
-    } else if (venueName.length < 3) {
-      errors['venueName'] = 'Enter a valid venue name.';
-    }
-
-    if (location.isEmpty) {
-      errors['location'] = 'Venue location is required.';
-    } else if (location.length < 3) {
-      errors['location'] = 'Enter a valid location.';
-    }
-
-    if (capacityText.isEmpty) {
-      errors['capacity'] = 'Daily match capacity is required.';
-    } else if (capacity == null || capacity <= 0) {
-      errors['capacity'] = 'Capacity must be greater than 0.';
-    } else if (capacity > 100) {
-      errors['capacity'] = 'Capacity cannot be more than 100 matches per day.';
-    }
-
-    _validateDateField(
-      errors,
-      'venueDate',
-      _venueDateCtrl.text.trim(),
-      'Venue date',
-    );
-    _validateTimeField(
-      errors,
-      'venueStartTime',
-      _venueStartTimeCtrl.text.trim(),
-      'Venue start time',
-    );
-
-    setState(() {
-      _fieldErrors.removeWhere((key, _) => _venueFieldKeys.contains(key));
       _fieldErrors.addAll(errors);
     });
     return errors.isEmpty;

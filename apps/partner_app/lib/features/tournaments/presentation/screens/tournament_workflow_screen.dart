@@ -20,6 +20,11 @@ class _WorkflowState extends State<TournamentWorkflowScreen> {
   List<TournamentRegistration> registrations = [];
   List<TournamentRound> rounds = [];
   TournamentSchedule? schedule;
+  PartnerTournamentResponse? tournament;
+  bool refreshing = false;
+  bool get approved =>
+      tournament?.parsedApprovalStatus ==
+      PartnerTournamentApprovalStatus.approved;
   @override
   void initState() {
     super.initState();
@@ -27,24 +32,27 @@ class _WorkflowState extends State<TournamentWorkflowScreen> {
   }
 
   Future<void> reload() async {
+    if (refreshing) return;
+    setState(() => refreshing = true);
     try {
-      final selectedTab = tab;
-      final result = switch (selectedTab) {
-        0 => await widget.api.getRegistrations(widget.tournamentId),
-        1 => await widget.api.getRounds(widget.tournamentId),
-        _ => await widget.api.getSchedule(widget.tournamentId),
-      };
+      final loaded = await Future.wait<Object?>([
+        widget.api.showTournamentData(widget.tournamentId),
+        widget.api.getRegistrations(widget.tournamentId),
+        widget.api.getRounds(widget.tournamentId),
+        widget.api.getSchedule(widget.tournamentId),
+      ]);
       if (!mounted) return;
-      if (selectedTab != tab) return;
       setState(() {
-        if (selectedTab == 0)
-          registrations = result as List<TournamentRegistration>;
-        if (selectedTab == 1) rounds = result as List<TournamentRound>;
-        if (selectedTab == 2) schedule = result as TournamentSchedule?;
+        tournament = loaded[0] as PartnerTournamentResponse;
+        registrations = loaded[1] as List<TournamentRegistration>;
+        rounds = loaded[2] as List<TournamentRound>;
+        schedule = loaded[3] as TournamentSchedule?;
         error = null;
       });
     } catch (e) {
       if (mounted) setState(() => error = e.toString());
+    } finally {
+      if (mounted) setState(() => refreshing = false);
     }
   }
 
@@ -99,7 +107,7 @@ class _WorkflowState extends State<TournamentWorkflowScreen> {
           child: PrimaryButton(
               label: label,
               loading: busy == key,
-              disabled: disabled || (busy != null && busy != key),
+              disabled: disabled || refreshing || (busy != null && busy != key),
               onPressed: callback));
 
   Future<void> reject(TournamentRegistration row) async {
@@ -192,6 +200,11 @@ class _WorkflowState extends State<TournamentWorkflowScreen> {
   Widget build(BuildContext context) => SportoScreenShell(
       appBar: AppBar(title: const Text('Tournament management')),
       body: Column(children: [
+        if (refreshing) const LinearProgressIndicator(),
+        const Padding(
+            padding: EdgeInsets.all(16),
+            child: Text(
+                'Rounds are generated automatically during tournament creation. Venue allocations are configured in the creation wizard.')),
         SegmentedButton<int>(
             segments: const [
               ButtonSegment(value: 0, label: Text('Teams')),
@@ -217,19 +230,22 @@ class _WorkflowState extends State<TournamentWorkflowScreen> {
                     Text(error!,
                         style: TextStyle(
                             color: Theme.of(context).colorScheme.error)),
-                  if (tab == 1)
-                    button('generate-rounds', 'Generate rounds',
-                        () => action('generate-rounds', 'rounds/generate')),
+                  if (!approved && !refreshing)
+                    const Text(
+                        'Scheduling becomes available after admin approval.'),
+                  if (approved && registrations.isEmpty && !refreshing)
+                    const Text('Waiting for team registrations.'),
                   if (tab == 2) ...[
                     button('generate-schedule', 'Generate schedule',
-                        () => action('generate-schedule', 'schedule/generate')),
+                        () => action('generate-schedule', 'schedule/generate'),
+                        disabled: !approved || rounds.isEmpty),
                     Text('Version: ${schedule?.versionId ?? 'Not generated'}'),
                     button(
                         'publish',
                         'Publish schedule',
                         () => action('publish', 'schedule/publish',
                             body: {'version_id': schedule?.versionId}),
-                        disabled: schedule?.versionId == null),
+                        disabled: !approved || schedule?.versionId == null),
                   ],
                   if (tab == 0)
                     ...registrations.map((row) => Card(
@@ -298,6 +314,7 @@ class _AllocationState extends State<_AllocationScreen> {
   String get path => 'rounds/${widget.roundId}/allocations';
   Future<void> edit([TournamentRoundAllocation? existing]) async {
     int? venue = existing?.venueId;
+    bool primary = existing?.isPrimary ?? rows.isEmpty;
     final date = TextEditingController(text: existing?.date);
     final time = TextEditingController(text: existing?.startTime);
     final capacity = TextEditingController(text: existing?.capacity.toString());
@@ -350,6 +367,11 @@ class _AllocationState extends State<_AllocationScreen> {
                           keyboardType: TextInputType.number,
                           decoration: const InputDecoration(
                               labelText: 'Allocated matches/day')),
+                      SwitchListTile.adaptive(
+                        title: const Text('Primary venue for this round'),
+                        value: primary,
+                        onChanged: (value) => update(() => primary = value),
+                      ),
                     ])),
                     actions: [
                       TextButton(
@@ -387,6 +409,7 @@ class _AllocationState extends State<_AllocationScreen> {
                   venueId: venue!,
                   date: date.text,
                   startTime: time.text,
+                  isPrimary: primary,
                   capacity: int.parse(capacity.text))
               .toJson());
     date.dispose();
@@ -423,13 +446,13 @@ class _AllocationState extends State<_AllocationScreen> {
         PrimaryButton(
             label: 'Add allocation',
             loading: busy == path,
-            disabled: busy != null,
+            disabled: busy != null && busy != path,
             onPressed: () => edit()),
         ...rows.map((r) => Card(
             child: ListTile(
                 title: Text('${r.date} • ${r.startTime}'),
-                subtitle:
-                    Text('Venue ${r.venueId} • ${r.capacity} matches/day'),
+                subtitle: Text(
+                    '${widget.venues.where((v) => v.id == r.venueId).map((v) => v.venueName).firstOrNull ?? 'Venue ${r.venueId}'} • ${r.capacity} matches/day'),
                 onTap: busy == null ? () => edit(r) : null,
                 trailing: IconButton(
                     icon: busy == '$path/${r.id}'

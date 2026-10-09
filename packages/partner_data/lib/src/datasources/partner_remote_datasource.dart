@@ -3,12 +3,43 @@ import 'package:core/core.dart';
 import '../models/partner_api_response_models.dart';
 import '../models/partner_dashboard.dart';
 import '../models/tournament_workflow_models.dart';
+import '../models/tournament_planning_models.dart';
 
 class PartnerRemoteDataSource {
   PartnerRemoteDataSource({SportoApiClient? apiClient})
       : _apiClient = apiClient ?? SportoApiClient();
 
   final SportoApiClient _apiClient;
+
+  Future<PartnerTournamentResponse> saveTournamentPlanning(
+      TournamentPlanningRequest request,
+      {int? id}) async {
+    final response = id == null
+        ? await _apiClient.postJson(
+            SportoApiEndpoints.partnerTournaments.drafts,
+            body: request.toJson())
+        : await _apiClient.putJson(
+            SportoApiEndpoints.partnerTournaments.byId(id),
+            body: request.toJson());
+    if (response['success'] == false)
+      throw StateError('${response['message']}');
+    return PartnerTournamentResponse.fromJson(_mapData(response['data']));
+  }
+
+  Future<List<PlannedTournamentVenue>> getPlannedVenues(Object id) async {
+    final response = await showTournament(id);
+    final data = _mapData(response.data);
+    return workflowList(data['venues'] ?? data['tournament_venues'],
+        PlannedTournamentVenue.fromJson);
+  }
+
+  Future<PlannedTournamentVenue> savePlannedVenue(
+      Object tournamentId, PlannedTournamentVenue venue) async {
+    final response = await tournamentWorkflow(
+        tournamentId, 'venues${venue.id == null ? '' : '/${venue.id}'}',
+        method: venue.id == null ? 'POST' : 'PUT', body: venue.toJson());
+    return PlannedTournamentVenue.fromJson(_mapData(response['data']));
+  }
 
   Future<List<TournamentRegistration>> getRegistrations(Object id) async =>
       workflowList((await tournamentWorkflow(id, 'registrations'))['data'],
@@ -371,7 +402,12 @@ class PartnerRemoteDataSource {
     Object tournamentId,
   ) async {
     final response = await showTournament(tournamentId);
-    return PartnerTournamentResponse.fromJson(_mapData(response.data));
+    final data = _mapData(response.data);
+    final approval = data['approval'];
+    if (approval is Map && data['approval_status'] == null) {
+      data['approval_status'] = approval['status'];
+    }
+    return PartnerTournamentResponse.fromJson(data);
   }
 
   Future<SportoApiResponse> updateTournamentDetails(

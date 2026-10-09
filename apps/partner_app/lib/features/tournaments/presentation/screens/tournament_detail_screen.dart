@@ -4,7 +4,6 @@ import 'package:partner_data/partner_data.dart';
 import 'package:ui_kit/ui_kit.dart';
 
 import 'assign_referee_screen.dart';
-import 'tournament_workflow_screen.dart';
 
 // ============================================================
 // MAIN TOURNAMENT DETAIL SCREEN
@@ -153,23 +152,10 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
         (_isLoading || (_tournament == null && _error == null));
     final name = _tournament?.name;
     final code = _tournament?.code ??
-        (widget.tournamentId != null
-            ? 'SPT-${widget.tournamentId}'
-            : null);
+        (widget.tournamentId != null ? 'SPT-${widget.tournamentId}' : null);
 
     return SportoScreenShell(
       appBar: AppBar(
-        actions: [
-          if (widget.tournamentId != null)
-            IconButton(
-              tooltip: 'Manage registrations and scheduling',
-              icon: const Icon(Icons.event_note),
-              onPressed: () async {
-                await Navigator.push(context, MaterialPageRoute(builder: (_) => TournamentWorkflowScreen(tournamentId: widget.tournamentId!, api: _remoteDataSource)));
-                if (mounted) _fetchTournamentDetails(widget.tournamentId!);
-              },
-            ),
-        ],
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: Padding(
@@ -679,8 +665,7 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
           ]),
       SizedBox(height: 24 * scale),
       Text('Venue Status',
-          style: TextStyle(
-              color: cs.onSurfaceVariant, fontSize: 13 * scale)),
+          style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13 * scale)),
       SizedBox(height: 10 * scale),
       if (venues.isEmpty)
         SportoCard(
@@ -690,8 +675,8 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
           child: Center(
             child: Text(
               'No venues assigned to this tournament',
-              style: TextStyle(
-                  color: cs.onSurfaceVariant, fontSize: 13 * scale),
+              style:
+                  TextStyle(color: cs.onSurfaceVariant, fontSize: 13 * scale),
             ),
           ),
         )
@@ -769,27 +754,41 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   SportoShimmer(
-                      width: 80 * scale, height: 14 * scale, borderRadius: 3 * scale),
+                      width: 80 * scale,
+                      height: 14 * scale,
+                      borderRadius: 3 * scale),
                   SportoShimmer(
-                      width: 24 * scale, height: 12 * scale, borderRadius: 3 * scale),
+                      width: 24 * scale,
+                      height: 12 * scale,
+                      borderRadius: 3 * scale),
                   SportoShimmer(
-                      width: 80 * scale, height: 14 * scale, borderRadius: 3 * scale),
+                      width: 80 * scale,
+                      height: 14 * scale,
+                      borderRadius: 3 * scale),
                 ],
               ),
               SizedBox(height: 16 * scale),
               SportoShimmer(
-                  width: 100 * scale, height: 28 * scale, borderRadius: 4 * scale),
+                  width: 100 * scale,
+                  height: 28 * scale,
+                  borderRadius: 4 * scale),
               SizedBox(height: 8 * scale),
               SportoShimmer(
-                  width: 60 * scale, height: 12 * scale, borderRadius: 3 * scale),
+                  width: 60 * scale,
+                  height: 12 * scale,
+                  borderRadius: 3 * scale),
               SizedBox(height: 16 * scale),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   SportoShimmer(
-                      width: 110 * scale, height: 12 * scale, borderRadius: 3 * scale),
+                      width: 110 * scale,
+                      height: 12 * scale,
+                      borderRadius: 3 * scale),
                   SportoShimmer(
-                      width: 90 * scale, height: 12 * scale, borderRadius: 3 * scale),
+                      width: 90 * scale,
+                      height: 12 * scale,
+                      borderRadius: 3 * scale),
                 ],
               ),
             ],
@@ -820,10 +819,14 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   SportoShimmer(
-                      width: 45 * scale, height: 9 * scale, borderRadius: 2 * scale),
+                      width: 45 * scale,
+                      height: 9 * scale,
+                      borderRadius: 2 * scale),
                   SizedBox(height: 6 * scale),
                   SportoShimmer(
-                      width: 25 * scale, height: 16 * scale, borderRadius: 3 * scale),
+                      width: 25 * scale,
+                      height: 16 * scale,
+                      borderRadius: 3 * scale),
                 ],
               ),
             ),
@@ -837,7 +840,9 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SportoShimmer(
-                  width: 130 * scale, height: 14 * scale, borderRadius: 3 * scale),
+                  width: 130 * scale,
+                  height: 14 * scale,
+                  borderRadius: 3 * scale),
               SizedBox(height: 14 * scale),
               for (var i = 0; i < 4; i++) ...[
                 Row(
@@ -1050,8 +1055,8 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
       SizedBox(height: 16 * scale),
       SportoCard(
         backgroundColor: cs.surfaceContainerHigh,
-        padding: EdgeInsets.symmetric(
-            vertical: 24 * scale, horizontal: 16 * scale),
+        padding:
+            EdgeInsets.symmetric(vertical: 24 * scale, horizontal: 16 * scale),
         child: Center(
           child: Text(
             registered > 0
