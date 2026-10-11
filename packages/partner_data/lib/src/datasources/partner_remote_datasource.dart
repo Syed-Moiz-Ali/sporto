@@ -29,12 +29,57 @@ class PartnerRemoteDataSource {
   Future<List<PlannedTournamentVenue>> getPlannedVenues(Object id) async {
     final response = await showTournament(id);
     final data = _mapData(response.data);
-    return workflowList(data['venues'] ?? data['tournament_venues'],
+    final venues = workflowList(data['venues'] ?? data['tournament_venues'],
         PlannedTournamentVenue.fromJson);
+    final byRound = <int, List<Map<String, dynamic>>>{};
+    for (final roundId
+        in venues.expand((v) => v.allocations).map((p) => p.roundId).toSet()) {
+      final result =
+          await tournamentWorkflow(id, 'rounds/$roundId/allocations');
+      byRound[roundId] = workflowList(result['data'], (json) => json);
+    }
+    return venues
+        .map((venue) => venue.withAllocations(venue.allocations.map((plan) {
+              final matches = (byRound[plan.roundId] ?? []).where((json) =>
+                  json['tournament_venue_id'] == venue.id &&
+                  (plan.id == null || json['id'] == plan.id));
+              return matches.isEmpty
+                  ? plan
+                  : VenueRoundPlan.fromJson(matches.first);
+            }).toList()))
+        .toList();
   }
 
   Future<PlannedTournamentVenue> savePlannedVenue(
       Object tournamentId, PlannedTournamentVenue venue) async {
+    if (venue.id != null) {
+      final existing = (await getPlannedVenues(tournamentId))
+          .firstWhere((v) => v.id == venue.id);
+      for (final plan in venue.allocations) {
+        final old =
+            existing.allocations.where((p) => p.id == plan.id).firstOrNull;
+        if (old != null && old.roundId != plan.roundId) {
+          throw StateError(
+              'Changing the round of an existing allocation is not supported by the update API. Add a venue for the new round instead.');
+        }
+      }
+      final fields = venue.toJson()..remove('round_allocations');
+      await tournamentWorkflow(tournamentId, 'venues/${venue.id}',
+          method: 'PUT', body: fields);
+      for (final plan in venue.allocations) {
+        final old =
+            existing.allocations.where((p) => p.id == plan.id).firstOrNull;
+        if (old != null && old.sameSettings(plan)) continue;
+        if (plan.id == null)
+          throw StateError(
+              'Venue details saved, but an existing allocation ID is missing. Reload before editing its schedule.');
+        await tournamentWorkflow(
+            tournamentId, 'rounds/${plan.roundId}/allocations/${plan.id}',
+            method: 'PUT', body: plan.updateJson(venue.id!));
+      }
+      return (await getPlannedVenues(tournamentId))
+          .firstWhere((v) => v.id == venue.id);
+    }
     final response = await tournamentWorkflow(
         tournamentId, 'venues${venue.id == null ? '' : '/${venue.id}'}',
         method: venue.id == null ? 'POST' : 'PUT', body: venue.toJson());

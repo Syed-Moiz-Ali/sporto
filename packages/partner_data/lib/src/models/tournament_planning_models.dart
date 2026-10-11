@@ -33,7 +33,8 @@ String allocationTime(String value) => value.contains('T')
 
 class VenueRoundPlan {
   const VenueRoundPlan(
-      {required this.roundId,
+      {this.id,
+      required this.roundId,
       required this.date,
       required this.startTime,
       required this.capacity,
@@ -41,10 +42,12 @@ class VenueRoundPlan {
       this.priority = 1,
       this.isPrimary = false});
   final int roundId, capacity, priority;
+  final int? id;
   final String date, startTime;
   final String? endTime;
   final bool isPrimary;
   factory VenueRoundPlan.fromJson(Map<String, dynamic> json) => VenueRoundPlan(
+      id: json['id'] as int?,
       roundId: (json['round_id'] ?? json['tournament_round_id']) as int,
       date: allocationDate(json['date'] as String),
       startTime: allocationTime(json['start_time'] as String),
@@ -55,6 +58,23 @@ class VenueRoundPlan {
       priority: int.tryParse('${json['priority']}') ?? 1,
       isPrimary: json['is_primary_for_round'] == true ||
           json['is_primary_for_round'] == 1);
+  bool sameSettings(VenueRoundPlan other) =>
+      roundId == other.roundId &&
+      date == other.date &&
+      startTime == other.startTime &&
+      endTime == other.endTime &&
+      capacity == other.capacity &&
+      priority == other.priority &&
+      isPrimary == other.isPrimary;
+  Map<String, dynamic> updateJson(int venueId) => {
+        'tournament_venue_id': venueId,
+        'date': date,
+        'start_time': startTime,
+        'end_time': endTime,
+        'daily_match_capacity': capacity,
+        'priority': priority,
+        'is_primary_for_round': isPrimary,
+      };
   Map<String, dynamic> toJson() => {
         'round_id': roundId,
         'date': date,
@@ -67,6 +87,15 @@ class VenueRoundPlan {
 }
 
 class PlannedTournamentVenue {
+  PlannedTournamentVenue withAllocations(List<VenueRoundPlan> plans) =>
+      PlannedTournamentVenue(
+          id: id,
+          name: name,
+          location: location,
+          groundType: groundType,
+          capacity: capacity,
+          isPrimary: isPrimary,
+          allocations: plans);
   const PlannedTournamentVenue(
       {this.id,
       required this.name,

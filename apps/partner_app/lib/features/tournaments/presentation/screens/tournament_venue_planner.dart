@@ -35,7 +35,8 @@ class _VenuePlannerState extends State<TournamentVenuePlanner> {
   String? error;
   final errors = <String, String>{};
   List<TournamentRound> get availableRounds => widget.rounds
-      .where((r) => !r.capacityComplete || r.id == previous?.roundId).toList();
+      .where((r) => !r.capacityComplete || r.id == previous?.roundId)
+      .toList();
   @override
   void dispose() {
     for (final c in [name, location, capacity, date, start, end]) {
@@ -84,11 +85,13 @@ class _VenuePlannerState extends State<TournamentVenuePlanner> {
     });
     try {
       final plan = VenueRoundPlan(
+          id: previous?.id,
           roundId: roundId!,
           date: date.text,
           startTime: start.text,
           endTime: end.text.isEmpty ? null : end.text,
-          capacity: c!,
+          capacity:
+              c == widget.initial?.capacity ? previous?.capacity ?? c! : c!,
           priority: previous?.priority ?? 1,
           isPrimary: previous?.isPrimary ?? primary);
       // Existing additional allocations are preserved, not silently discarded.
@@ -97,7 +100,7 @@ class _VenuePlannerState extends State<TournamentVenuePlanner> {
           name: name.text.trim(),
           location: location.text.trim(),
           groundType: ground,
-          capacity: c,
+          capacity: c!,
           isPrimary: primary,
           allocations: [plan, ...?widget.initial?.allocations.skip(1)]));
       if (mounted) Navigator.pop(context, saved);
