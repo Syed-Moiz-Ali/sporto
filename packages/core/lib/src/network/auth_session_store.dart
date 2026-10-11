@@ -6,6 +6,7 @@ class AuthSessionStore {
   static const _tokenKey = 'auth_token';
   static const _sessionKeyKey = 'auth_session_key';
   static const _verifyOtpResponseKey = 'verify_otp_response';
+  static const _currentUserKey = 'current_user';
 
   Future<String?> getToken() async {
     final value = HiveService.authSessionBox.get(_tokenKey) ??
@@ -63,6 +64,7 @@ class AuthSessionStore {
     final authBox = HiveService.authSessionBox;
     await authBox.delete(_tokenKey);
     await authBox.delete(_verifyOtpResponseKey);
+    await authBox.delete(_currentUserKey);
     final authSessionKeys =
         authBox.keys.where((key) => key.toString().startsWith(_sessionKeyKey));
     await authBox.deleteAll(authSessionKeys);
@@ -70,6 +72,7 @@ class AuthSessionStore {
     final oldBox = HiveService.pendingSyncBox;
     await oldBox.delete(_tokenKey);
     await oldBox.delete(_verifyOtpResponseKey);
+    await oldBox.delete(_currentUserKey);
     final oldSessionKeys =
         oldBox.keys.where((key) => key.toString().startsWith(_sessionKeyKey));
     await oldBox.deleteAll(oldSessionKeys);

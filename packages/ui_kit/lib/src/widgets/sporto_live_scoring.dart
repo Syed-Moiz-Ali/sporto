@@ -727,6 +727,61 @@ class SportoLiveBowlerSelector extends StatelessWidget {
   }
 }
 
+class SportoLivePlayerSelector extends StatelessWidget {
+  final String title;
+
+  final List<SportoLiveBowlerOption> players;
+
+  final ValueChanged<String> onSelected;
+
+  const SportoLivePlayerSelector({
+    super.key,
+    required this.title,
+    required this.players,
+    required this.onSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final scale = context.sportoScale;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: SportoScoringTokens.green,
+                fontSize: 15 * scale,
+                fontWeight: FontWeight.w500,
+              ),
+        ),
+        SizedBox(height: 14 * scale),
+        ...List.generate(
+          players.length,
+          (index) {
+            final player = players[index];
+
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: index == players.length - 1 ? 0 : 8 * scale,
+              ),
+              child: _BowlerTile(
+                option: player,
+                onTap: () {
+                  if (player.enabled) {
+                    onSelected(player.id);
+                  }
+                },
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+}
+
 class _BowlerTile extends StatelessWidget {
   final SportoLiveBowlerOption option;
   final VoidCallback onTap;
@@ -735,7 +790,6 @@ class _BowlerTile extends StatelessWidget {
     required this.option,
     required this.onTap,
   });
-
   @override
   Widget build(BuildContext context) {
     final scale = context.sportoScale;

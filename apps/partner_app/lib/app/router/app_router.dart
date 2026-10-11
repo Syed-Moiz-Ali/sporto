@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/auth/presentation/views/auth_flow_view.dart';
@@ -20,7 +21,13 @@ abstract final class AppRouter {
   static const String profileRoute = '$homePath?tab=profile';
   static const String scheduleRoute = schedulePath;
 
+  /// Root navigator key so global flows (e.g. session expiry) can show
+  /// dialogs and route back to login from anywhere.
+  static final GlobalKey<NavigatorState> navigatorKey =
+      GlobalKey<NavigatorState>();
+
   static final GoRouter router = GoRouter(
+    navigatorKey: navigatorKey,
     initialLocation: homePath,
     routes: [
       GoRoute(

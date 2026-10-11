@@ -63,7 +63,7 @@ class ConductTossWizard extends StatelessWidget {
             return const SportoScreenShell(
                 body: Center(child: CircularProgressIndicator()));
           }
-          if (toss?.toss.runtime.isCompleted == true) {
+          if (toss?.toss.isCompleted == true) {
             return LiveScoringScreen(
               matchId: match.id.toString(),
               matchCode: matchCode ?? 'SPT-${match.id}',
@@ -110,7 +110,7 @@ class ConductTossWizard extends StatelessWidget {
           );
         }
         final (match, toss) = snapshot.data!;
-        if (toss?.toss.runtime.isCompleted == true) {
+        if (toss?.toss.isCompleted == true) {
           return LiveScoringScreen(
             matchId: match.id.toString(),
             matchCode: matchCode ?? 'SPT-${match.id}',
@@ -1089,7 +1089,7 @@ class _ConductTossView extends StatelessWidget {
           coinAsset: isTails
               ? 'assets/images/toss_coin_tails.png'
               : 'assets/images/toss_coin_heads.png',
-          landedText: isTails ? 'TAILS' : 'HEADS',
+          landedText: isTails ? RefereeTossSides.tails : RefereeTossSides.heads,
           winnerText: '${winner.name} Won The Toss',
           buttonText: 'Continue',
           onButtonPressed: () {
@@ -1431,16 +1431,17 @@ class _ConductTossView extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    final battingPlayers = state.battingPlayers.length >= 2
-        ? state.battingPlayers
-        : TossTeam.dummyPlayersFor(battingTeam.id, battingTeam.name)
-            .where((p) => p.canBat)
-            .toList();
-    final bowlingPlayers = state.bowlingPlayers.isNotEmpty
-        ? state.bowlingPlayers
-        : TossTeam.dummyPlayersFor(bowlingTeam.id, bowlingTeam.name)
-            .where((p) => p.canBowl)
-            .toList();
+    // Players come strictly from the backend roster; no local/mock data.
+    final battingPlayers = state.battingPlayers;
+    final bowlingPlayers = state.bowlingPlayers;
+
+    if (battingPlayers.length < 2 || bowlingPlayers.isEmpty) {
+      return const SportoCard(
+        child: Text(
+          'Starting players are not available from the match roster yet.',
+        ),
+      );
+    }
 
     final defaultStrikerId = battingPlayers.first.id;
     final defaultNonStrikerId = battingPlayers.length > 1

@@ -1,5 +1,7 @@
 import 'package:equatable/equatable.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:referee_data/referee_data.dart';
 
 // ============================================================
 // TEAM / PLAYER
@@ -174,6 +176,13 @@ class LiveScoringState extends Equatable {
   final ScoringInningsResult? firstInnings;
   final ScoringInningsResult? secondInnings;
 
+  /// Server-advertised allowed actions (source of truth for button gating).
+  /// Lives in the bloc so it survives widget rebuilds.
+  final Set<String> allowedActions;
+
+  /// Whether the match is LIVE on the backend.
+  final bool matchLive;
+
   // ==========================================================
   // SUPER OVER
   // ==========================================================
@@ -208,6 +217,8 @@ class LiveScoringState extends Equatable {
     this.previousBowlerId,
     this.firstInnings,
     this.secondInnings,
+    this.allowedActions = const {},
+    this.matchLive = false,
     this.isSuperOver = false,
     this.superOverInningsNumber = 1,
     this.superOverRound = 0,
@@ -251,6 +262,9 @@ class LiveScoringState extends Equatable {
 
   int get totalOvers => isSuperOver ? 1 : regulationOvers;
 
+  /// Whether the innings over limit is known (0 means "not provided by API").
+  bool get hasOversLimit => isSuperOver || regulationOvers > 0;
+
   int get legalBallCount =>
       currentOverDeliveries.where((delivery) => delivery.isLegal).length;
 
@@ -259,9 +273,9 @@ class LiveScoringState extends Equatable {
   bool get isFirstBall =>
       currentOverIndex == 0 && currentOverDeliveries.isEmpty;
 
-  bool get isLastOver => displayOver >= totalOvers;
+  bool get isLastOver => hasOversLimit && displayOver >= totalOvers;
 
-  bool get isAllOut => wickets >= maxWickets;
+  bool get isAllOut => maxWickets > 0 && wickets >= maxWickets;
 
   // ==========================================================
   // BOWLER
@@ -281,7 +295,13 @@ class LiveScoringState extends Equatable {
     return null;
   }
 
-  bool get canStartOver => selectedBowler != null;
+  bool get canStartOver =>
+      selectedBowler != null &&
+      strikerId != null &&
+      nonStrikerId != null &&
+      strikerId != nonStrikerId;
+
+  bool get openersConfigured => strikerId != null && nonStrikerId != null;
 
   String get currentBowlerName => selectedBowler?.name ?? '';
 
@@ -325,8 +345,9 @@ class LiveScoringState extends Equatable {
       return 'Ball $legalBallCount/6';
     }
 
-    return 'Over $displayOver/$regulationOvers'
-        '  •  Ball $legalBallCount/6';
+    // Only show the innings over limit when the API provided one.
+    final limit = regulationOvers > 0 ? '/$regulationOvers' : '';
+    return 'Over $displayOver$limit  •  Ball $legalBallCount/6';
   }
 
   // ==========================================================
@@ -439,12 +460,17 @@ class LiveScoringState extends Equatable {
     bool clearSelectedBowler = false,
     String? strikerId,
     String? nonStrikerId,
+    bool clearStriker = false,
+    bool clearNonStriker = false,
     Set<String>? dismissedPlayerIds,
+    bool clearDismissed = false,
     bool? awaitingReplacement,
     String? previousBowlerId,
     bool clearPreviousBowler = false,
     ScoringInningsResult? firstInnings,
     ScoringInningsResult? secondInnings,
+    Set<String>? allowedActions,
+    bool? matchLive,
     bool? isSuperOver,
     int? superOverInningsNumber,
     int? superOverRound,
@@ -469,15 +495,19 @@ class LiveScoringState extends Equatable {
       selectedBowlerId: clearSelectedBowler
           ? null
           : selectedBowlerId ?? this.selectedBowlerId,
-      strikerId: strikerId ?? this.strikerId,
-      nonStrikerId: nonStrikerId ?? this.nonStrikerId,
-      dismissedPlayerIds: dismissedPlayerIds ?? this.dismissedPlayerIds,
+      strikerId: clearStriker ? null : strikerId ?? this.strikerId,
+      nonStrikerId: clearNonStriker ? null : nonStrikerId ?? this.nonStrikerId,
+      dismissedPlayerIds: clearDismissed
+          ? const {}
+          : dismissedPlayerIds ?? this.dismissedPlayerIds,
       awaitingReplacement: awaitingReplacement ?? this.awaitingReplacement,
       previousBowlerId: clearPreviousBowler
           ? null
           : previousBowlerId ?? this.previousBowlerId,
       firstInnings: firstInnings ?? this.firstInnings,
       secondInnings: secondInnings ?? this.secondInnings,
+      allowedActions: allowedActions ?? this.allowedActions,
+      matchLive: matchLive ?? this.matchLive,
       isSuperOver: isSuperOver ?? this.isSuperOver,
       superOverInningsNumber:
           superOverInningsNumber ?? this.superOverInningsNumber,
@@ -512,6 +542,8 @@ class LiveScoringState extends Equatable {
         previousBowlerId,
         firstInnings,
         secondInnings,
+        allowedActions,
+        matchLive,
         isSuperOver,
         superOverInningsNumber,
         superOverRound,
@@ -545,6 +577,33 @@ class SelectBowlerEvent extends LiveScoringEvent {
 }
 
 class StartSelectedOverEvent extends LiveScoringEvent {}
+
+class ApplyServerScoreEvent extends LiveScoringEvent {
+  final RefereeScoreResponse response;
+
+  const ApplyServerScoreEvent(this.response);
+
+  @override
+  List<Object?> get props => [response];
+}
+
+class SelectStrikerEvent extends LiveScoringEvent {
+  final String playerId;
+
+  const SelectStrikerEvent(this.playerId);
+
+  @override
+  List<Object?> get props => [playerId];
+}
+
+class SelectNonStrikerEvent extends LiveScoringEvent {
+  final String playerId;
+
+  const SelectNonStrikerEvent(this.playerId);
+
+  @override
+  List<Object?> get props => [playerId];
+}
 
 class RecordRunsEvent extends LiveScoringEvent {
   final int runs;
@@ -589,7 +648,10 @@ class LiveScoringBloc extends Bloc<LiveScoringEvent, LiveScoringState> {
     required ScoringTeam teamA,
     required ScoringTeam teamB,
     required String firstBattingTeamId,
-    int regulationOvers = 5,
+    int initialInningsNumber = 1,
+    int? initialFirstInningsRuns,
+    int? initialFirstInningsWickets,
+    int regulationOvers = 0,
     int maxWickets = 10,
     String? initialBowlerId,
     String? initialStrikerId,
@@ -602,6 +664,14 @@ class LiveScoringBloc extends Bloc<LiveScoringEvent, LiveScoringState> {
             teamA: teamA,
             teamB: teamB,
             firstBattingTeamId: firstBattingTeamId,
+            inningsNumber: initialInningsNumber,
+            firstInnings: _initialFirstInnings(
+              initialFirstInningsRuns,
+              initialFirstInningsWickets,
+              firstBattingTeamId,
+              teamA,
+              teamB,
+            ),
             regulationOvers: regulationOvers,
             maxWickets: maxWickets,
             step: initialStep ?? LiveScoringStep.selectBowler,
@@ -616,8 +686,40 @@ class LiveScoringBloc extends Bloc<LiveScoringEvent, LiveScoringState> {
       _selectBowler,
     );
 
+    on<SelectStrikerEvent>((event, emit) {
+      final valid = state.currentBattingTeam.bowlers.any(
+        (player) =>
+            player.id == event.playerId &&
+            !state.dismissedPlayerIds.contains(player.id),
+      );
+
+      if (!valid || event.playerId == state.nonStrikerId) {
+        return;
+      }
+
+      emit(state.copyWith(strikerId: event.playerId));
+    });
+
+    on<SelectNonStrikerEvent>((event, emit) {
+      final valid = state.currentBattingTeam.bowlers.any(
+        (player) =>
+            player.id == event.playerId &&
+            !state.dismissedPlayerIds.contains(player.id),
+      );
+
+      if (!valid || event.playerId == state.strikerId) {
+        return;
+      }
+
+      emit(state.copyWith(nonStrikerId: event.playerId));
+    });
+
     on<StartSelectedOverEvent>(
       _startOver,
+    );
+
+    on<ApplyServerScoreEvent>(
+      _applyServerState,
     );
 
     on<RecordRunsEvent>(
@@ -812,8 +914,10 @@ class LiveScoringBloc extends Bloc<LiveScoringEvent, LiveScoringState> {
       );
     }
 
-    // An odd number of runs changes the striker for the next delivery.
-    if (delivery.runs.isOdd &&
+    // An odd number of runs off the bat changes the striker for the next
+    // delivery. Wides and no-balls do not change ends.
+    if (delivery.type == ScoringDeliveryType.run &&
+        delivery.runs.isOdd &&
         state.strikerId != null &&
         state.nonStrikerId != null) {
       updated = updated.copyWith(
@@ -983,6 +1087,10 @@ class LiveScoringBloc extends Bloc<LiveScoringEvent, LiveScoringState> {
         currentOverDeliveries: const [],
         clearSelectedBowler: true,
         clearPreviousBowler: true,
+        clearStriker: true,
+        clearNonStriker: true,
+        clearDismissed: true,
+        awaitingReplacement: false,
         step: LiveScoringStep.selectBowler,
       ),
     );
@@ -998,9 +1106,11 @@ class LiveScoringBloc extends Bloc<LiveScoringEvent, LiveScoringState> {
   ) {
     final result = _buildResult(updated);
 
-    final first = updated.firstInnings!;
+    final first = updated.firstInnings;
 
-    if (result.runs == first.runs) {
+    // Resumed mid-innings-2 sessions may not have the first innings result
+    // locally; go straight to the final result in that case.
+    if (first != null && result.runs == first.runs) {
       emit(
         updated.copyWith(
           secondInnings: result,
@@ -1031,20 +1141,15 @@ class LiveScoringBloc extends Bloc<LiveScoringEvent, LiveScoringState> {
       return;
     }
 
-    var next = state.copyWith(
-      currentOverIndex: state.currentOverIndex + 1,
-      previousBowlerId: state.selectedBowlerId,
-      currentOverDeliveries: const [],
-      clearSelectedBowler: true,
+    // Overs, strike rotation and bowler clearing are tracked by the backend;
+    // this only advances the local screen to bowler selection. The completed
+    // over's deliveries are cleared so the new over starts fresh (and all
+    // eligible bowlers are selectable again).
+    emit(state.copyWith(
       step: LiveScoringStep.selectBowler,
-    );
-    if (state.strikerId != null && state.nonStrikerId != null) {
-      next = next.copyWith(
-        strikerId: state.nonStrikerId,
-        nonStrikerId: state.strikerId,
-      );
-    }
-    emit(next);
+      clearSelectedBowler: true,
+      currentOverDeliveries: const [],
+    ));
   }
 
   // ==========================================================
@@ -1070,6 +1175,10 @@ class LiveScoringBloc extends Bloc<LiveScoringEvent, LiveScoringState> {
         currentOverDeliveries: const [],
         clearSelectedBowler: true,
         clearPreviousBowler: true,
+        clearStriker: true,
+        clearNonStriker: true,
+        clearDismissed: true,
+        awaitingReplacement: false,
         clearFirstSuperOver: true,
         clearSecondSuperOver: true,
         step: LiveScoringStep.superOverSelectBowler,
@@ -1116,6 +1225,10 @@ class LiveScoringBloc extends Bloc<LiveScoringEvent, LiveScoringState> {
         currentOverDeliveries: const [],
         clearSelectedBowler: true,
         clearPreviousBowler: true,
+        clearStriker: true,
+        clearNonStriker: true,
+        clearDismissed: true,
+        awaitingReplacement: false,
         step: LiveScoringStep.superOverSelectBowler,
       ),
     );
@@ -1155,8 +1268,341 @@ class LiveScoringBloc extends Bloc<LiveScoringEvent, LiveScoringState> {
   }
 
   // ==========================================================
+  // SERVER STATE (single source of truth)
+  // ==========================================================
+
+  void _applyServerState(
+    ApplyServerScoreEvent event,
+    Emitter<LiveScoringState> emit,
+  ) {
+    final response = event.response;
+    final runtime = response.scoring.runtime;
+
+    ScoringTeam mapTeam(int? id, ScoringTeam fallback) {
+      if (id == null) return fallback;
+      final value = id.toString();
+      if (state.teamA.id == value) return state.teamA;
+      if (state.teamB.id == value) return state.teamB;
+      return fallback;
+    }
+
+    final battingTeam =
+        mapTeam(runtime.currentBattingTeamId, state.currentBattingTeam);
+    final bowlingTeam =
+        mapTeam(runtime.currentBowlingTeamId, state.currentBowlingTeam);
+    final inningsNumber = runtime.currentInning ?? state.inningsNumber;
+    final battingTotals = response.scoring.teamTotals(battingTeam.id);
+
+    // Rebuild innings results from the authoritative score payload.
+    var firstInnings = state.firstInnings;
+    var secondInnings = state.secondInnings;
+
+    if (!runtime.isSuperOver && firstInnings == null) {
+      if (inningsNumber >= 2) {
+        // The team currently bowling batted in innings 1.
+        firstInnings = _inningsResultFor(response, bowlingTeam);
+      } else if (runtime.inningsComplete) {
+        // Innings 1 just finished; the current batting team is done.
+        firstInnings = _inningsResultFor(response, battingTeam);
+      }
+    }
+    if (!runtime.isSuperOver &&
+        runtime.inningsComplete &&
+        inningsNumber >= 2 &&
+        secondInnings == null) {
+      secondInnings = _inningsResultFor(response, battingTeam);
+    }
+    if (!runtime.isSuperOver && response.matchStatus == 3) {
+      firstInnings ??= _inningsResultFor(response, bowlingTeam);
+      secondInnings ??= _inningsResultFor(
+        response,
+        state.teamA.id == firstInnings.battingTeamId ? state.teamB : state.teamA,
+      );
+    }
+
+    // Super over innings results (for the super over result screen).
+    var firstSuperOver = state.firstSuperOverInnings;
+    var secondSuperOver = state.secondSuperOverInnings;
+    var clearFirstSuper = false;
+    var clearSecondSuper = false;
+    if (runtime.isSuperOver) {
+      // Regulation innings results are needed by the super-over screens even
+      // when the app entered the match mid-super-over; rebuild them from the
+      // regulation snapshot the backend provides.
+      if (firstInnings == null) {
+        final regulation = response.scoring.regulationTeamScores;
+        if (regulation.isNotEmpty) {
+          final entry = regulation.entries.first;
+          final name = state.teamA.id == entry.key
+              ? state.teamA.name
+              : state.teamB.id == entry.key
+                  ? state.teamB.name
+                  : entry.key;
+          firstInnings = ScoringInningsResult(
+            battingTeamId: entry.key,
+            battingTeamName: name,
+            runs: entry.value,
+            wickets: 0,
+            overs: 0,
+            legalBallsInLastOver: 0,
+          );
+        }
+      }
+
+      final roundChanged = runtime.superOverRound != null &&
+          state.superOverRound != runtime.superOverRound;
+      if (roundChanged) {
+        firstSuperOver = null;
+        secondSuperOver = null;
+        clearFirstSuper = true;
+        clearSecondSuper = true;
+      }
+      if (inningsNumber >= 2 && firstSuperOver == null) {
+        firstSuperOver = _inningsResultFor(response, bowlingTeam);
+      }
+      if (runtime.inningsComplete &&
+          inningsNumber >= 2 &&
+          secondSuperOver == null) {
+        secondSuperOver = _inningsResultFor(response, battingTeam);
+      }
+      if (response.matchStatus == 3) {
+        firstSuperOver ??= _inningsResultFor(response, bowlingTeam);
+        secondSuperOver ??= _inningsResultFor(
+          response,
+          state.teamA.id == firstSuperOver.battingTeamId
+              ? state.teamB
+              : state.teamA,
+        );
+      }
+    }
+
+    final strikerId = runtime.currentStriker.userId?.toString();
+    final nonStrikerId = runtime.currentNonStriker.userId?.toString();
+    final bowlerId = runtime.currentBowler.userId?.toString();
+    final step = _deriveServerStep(response, runtime);
+
+    if (kDebugMode) {
+      debugPrint(
+        '[LiveScoring] step=${step.name} status=${response.statusText} '
+        'inning=$inningsNumber over=${runtime.currentOver} '
+        'ab=${runtime.awaitingBatter} abw=${runtime.awaitingBowler} '
+        'ic=${runtime.inningsComplete} '
+        'allowed=${response.scoring.allowedActions.join(',')}',
+      );
+    }
+
+    String? previousBowlerId;
+    if (!runtime.isSuperOver && (runtime.currentOver ?? 0) > 0) {
+      final completedOver = runtime.currentOver! - 1;
+      for (final e in runtime.events) {
+        if (e.isBallRecorded &&
+            e.overNumber == completedOver &&
+            e.bowlerUserId != null) {
+          previousBowlerId = e.bowlerUserId.toString();
+        }
+      }
+    }
+
+    final String firstBattingTeamId;
+    if (runtime.isSuperOver) {
+      firstBattingTeamId = inningsNumber >= 2
+          ? state.firstBattingTeamId
+          : battingTeam.id;
+    } else {
+      firstBattingTeamId =
+          inningsNumber >= 2 ? bowlingTeam.id : battingTeam.id;
+    }
+
+    final isLiveNow =
+        response.isLive || runtime.state == RefereeScoreRuntimeStates.live;
+    final serverActions = response.scoring.allowedActions.toSet();
+    // Resilience: while the match is live keep the live-over actions
+    // available even if the backend omits them from allowed_actions (the
+    // server still validates every request, so nothing invalid is recorded).
+    final allowedActions = isLiveNow
+        ? {
+            ...serverActions,
+            RefereeScoreActions.addEvent,
+            RefereeScoreActions.setBatters,
+            RefereeScoreActions.setBowler,
+            RefereeScoreActions.setWicketKeeper,
+            RefereeScoreActions.undoLast,
+          }
+        : serverActions;
+
+    emit(
+      state.copyWith(
+        firstBattingTeamId: firstBattingTeamId,
+        inningsNumber: inningsNumber,
+        currentOverIndex: runtime.currentOver ?? state.currentOverIndex,
+        runs: battingTotals.score,
+        wickets: battingTotals.wickets,
+        currentOverDeliveries: _deliveriesFromServer(runtime, step),
+        strikerId: strikerId,
+        clearStriker: strikerId == null,
+        nonStrikerId: nonStrikerId,
+        clearNonStriker: nonStrikerId == null,
+        selectedBowlerId: bowlerId,
+        clearSelectedBowler: bowlerId == null,
+        previousBowlerId: previousBowlerId,
+        clearPreviousBowler: previousBowlerId == null,
+        dismissedPlayerIds:
+            runtime.dismissedBatters.map((id) => id.toString()).toSet(),
+        awaitingReplacement: runtime.awaitingBatter,
+        isSuperOver: runtime.isSuperOver,
+        superOverRound: runtime.superOverRound ?? state.superOverRound,
+        superOverInningsNumber:
+            runtime.isSuperOver ? inningsNumber : state.superOverInningsNumber,
+        firstInnings: firstInnings,
+        secondInnings: secondInnings,
+        firstSuperOverInnings: firstSuperOver,
+        secondSuperOverInnings: secondSuperOver,
+        clearFirstSuperOver: clearFirstSuper,
+        clearSecondSuperOver: clearSecondSuper,
+        allowedActions: allowedActions,
+        matchLive: isLiveNow,
+        step: step,
+      ),
+    );
+  }
+
+  static ScoringInningsResult _inningsResultFor(
+    RefereeScoreResponse response,
+    ScoringTeam team,
+  ) {
+    final totals = response.scoring.teamTotals(team.id);
+    return ScoringInningsResult(
+      battingTeamId: team.id,
+      battingTeamName: team.name,
+      runs: totals.score,
+      wickets: totals.wickets,
+      overs: 0,
+      legalBallsInLastOver: 0,
+    );
+  }
+
+  LiveScoringStep _deriveServerStep(
+    RefereeScoreResponse response,
+    RefereeScoreRuntimeResponse runtime,
+  ) {
+    final allowed = response.scoring.allowedActions;
+    final isSuper = runtime.isSuperOver;
+
+    // Completed (or cancelled) matches are read-only: show the submitted
+    // result screen regardless of any stale runtime flags.
+    if (response.isReadOnly) {
+      return LiveScoringStep.resultSubmitted;
+    }
+
+    if (runtime.inningsComplete) {
+      if (allowed.contains(RefereeScoreActions.complete)) {
+        return isSuper
+            ? LiveScoringStep.superOverFinalResult
+            : LiveScoringStep.finalResult;
+      }
+      if (allowed.contains(RefereeScoreActions.startSuperOver)) {
+        return LiveScoringStep.superOverReady;
+      }
+      if (allowed.contains(RefereeScoreActions.endPeriod)) {
+        return isSuper
+            ? LiveScoringStep.superOverComplete
+            : LiveScoringStep.inningsBreak;
+      }
+    }
+
+    if (runtime.awaitingBatter) {
+      // A replacement batter keeps the non-striker; a fresh innings has no
+      // batters yet and needs the openers selection screen instead.
+      final hasRemainingBatter = runtime.currentNonStriker.userId != null;
+      if (hasRemainingBatter) {
+        return isSuper
+            ? LiveScoringStep.superOverScoring
+            : LiveScoringStep.scoring;
+      }
+      return isSuper
+          ? LiveScoringStep.superOverSelectBowler
+          : LiveScoringStep.selectBowler;
+    }
+
+    if (runtime.awaitingBowler || runtime.currentBowler.userId == null) {
+      if (isSuper) return LiveScoringStep.superOverSelectBowler;
+      if (runtime.lastEvent?.isOverComplete == true) {
+        return LiveScoringStep.overComplete;
+      }
+      return LiveScoringStep.selectBowler;
+    }
+
+    return isSuper ? LiveScoringStep.superOverScoring : LiveScoringStep.scoring;
+  }
+
+  List<ScoringDelivery> _deliveriesFromServer(
+    RefereeScoreRuntimeResponse runtime,
+    LiveScoringStep step,
+  ) {
+    final currentOver = runtime.currentOver ?? 0;
+    final targetOver = step == LiveScoringStep.overComplete
+        ? (currentOver > 0 ? currentOver - 1 : 0)
+        : currentOver;
+
+    final deliveries = <ScoringDelivery>[];
+    for (final event in runtime.events) {
+      if (!event.isBallRecorded) continue;
+      if (event.overNumber != targetOver) continue;
+      if ((event.ballInOver ?? 0) < 1) continue;
+      final runs = int.tryParse('${event.data['delivery_runs'] ?? ''}') ?? 0;
+      switch (event.eventCode) {
+        case RefereeCricketEventCodes.run:
+          deliveries.add(
+            ScoringDelivery(type: ScoringDeliveryType.run, runs: runs),
+          );
+          break;
+        case RefereeCricketEventCodes.wicket:
+          deliveries.add(
+            const ScoringDelivery(type: ScoringDeliveryType.wicket, runs: 0),
+          );
+          break;
+        case RefereeCricketEventCodes.wide:
+          deliveries.add(
+            const ScoringDelivery(type: ScoringDeliveryType.wide, runs: 1),
+          );
+          break;
+        case RefereeCricketEventCodes.noBall:
+          deliveries.add(
+            const ScoringDelivery(type: ScoringDeliveryType.noBall, runs: 1),
+          );
+          break;
+      }
+    }
+    return deliveries;
+  }
+
+  // ==========================================================
   // RESULT BUILDER
   // ==========================================================
+
+  static ScoringInningsResult? _initialFirstInnings(
+    int? runs,
+    int? wickets,
+    String firstBattingTeamId,
+    ScoringTeam teamA,
+    ScoringTeam teamB,
+  ) {
+    if (runs == null) {
+      return null;
+    }
+
+    final teamName =
+        firstBattingTeamId == teamA.id ? teamA.name : teamB.name;
+
+    return ScoringInningsResult(
+      battingTeamId: firstBattingTeamId,
+      battingTeamName: teamName,
+      runs: runs,
+      wickets: wickets ?? 0,
+      overs: 0,
+      legalBallsInLastOver: 0,
+    );
+  }
 
   ScoringInningsResult _buildResult(
     LiveScoringState state,

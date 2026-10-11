@@ -434,7 +434,11 @@ class _MatchVerificationScreenState extends State<MatchVerificationScreen> {
                                 walkoverWinner: walkoverWinner,
                                 absentTeamName: absentTeamName,
                                 onReadyToToss: () {
-                                  context.push(
+                                  // Replace verification so that returning from
+                                  // the toss/scoring flow goes straight back to
+                                  // the previous list instead of re-showing
+                                  // this screen.
+                                  context.pushReplacement(
                                     '${AppRouter.conductTossRoute}?matchId=${widget.matchId ?? ''}',
                                   );
                                 },

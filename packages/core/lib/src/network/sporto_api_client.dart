@@ -47,6 +47,11 @@ class SportoApiClient {
 
   static const defaultBaseUrl = SportoApiEndpoints.apiBaseUrl;
 
+  /// Global hook invoked whenever the backend reports the session as
+  /// unauthenticated (expired/invalid token). Apps register this to clear the
+  /// session and take the user back to the login screen.
+  static Future<void> Function()? onUnauthenticated;
+
   final Dio dio;
   final Future<String?> Function()? _tokenProvider;
 
@@ -122,12 +127,40 @@ class SportoApiClient {
       return _asMap(response.data);
     } on DioException catch (error) {
       final data = _asMap(error.response?.data);
+      final statusCode = error.response?.statusCode;
+      final message =
+          (data['message'] ?? error.message ?? 'Request failed').toString();
+      if (_isUnauthenticated(statusCode, message)) {
+        _notifyUnauthenticated();
+      }
       throw SportoApiException(
-        (data['message'] ?? error.message ?? 'Request failed').toString(),
-        statusCode: error.response?.statusCode,
+        message,
+        statusCode: statusCode,
         errors: data['errors'],
       );
     }
+  }
+
+  static bool _isUnauthenticated(int? statusCode, String message) {
+    if (statusCode == 401) return true;
+    final text = message.toLowerCase();
+    return text.contains('unauthenticated') ||
+        text.contains('token has expired') ||
+        text.contains('token expired') ||
+        text.contains('invalid token');
+  }
+
+  static void _notifyUnauthenticated() {
+    final handler = onUnauthenticated;
+    if (handler == null) return;
+    // Fire once per event without blocking the failing request.
+    Future<void>.microtask(() async {
+      try {
+        await handler();
+      } catch (_) {
+        // Session-expiry handling must never crash the network layer.
+      }
+    });
   }
 
   Map<String, dynamic> _asMap(Object? data) {

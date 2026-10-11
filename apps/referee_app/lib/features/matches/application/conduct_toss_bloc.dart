@@ -104,42 +104,6 @@ class TossTeam extends Equatable {
         players,
         logoUrl,
       ];
-
-  static List<TossPlayer> dummyPlayersFor(String teamId, String teamName) {
-    final lower = teamName.toLowerCase();
-    final isTeam1 =
-        teamId == '1' || lower.contains('delhi') || lower.contains('warrior');
-
-    if (isTeam1) {
-      return const [
-        TossPlayer(id: '1', name: 'Shrvn Prajapati', captain: true),
-        TossPlayer(id: '2', name: 'Amit Kumar'),
-        TossPlayer(id: '3', name: 'R. Sharma'),
-        TossPlayer(id: '4', name: 'Virat Singh'),
-        TossPlayer(id: '5', name: 'Suresh Raina'),
-        TossPlayer(id: '6', name: 'Hardik Patel'),
-        TossPlayer(id: '7', name: 'Rishabh Pant'),
-        TossPlayer(id: '8', name: 'Ravindra Jadeja'),
-        TossPlayer(id: '9', name: 'Jasprit Bumrah', canBat: false),
-        TossPlayer(id: '10', name: 'Mohammed Shami', canBat: false),
-        TossPlayer(id: '11', name: 'Yuzvendra Chahal', canBat: false),
-      ];
-    } else {
-      return const [
-        TossPlayer(id: '12', name: 'Dev Kumar', captain: true),
-        TossPlayer(id: '13', name: 'David Warner'),
-        TossPlayer(id: '14', name: 'Kane Williamson'),
-        TossPlayer(id: '15', name: 'Rashid Khan'),
-        TossPlayer(id: '16', name: 'Bhuvneshwar Kumar'),
-        TossPlayer(id: '17', name: 'T. Natarajan', canBat: false),
-        TossPlayer(id: '18', name: 'Abhishek Sharma'),
-        TossPlayer(id: '19', name: 'Rahul Tripathi'),
-        TossPlayer(id: '20', name: 'Aiden Markram'),
-        TossPlayer(id: '21', name: 'Heinrich Klaasen'),
-        TossPlayer(id: '22', name: 'Mohammed Siraj', canBat: false),
-      ];
-    }
-  }
 }
 
 // ============================================================
@@ -586,6 +550,9 @@ class ConductTossBloc extends Bloc<ConductTossAction, ConductTossState> {
 
   final Random _random = Random();
 
+  /// Latest authoritative toss state returned by the backend.
+  RefereeTossResponse? _latestToss;
+
   ConductTossBloc({
     this.conductTossUseCase,
     this.refereeRemoteDataSource,
@@ -608,17 +575,15 @@ class ConductTossBloc extends Bloc<ConductTossAction, ConductTossState> {
             tossMode: tossMode,
             hasSelectedCaller: hasSelectedCaller ||
                 initialToss?.toss.runtime.callingTeamId != null,
-            step: initialToss?.toss.runtime.nextAction == 'SET_STARTING_PLAYERS'
-                ? ConductTossStep.selectOpeners
-                : initialToss?.toss.runtime.nextAction == 'SET_DECISION'
-                    ? ConductTossStep.chooseBatBowl
-                    : ConductTossStep.flipCoin,
+            step: _initialTossStep(initialToss),
             landedSide: _coinSideFromApi(initialToss?.toss.runtime.landedSide),
             tossWinnerTeamId:
                 initialToss?.toss.runtime.winnerTeamId?.toString(),
             tossChoice: _choiceFromApi(initialToss?.toss.runtime.decision),
           ),
         ) {
+    _latestToss = initialToss;
+
     on<SelectTossMode>((event, emit) {
       emit(state.copyWith(
         tossMode: event.mode,
@@ -725,12 +690,13 @@ class ConductTossBloc extends Bloc<ConductTossAction, ConductTossState> {
 
     try {
       final parsedWinnerId = int.tryParse(winnerId) ?? 1;
-      await refereeRemoteDataSource?.updateMatchTossData(
+      final response = await refereeRemoteDataSource?.updateMatchTossData(
         matchId,
         RefereeTossUpdateRequest.enterResult(
           winnerTeamId: parsedWinnerId,
         ),
       );
+      _latestToss = response ?? _latestToss;
 
       emit(
         state.copyWith(
@@ -744,7 +710,10 @@ class ConductTossBloc extends Bloc<ConductTossAction, ConductTossState> {
       emit(
         state.copyWith(
           isSavingToss: false,
-          errorMessage: 'Unable to save toss result. Please try again.',
+          errorMessage: _tossErrorMessage(
+            error,
+            'Unable to save toss result. Please try again.',
+          ),
         ),
       );
     }
@@ -779,27 +748,40 @@ class ConductTossBloc extends Bloc<ConductTossAction, ConductTossState> {
     String? remoteWinnerTeamId;
 
     try {
-      final callingTeamIdInt = int.tryParse(state.callerTeamId) ?? 1;
-      await refereeRemoteDataSource?.updateMatchTossData(
-        matchId,
-        RefereeTossUpdateRequest.call(
-          calledSide: _coinSideToApi(state.callerChoice),
-          callingTeamId: callingTeamIdInt,
-        ),
-      );
+      final serverToss = _latestToss?.toss;
+      final awaitingFlip = serverToss != null &&
+          (serverToss.isCalling ||
+              (serverToss.runtime.calledSide != null &&
+                  serverToss.runtime.landedSide == null));
+      if (!awaitingFlip) {
+        final callingTeamIdInt =
+            int.tryParse(state.callerTeamId) ?? int.tryParse(state.team1.id);
+        final callResponse = await refereeRemoteDataSource?.updateMatchTossData(
+          matchId,
+          RefereeTossUpdateRequest.call(
+            calledSide: _coinSideToApi(state.callerChoice),
+            callingTeamId: callingTeamIdInt ?? 1,
+          ),
+        );
+        _latestToss = callResponse ?? _latestToss;
+      }
       final flip = await refereeRemoteDataSource?.updateMatchTossData(
         matchId,
         RefereeTossUpdateRequest.flip(),
       );
+      _latestToss = flip ?? _latestToss;
       remoteLandedSide = _coinSideFromApi(flip?.toss.runtime.landedSide);
       final winnerTeamId = flip?.toss.runtime.winnerTeamId;
       if (winnerTeamId != null) {
         remoteWinnerTeamId = winnerTeamId.toString();
       }
-    } catch (_) {
+    } catch (error) {
       emit(state.copyWith(
         isFlipping: false,
-        errorMessage: 'Unable to flip the toss. Please try again.',
+        errorMessage: _tossErrorMessage(
+          error,
+          'Unable to flip the toss. Please try again.',
+        ),
       ));
       return;
     }
@@ -917,12 +899,28 @@ class ConductTossBloc extends Bloc<ConductTossAction, ConductTossState> {
         tossResult,
       );
 
-      await refereeRemoteDataSource?.updateMatchTossData(
+      final decisionResponse = await refereeRemoteDataSource?.updateMatchTossData(
         matchId,
         RefereeTossUpdateRequest.setDecision(
           decision: _decisionToApi(choice),
         ),
       );
+      _latestToss = decisionResponse ?? _latestToss;
+
+      // ======================================================
+      // Resolve the next step from the authoritative backend state.
+      //
+      // Some sports/formats complete the toss right after SET_DECISION
+      // (starting_roles is empty). In that case the wizard must skip the
+      // starting-players screen entirely.
+      // ======================================================
+
+      final serverToss = decisionResponse?.toss ?? _latestToss?.toss;
+      final needsStartingSetup = serverToss == null ||
+          (!serverToss.isCompleted &&
+              (serverToss.isStartingSetupPending ||
+                  serverToss.allowedActions
+                      .contains(RefereeTossActions.setStartingPlayers)));
 
       // ======================================================
       // Set sensible default selections.
@@ -949,7 +947,9 @@ class ConductTossBloc extends Bloc<ConductTossAction, ConductTossState> {
           strikerId: defaultStriker,
           nonStrikerId: defaultNonStriker,
           openingBowlerId: defaultBowler,
-          step: ConductTossStep.selectOpeners,
+          step: needsStartingSetup
+              ? ConductTossStep.selectOpeners
+              : ConductTossStep.matchReady,
           clearError: true,
         ),
       );
@@ -957,7 +957,10 @@ class ConductTossBloc extends Bloc<ConductTossAction, ConductTossState> {
       emit(
         state.copyWith(
           isSavingToss: false,
-          errorMessage: 'Unable to save toss. Please try again.',
+          errorMessage: _tossErrorMessage(
+            error,
+            'Unable to save toss. Please try again.',
+          ),
         ),
       );
     }
@@ -1058,6 +1061,23 @@ class ConductTossBloc extends Bloc<ConductTossAction, ConductTossState> {
     final openingBowlerId =
         int.tryParse(cleanOpeningBowler ?? state.openingBowlerId ?? '');
 
+    // The backend may complete the toss at SET_DECISION (empty starting_roles)
+    // and then does not advertise SET_STARTING_PLAYERS. Do not attempt the
+    // mutation in that case; advance the wizard instead.
+    final serverToss = _latestToss?.toss;
+    final canSetStartingPlayers = serverToss == null ||
+        (!serverToss.isCompleted &&
+            (serverToss.isStartingSetupPending ||
+                serverToss.allowedActions
+                    .contains(RefereeTossActions.setStartingPlayers)));
+    if (!canSetStartingPlayers) {
+      emit(state.copyWith(
+        step: ConductTossStep.matchReady,
+        clearError: true,
+      ));
+      return;
+    }
+
     if (strikerId == null ||
         nonStrikerId == null ||
         openingBowlerId == null ||
@@ -1067,7 +1087,7 @@ class ConductTossBloc extends Bloc<ConductTossAction, ConductTossState> {
 
     emit(state.copyWith(isSavingToss: true, clearError: true));
     try {
-      await refereeRemoteDataSource?.updateMatchTossData(
+      final response = await refereeRemoteDataSource?.updateMatchTossData(
         matchId,
         RefereeTossUpdateRequest.setStartingPlayers(
           strikerUserId: strikerId,
@@ -1075,36 +1095,48 @@ class ConductTossBloc extends Bloc<ConductTossAction, ConductTossState> {
           openingBowlerUserId: openingBowlerId,
         ),
       );
+      _latestToss = response ?? _latestToss;
       emit(state.copyWith(
         isSavingToss: false,
         step: ConductTossStep.matchReady,
         clearError: true,
       ));
-    } catch (_) {
+    } catch (error) {
       emit(state.copyWith(
         isSavingToss: false,
-        errorMessage: 'Unable to save starting players. Please try again.',
+        errorMessage: _tossErrorMessage(
+          error,
+          'Unable to save starting players. Please try again.',
+        ),
       ));
     }
   }
 
+  static String _tossErrorMessage(Object error, String fallback) {
+    final text = error.toString().trim();
+    if (text.isEmpty || text == 'Exception') return fallback;
+    return text;
+  }
+
   static String _coinSideToApi(TossCoinSide side) {
-    return side == TossCoinSide.heads ? 'HEADS' : 'TAILS';
+    return side == TossCoinSide.heads
+        ? RefereeTossSides.heads
+        : RefereeTossSides.tails;
   }
 
   static TossCoinSide? _coinSideFromApi(String? value) {
     return switch (value?.toUpperCase()) {
-      'HEADS' => TossCoinSide.heads,
-      'TAILS' => TossCoinSide.tails,
+      RefereeTossSides.heads => TossCoinSide.heads,
+      RefereeTossSides.tails => TossCoinSide.tails,
       _ => null,
     };
   }
 
   static TossBatBowlChoice? _choiceFromApi(String? value) {
     switch (value) {
-      case 'BAT_FIRST':
+      case RefereeTossDecisions.batFirst:
         return TossBatBowlChoice.batFirst;
-      case 'BOWL_FIRST':
+      case RefereeTossDecisions.bowlFirst:
         return TossBatBowlChoice.bowlFirst;
       default:
         return null;
@@ -1112,6 +1144,22 @@ class ConductTossBloc extends Bloc<ConductTossAction, ConductTossState> {
   }
 
   static String _decisionToApi(TossBatBowlChoice choice) {
-    return choice == TossBatBowlChoice.batFirst ? 'BAT_FIRST' : 'BOWL_FIRST';
+    return choice == TossBatBowlChoice.batFirst
+        ? RefereeTossDecisions.batFirst
+        : RefereeTossDecisions.bowlFirst;
+  }
+}
+
+ConductTossStep _initialTossStep(RefereeTossResponse? response) {
+  final toss = response?.toss;
+  if (toss == null) return ConductTossStep.flipCoin;
+  if (toss.isCompleted) return ConductTossStep.matchReady;
+  switch (toss.state) {
+    case RefereeTossStates.startingSetupPending:
+      return ConductTossStep.selectOpeners;
+    case RefereeTossStates.decisionPending:
+      return ConductTossStep.chooseBatBowl;
+    default:
+      return ConductTossStep.flipCoin;
   }
 }

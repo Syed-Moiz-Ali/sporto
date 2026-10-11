@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_domain/shared_domain.dart';
 import 'package:ui_kit/ui_kit.dart';
@@ -23,7 +24,13 @@ abstract final class AppRouter {
   static const String conductTossRoute = conductTossPath;
   static const String liveScoringRoute = liveScoringPath;
 
+  /// Root navigator key so global flows (e.g. session expiry) can show
+  /// dialogs and route back to login from anywhere.
+  static final GlobalKey<NavigatorState> navigatorKey =
+      GlobalKey<NavigatorState>();
+
   static final GoRouter router = GoRouter(
+    navigatorKey: navigatorKey,
     initialLocation: homePath,
     routes: [
       GoRoute(

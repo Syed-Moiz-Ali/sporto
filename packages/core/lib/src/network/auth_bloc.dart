@@ -51,6 +51,10 @@ class CompleteProfileRequestedEvent extends AuthEvent {
 
 class LogoutRequestedEvent extends AuthEvent {}
 
+/// Emitted when the backend reports the session as unauthenticated; resets
+/// the auth state to the login screen without calling the logout API.
+class SessionExpiredEvent extends AuthEvent {}
+
 // STATES
 abstract class AuthState extends Equatable {
   const AuthState();
@@ -121,6 +125,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<VerifyOtpRequestedEvent>(_onVerifyOtpRequested);
     on<CompleteProfileRequestedEvent>(_onCompleteProfileRequested);
     on<LogoutRequestedEvent>(_onLogoutRequested);
+    on<SessionExpiredEvent>((event, emit) => emit(UnauthenticatedState()));
   }
 
   void _onCheckAuthStatus(
