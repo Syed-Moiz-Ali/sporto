@@ -217,6 +217,85 @@ void main() {
     expect(state.secondInnings, isNotNull);
   });
 
+  test('innings 2 start ignores innings 1 deliveries (bowlers selectable)',
+      () async {
+    // Regression: over numbers restart every innings, and the backend event
+    // stream covers the whole match — innings 1's over 0 balls must not leak
+    // into innings 2, otherwise the UI locks all bowlers ("over started").
+    final bloc = _bloc();
+    final state = await _apply(
+      bloc,
+      _scoreResponse(
+        matchStatus: 2,
+        allowedActions: ['SET_BATTERS', 'SET_BOWLER'],
+        runtime: {
+          'state': 'LIVE',
+          'current_over': 0,
+          'current_ball': 0,
+          'current_inning': 2,
+          'current_batting_team_id': 2101,
+          'current_bowling_team_id': 2104,
+          'awaiting_batter': true,
+          'awaiting_bowler': true,
+          'innings_complete': false,
+          'current_striker': {'user_id': null},
+          'current_non_striker': {'user_id': null},
+          'current_bowler': {'user_id': null},
+          'dismissed_batters': <int>[],
+          'last_event': {
+            'type': 'INNINGS_STARTED',
+            'data': {'inning': 2},
+          },
+          'events': [
+            {
+              'type': 'INNINGS_STARTED',
+              'sequence': 1,
+              'data': {'inning': 1},
+            },
+            {
+              'type': 'BALL_RECORDED',
+              'sequence': 2,
+              'data': {
+                'event_code': 'RUN',
+                'delivery_runs': 4,
+                'over_number': 0,
+                'ball_in_over': 1,
+                'legal_delivery': true,
+                'bowler_user_id': 1,
+              },
+            },
+            {
+              'type': 'INNINGS_COMPLETE',
+              'sequence': 3,
+              'data': {'reason': 'ALL_OUT'},
+            },
+            {
+              'type': 'INNINGS_CHANGED',
+              'sequence': 4,
+              'data': {'new_inning': 2},
+            },
+            {
+              'type': 'INNINGS_STARTED',
+              'sequence': 5,
+              'data': {'inning': 2},
+            },
+          ],
+        },
+        score: {
+          'teams': {
+            '2101': {'score': 0, 'wickets': 0, 'legal_balls': 0, 'overs': '0.0'},
+            '2104': {'score': 40, 'wickets': 10, 'legal_balls': 30, 'overs': '5.0'},
+          },
+        },
+      ),
+    );
+
+    expect(state.step, LiveScoringStep.selectBowler);
+    expect(state.currentOverDeliveries, isEmpty);
+    expect(state.previousBowlerId, isNull);
+    expect(state.openersConfigured, isFalse);
+  });
+
   test('real completed 4003-like payload -> result submitted', () async {
     // Mirrors the live GET /score for match 4003 after COMPLETE:
     // status 3, no is_super_over key, batting 2101 / bowling 2104, inning 2,

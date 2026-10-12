@@ -1394,7 +1394,7 @@ class LiveScoringBloc extends Bloc<LiveScoringEvent, LiveScoringState> {
     String? previousBowlerId;
     if (!runtime.isSuperOver && (runtime.currentOver ?? 0) > 0) {
       final completedOver = runtime.currentOver! - 1;
-      for (final e in runtime.events) {
+      for (final e in _currentInningsEvents(runtime)) {
         if (e.isBallRecorded &&
             e.overNumber == completedOver &&
             e.bowlerUserId != null) {
@@ -1535,6 +1535,21 @@ class LiveScoringBloc extends Bloc<LiveScoringEvent, LiveScoringState> {
     return isSuper ? LiveScoringStep.superOverScoring : LiveScoringStep.scoring;
   }
 
+  /// Events belonging to the current innings only. The backend sends the
+  /// whole match stream, and over numbers restart each innings, so without
+  /// this scoping an innings-1 over 0 would leak into innings 2.
+  static List<RefereeScoreEvent> _currentInningsEvents(
+    RefereeScoreRuntimeResponse runtime,
+  ) {
+    final events = runtime.events;
+    for (var i = events.length - 1; i >= 0; i--) {
+      if (events[i].isInningsStarted) {
+        return events.sublist(i + 1);
+      }
+    }
+    return events;
+  }
+
   List<ScoringDelivery> _deliveriesFromServer(
     RefereeScoreRuntimeResponse runtime,
     LiveScoringStep step,
@@ -1545,7 +1560,7 @@ class LiveScoringBloc extends Bloc<LiveScoringEvent, LiveScoringState> {
         : currentOver;
 
     final deliveries = <ScoringDelivery>[];
-    for (final event in runtime.events) {
+    for (final event in _currentInningsEvents(runtime)) {
       if (!event.isBallRecorded) continue;
       if (event.overNumber != targetOver) continue;
       if ((event.ballInOver ?? 0) < 1) continue;
