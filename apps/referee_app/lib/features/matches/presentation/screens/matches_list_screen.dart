@@ -7,6 +7,8 @@ import 'package:ui_kit/ui_kit.dart';
 
 import '../../../../app/router/app_router.dart';
 import '../../../../core/di/dependency_injector.dart';
+import '../../../../core/match_action/match_action_resolver.dart';
+import '../widgets/match_live_score.dart';
 
 /// Exact Figma implementation of the Matches List Screen based on `figma/matches.json`.
 ///
@@ -377,6 +379,16 @@ class _MatchesListScreenState extends State<MatchesListScreen> {
                                     scale: scale,
                                     match: match,
                                     onContinueScoring: () {
+                                      final resolved =
+                                          resolveMatchAction(match);
+                                      if (resolved.action ==
+                                          MatchAction.blocked) {
+                                        _showSnack(
+                                          resolved.blockedReason ??
+                                              'Unavailable',
+                                        );
+                                        return;
+                                      }
                                       context.push(
                                         '${AppRouter.liveScoringRoute}?matchId=${match.id}&matchCode=SPT-${match.id}',
                                       );
@@ -633,13 +645,33 @@ class _FigmaLiveMatchCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final teamAScore = match.raw['team_a_score']?.toString() ?? '28/1';
-    final teamBScore =
-        match.raw['team_b_score']?.toString() ?? 'Waiting to Bat';
-    final currentBatter = match.raw['current_batter']?.toString() ?? 'Rahul';
-    final currentBowler = match.raw['current_bowler']?.toString() ?? 'Amit';
-    final oversText = match.raw['overs_text']?.toString() ?? 'Over - 2.1/6';
-    final duration = match.raw['duration']?.toString() ?? '08:25';
+    // Authoritative live score only — '…' until loaded, never static text.
+    // Duration has no API source yet, so it renders '—' until one lands.
+    return MatchLiveScore(
+      matchId: match.id,
+      builder: (context, score, isLoading) {
+        final teamAId = match.teamA?.id;
+        final teamBId = match.teamB?.id;
+        final teamAScore = isLoading
+            ? '…'
+            : (teamAId == null
+                ? '—'
+                : (liveTeamScore(score, teamAId) ?? 'Yet to Bat'));
+        final teamBScore = isLoading
+            ? '…'
+            : (teamBId == null
+                ? '—'
+                : (liveTeamScore(score, teamBId) ?? 'Yet to Bat'));
+        final strikerName =
+            score?.scoring.runtime.currentStriker.name?.trim() ?? '';
+        final bowlerName =
+            score?.scoring.runtime.currentBowler.name?.trim() ?? '';
+        final currentBatter =
+            isLoading ? '…' : (strikerName.isEmpty ? '—' : strikerName);
+        final currentBowler =
+            isLoading ? '…' : (bowlerName.isEmpty ? '—' : bowlerName);
+        final oversText =
+            isLoading ? '…' : (liveOversText(score) ?? 'Over - —');
 
     return Container(
       decoration: BoxDecoration(
@@ -958,30 +990,11 @@ class _FigmaLiveMatchCard extends StatelessWidget {
 
             SizedBox(height: 8 * scale),
 
-            // Action Row: Duration & Continue Scoring Action
+            // Action Row: Continue Scoring Action (duration has no API
+            // source, so the row was removed instead of showing fake time)
             Row(
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Expanded(
-                  child: Text.rich(
-                    TextSpan(
-                      style: TextStyle(
-                        fontSize: 12 * scale,
-                        color: const Color(0xFFAAAAAA),
-                      ),
-                      children: [
-                        const TextSpan(text: 'Duration: '),
-                        TextSpan(
-                          text: duration,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFFFFFFFF),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                SizedBox(width: 8 * scale),
                 Container(
                   height: 30 * scale,
                   decoration: BoxDecoration(
@@ -1029,6 +1042,8 @@ class _FigmaLiveMatchCard extends StatelessWidget {
         ),
       ),
     );
+      },
+    );
   }
 }
 
@@ -1052,60 +1067,58 @@ class _FigmaUpcomingMatchCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final statusText = match.displayStatus.toLowerCase();
-    final label = (match.statusLabel ?? '').toLowerCase();
-    final rawTossDone = match.isTossCompleted ||
-        match.raw['toss_done'] == true ||
-        match.raw['toss_winner'] != null ||
-        match.raw['toss_decision'] != null;
-    final rawTeamsVerified =
-        match.raw['teams_verified'] == true || match.raw['verified'] == true;
-
-    // Check if Toss is completed (Ready to score)
-    final isTossDone = statusText.contains('toss completed') ||
-        statusText.contains('ready') ||
-        label.contains('toss completed') ||
-        label.contains('ready') ||
-        rawTossDone;
-
-    // Check if Teams verified and Toss is pending
-    final isTossPending = !isTossDone &&
-        (statusText.contains('toss pending') ||
-            statusText.contains('conduct toss') ||
-            statusText.contains('verified') ||
-            label.contains('verified') ||
-            label.contains('toss') ||
-            rawTeamsVerified);
-
-    final isPreVerification = !isTossDone &&
-        !isTossPending &&
-        (match.raw['needs_verification'] == true ||
-            match.raw['teams_verified'] == false ||
-            statusText.contains('unverified'));
+    // Single source of truth for card routing — authoritative list-API
+    // fields only (the backend never sends toss_done/verified raw keys).
+    final resolved = resolveMatchAction(match);
+    final isTossDone = match.isTossCompleted;
+    final teamsPending = match.blockingCode == 'PARTICIPANTS_NOT_RESOLVED';
 
     // Determine button label, gradient, and callback based on status
     final String buttonLabel;
     final Gradient buttonGradient;
     final VoidCallback buttonCallback;
 
-    if (isTossDone) {
-      buttonLabel = 'Start Scoring';
-      buttonGradient = const LinearGradient(
-        colors: [Color(0xFF2BB673), Color(0xFF01A34D)],
-      );
-      buttonCallback = onStartScoring ?? onVerifyTeams;
-    } else if (isTossPending) {
-      buttonLabel = 'Conduct Toss';
-      buttonGradient = const LinearGradient(
-        colors: [Color(0xFFFF9364), Color(0xFFF25F33)],
-      );
-      buttonCallback = onConductToss ?? onVerifyTeams;
-    } else {
-      buttonLabel = 'Verify Teams';
-      buttonGradient = const LinearGradient(
-        colors: [Color(0xFF7AD3FF), Color(0xFF4FBAF0)],
-      );
-      buttonCallback = onVerifyTeams;
+    switch (resolved.action) {
+      case MatchAction.startScoring:
+        buttonLabel = 'Start Scoring';
+        buttonGradient = const LinearGradient(
+          colors: [Color(0xFF2BB673), Color(0xFF01A34D)],
+        );
+        buttonCallback = onStartScoring ?? onVerifyTeams;
+      case MatchAction.continueScoring:
+        buttonLabel = 'Continue Scoring';
+        buttonGradient = const LinearGradient(
+          colors: [Color(0xFF2BB673), Color(0xFF01A34D)],
+        );
+        buttonCallback = onStartScoring ?? onVerifyTeams;
+      case MatchAction.toss:
+        buttonLabel = 'Conduct Toss';
+        buttonGradient = const LinearGradient(
+          colors: [Color(0xFFFF9364), Color(0xFFF25F33)],
+        );
+        buttonCallback = onConductToss ?? onVerifyTeams;
+      case MatchAction.blocked:
+        buttonLabel = resolved.blockedReason ?? 'Unavailable';
+        buttonGradient = const LinearGradient(
+          colors: [Color(0xFF3A4356), Color(0xFF3A4356)],
+        );
+        buttonCallback = () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(resolved.blockedReason ?? 'Unavailable')),
+          );
+        };
+      case MatchAction.viewReport:
+        buttonLabel = 'View Report';
+        buttonGradient = const LinearGradient(
+          colors: [Color(0xFF7AD3FF), Color(0xFF4FBAF0)],
+        );
+        buttonCallback = onVerifyTeams;
+      case MatchAction.verify:
+        buttonLabel = 'Verify Teams';
+        buttonGradient = const LinearGradient(
+          colors: [Color(0xFF7AD3FF), Color(0xFF4FBAF0)],
+        );
+        buttonCallback = onVerifyTeams;
     }
 
     return Container(
@@ -1294,7 +1307,7 @@ class _FigmaUpcomingMatchCard extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 // Item 1: Teams
-                if (isPreVerification)
+                if (teamsPending)
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -1468,10 +1481,25 @@ class _FigmaCompletedMatchCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final teamAScore = match.raw['team_a_score']?.toString() ?? '90/2';
-    final teamBScore = match.raw['team_b_score']?.toString() ?? '85/3';
-    final winnerSummary =
-        match.raw['result_summary']?.toString() ?? '${match.displayTeamA} Won';
+    // Final scores + winner from the read-only GET /score — never static.
+    return MatchLiveScore(
+      matchId: match.id,
+      builder: (context, score, isLoading) {
+        final teamAId = match.teamA?.id;
+        final teamBId = match.teamB?.id;
+        final teamAScore = isLoading
+            ? '…'
+            : (teamAId == null
+                ? '—'
+                : (liveTeamScore(score, teamAId) ?? '—'));
+        final teamBScore = isLoading
+            ? '…'
+            : (teamBId == null
+                ? '—'
+                : (liveTeamScore(score, teamBId) ?? '—'));
+        final winnerSummary = isLoading
+            ? '…'
+            : _winnerSummary(score, match);
 
     return Container(
       decoration: BoxDecoration(
@@ -1743,7 +1771,29 @@ class _FigmaCompletedMatchCard extends StatelessWidget {
         ],
       ),
     );
+      },
+    );
   }
+}
+
+/// Winner line from the authoritative score result. Falls back to the result
+/// status text, then match teams — never a hardcoded winner.
+String _winnerSummary(RefereeScoreResponse? score, RefereeMatchResponse match) {
+  final winnerId = score?.winnerTeamId;
+  if (winnerId != null) {
+    for (final team in score!.teams) {
+      if (team.id == winnerId && team.name.trim().isNotEmpty) {
+        return '${team.name} Won';
+      }
+    }
+    if (match.teamA?.id == winnerId) return '${match.displayTeamA} Won';
+    if (match.teamB?.id == winnerId) return '${match.displayTeamB} Won';
+  }
+  final status = score?.resultStatus?.trim() ?? '';
+  if (status.isNotEmpty && status.toUpperCase() != 'UNRESOLVED') {
+    return status;
+  }
+  return 'Result awaited';
 }
 
 // =============================================================================
@@ -1762,10 +1812,30 @@ class _FigmaDelayedMatchCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final teamAScore = match.raw['team_a_score']?.toString() ?? '28/1';
-    final teamBScore = match.raw['team_b_score']?.toString() ?? 'Yet to Bat';
-    final delayReason = match.raw['delay_reason']?.toString() ?? 'Heavy Rain';
-    final resumeTime = match.raw['resume_time']?.toString() ?? '4:00 PM';
+    // Scores from the authoritative GET /score. Delay reason / resume time
+    // have no API source yet — kept as backend-driven placeholders for now.
+    return MatchLiveScore(
+      matchId: match.id,
+      builder: (context, score, isLoading) {
+        final teamAId = match.teamA?.id;
+        final teamBId = match.teamB?.id;
+        final teamAScore = isLoading
+            ? '…'
+            : (teamAId == null
+                ? '—'
+                : (liveTeamScore(score, teamAId) ?? 'Yet to Bat'));
+        final teamBScore = isLoading
+            ? '…'
+            : (teamBId == null
+                ? '—'
+                : (liveTeamScore(score, teamBId) ?? 'Yet to Bat'));
+        // No weather API exists — banner shows the authoritative status /
+        // blocking reason and the real schedule instead of fake text.
+        final resolved = resolveMatchAction(match);
+        final delayReason = resolved.action == MatchAction.blocked
+            ? (resolved.blockedReason ?? match.displayStatus)
+            : match.displayStatus;
+        final resumeTime = match.displaySchedule;
 
     return Container(
       decoration: BoxDecoration(
@@ -2078,6 +2148,8 @@ class _FigmaDelayedMatchCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+      },
     );
   }
 }

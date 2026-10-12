@@ -83,7 +83,8 @@ void main() {
       ],
     ),
     venue: 'Hyderabad',
-    scheduledTime: DateTime(2026, 9, 19, 18, 30),
+    scheduledTime:
+        DateTime.now().add(const Duration(hours: 2, minutes: 15)),
     status: MatchStatus.upcoming,
     refereeName: 'Official Umpire',
   );
@@ -112,14 +113,22 @@ void main() {
       expect(find.text('Match Verification'), findsOneWidget);
       expect(find.text('Match #SPT-20481'), findsOneWidget);
 
-      // Match Summary Card elements
-      expect(find.text('Quarter Final'), findsOneWidget);
-      expect(find.text('Today, 06:30 PM'), findsOneWidget);
+      // Match Summary Card elements (real round + schedule, no hardcode)
+      expect(find.text('Match'), findsOneWidget);
+      expect(
+        find.textContaining(RegExp('(Today|Tomorrow), ')),
+        findsOneWidget,
+      );
       expect(find.text('Upcoming'), findsOneWidget);
       expect(find.text('Asia Cup 2026'), findsOneWidget);
       expect(find.text('Hyderabad'), findsOneWidget);
       expect(find.text('Vs'), findsOneWidget);
-      expect(find.text('at 06:30 PM'), findsOneWidget);
+      // Countdown lives inside RichText.
+      expect(
+        find.textContaining('Starts in', findRichText: true),
+        findsOneWidget,
+      );
+      expect(find.textContaining('at '), findsWidgets);
     });
 
     testWidgets('Renders Team Verification split cards with players & actions',

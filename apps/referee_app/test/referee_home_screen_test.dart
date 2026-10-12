@@ -4,9 +4,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:referee_data/referee_data.dart';
 import 'package:referee_app/features/matches/presentation/screens/referee_home_screen.dart';
+import 'package:referee_app/features/matches/presentation/widgets/match_live_score.dart';
 import 'package:ui_kit/ui_kit.dart';
 
+import 'fake_score.dart';
+
 void main() {
+  setUp(() {
+    // Live cards render the authoritative GET /score — fake it here.
+    MatchLiveScore.debugFetchOverride = (matchId) async =>
+        fakeLiveScoreResponse(matchId: matchId, oversPerInnings: 6);
+  });
+
+  tearDown(() {
+    MatchLiveScore.debugFetchOverride = null;
+  });
+
   RefereeMatchResponse createLiveMatch() {
     return RefereeMatchResponse(
       id: 101,
@@ -34,12 +47,14 @@ void main() {
       id: id,
       tournamentName: 'Asia Cup 2026',
       roundName: 'Quarter Final',
-      scheduledAt: 'Today, 08:00 PM',
+      scheduledAt:
+          DateTime.now().add(const Duration(hours: 2)).toIso8601String(),
       venueName: 'Gachibowli Stadium, Hyderabad',
       status: 0,
       statusLabel: 'Scheduled',
       teamA: const RefereeMatchTeam(id: 3, name: 'Thunder Titans'),
       teamB: const RefereeMatchTeam(id: 4, name: 'Royal Smashers'),
+      canOfficiate: true,
     );
   }
 
@@ -54,6 +69,7 @@ void main() {
       statusLabel: 'Scheduled',
       teamA: const RefereeMatchTeam(id: 5, name: 'Delhi Warriors'),
       teamB: const RefereeMatchTeam(id: 6, name: 'Hyd Highlanders'),
+      canOfficiate: true,
     );
   }
 
@@ -79,9 +95,12 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      // Header Elements
-      expect(find.text('Good Evening'), findsOneWidget);
-      expect(find.text('Priya Agrawal'), findsOneWidget);
+      // Header Elements (name from profile API, ''Referee'' offline)
+      expect(
+        find.textContaining(RegExp('Good (Morning|Afternoon|Evening)')),
+        findsOneWidget,
+      );
+      expect(find.text('Referee'), findsOneWidget);
       expect(find.text('₹ 500'), findsOneWidget);
       expect(find.byIcon(Icons.add_rounded), findsOneWidget);
       expect(find.byIcon(Icons.notifications_none_rounded), findsOneWidget);
@@ -127,7 +146,7 @@ void main() {
       expect(find.text('Thunder Titans'), findsOneWidget);
       expect(find.text('28/1'), findsOneWidget);
       expect(find.text('Royal Strikers'), findsOneWidget);
-      expect(find.text('Waiting to Bat'), findsOneWidget);
+      expect(find.text('Yet to Bat'), findsOneWidget);
       expect(find.textContaining('Rahul'), findsOneWidget);
       expect(find.textContaining('Amit'), findsOneWidget);
       expect(find.text('Over - 2.1/6'), findsOneWidget);
@@ -232,7 +251,9 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(tester.takeException(), isNull);
-      expect(find.text('Priya Agrawal'), findsOneWidget);
+      expect(find.text('Referee'), findsOneWidget);
     });
   });
 }
+
+

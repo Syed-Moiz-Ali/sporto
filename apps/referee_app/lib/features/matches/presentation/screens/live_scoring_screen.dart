@@ -257,8 +257,10 @@ class _LiveScoringView extends StatelessWidget {
   });
 
   bool _isActionAllowed(BuildContext context, String action) {
+    // Empty means nothing is allowed (e.g. pre-toss PENDING) — never
+    // treat "no data" as "everything allowed".
     final actions = context.read<LiveScoringBloc>().state.allowedActions;
-    return actions.isEmpty || actions.contains(action);
+    return actions.contains(action);
   }
 
   bool _matchAlreadyLive(BuildContext context) =>
@@ -667,7 +669,19 @@ class _LiveScoringView extends StatelessWidget {
         final finalResult = state.step == LiveScoringStep.finalResult ||
             state.step == LiveScoringStep.superOverFinalResult;
 
-        return SportoScreenShell(
+        // Guard accidental back-outs while the match is LIVE. Resume is
+        // always safe: the backend holds the authoritative state.
+        final needsGuard = state.matchLive &&
+            state.step != LiveScoringStep.resultSubmitted;
+
+        return PopScope(
+          canPop: !needsGuard,
+          onPopInvokedWithResult: (didPop, result) {
+            if (!didPop && needsGuard) {
+              _confirmExit(context);
+            }
+          },
+          child: SportoScreenShell(
           body: SafeArea(
             bottom: false,
             child: SingleChildScrollView(
@@ -745,9 +759,50 @@ class _LiveScoringView extends StatelessWidget {
               ),
             ),
           ),
-        );
+        ),
+      );
       },
     );
+  }
+
+  Future<void> _confirmExit(BuildContext context) async {
+    final leave = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: const Color(0xFF1C2026),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: const Text(
+          'Leave live scoring?',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        content: const Text(
+          'The match is LIVE. Your progress is safe — the backend keeps '
+          'the authoritative state and you can resume from Matches.',
+          style: TextStyle(color: Color(0xFFAAAAAA)),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Stay'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text(
+              'Leave',
+              style: TextStyle(color: Color(0xFFFE464B)),
+            ),
+          ),
+        ],
+      ),
+    );
+    if (leave == true && context.mounted && context.canPop()) {
+      context.pop();
+    }
   }
 
   // ==========================================================

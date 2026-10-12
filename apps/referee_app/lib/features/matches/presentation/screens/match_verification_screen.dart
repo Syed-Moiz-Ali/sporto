@@ -8,6 +8,7 @@ import 'package:ui_kit/ui_kit.dart';
 
 import '../../../../app/router/app_router.dart';
 import '../../../../core/di/dependency_injector.dart';
+import '../../../../core/match_action/match_action_resolver.dart';
 
 /// Exact Figma copy of the Match Verification Screen based on Match_Verification.json.
 ///
@@ -42,6 +43,7 @@ class _MatchVerificationScreenState extends State<MatchVerificationScreen> {
   bool _team1Present = true;
   bool _team2Present = true;
   final bool _tossDone = false;
+  String? _roundLabel;
 
   @override
   void initState() {
@@ -72,6 +74,10 @@ class _MatchVerificationScreenState extends State<MatchVerificationScreen> {
       }
       return index < toss.teams.length ? toss.teams[index] : null;
     }
+
+    _roundLabel = match.roundName?.trim().isNotEmpty == true
+        ? match.roundName!.trim()
+        : null;
 
     TeamEntity mapTeam(RefereeMatchTeam? summary, int index) {
       final roster = rosterFor(summary, index);
@@ -334,6 +340,8 @@ class _MatchVerificationScreenState extends State<MatchVerificationScreen> {
                                 venueName: venueName,
                                 team1: team1Name,
                                 team2: team2Name,
+                                stageLabel: _roundLabel ?? 'Match',
+                                scheduledStart: currentMatch?.scheduledTime,
                               ),
 
                               SizedBox(height: 20 * scale),
@@ -611,6 +619,109 @@ class _FigmaAppBar extends StatelessWidget {
   }
 }
 
+/// Manual date/time formatting (no intl dependency).
+abstract final class _VerificationScheduleText {
+  static const _months = [
+    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+  ];
+
+  static String timeOf(DateTime dt) {
+    final h12 = dt.hour % 12 == 0 ? 12 : dt.hour % 12;
+    final mm = dt.minute.toString().padLeft(2, '0');
+    final suffix = dt.hour < 12 ? 'AM' : 'PM';
+    return '$h12:$mm $suffix';
+  }
+
+  static String dateLine(DateTime? start) {
+    if (start == null) return 'Schedule not set';
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final day = DateTime(start.year, start.month, start.day);
+    final diff = day.difference(today).inDays;
+    if (diff == 0) return 'Today, ${timeOf(start)}';
+    if (diff == 1) return 'Tomorrow, ${timeOf(start)}';
+    return '${start.day} ${_months[start.month - 1]}, ${timeOf(start)}';
+  }
+}
+
+/// Real countdown row driven by [scheduledStart].
+class _VerificationCountdown extends StatelessWidget {
+  final double scale;
+  final DateTime? scheduledStart;
+
+  const _VerificationCountdown({required this.scale, this.scheduledStart});
+
+  @override
+  Widget build(BuildContext context) {
+    final countdown = countdownText(scheduledStart);
+    if (countdown == null) {
+      return Text(
+        scheduledStart == null ? 'Schedule not set' : 'Starting soon',
+        style: TextStyle(
+          fontSize: 14 * scale,
+          fontWeight: FontWeight.w500,
+          color: const Color(0xFFFFFFFF),
+        ),
+      );
+    }
+    if (!countdown.contains(' in ')) {
+      return Text(
+        countdown,
+        style: TextStyle(
+          fontSize: 14 * scale,
+          fontWeight: FontWeight.w600,
+          color: const Color(0xFF2BB673),
+        ),
+      );
+    }
+    final prefix = countdown.substring(0, countdown.indexOf(' in ') + 4);
+    final value = countdown.substring(countdown.indexOf(' in ') + 4);
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        RichText(
+          text: TextSpan(
+            style: TextStyle(
+              fontSize: 14 * scale,
+              fontWeight: FontWeight.w500,
+              color: const Color(0xFFA0A0A0),
+            ),
+            children: [
+              TextSpan(text: prefix),
+              TextSpan(
+                text: value,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF2BB673),
+                ),
+              ),
+            ],
+          ),
+        ),
+        SizedBox(width: 6 * scale),
+        Container(
+          width: 2.5 * scale,
+          height: 2.5 * scale,
+          decoration: const BoxDecoration(
+            shape: BoxShape.circle,
+            color: Color(0xFFA0A0A0),
+          ),
+        ),
+        SizedBox(width: 6 * scale),
+        Text(
+          'at ${_VerificationScheduleText.timeOf(scheduledStart!)}',
+          style: TextStyle(
+            fontSize: 14 * scale,
+            fontWeight: FontWeight.w500,
+            color: const Color(0xFFFFFFFF),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 // =============================================================================
 // SECTION 0: FIGMA MATCH SUMMARY CARD (Section: 350x141)
 // =============================================================================
@@ -620,6 +731,8 @@ class _FigmaMatchSummaryCard extends StatelessWidget {
   final String venueName;
   final String team1;
   final String team2;
+  final String stageLabel;
+  final DateTime? scheduledStart;
 
   const _FigmaMatchSummaryCard({
     required this.scale,
@@ -627,6 +740,8 @@ class _FigmaMatchSummaryCard extends StatelessWidget {
     required this.venueName,
     required this.team1,
     required this.team2,
+    this.stageLabel = 'Match',
+    this.scheduledStart,
   });
 
   @override
@@ -663,7 +778,9 @@ class _FigmaMatchSummaryCard extends StatelessWidget {
                 ),
                 child: Center(
                   child: Text(
-                    'Quarter Final',
+                    stageLabel,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontSize: 12 * scale,
                       fontWeight: FontWeight.w600,
@@ -674,12 +791,12 @@ class _FigmaMatchSummaryCard extends StatelessWidget {
                 ),
               ),
 
-              // Date & Time
+              // Date & Time (real schedule)
               Flexible(
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: 4 * scale),
                   child: Text(
-                    'Today, 06:30 PM',
+                    _VerificationScheduleText.dateLine(scheduledStart),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.center,
@@ -809,50 +926,12 @@ class _FigmaMatchSummaryCard extends StatelessWidget {
 
           SizedBox(height: 8 * scale),
 
-          // Countdown Row (Frame 1171275259: 330x18)
+          // Countdown Row (real schedule; "Schedule not set" fallback)
           FittedBox(
             fit: BoxFit.scaleDown,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                RichText(
-                  text: TextSpan(
-                    style: TextStyle(
-                      fontSize: 14 * scale,
-                      fontWeight: FontWeight.w500,
-                      color: const Color(0xFFA0A0A0),
-                    ),
-                    children: [
-                      const TextSpan(text: 'Starts in '),
-                      TextSpan(
-                        text: '24 mins',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          color: const Color(0xFF2BB673),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(width: 6 * scale),
-                Container(
-                  width: 2.5 * scale,
-                  height: 2.5 * scale,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Color(0xFFA0A0A0),
-                  ),
-                ),
-                SizedBox(width: 6 * scale),
-                Text(
-                  'at 06:30 PM',
-                  style: TextStyle(
-                    fontSize: 14 * scale,
-                    fontWeight: FontWeight.w500,
-                    color: const Color(0xFFFFFFFF),
-                  ),
-                ),
-              ],
+            child: _VerificationCountdown(
+              scale: scale,
+              scheduledStart: scheduledStart,
             ),
           ),
         ],

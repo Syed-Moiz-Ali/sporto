@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:core/core.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:referee_data/referee_data.dart';
@@ -7,6 +8,8 @@ import 'package:ui_kit/ui_kit.dart';
 
 import '../../../../app/router/app_router.dart';
 import '../../../../core/di/dependency_injector.dart';
+import '../../../../core/match_action/match_action_resolver.dart';
+import '../widgets/match_live_score.dart';
 
 /// Pixel-perfect implementation of the Referee Home Screen matching Home.json
 /// (Canvas: 390x1097, Atmosphere, Stats Overview, Live Match with scoring,
@@ -303,6 +306,107 @@ extension _RefereeHomeMatchPickers on List<RefereeMatchResponse> {
   }
 }
 
+String _greetingFor(DateTime now) {
+  final hour = now.hour;
+  if (hour < 12) return 'Good Morning';
+  if (hour < 17) return 'Good Afternoon';
+  return 'Good Evening';
+}
+
+/// Referee name from the local auth session (no network — safe offline and
+/// in tests). Falls back to "Referee" when the session cache is empty.
+class _RefereeDisplayName extends StatefulWidget {
+  final double scale;
+
+  const _RefereeDisplayName({required this.scale});
+
+  @override
+  State<_RefereeDisplayName> createState() => _RefereeDisplayNameState();
+}
+
+class _RefereeDisplayNameState extends State<_RefereeDisplayName> {
+  late final Future<String> _nameFuture = _loadName();
+
+  Future<String> _loadName() async {
+    try {
+      final user = await AuthRepositoryImpl().getCurrentUser();
+      final name = user?.name.trim() ?? '';
+      if (name.isNotEmpty) return name;
+    } catch (_) {
+      // Hive not ready (e.g. widget tests) — fall through to default.
+    }
+    return 'Referee';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<String>(
+      future: _nameFuture,
+      builder: (context, snapshot) {
+        return Text(
+          snapshot.data ?? 'Referee',
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            fontSize: 16 * widget.scale,
+            fontWeight: FontWeight.w700,
+            color: const Color(0xFFFFFFFF),
+            height: 1.1,
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// Real countdown from the match schedule. Falls back to the schedule label
+/// (or "Schedule not set") when the backend sent no parsable start time.
+class _NextMatchCountdown extends StatelessWidget {
+  final double scale;
+  final RefereeMatchResponse match;
+
+  const _NextMatchCountdown({required this.scale, required this.match});
+
+  @override
+  Widget build(BuildContext context) {
+    final countdown = countdownText(parseMatchStart(match));
+    final label = countdown ?? match.displaySchedule;
+    final isLive = countdown != null;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (!isLive)
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 13 * scale,
+              fontWeight: FontWeight.w500,
+              color: const Color(0xFFA0A0A0),
+            ),
+          )
+        else ...[
+          Text(
+            'Starts in ',
+            style: TextStyle(
+              fontSize: 13 * scale,
+              fontWeight: FontWeight.w500,
+              color: const Color(0xFFA0A0A0),
+            ),
+          ),
+          Text(
+            label.replaceFirst('Starts in ', ''),
+            style: TextStyle(
+              fontSize: 13 * scale,
+              fontWeight: FontWeight.w700,
+              color: const Color(0xFF2BB673),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
 // =============================================================================
 // HEADER BAR (Frame 1000003336: 390x49)
 // =============================================================================
@@ -342,13 +446,15 @@ class _FigmaHomeHeader extends StatelessWidget {
           SizedBox(width: 10 * scale),
 
           // Greeting Column (Frame 1000003337)
+          // Name comes from GET /v1/referee/profile; wallet + search visuals
+          // are intentional placeholders until their APIs land.
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 _GradientText(
-                  'Good Evening',
+                  _greetingFor(DateTime.now()),
                   gradient: const LinearGradient(
                     colors: [
                       Color(0xFFED7B00),
@@ -362,17 +468,7 @@ class _FigmaHomeHeader extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: 2 * scale),
-                Text(
-                  'Priya Agrawal',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 16 * scale,
-                    fontWeight: FontWeight.w700,
-                    color: const Color(0xFFFFFFFF),
-                    height: 1.1,
-                  ),
-                ),
+                _RefereeDisplayName(scale: scale),
               ],
             ),
           ),
@@ -738,12 +834,29 @@ class _FigmaLiveMatchCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final team1Score =
-        match.raw['team_a_score'] ?? match.raw['current_score'] ?? '28/1';
-    final team2Score = match.raw['team_b_score'] ?? 'Waiting to Bat';
-    final batter = match.raw['current_batter'] ?? 'Rahul';
-    final bowler = match.raw['current_bowler'] ?? 'Amit';
-    final overs = match.raw['overs_text'] ?? 'Over - 2.1/6';
+    // Authoritative live score only — '…' until loaded, never static text.
+    return MatchLiveScore(
+      matchId: match.id,
+      builder: (context, score, isLoading) {
+        final teamAId = match.teamA?.id;
+        final teamBId = match.teamB?.id;
+        final team1Score = isLoading
+            ? '…'
+            : (teamAId == null
+                ? '—'
+                : (liveTeamScore(score, teamAId) ?? 'Yet to Bat'));
+        final team2Score = isLoading
+            ? '…'
+            : (teamBId == null
+                ? '—'
+                : (liveTeamScore(score, teamBId) ?? 'Yet to Bat'));
+        final strikerName =
+            score?.scoring.runtime.currentStriker.name?.trim() ?? '';
+        final bowlerName =
+            score?.scoring.runtime.currentBowler.name?.trim() ?? '';
+        final batter = isLoading ? '…' : (strikerName.isEmpty ? '—' : strikerName);
+        final bowler = isLoading ? '…' : (bowlerName.isEmpty ? '—' : bowlerName);
+        final overs = isLoading ? '' : (liveOversText(score) ?? '');
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1018,6 +1131,8 @@ class _FigmaLiveMatchCard extends StatelessWidget {
         ),
       ],
     );
+      },
+    );
   }
 }
 
@@ -1221,33 +1336,16 @@ class _FigmaNextMatchCard extends StatelessWidget {
 
               SizedBox(height: 8 * scale),
 
-              // Countdown & Verify Teams Action
+              // Countdown & Verify Teams Action (real schedule, no hardcode)
               Row(
                 children: [
                   Expanded(
                     child: FittedBox(
                       alignment: Alignment.centerLeft,
                       fit: BoxFit.scaleDown,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            'Starts in ',
-                            style: TextStyle(
-                              fontSize: 13 * scale,
-                              fontWeight: FontWeight.w500,
-                              color: const Color(0xFFA0A0A0),
-                            ),
-                          ),
-                          Text(
-                            '00:28:35',
-                            style: TextStyle(
-                              fontSize: 13 * scale,
-                              fontWeight: FontWeight.w700,
-                              color: const Color(0xFF2BB673),
-                            ),
-                          ),
-                        ],
+                      child: _NextMatchCountdown(
+                        scale: scale,
+                        match: match,
                       ),
                     ),
                   ),
@@ -1266,13 +1364,8 @@ class _FigmaNextMatchCard extends StatelessWidget {
                     child: Material(
                       color: Colors.transparent,
                       child: InkWell(
-                        onTap: () {
-                          context.push(
-                            match.isTossCompleted
-                                ? '${AppRouter.liveScoringRoute}?matchId=${match.id}&matchCode=SPT-${match.id}'
-                                : '${AppRouter.matchVerificationRoute}?matchId=${match.id}',
-                          );
-                        },
+                        onTap: () =>
+                            _onNextMatchAction(context, match),
                         borderRadius: BorderRadius.circular(10 * scale),
                         child: Padding(
                           padding: EdgeInsets.symmetric(
@@ -1280,9 +1373,7 @@ class _FigmaNextMatchCard extends StatelessWidget {
                           ),
                           child: Center(
                             child: Text(
-                              match.isTossCompleted
-                                  ? 'Start Scoring'
-                                  : 'Verify Teams',
+                              _nextMatchLabel(match),
                               style: TextStyle(
                                 fontSize: 12 * scale,
                                 fontWeight: FontWeight.w700,
@@ -1301,6 +1392,38 @@ class _FigmaNextMatchCard extends StatelessWidget {
         ),
       ],
     );
+  }
+}
+
+/// Single routing point for the home next-match button (same resolver the
+/// list uses — blocked matches show a reason instead of dead navigation).
+String _nextMatchLabel(RefereeMatchResponse match) {
+  return switch (resolveMatchAction(match).action) {
+    MatchAction.continueScoring || MatchAction.startScoring => 'Start Scoring',
+    MatchAction.toss => 'Conduct Toss',
+    MatchAction.viewReport => 'View Report',
+    MatchAction.blocked => 'Unavailable',
+    MatchAction.verify => 'Verify Teams',
+  };
+}
+
+void _onNextMatchAction(BuildContext context, RefereeMatchResponse match) {
+  final resolved = resolveMatchAction(match);
+  switch (resolved.action) {
+    case MatchAction.continueScoring:
+    case MatchAction.startScoring:
+    case MatchAction.viewReport:
+      context.push(
+        '${AppRouter.liveScoringRoute}?matchId=${match.id}&matchCode=SPT-${match.id}',
+      );
+    case MatchAction.toss:
+      context.push('${AppRouter.conductTossRoute}?matchId=${match.id}');
+    case MatchAction.verify:
+      context.push('${AppRouter.matchVerificationRoute}?matchId=${match.id}');
+    case MatchAction.blocked:
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(resolved.blockedReason ?? 'Unavailable')),
+      );
   }
 }
 
@@ -1551,35 +1674,27 @@ class _FigmaAssignedMatchCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10 * scale),
               ),
               child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  onTap: () {
-                    context.push(
-                      match.isTossCompleted
-                          ? '${AppRouter.liveScoringRoute}?matchId=${match.id}&matchCode=SPT-${match.id}'
-                          : '${AppRouter.matchVerificationRoute}?matchId=${match.id}',
-                    );
-                  },
-                  borderRadius: BorderRadius.circular(10 * scale),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 14 * scale,
-                    ),
-                    child: Center(
-                      child: Text(
-                        match.isTossCompleted
-                            ? 'Start Scoring'
-                            : 'Verify Teams',
-                        style: TextStyle(
-                          fontSize: 12 * scale,
-                          fontWeight: FontWeight.w700,
-                          color: const Color(0xFF082234),
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () => _onNextMatchAction(context, match),
+                    borderRadius: BorderRadius.circular(10 * scale),
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 14 * scale,
+                      ),
+                      child: Center(
+                        child: Text(
+                          _nextMatchLabel(match),
+                          style: TextStyle(
+                            fontSize: 12 * scale,
+                            fontWeight: FontWeight.w700,
+                            color: const Color(0xFF082234),
+                          ),
                         ),
                       ),
                     ),
                   ),
                 ),
-              ),
             ),
           ),
         ],

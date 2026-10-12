@@ -3,10 +3,34 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:referee_app/features/matches/presentation/screens/matches_list_screen.dart';
+import 'package:referee_app/features/matches/presentation/widgets/match_live_score.dart';
 import 'package:referee_data/referee_data.dart';
 import 'package:ui_kit/ui_kit.dart';
 
+import 'fake_score.dart';
+
 void main() {
+  setUp(() {
+    // Cards render the authoritative GET /score — fake it per match.
+    MatchLiveScore.debugFetchOverride = (matchId) async {
+      if (matchId == 103) {
+        return fakeCompletedScoreResponse(
+          matchId: matchId,
+          teamAName: 'Mumbai Indians',
+          teamBName: 'Chennai Kings',
+        );
+      }
+      return fakeLiveScoreResponse(
+        matchId: matchId,
+        oversPerInnings: 6,
+      );
+    };
+  });
+
+  tearDown(() {
+    MatchLiveScore.debugFetchOverride = null;
+  });
+
   RefereeMatchResponse createLiveMatch() {
     return RefereeMatchResponse(
       id: 101,
@@ -19,13 +43,7 @@ void main() {
       statusLabel: 'Live',
       teamA: const RefereeMatchTeam(id: 1, name: 'Thunder Titans'),
       teamB: const RefereeMatchTeam(id: 2, name: 'Royal Strikers'),
-      raw: const {
-        'team_a_score': '28/1',
-        'team_b_score': 'Waiting to Bat',
-        'current_batter': 'Rahul',
-        'current_bowler': 'Amit',
-        'overs_text': 'Over - 2.1/6',
-      },
+      canOfficiate: true,
     );
   }
 
@@ -40,6 +58,7 @@ void main() {
       statusLabel: 'Scheduled',
       teamA: const RefereeMatchTeam(id: 3, name: 'Thunder Titans'),
       teamB: const RefereeMatchTeam(id: 4, name: 'Royal Smashers'),
+      canOfficiate: true,
     );
   }
 
@@ -55,11 +74,7 @@ void main() {
       statusLabel: 'Completed',
       teamA: const RefereeMatchTeam(id: 5, name: 'Mumbai Indians'),
       teamB: const RefereeMatchTeam(id: 6, name: 'Chennai Kings'),
-      raw: const {
-        'team_a_score': '90/2',
-        'team_b_score': '85/3',
-        'winner_team_name': 'Mumbai Indians',
-      },
+      canOfficiate: true,
     );
   }
 
@@ -75,11 +90,10 @@ void main() {
       statusLabel: 'Delayed',
       teamA: const RefereeMatchTeam(id: 7, name: 'Kolkata Tigers'),
       teamB: const RefereeMatchTeam(id: 8, name: 'Punjab Lions'),
+      canOfficiate: true,
       raw: const {
         'delay_reason': 'Heavy Rain',
         'resume_time': '4:00 PM',
-        'team_a_score': '42/1',
-        'team_b_score': 'Yet to bat',
       },
     );
   }
@@ -182,7 +196,7 @@ void main() {
       expect(find.text('Thunder Titans'), findsOneWidget);
       expect(find.text('28/1'), findsOneWidget);
       expect(find.text('Royal Strikers'), findsOneWidget);
-      expect(find.text('Waiting to Bat'), findsOneWidget);
+      expect(find.text('Yet to Bat'), findsOneWidget);
       expect(find.textContaining('Rahul'), findsOneWidget);
       expect(find.textContaining('Amit'), findsOneWidget);
       expect(find.text('Over - 2.1/6'), findsOneWidget);
@@ -209,7 +223,8 @@ void main() {
       expect(find.text('Toss Pending'), findsOneWidget);
     });
 
-    testWidgets('Renders Conduct Toss state when teams are verified',
+    testWidgets(
+        'Routes upcoming match to Verify Teams (toss runs via verification)',
         (tester) async {
       final match = RefereeMatchResponse(
         id: 105,
@@ -221,9 +236,7 @@ void main() {
         statusLabel: 'Toss Pending',
         teamA: const RefereeMatchTeam(id: 1, name: 'Delhi Warriors'),
         teamB: const RefereeMatchTeam(id: 2, name: 'Hyd Highlanders'),
-        raw: const {
-          'teams_verified': true,
-        },
+        canOfficiate: true,
       );
       final payload = RefereeMatchesPayload(
         matches: [match],
@@ -238,7 +251,9 @@ void main() {
       expect(find.text('✓ Teams Verified'), findsOneWidget);
       expect(find.text('✓ Ground Ready'), findsOneWidget);
       expect(find.text('Toss Pending'), findsOneWidget);
-      expect(find.text('Conduct Toss'), findsOneWidget);
+      // Authoritative routing has no verified/toss-pending flag, so every
+      // upcoming match enters through verification.
+      expect(find.text('Verify Teams'), findsOneWidget);
     });
 
     testWidgets('Renders Start Scoring state when toss is completed',
@@ -253,8 +268,9 @@ void main() {
         statusLabel: 'Toss Done',
         teamA: const RefereeMatchTeam(id: 1, name: 'Delhi Warriors'),
         teamB: const RefereeMatchTeam(id: 2, name: 'Hyd Highlanders'),
+        canOfficiate: true,
         raw: const {
-          'toss_done': true,
+          'toss': {'state': 'TOSS_COMPLETED', 'is_completed': true},
         },
       );
       final payload = RefereeMatchesPayload(
@@ -323,7 +339,8 @@ void main() {
       await pumpScreen(tester);
 
       expect(find.text('Monsoon Trophy'), findsOneWidget);
-      expect(find.text('Heavy Rain'), findsOneWidget);
+      // Banner now shows the real status, not a fake weather reason.
+      expect(find.text('Delayed'), findsWidgets);
       expect(find.text('Update Status'), findsOneWidget);
     });
 
@@ -471,3 +488,7 @@ void main() {
     });
   });
 }
+
+
+
+

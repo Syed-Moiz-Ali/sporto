@@ -21,10 +21,19 @@ void main() {
   );
 
   ConductTossBloc buildBloc({TossCoinSide? debugForcedCoinSide}) {
+    // Opener selectors require a real roster (≥2 batters + ≥1 bowler) —
+    // these are the dummy players the Step 3/4 tests were written for.
     return ConductTossBloc(
       matchId: '20481',
-      team1: const TossTeam(id: '1', name: 'Delhi Warriors', players: []),
-      team2: const TossTeam(id: '2', name: 'Hyd Highlanders', players: []),
+      team1: const TossTeam(id: '1', name: 'Delhi Warriors', players: [
+        TossPlayer(id: '11', name: 'Shrvn Prajapati', captain: true),
+        TossPlayer(id: '12', name: 'Amit Kumar'),
+        TossPlayer(id: '13', name: 'R. Sharma'),
+      ]),
+      team2: const TossTeam(id: '2', name: 'Hyd Highlanders', players: [
+        TossPlayer(id: '21', name: 'Dev Kumar'),
+        TossPlayer(id: '22', name: 'Vikram Reddy'),
+      ]),
       callerTeamId: '1',
       callerChoice: TossCoinSide.heads,
       forcedCoinSide: debugForcedCoinSide,

@@ -7,6 +7,7 @@ import 'package:ui_kit/ui_kit.dart';
 
 import '../../../../app/router/app_router.dart';
 import '../../../../core/di/dependency_injector.dart';
+import '../widgets/match_live_score.dart';
 
 /// Exact Figma implementation of the Scoring Tab Screen based on `figma/Scoring.json`.
 ///
@@ -105,17 +106,10 @@ class _RefereeScoringTabScreenState extends State<RefereeScoringTabScreen> {
                 }
 
                 final matches = snapshot.data ?? const [];
-                // Filter for live/active matches or all assigned matches if no explicit live matches exist
-                final liveMatches = matches.where((m) {
-                  final statusText = m.displayStatus.toLowerCase();
-                  return m.isLive ||
-                      statusText.contains('live') ||
-                      statusText.contains('progress') ||
-                      m.status == 1;
-                }).toList();
-
+                // Live matches only — pending matches have no score yet and
+                // belong on the Matches tab (verify → toss → start).
                 final displayMatches =
-                    liveMatches.isNotEmpty ? liveMatches : matches;
+                    matches.where((m) => m.isLive).toList();
 
                 return RefreshIndicator(
                   color: const Color(0xFFED7B00),
@@ -304,13 +298,32 @@ class _FigmaSpotlightScoringCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final raw = match.raw;
-    final teamAScore = raw['team_a_score']?.toString() ?? '28/1';
-    final teamBScore = raw['team_b_score']?.toString() ?? 'Yet to Bat';
-    final batterName = raw['current_batter']?.toString() ?? 'Rahul';
-    final bowlerName = raw['current_bowler']?.toString() ?? 'Amit';
-    final oversText = raw['overs_text']?.toString() ?? 'Over - 2.1';
-    final durationText = raw['duration']?.toString() ?? '08:25';
+    // Authoritative live score only — '…' until loaded, never static text.
+    return MatchLiveScore(
+      matchId: match.id,
+      builder: (context, score, isLoading) {
+        final teamAId = match.teamA?.id;
+        final teamBId = match.teamB?.id;
+        final teamAScore = isLoading
+            ? '…'
+            : (teamAId == null
+                ? '—'
+                : (liveTeamScore(score, teamAId) ?? 'Yet to Bat'));
+        final teamBScore = isLoading
+            ? '…'
+            : (teamBId == null
+                ? '—'
+                : (liveTeamScore(score, teamBId) ?? 'Yet to Bat'));
+        final strikerRaw =
+            score?.scoring.runtime.currentStriker.name?.trim() ?? '';
+        final bowlerRaw =
+            score?.scoring.runtime.currentBowler.name?.trim() ?? '';
+        final batterName =
+            isLoading ? '…' : (strikerRaw.isEmpty ? '—' : strikerRaw);
+        final bowlerLabel =
+            isLoading ? '…' : (bowlerRaw.isEmpty ? '—' : bowlerRaw);
+        final oversText =
+            isLoading ? '…' : (liveOversText(score) ?? 'Over - —');
 
     return Container(
       decoration: BoxDecoration(
@@ -611,7 +624,7 @@ class _FigmaSpotlightScoringCard extends StatelessWidget {
                     children: [
                       const TextSpan(text: 'Current Bowler: '),
                       TextSpan(
-                        text: bowlerName,
+                        text: bowlerLabel,
                         style: const TextStyle(
                           fontWeight: FontWeight.w600,
                           color: Color(0xFFFFFFFF),
@@ -637,34 +650,11 @@ class _FigmaSpotlightScoringCard extends StatelessWidget {
 
           SizedBox(height: 8 * scale),
 
-          // 7. Footer Row: Duration (left) + "Continue Scoring" button (right)
+          // 7. Footer Row: "Continue Scoring" button (duration removed — no
+          // API source; a fake timer is worse than no timer)
           Row(
+            mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              // Duration: Frame 1171275259
-              Expanded(
-                child: Text.rich(
-                  TextSpan(
-                    style: TextStyle(
-                      fontSize: 12 * scale,
-                      color: const Color(0xFFAAAAAA),
-                    ),
-                    children: [
-                      const TextSpan(text: 'Duration: '),
-                      TextSpan(
-                        text: durationText,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFFFFFFFF),
-                        ),
-                      ),
-                    ],
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              SizedBox(width: 8 * scale),
-
               // Button: Frame 1261154253 (134x30, radius 10, orange/red gradient)
               Container(
                 height: 30 * scale,
@@ -717,6 +707,8 @@ class _FigmaSpotlightScoringCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+      },
     );
   }
 }
@@ -1004,7 +996,7 @@ class _FigmaEmptyScoringCard extends StatelessWidget {
           ),
           SizedBox(height: 6 * scale),
           Text(
-            'Matches ready for scoring will appear here live.',
+            'Live matches will appear here once scoring starts.',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 13 * scale,

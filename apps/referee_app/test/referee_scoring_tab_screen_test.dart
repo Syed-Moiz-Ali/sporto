@@ -3,10 +3,23 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:referee_app/features/matches/presentation/screens/referee_scoring_tab_screen.dart';
+import 'package:referee_app/features/matches/presentation/widgets/match_live_score.dart';
 import 'package:referee_data/referee_data.dart';
 import 'package:ui_kit/ui_kit.dart';
 
+import 'fake_score.dart';
+
 void main() {
+  setUp(() {
+    // Spotlight card renders the authoritative GET /score — fake it here.
+    MatchLiveScore.debugFetchOverride =
+        (matchId) async => fakeLiveScoreResponse(matchId: matchId);
+  });
+
+  tearDown(() {
+    MatchLiveScore.debugFetchOverride = null;
+  });
+
   RefereeMatchResponse createFigmaSpotlightMatch() {
     return RefereeMatchResponse(
       id: 101,
@@ -106,7 +119,7 @@ void main() {
       expect(find.text('Yet to Bat'), findsOneWidget);
     });
 
-    testWidgets('Renders Current Batter, Current Bowler, and Duration',
+    testWidgets('Renders Current Batter, Current Bowler, no Duration row',
         (tester) async {
       final matches = [createFigmaSpotlightMatch()];
 
@@ -117,7 +130,8 @@ void main() {
 
       expect(find.textContaining('Rahul'), findsOneWidget);
       expect(find.textContaining('Amit'), findsOneWidget);
-      expect(find.textContaining('08:25'), findsOneWidget);
+      // Duration row was removed entirely — no API source, no fake '08:25'.
+      expect(find.textContaining('Duration'), findsNothing);
       expect(find.text('Continue Scoring'), findsOneWidget);
     });
 
