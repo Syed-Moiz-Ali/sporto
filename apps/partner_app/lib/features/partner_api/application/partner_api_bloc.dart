@@ -79,10 +79,18 @@ class PartnerApiLoadedState extends PartnerApiState {
     this.tournaments = const [],
     this.dashboard,
     this.dashboardError,
+    this.tournamentsError,
+    this.configError,
   });
 
   final PartnerDashboard? dashboard;
   final String? dashboardError;
+
+  /// Last tournament-list refresh failure (list keeps showing stale data).
+  final String? tournamentsError;
+
+  /// Last tournament-config (formats/rules) load failure for the wizard.
+  final String? configError;
   final PartnerProfileResponseData profile;
   final List<SportMasterResponse> availableSports;
   final List<PartnerSportResponse> selectedSports;
@@ -143,6 +151,8 @@ class PartnerApiLoadedState extends PartnerApiState {
         tournaments,
         dashboard,
         dashboardError,
+        tournamentsError,
+        configError,
       ];
 }
 
@@ -243,7 +253,35 @@ class PartnerApiBloc extends Bloc<PartnerApiEvent, PartnerApiState> {
           await _remoteDataSource.getTournamentSportsData();
       final cricketFormats =
           await _remoteDataSource.getTournamentFormatsData(event.sportId);
-      if (cricketFormats.isEmpty) return;
+      if (cricketFormats.isEmpty) {
+        // Never fail silently — the wizard would sit on "Loading formats...".
+        if (current is PartnerApiLoadedState) {
+          emit(PartnerApiLoadedState(
+            profile: profile,
+            availableSports: availableSports,
+            selectedSports: selectedSports,
+            documents: current.documents,
+            application: application,
+            tournamentTypes: tournamentTypes,
+            tournamentSports: tournamentSports,
+            cricketFormats: current.cricketFormats,
+            cricketFormConfig: current.cricketFormConfig,
+            prizeCategories: current.prizeCategories,
+            configSportId: event.sportId,
+            configSportFormatId: event.sportFormatId,
+            tournaments: existingTournaments,
+            dashboard: current.dashboard,
+            dashboardError: current.dashboardError,
+            tournamentsError: current.tournamentsError,
+            configError:
+                'Sport formats could not be loaded. Please try again.',
+          ));
+        } else {
+          emit(const PartnerApiErrorState(
+              'Sport formats could not be loaded. Please try again.'));
+        }
+        return;
+      }
       final resolvedSportFormatId = cricketFormats.any(
         (format) => format.id == event.sportFormatId,
       )
@@ -261,7 +299,8 @@ class PartnerApiBloc extends Bloc<PartnerApiEvent, PartnerApiState> {
         profile: profile,
         availableSports: availableSports,
         selectedSports: selectedSports,
-        documents: const [],
+        documents:
+            current is PartnerApiLoadedState ? current.documents : const [],
         application: application,
         tournamentTypes: tournamentTypes,
         tournamentSports: tournamentSports,
@@ -274,9 +313,38 @@ class PartnerApiBloc extends Bloc<PartnerApiEvent, PartnerApiState> {
         dashboard: current is PartnerApiLoadedState ? current.dashboard : null,
         dashboardError:
             current is PartnerApiLoadedState ? current.dashboardError : null,
+        tournamentsError: current is PartnerApiLoadedState
+            ? current.tournamentsError
+            : null,
       ));
     } catch (error) {
-      // Keep existing state if loading tournament config fails.
+      // Surface config failures — the wizard shows them with a retry action
+      // instead of hanging on a loading hint.
+      if (current is PartnerApiLoadedState) {
+        emit(PartnerApiLoadedState(
+          profile: current.profile,
+          availableSports: current.availableSports,
+          selectedSports: current.selectedSports,
+          documents: current.documents,
+          application: current.application,
+          tournamentTypes: current.tournamentTypes,
+          tournamentSports: current.tournamentSports,
+          cricketFormats: current.cricketFormats,
+          cricketFormConfig: current.cricketFormConfig,
+          prizeCategories: current.prizeCategories,
+          configSportId: current.configSportId,
+          configSportFormatId: current.configSportFormatId,
+          tournaments: current.tournaments,
+          dashboard: current.dashboard,
+          dashboardError: current.dashboardError,
+          tournamentsError: current.tournamentsError,
+          configError:
+              'Tournament configuration could not be loaded. Please try again.',
+        ));
+      } else {
+        emit(PartnerApiErrorState(
+            'Tournament configuration could not be loaded: $error'));
+      }
     }
   }
 
@@ -341,9 +409,31 @@ class PartnerApiBloc extends Bloc<PartnerApiEvent, PartnerApiState> {
         configSportFormatId: current.configSportFormatId,
         tournaments: tournaments,
         dashboard: await _remoteDataSource.getDashboardData(),
+        configError: current.configError,
       ));
-    } catch (_) {
-      // Silently ignore — keep existing tournament list.
+    } catch (error) {
+      // Keep the existing list but surface the failure — silent tabs
+      // otherwise look like "no tournaments".
+      emit(PartnerApiLoadedState(
+        profile: current.profile,
+        availableSports: current.availableSports,
+        selectedSports: current.selectedSports,
+        documents: current.documents,
+        application: current.application,
+        tournamentTypes: current.tournamentTypes,
+        tournamentSports: current.tournamentSports,
+        cricketFormats: current.cricketFormats,
+        cricketFormConfig: current.cricketFormConfig,
+        prizeCategories: current.prizeCategories,
+        configSportId: current.configSportId,
+        configSportFormatId: current.configSportFormatId,
+        tournaments: current.tournaments,
+        dashboard: current.dashboard,
+        dashboardError: current.dashboardError,
+        configError: current.configError,
+        tournamentsError:
+            'Tournament list could not be refreshed. Showing saved list.',
+      ));
     }
   }
 }

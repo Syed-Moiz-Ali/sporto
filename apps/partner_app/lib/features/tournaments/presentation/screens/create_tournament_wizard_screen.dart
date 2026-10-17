@@ -721,34 +721,60 @@ class _CreateTournamentWizardState extends State<CreateTournamentWizardScreen> {
                     )
                 ? state.configSportFormatId
                 : null;
+            final configError =
+                loaded ? state.configError : null;
 
-            return DropdownButtonFormField<int>(
-              value: selectedFormatId,
-              isExpanded: true,
-              decoration: InputDecoration(
-                labelText: 'Sport Format',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                DropdownButtonFormField<int>(
+                  value: selectedFormatId,
+                  isExpanded: true,
+                  decoration: InputDecoration(
+                    labelText: 'Sport Format',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    errorText: configError,
+                  ),
+                  hint: Text(
+                      formats.isEmpty && configError == null
+                          ? 'Loading formats...'
+                          : 'Select'),
+                  items: formats
+                      .map((format) => DropdownMenuItem<int>(
+                            value: format.id,
+                            child: Text(format.name),
+                          ))
+                      .toList(),
+                  onChanged: formats.isEmpty
+                      ? null
+                      : (formatId) {
+                          if (formatId == null) return;
+                          context.read<PartnerApiBloc>().add(
+                                LoadTournamentConfigEvent(
+                                  sportId: _sportId,
+                                  sportFormatId: formatId,
+                                ),
+                              );
+                        },
                 ),
-              ),
-              hint: Text(formats.isEmpty ? 'Loading formats...' : 'Select'),
-              items: formats
-                  .map((format) => DropdownMenuItem<int>(
-                        value: format.id,
-                        child: Text(format.name),
-                      ))
-                  .toList(),
-              onChanged: formats.isEmpty
-                  ? null
-                  : (formatId) {
-                      if (formatId == null) return;
-                      context.read<PartnerApiBloc>().add(
-                            LoadTournamentConfigEvent(
-                              sportId: _sportId,
-                              sportFormatId: formatId,
-                            ),
-                          );
-                    },
+                if (configError != null) ...[
+                  const SizedBox(height: 8),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton.icon(
+                      onPressed: () {
+                        context.read<PartnerApiBloc>().add(
+                              LoadTournamentConfigEvent(sportId: _sportId),
+                            );
+                      },
+                      icon: const Icon(Icons.refresh_rounded, size: 16),
+                      label: const Text('Retry'),
+                    ),
+                  ),
+                ],
+              ],
             );
           },
         ),

@@ -1415,10 +1415,26 @@ class LiveScoringBloc extends Bloc<LiveScoringEvent, LiveScoringState> {
 
     final isLiveNow =
         response.isLive || runtime.state == RefereeScoreRuntimeStates.live;
-    // Backend is the single source of truth — no local union, so the UI can
-    // never offer an action the server disallows (e.g. ADD_EVENT while a
-    // replacement batter is awaited, or START before the toss completes).
-    final allowedActions = response.scoring.allowedActions.toSet();
+    final serverActions = response.scoring.allowedActions.toSet();
+    // Verified against the live API (4056 super-over audit): while a match
+    // is LIVE the backend accepts base scoring actions even when it does
+    // not advertise them — e.g. SET_BATTERS/SET_BOWLER right after
+    // START_SUPER_OVER (allowed showed only START_SUPER_OVER/UNDO_LAST),
+    // and the title-winning ADD_EVENT at a level SO score. Without this
+    // union the UI dead-ends there ("Scoring is not allowed") while the
+    // server would have accepted the ball. Invalid taps still fail safe:
+    // the server validates every request (409 + reconcile via GET).
+    // Not-live matches use the server set verbatim (read-only stays shut).
+    final allowedActions = isLiveNow
+        ? {
+            ...serverActions,
+            RefereeScoreActions.addEvent,
+            RefereeScoreActions.setBatters,
+            RefereeScoreActions.setBowler,
+            RefereeScoreActions.setWicketKeeper,
+            RefereeScoreActions.undoLast,
+          }
+        : serverActions;
 
     emit(
       state.copyWith(

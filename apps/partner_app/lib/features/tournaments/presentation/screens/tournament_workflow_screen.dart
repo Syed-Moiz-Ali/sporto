@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:partner_data/partner_data.dart';
 import 'package:ui_kit/ui_kit.dart';
 
+import 'team_details_screen.dart';
+
 /// Registration review and scheduling use real backend round/venue IDs.
 class TournamentWorkflowScreen extends StatefulWidget {
   const TournamentWorkflowScreen(
@@ -50,7 +52,7 @@ class _WorkflowState extends State<TournamentWorkflowScreen> {
         error = null;
       });
     } catch (e) {
-      if (mounted) setState(() => error = e.toString());
+      if (mounted) setState(() => error = _readableWorkflowError(e));
     } finally {
       if (mounted) setState(() => refreshing = false);
     }
@@ -78,11 +80,11 @@ class _WorkflowState extends State<TournamentWorkflowScreen> {
                 method: method, body: {'overwrite': true});
             await reload();
           } catch (retry) {
-            if (mounted) setState(() => error = retry.toString());
+            if (mounted) setState(() => error = _readableWorkflowError(retry));
           }
         }
       } else if (mounted) {
-        setState(() => error = e.toString());
+        setState(() => error = _readableWorkflowError(e));
       }
     } finally {
       if (mounted) setState(() => busy = null);
@@ -136,38 +138,19 @@ class _WorkflowState extends State<TournamentWorkflowScreen> {
     ctrl.dispose();
   }
 
-  Future<void> registrationDetails(TournamentRegistration row) async {
+  Future<void> openTeamDetails(TournamentRegistration row) async {
     if (busy != null) return;
-    setState(() => busy = 'roster-${row.id}');
-    try {
-      final registration =
-          await widget.api.getRegistration(widget.tournamentId, row.id);
-      if (!mounted) return;
-      final players = registration.players;
-      await showDialog<void>(
-          context: context,
-          builder: (ctx) => AlertDialog(
-                  title: const Text('Tournament roster'),
-                  content: SizedBox(
-                    width: double.maxFinite,
-                    child: ListView(
-                        shrinkWrap: true,
-                        children: players.isEmpty
-                            ? [const Text('No tournament roster returned.')]
-                            : players
-                                .map((p) => ListTile(title: Text(p.name)))
-                                .toList()),
-                  ),
-                  actions: [
-                    TextButton(
-                        onPressed: () => Navigator.pop(ctx),
-                        child: const Text('Close'))
-                  ]));
-    } catch (e) {
-      if (mounted) setState(() => error = e.toString());
-    } finally {
-      if (mounted) setState(() => busy = null);
-    }
+    final changed = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => TeamDetailsScreen(
+          tournamentId: widget.tournamentId,
+          registrationId: row.id,
+          api: widget.api,
+        ),
+      ),
+    );
+    if (changed == true) await reload();
   }
 
   Future<void> allocations(TournamentRound round) async {
@@ -190,7 +173,7 @@ class _WorkflowState extends State<TournamentWorkflowScreen> {
                   initial: result)));
       await reload();
     } catch (e) {
-      if (mounted) setState(() => error = e.toString());
+      if (mounted) setState(() => error = _readableWorkflowError(e));
     } finally {
       if (mounted) setState(() => busy = null);
     }
@@ -254,8 +237,8 @@ class _WorkflowState extends State<TournamentWorkflowScreen> {
                             child: Column(children: [
                               Text(row.name),
                               Text('Status: ${row.status}'),
-                              button('roster-${row.id}', 'View roster',
-                                  () => registrationDetails(row)),
+                              button('details-${row.id}', 'View team',
+                                  () => openTeamDetails(row)),
                               button(
                                   'approve-${row.id}',
                                   'Approve',
@@ -432,7 +415,7 @@ class _AllocationState extends State<_AllocationScreen> {
           error = null;
         });
     } catch (e) {
-      if (mounted) setState(() => error = e.toString());
+      if (mounted) setState(() => error = _readableWorkflowError(e));
     } finally {
       if (mounted) setState(() => busy = null);
     }
@@ -466,3 +449,5 @@ class _AllocationState extends State<_AllocationScreen> {
                         : null)))),
       ]));
 }
+
+

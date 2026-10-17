@@ -1,0 +1,18 @@
+<svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="vuesax/linear/clock">
+<g id="clock">
+<path id="Vector" d="M11 6C11 8.76 8.76 11 6 11C3.24 11 1 8.76 1 6C1 3.24 3.24 1 6 1C8.76 1 11 3.24 11 6Z" stroke-width="0.8" stroke-linecap="round" stroke-linejoin="round" stroke="url(#paint0_linear_2883_2928)"/>
+<path id="Vector_2" d="M7.85641 7.58988L6.30641 6.66488C6.03641 6.50488 5.81641 6.11988 5.81641 5.80488V3.75488" stroke-width="0.8" stroke-linecap="round" stroke-linejoin="round" stroke="url(#paint1_linear_2883_2928)"/>
+</g>
+</g>
+<defs>
+<linearGradient id="paint0_linear_2883_2928" x1="6" y1="1" x2="6" y2="11" gradientUnits="userSpaceOnUse">
+<stop stop-color="#FF9364"/>
+<stop offset="1" stop-color="#F25F33"/>
+</linearGradient>
+<linearGradient id="paint1_linear_2883_2928" x1="6.83641" y1="3.75488" x2="6.83641" y2="7.58988" gradientUnits="userSpaceOnUse">
+<stop stop-color="#FF9364"/>
+<stop offset="1" stop-color="#F25F33"/>
+</linearGradient>
+</defs>
+</svg>

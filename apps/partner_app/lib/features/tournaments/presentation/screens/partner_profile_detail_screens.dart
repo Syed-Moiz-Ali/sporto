@@ -200,19 +200,17 @@ class _PartnerTournamentsHistoryScreenState
 
   @override
   Widget build(BuildContext context) {
-    final items = widget.tournaments.isEmpty
-        ? const [
-            _TournamentViewData('Hitech City Super Over Cup', 41, 64, 3800),
-            _TournamentViewData('Hitech City Super Over Cup', 41, 64, 3800),
-          ]
-        : widget.tournaments
-            .map((item) => _TournamentViewData(
-                  item.name,
-                  item.registeredTeams ?? 0,
-                  item.maximumTeams ?? 0,
-                  3800,
-                ))
-            .toList();
+    // Real tournaments only — no placeholder data. Tabs filter by the
+    // authoritative backend status (7 = completed, 8 = cancelled).
+    final completed = widget.tournaments
+        .where((item) => item.status == 7)
+        .map(_TournamentViewData.fromTournament)
+        .toList();
+    final cancelled = widget.tournaments
+        .where((item) => item.status == 8)
+        .map(_TournamentViewData.fromTournament)
+        .toList();
+    final items = _tab == 0 ? completed : cancelled;
 
     return _ProfileDetailShell(
       title: 'Tournaments History',
@@ -250,11 +248,17 @@ class _PartnerTournamentsHistoryScreenState
             ],
           ),
           const SizedBox(height: 18),
-          if (_tab == 1)
-            const _EmptyState(
-              icon: Icons.event_busy_outlined,
-              title: 'No cancelled tournaments',
-              subtitle: 'Cancelled tournaments will appear here.',
+          if (items.isEmpty)
+            _EmptyState(
+              icon: _tab == 0
+                  ? Icons.emoji_events_outlined
+                  : Icons.event_busy_outlined,
+              title: _tab == 0
+                  ? 'No completed tournaments'
+                  : 'No cancelled tournaments',
+              subtitle: _tab == 0
+                  ? 'Finished tournaments will appear here.'
+                  : 'Cancelled tournaments will appear here.',
             )
           else
             ...items.map((item) => Padding(
@@ -274,38 +278,41 @@ class _TournamentHistoryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) => SportoCard(
         padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Row(children: [
-              SportoBadge(text: 'Local', color: _profileGreen, radius: 12),
-              Spacer(),
-              SportoBadge(text: 'Approved', color: _profileGreen, radius: 12),
-            ]),
-            const SizedBox(height: 12),
-            Text(item.name,
-                style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600)),
-            const SizedBox(height: 4),
-            const Text('Hitech Box Cricket Arena  ·  Aug 5',
-                style: TextStyle(color: _profileMuted, fontSize: 10)),
-            const SizedBox(height: 12),
-            const Divider(color: Color(0xFF262B33), height: 1),
-            const SizedBox(height: 9),
-            Row(children: [
-              Text('${item.teams}/${item.capacity}',
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(children: [
+                const Spacer(),
+                SportoBadge(
+                    text: item.statusLabel,
+                    color: _profileGreen,
+                    radius: 12),
+              ]),
+              const SizedBox(height: 12),
+              Text(item.name,
                   style: const TextStyle(
                       color: Colors.white,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700)),
-              const Text(' Teams',
-                  style: TextStyle(color: _profileMuted, fontSize: 11)),
-              const Spacer(),
-              Text('₹ ${item.earnings}',
-                  style: const TextStyle(color: _profileGold, fontSize: 12)),
-            ]),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600)),
+              const SizedBox(height: 4),
+              Text('${item.venueLine}  ·  ${item.dateLine}',
+                  style:
+                      const TextStyle(color: _profileMuted, fontSize: 10)),
+              const SizedBox(height: 12),
+              const Divider(color: Color(0xFF262B33), height: 1),
+              const SizedBox(height: 9),
+              Row(children: [
+                Text('${item.teams}/${item.capacity}',
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700)),
+                const Text(' Teams',
+                    style: TextStyle(color: _profileMuted, fontSize: 11)),
+                const Spacer(),
+                Text(item.feeLine,
+                    style: const TextStyle(color: _profileGold, fontSize: 12)),
+              ]),
             const SizedBox(height: 12),
             Row(children: [
               for (final label in const ['View', 'Manage', 'Earnings']) ...[
@@ -1098,10 +1105,50 @@ class _EmptyState extends StatelessWidget {
 }
 
 class _TournamentViewData {
-  const _TournamentViewData(
-      this.name, this.teams, this.capacity, this.earnings);
+  const _TournamentViewData({
+    required this.name,
+    required this.teams,
+    required this.capacity,
+    required this.venueLine,
+    required this.dateLine,
+    required this.statusLabel,
+    required this.feeLine,
+  });
+
+  factory _TournamentViewData.fromTournament(
+    PartnerTournamentResponse item,
+  ) {
+    final venue =
+        item.tournamentVenues.isNotEmpty ? item.tournamentVenues.first : null;
+    return _TournamentViewData(
+      name: item.name,
+      teams: item.registeredTeams ?? 0,
+      capacity: item.maximumTeams ?? 0,
+      venueLine:
+          venue?.location ?? venue?.venueName ?? 'Venue not set',
+      dateLine: _formatHistoryDate(item.tournamentStartAt),
+      statusLabel: item.workflowStatus.label,
+      feeLine: item.registrationFee?.trim().isNotEmpty == true
+          ? '₹${item.registrationFee!.trim()}/team'
+          : 'Free entry',
+    );
+  }
+
+  static String _formatHistoryDate(String? raw) {
+    final parsed = raw == null ? null : DateTime.tryParse(raw);
+    if (parsed == null) return 'Schedule not set';
+    const months = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    ];
+    return '${parsed.day} ${months[parsed.month - 1]}';
+  }
+
   final String name;
   final int teams;
   final int capacity;
-  final int earnings;
+  final String venueLine;
+  final String dateLine;
+  final String statusLabel;
+  final String feeLine;
 }

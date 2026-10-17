@@ -20,7 +20,6 @@ class TournamentsScreen extends StatefulWidget {
 
 class _TournamentsScreenState extends State<TournamentsScreen> {
   int _selectedTab = 0;
-  static const _tabs = ['All', 'Live', 'Upcoming', 'Completed'];
 
   @override
   void initState() {
@@ -41,14 +40,17 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
     });
   }
 
+  static const _tabs = ['All', 'Draft', 'Published'];
+
+  /// Backend tournament statuses observed live: 1 = draft, 2 = published.
+  /// (The contract lists 3-9, but the server only ever returns 1/2, so
+  /// Live/Completed tabs were permanently empty — remapped to real states.)
   int? _getApiStatusForTab(int index) {
     switch (index) {
-      case 2:
-        return 1; // Upcoming / draft
       case 1:
-        return 6; // Live
-      case 3:
-        return 7; // Completed (status 7)
+        return 1; // Draft
+      case 2:
+        return 2; // Published (submitted / approved)
       default:
         return null; // All
     }
@@ -58,12 +60,10 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
     List<PartnerTournamentResponse> all,
   ) {
     switch (_selectedTab) {
-      case 1: // Live
-        return all.where((t) => t.status == 6).toList();
-      case 2: // Upcoming / Drafts
-        return all.where((t) => t.status >= 1 && t.status <= 5).toList();
-      case 3: // Completed (status 7)
-        return all.where((t) => t.status == 7).toList();
+      case 1: // Draft
+        return all.where((t) => t.status == 1).toList();
+      case 2: // Published
+        return all.where((t) => t.status == 2).toList();
       default: // All
         return all;
     }
@@ -77,12 +77,16 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
 
     PartnerApiLoadedState? loaded;
     bool isApiLoading = false;
+    String? apiError;
     try {
       final bloc = BlocProvider.of<PartnerApiBloc>(context, listen: true);
       isApiLoading = bloc.state is PartnerApiLoadingState ||
           bloc.state is PartnerApiInitialState;
       if (bloc.state is PartnerApiLoadedState) {
         loaded = bloc.state as PartnerApiLoadedState;
+      } else if (bloc.state is PartnerApiErrorState) {
+        apiError =
+            (bloc.state as PartnerApiErrorState).message;
       }
     } catch (_) {}
 
@@ -90,6 +94,46 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
     final all = loaded?.tournaments ?? [];
     final filtered = _filterTournaments(all);
     final count = loaded != null ? filtered.length : 0;
+    final listNotice = loaded?.tournamentsError;
+
+    if (apiError != null && !isLoading) {
+      return SportoScreenShell(
+        body: Center(
+          child: Padding(
+            padding: EdgeInsets.all(24 * scale),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Tournaments could not be loaded.',
+                  style: theme.textTheme.titleMedium,
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 6 * scale),
+                Text(
+                  apiError,
+                  style: theme.textTheme.bodySmall
+                      ?.copyWith(color: cs.onSurfaceVariant),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 16 * scale),
+                SportoPillButton(
+                  label: 'Try Again',
+                  color: cs.primary,
+                  gradient: context.sporto.primaryGradient,
+                  filled: true,
+                  foregroundColor: Colors.black,
+                  height: 44 * scale,
+                  onTap: () => context.read<PartnerApiBloc>().add(
+                        const LoadPartnerApiBootstrapEvent(),
+                      ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
 
     final content = SafeArea(
       bottom: false,
@@ -113,7 +157,7 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "Today's Matches",
+                          'Tournaments',
                           style: theme.textTheme.titleLarge?.copyWith(
                             fontSize: 18 * scale,
                           ),
@@ -129,7 +173,7 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
                           )
                         else
                           Text(
-                            '$count Matches Assigned',
+                            '$count Tournaments',
                             style: theme.textTheme.bodyMedium?.copyWith(
                               color: context.sporto.info,
                             ),
@@ -198,6 +242,20 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
               ),
             ),
             Divider(height: 1, color: context.sporto.border),
+            if (listNotice != null && !isLoading)
+              _ListNoticeBar(
+                scale: scale,
+                message: listNotice,
+                onRetry: () {
+                  try {
+                    context.read<PartnerApiBloc>().add(
+                          LoadPartnerTournamentsEvent(
+                            status: _getApiStatusForTab(_selectedTab),
+                          ),
+                        );
+                  } catch (_) {}
+                },
+              ),
             Expanded(
               child: ListView(
                 padding: EdgeInsets.fromLTRB(
@@ -355,8 +413,9 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
         t.tournamentVenues.isNotEmpty ? t.tournamentVenues.first : null;
     final timeStr = t.tournamentStartAt != null
         ? _formatDate(t.tournamentStartAt!)
-        : 'Today, 06:30 PM';
-    final venueLocation = venue?.location ?? venue?.venueName ?? 'Hyderabad';
+        : 'Schedule not set';
+    final venueLocation =
+        venue?.location ?? venue?.venueName ?? 'Venue not set';
 
     return PartnerTournamentCard(
       name: t.name,
@@ -392,5 +451,72 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
     } catch (_) {
       return raw;
     }
+  }
+}
+
+/// Slim inline banner for non-fatal list refresh failures. The saved list
+/// stays visible; retry re-fires the current tab's filter.
+class _ListNoticeBar extends StatelessWidget {
+  final double scale;
+  final String message;
+  final VoidCallback onRetry;
+
+  const _ListNoticeBar({
+    required this.scale,
+    required this.message,
+    required this.onRetry,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+        context.sportoResponsive.horizontalPadding,
+        8 * scale,
+        context.sportoResponsive.horizontalPadding,
+        0,
+      ),
+      child: Container(
+        padding: EdgeInsets.symmetric(
+          horizontal: 12 * scale,
+          vertical: 8 * scale,
+        ),
+        decoration: BoxDecoration(
+          color: const Color(0x1AFEBD38),
+          borderRadius: BorderRadius.circular(10 * scale),
+          border: Border.all(color: const Color(0x4DFEBD38)),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                message,
+                style: theme.textTheme.bodySmall,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            SizedBox(width: 8 * scale),
+            InkWell(
+              onTap: onRetry,
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 4 * scale,
+                  vertical: 2 * scale,
+                ),
+                child: Text(
+                  'Retry',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFFFEBD38),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
