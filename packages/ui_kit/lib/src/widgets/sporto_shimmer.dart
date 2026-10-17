@@ -1,16 +1,24 @@
 import 'package:flutter/material.dart';
 
+import '../theme/sporto_design_tokens.dart';
+
 /// Animated skeleton shimmer placeholder for loading states.
+///
+/// Base/highlight colours, duration, curve and sweep direction all come from
+/// design tokens (`SportoDesignTokens.shimmerBase/Highlight`,
+/// `SportoLayoutTokens.shimmerDuration/shimmerCurve/shimmerDirection`).
 class SportoShimmer extends StatefulWidget {
   final double? width;
   final double height;
   final double borderRadius;
+  final BoxShape shape;
 
   const SportoShimmer({
     super.key,
     this.width,
     required this.height,
     this.borderRadius = 12.0,
+    this.shape = BoxShape.rectangle,
   });
 
   @override
@@ -19,44 +27,127 @@ class SportoShimmer extends StatefulWidget {
 
 class _SportoShimmerState extends State<SportoShimmer>
     with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-  late final Animation<double> _animation;
+  AnimationController? _controller;
 
   @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _controller ??= AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1000),
-    )..repeat(reverse: true);
-    _animation = Tween<double>(begin: 0.08, end: 0.22).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
+      duration: context.sportoLayout.shimmerDuration,
+    )..repeat();
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _controller?.dispose();
     super.dispose();
+  }
+
+  (Alignment, Alignment) _alignment(ShimmerDirection d) {
+    switch (d) {
+      case ShimmerDirection.leftToRight:
+        return (Alignment.centerLeft, Alignment.centerRight);
+      case ShimmerDirection.rightToLeft:
+        return (Alignment.centerRight, Alignment.centerLeft);
+      case ShimmerDirection.topToBottom:
+        return (Alignment.topCenter, Alignment.bottomCenter);
+      case ShimmerDirection.bottomToTop:
+        return (Alignment.bottomCenter, Alignment.topCenter);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final tokens = context.sporto;
+    final layout = context.sportoLayout;
+    final controller = _controller;
+    final (begin, end) = _alignment(layout.shimmerDirection);
+
     return AnimatedBuilder(
-      animation: _animation,
+      animation: controller ?? const AlwaysStoppedAnimation<double>(0),
       builder: (context, child) {
+        final t = controller == null
+            ? 0.5
+            : layout.shimmerCurve.transform(controller.value);
+        final base = tokens.shimmerBase;
+        final highlight = tokens.shimmerHighlight;
+        final center = (t * 2) - 0.5;
+        final gradient = LinearGradient(
+          begin: begin,
+          end: end,
+          colors: [base, highlight, base],
+          stops: [
+            (center - 0.4).clamp(0.0, 1.0),
+            center.clamp(0.0, 1.0),
+            (center + 0.4).clamp(0.0, 1.0),
+          ],
+        );
         return Container(
           width: widget.width ?? double.infinity,
           height: widget.height,
           decoration: BoxDecoration(
-            color: cs.onSurface.withValues(alpha: _animation.value),
-            borderRadius: BorderRadius.circular(widget.borderRadius),
+            color: base,
+            gradient: gradient,
+            shape: widget.shape,
+            borderRadius: widget.shape == BoxShape.circle
+                ? null
+                : BorderRadius.circular(widget.borderRadius),
           ),
         );
       },
     );
   }
+}
+
+/// Rounded-rectangle skeleton block.
+class SkeletonBox extends StatelessWidget {
+  final double? width;
+  final double height;
+  final double radius;
+
+  const SkeletonBox({
+    super.key,
+    this.width,
+    required this.height,
+    this.radius = 8,
+  });
+
+  @override
+  Widget build(BuildContext context) =>
+      SportoShimmer(width: width, height: height, borderRadius: radius);
+}
+
+/// Single text-line skeleton (defaults to a body line height).
+class SkeletonLine extends StatelessWidget {
+  final double? width;
+  final double height;
+  final double radius;
+
+  const SkeletonLine({
+    super.key,
+    this.width,
+    this.height = 12,
+    this.radius = 4,
+  });
+
+  @override
+  Widget build(BuildContext context) =>
+      SportoShimmer(width: width, height: height, borderRadius: radius);
+}
+
+/// Circular skeleton for avatars/status dots.
+class SkeletonCircle extends StatelessWidget {
+  final double size;
+
+  const SkeletonCircle({super.key, required this.size});
+
+  @override
+  Widget build(BuildContext context) => SportoShimmer(
+        width: size,
+        height: size,
+        shape: BoxShape.circle,
+      );
 }
 
 /// A standard card-shaped skeleton loading placeholder.
@@ -71,10 +162,6 @@ class SportoSkeletonCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    return SportoShimmer(
-      height: height,
-      borderRadius: borderRadius,
-    );
-  }
+  Widget build(BuildContext context) =>
+      SportoShimmer(height: height, borderRadius: borderRadius);
 }

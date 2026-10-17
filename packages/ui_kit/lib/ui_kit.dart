@@ -3,6 +3,7 @@ library ui_kit;
 export 'src/assets/sporto_assets.dart';
 export 'src/theme/sporto_theme.dart';
 export 'src/theme/sporto_design_tokens.dart';
+export 'src/theme/sporto_text_styles.dart';
 export 'src/widgets/glass_container.dart';
 export 'src/widgets/glass_button.dart';
 export 'src/widgets/sync_indicator_badge.dart';
@@ -50,6 +51,21 @@ export 'src/widgets/sporto_result_submitted.dart';
 export 'src/widgets/sporto_referee_profile.dart';
 export 'src/widgets/sporto_profile_tab.dart';
 export 'src/widgets/sporto_shimmer.dart';
+
+// Referee-booking design-system widgets
+export 'src/widgets/sporto_glass_surface.dart';
+export 'src/widgets/sporto_doc_card.dart';
+export 'src/widgets/sporto_booking_app_bar.dart';
+export 'src/widgets/sporto_status_pill.dart';
+export 'src/widgets/sporto_venue_header_card.dart';
+export 'src/widgets/sporto_booking_tile.dart';
+export 'src/widgets/sporto_choice_chip.dart';
+export 'src/widgets/sporto_sort_chip.dart';
+export 'src/widgets/sporto_tag_chip.dart';
+export 'src/widgets/sporto_stat_chip.dart';
+export 'src/widgets/sporto_star_rating.dart';
+export 'src/widgets/sporto_payment_method_tile.dart';
+export 'src/widgets/sporto_price_summary_card.dart';
 
 // Screens (Mobile OTP & Onboarding)
 export 'src/screens/splash_screen.dart';

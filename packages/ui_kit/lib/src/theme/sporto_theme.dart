@@ -7,7 +7,7 @@ class SportoTheme {
   SportoTheme._();
 
   static const _primary = Color(0xFFED7B00);
-  static const _gold = Color(0xFFCF9E24);
+  static const _gold = Color(0xFFF4B41A);
   static const _green = Color(0xFF2BB673);
   static const _blue = Color(0xFF4FBAF0);
   static const _red = Color(0xFFFE464B);
