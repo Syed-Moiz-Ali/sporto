@@ -53,6 +53,7 @@ class _TeamDetailsState extends State<TeamDetailsScreen> {
   }
 
   Future<void> _approve() async {
+    if (_busy != null) return;
     setState(() {
       _busy = 'approve';
       _actionError = null;
@@ -73,6 +74,7 @@ class _TeamDetailsState extends State<TeamDetailsScreen> {
   }
 
   Future<void> _reject() async {
+    if (_busy != null) return;
     final ctrl = TextEditingController();
     final ok = await showDialog<bool>(
       context: context,

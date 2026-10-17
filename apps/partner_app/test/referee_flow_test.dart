@@ -199,7 +199,9 @@ void main() {
       // Match Summary Card
       expect(find.text('SPT-20481'), findsOneWidget);
       expect(find.text('Hyderabad Super Cup'), findsOneWidget);
-      expect(find.text('Live Matches'), findsOneWidget);
+      // No match loaded in this fixture — status renders a dash, never a
+      // hardcoded "Live Matches".
+      expect(find.text('—'), findsOneWidget);
 
       // Search & Sort
       expect(find.text('Search referees...'), findsOneWidget);

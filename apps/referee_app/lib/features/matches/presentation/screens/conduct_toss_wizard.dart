@@ -15,7 +15,7 @@ import 'live_scoring_screen.dart';
 // CONDUCT TOSS WIZARD (Figma: figma/toss)
 // ============================================================
 
-class ConductTossWizard extends StatelessWidget {
+class ConductTossWizard extends StatefulWidget {
   /// Actual repository match id.
   final String? matchId;
 
@@ -39,26 +39,94 @@ class ConductTossWizard extends StatelessWidget {
   });
 
   @override
+  State<ConductTossWizard> createState() => _ConductTossWizardState();
+}
+
+class _ConductTossWizardState extends State<ConductTossWizard> {
+  Future<RefereeTossResponse?>? _tossFuture;
+  Future<(RefereeMatchResponse, RefereeTossResponse?)>? _matchFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _initFutures();
+  }
+
+  void _initFutures() {
+    final di = DependencyInjector.instance;
+    if (widget.bloc == null && widget.initialMatch != null) {
+      _tossFuture = di.refereeRemoteDataSource
+          .getMatchTossData(widget.initialMatch!.id);
+    }
+    if (widget.bloc == null && widget.initialMatch == null) {
+      _matchFuture = _loadMatch(di);
+    }
+  }
+
+  void _reload() => setState(_initFutures);
+
+  Widget _loadError(String message, {Object? error}) {
+    return SportoScreenShell(
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                message,
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: Colors.white),
+              ),
+              if (error != null) ...[
+                const SizedBox(height: 6),
+                Text(
+                  '$error',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: Color(0xFFAAAAAA), fontSize: 12),
+                ),
+              ],
+              const SizedBox(height: 18),
+              ElevatedButton(
+                onPressed: _reload,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFED7B00),
+                  foregroundColor: Colors.white,
+                ),
+                child: const Text('Retry'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
-    if (bloc != null) {
+    if (widget.bloc != null) {
       return BlocProvider.value(
-        value: bloc!,
+        value: widget.bloc!,
         child: _ConductTossView(
-          matchCode: matchCode ?? 'SPT-${initialMatch?.id ?? 20481}',
-          matchId: matchId ?? initialMatch?.id.toString(),
-          onNavigateToScoring: onNavigateToScoring,
+          matchCode:
+              widget.matchCode ?? 'SPT-${widget.initialMatch?.id ?? 20481}',
+          matchId: widget.matchId ?? widget.initialMatch?.id.toString(),
+          onNavigateToScoring: widget.onNavigateToScoring,
         ),
       );
     }
     final di = DependencyInjector.instance;
-    if (initialMatch != null) {
-      final match = initialMatch!;
+    if (widget.initialMatch != null) {
+      final match = widget.initialMatch!;
       return FutureBuilder<RefereeTossResponse?>(
-        future: di.refereeRemoteDataSource.getMatchTossData(match.id),
+        future: _tossFuture,
         builder: (context, snapshot) {
           final toss = snapshot.data;
           final team1 = _apiTeamWithRoster(match.teamA, toss, 0, 'team-a');
           final team2 = _apiTeamWithRoster(match.teamB, toss, 1, 'team-b');
+          if (snapshot.hasError) {
+            return _loadError('Unable to load toss.', error: snapshot.error);
+          }
           if (!snapshot.hasData) {
             return const SportoScreenShell(
                 body: Center(child: CircularProgressIndicator()));
@@ -66,7 +134,7 @@ class ConductTossWizard extends StatelessWidget {
           if (toss?.toss.isCompleted == true) {
             return LiveScoringScreen(
               matchId: match.id.toString(),
-              matchCode: matchCode ?? 'SPT-${match.id}',
+              matchCode: widget.matchCode ?? 'SPT-${match.id}',
             );
           }
           return BlocProvider(
@@ -76,32 +144,26 @@ class ConductTossWizard extends StatelessWidget {
               team2: team2,
               callerTeamId: team1.id,
               callerChoice: TossCoinSide.heads,
-              forcedCoinSide: debugForcedCoinSide,
+              forcedCoinSide: widget.debugForcedCoinSide,
               hasSelectedCaller: false,
               initialToss: toss,
             ),
             child: _ConductTossView(
-              matchCode: matchCode ?? 'SPT-${match.id}',
+              matchCode: widget.matchCode ?? 'SPT-${match.id}',
               matchId: match.id.toString(),
-              onNavigateToScoring: onNavigateToScoring,
+              onNavigateToScoring: widget.onNavigateToScoring,
             ),
           );
         },
       );
     }
     return FutureBuilder<(RefereeMatchResponse, RefereeTossResponse?)>(
-      future: _loadMatch(di),
+      future: _matchFuture,
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           if (snapshot.hasError) {
-            return SportoScreenShell(
-              body: Center(
-                child: Text(
-                  'Unable to load match: ${snapshot.error}',
-                  style: const TextStyle(color: Colors.white),
-                ),
-              ),
-            );
+            return _loadError('Unable to load match.',
+                error: snapshot.error);
           }
           return const SportoScreenShell(
             body: Center(
@@ -113,7 +175,7 @@ class ConductTossWizard extends StatelessWidget {
         if (toss?.toss.isCompleted == true) {
           return LiveScoringScreen(
             matchId: match.id.toString(),
-            matchCode: matchCode ?? 'SPT-${match.id}',
+            matchCode: widget.matchCode ?? 'SPT-${match.id}',
           );
         }
         final team1 = _apiTeamWithRoster(match.teamA, toss, 0, 'team-a');
@@ -125,14 +187,14 @@ class ConductTossWizard extends StatelessWidget {
             team2: team2,
             callerTeamId: team1.id,
             callerChoice: TossCoinSide.heads,
-            forcedCoinSide: debugForcedCoinSide,
+            forcedCoinSide: widget.debugForcedCoinSide,
             hasSelectedCaller: false,
             initialToss: toss,
           ),
           child: _ConductTossView(
-            matchCode: matchCode ?? 'SPT-${match.id}',
+            matchCode: widget.matchCode ?? 'SPT-${match.id}',
             matchId: match.id.toString(),
-            onNavigateToScoring: onNavigateToScoring,
+            onNavigateToScoring: widget.onNavigateToScoring,
           ),
         );
       },
@@ -141,8 +203,9 @@ class ConductTossWizard extends StatelessWidget {
 
   Future<(RefereeMatchResponse, RefereeTossResponse?)> _loadMatch(
       DependencyInjector di) async {
-    if (matchId != null && matchId!.trim().isNotEmpty) {
-      final match = await di.refereeRemoteDataSource.showMyMatchData(matchId!);
+    final matchId = widget.matchId;
+    if (matchId != null && matchId.trim().isNotEmpty) {
+      final match = await di.refereeRemoteDataSource.showMyMatchData(matchId);
       RefereeTossResponse? toss;
       try {
         toss = await di.refereeRemoteDataSource.getMatchTossData(match.id);

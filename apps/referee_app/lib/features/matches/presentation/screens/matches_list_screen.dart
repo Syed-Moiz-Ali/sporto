@@ -49,6 +49,7 @@ class _MatchesListScreenState extends State<MatchesListScreen> {
       0; // 0: All, 1: Upcoming, 2: Live, 3: Completed, 4: Requests
   late Future<RefereeMatchesPayload> _future;
   int? _processingRequestId;
+  bool _openingDetails = false;
 
   RefereeRemoteDataSource get _remote =>
       DependencyInjector.instance.refereeRemoteDataSource;
@@ -119,10 +120,13 @@ class _MatchesListScreenState extends State<MatchesListScreen> {
   }
 
   Future<void> _showMatchDetails(RefereeMatchResponse match) async {
+    // Guard against double-tap opening stacked sheets.
+    if (_openingDetails) return;
+    _openingDetails = true;
     try {
       final detail = await _remote.showMyMatchData(match.id);
       if (!mounted) return;
-      showModalBottomSheet<void>(
+      await showModalBottomSheet<void>(
         context: context,
         backgroundColor: const Color(0xFF151B24),
         shape: const RoundedRectangleBorder(
@@ -133,6 +137,8 @@ class _MatchesListScreenState extends State<MatchesListScreen> {
     } catch (error) {
       if (!mounted) return;
       _showSnack('Unable to open match details: $error');
+    } finally {
+      _openingDetails = false;
     }
   }
 

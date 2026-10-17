@@ -27,18 +27,46 @@ class ScheduleScreen extends StatefulWidget {
 class _ScheduleScreenState extends State<ScheduleScreen> {
   final _searchController = TextEditingController();
   int _selectedTabIndex = 0;
-  int _selectedDayIndex = 3; // Thu (default)
+  int _selectedDayIndex = DateTime.now().weekday - 1; // Today selected
   static const _tabs = ['All', 'Live', 'Upcoming', 'Completed'];
-
-  static const _days = [
-    ('Mon', '05'),
-    ('Tue', '06'),
-    ('Wed', '07'),
-    ('Thu', '08'),
-    ('Fri', '09'),
-    ('Sat', '10'),
-    ('Sun', '11'),
+  static const _weekdayNames = [
+    'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'
   ];
+  static const _monthNames = [
+    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+  ];
+
+  /// Real current week (Monday-first). The old hardcoded August week never
+  /// matched the actual calendar.
+  List<DateTime> get _weekDays {
+    final now = DateTime.now();
+    final monday =
+        DateTime(now.year, now.month, now.day - (now.weekday - 1));
+    return List.generate(
+      7,
+      (i) => monday.add(Duration(days: i)),
+    );
+  }
+
+  String _greetingFor(DateTime now) {
+    if (now.hour < 12) return 'Good Morning';
+    if (now.hour < 17) return 'Good Afternoon';
+    return 'Good Evening';
+  }
+
+  /// "Oct 17, Today" / "Oct 18, Tomorrow" / "Oct 19, Sun" for the selected
+  /// day — never a hardcoded calendar date.
+  String _selectedDayLabel() {
+    final index = _selectedDayIndex.clamp(0, _weekDays.length - 1);
+    final day = _weekDays[index];
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final label = '${_monthNames[day.month - 1]} ${day.day}';
+    if (day == today) return '$label, Today';
+    if (day == today.add(const Duration(days: 1))) return '$label, Tomorrow';
+    return '$label, ${_weekdayNames[day.weekday - 1]}';
+  }
 
   late final PartnerRemoteDataSource _remoteDataSource = widget.remoteDataSource ??
       PartnerRemoteDataSource(
@@ -47,6 +75,8 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   List<PartnerTournamentMatchResponse>? _apiMatches;
   bool _isLoadingMatches = false;
   int? _loadedTournamentsHash;
+  String? _matchesError;
+  List<PartnerTournamentResponse> _lastTournaments = const [];
 
   @override
   void initState() {
@@ -61,6 +91,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     final hash = tournaments.fold<int>(0, (prev, t) => prev ^ t.id.hashCode);
     if (_loadedTournamentsHash == hash || _isLoadingMatches) return;
     _loadedTournamentsHash = hash;
+    _lastTournaments = List.of(tournaments);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       _fetchMatches(tournaments);
@@ -68,10 +99,13 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   }
 
   Future<void> _fetchMatches(List<PartnerTournamentResponse> tournaments) async {
-    setState(() => _isLoadingMatches = true);
+    setState(() {
+      _isLoadingMatches = true;
+      _matchesError = null;
+    });
     try {
       final allMatches = <PartnerTournamentMatchResponse>[];
-      for (final t in tournaments.take(3)) {
+      for (final t in tournaments) {
         final matches = await _remoteDataSource.listTournamentMatchesData(t.id);
         allMatches.addAll(matches);
       }
@@ -80,13 +114,21 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
         _apiMatches = allMatches;
         _isLoadingMatches = false;
       });
-    } catch (_) {
+    } catch (error) {
       if (!mounted) return;
       setState(() {
-        _apiMatches = [];
+        _apiMatches ??= [];
         _isLoadingMatches = false;
+        _matchesError = error is SportoApiException
+            ? error.message
+            : 'Matches could not be loaded. Please try again.';
       });
     }
+  }
+
+  void _retryMatches() {
+    _loadedTournamentsHash = null;
+    _syncMatchesWithTournaments(_lastTournaments);
   }
 
   @override
@@ -113,18 +155,19 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     } catch (_) {}
 
     final isLoading = widget.isLoading ?? isApiLoading;
-    final partnerName = loaded?.displayName ?? 'Partner Sporto';
+    final partnerName = loaded?.displayName ?? 'Partner';
     final tournaments =
         loaded?.tournaments ?? const <PartnerTournamentResponse>[];
     _syncMatchesWithTournaments(tournaments);
 
     final totalCount = '${tournaments.length}';
-    final liveCount =
-        '${tournaments.where((t) => t.status == 6).length}';
-    final upcomingCount =
-        '${tournaments.where((t) => t.status >= 1 && t.status <= 5).length}';
-
     final rawMatches = _apiMatches ?? const <PartnerTournamentMatchResponse>[];
+    // Counts come from real loaded matches — backend tournament statuses
+    // never reach 6/7, so counting tournaments would always show zero live.
+    final liveCount = '${rawMatches.where((m) => m.isLive).length}';
+    final upcomingCount =
+        '${rawMatches.where((m) => !m.isLive && !m.isCompleted).length}';
+
     final query = _searchController.text.trim().toLowerCase();
     final tournamentMap = {for (final t in tournaments) t.id: t.name};
 
@@ -191,7 +234,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                       )
                     else
                       Text(
-                        'Good Morning',
+                        _greetingFor(DateTime.now()),
                         style: theme.textTheme.bodyMedium
                             ?.copyWith(color: cs.tertiary),
                       ),
@@ -239,14 +282,14 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                 }),
                 Expanded(
                   child: Text(
-                    'August 08, Today',
+                    _selectedDayLabel(),
                     textAlign: TextAlign.center,
                     style: theme.textTheme.titleLarge
                         ?.copyWith(color: cs.onSurfaceVariant),
                   ),
                 ),
                 _arrow(context, Icons.chevron_right, onTap: () {
-                  if (_selectedDayIndex < _days.length - 1) {
+                  if (_selectedDayIndex < _weekDays.length - 1) {
                     setState(() => _selectedDayIndex++);
                   }
                 }),
@@ -256,12 +299,12 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                for (var i = 0; i < _days.length; i++)
+                for (var i = 0; i < _weekDays.length; i++)
                   Expanded(
                     child: _day(
                       context,
-                      _days[i].$1,
-                      _days[i].$2,
+                      _weekdayNames[i],
+                      _weekDays[i].day.toString().padLeft(2, '0'),
                       i == _selectedDayIndex,
                       () => setState(() => _selectedDayIndex = i),
                     ),
@@ -318,21 +361,65 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
             else
               _emptyMatchCard('No live matches scheduled today.'),
             const SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Upcoming',
-                  style: theme.textTheme.bodyLarge
-                      ?.copyWith(color: cs.onSurfaceVariant),
-                ),
-                Text(
-                  'View All  ›',
-                  style: theme.textTheme.bodySmall
-                      ?.copyWith(color: context.sporto.info),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Upcoming',
+                    style: theme.textTheme.bodyLarge
+                        ?.copyWith(color: cs.onSurfaceVariant),
+                  ),
+                  GestureDetector(
+                    onTap: () => setState(() => _selectedTabIndex = 0),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      child: Text(
+                        'View All  ›',
+                        style: theme.textTheme.bodySmall
+                            ?.copyWith(color: context.sporto.info),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              if (_matchesError != null && !isLoading) ...[
+                const SizedBox(height: 12),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 14, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: const Color(0x1AFEBD38),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                        color: const Color(0x4DFEBD38)),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          _matchesError!,
+                          style: theme.textTheme.bodySmall
+                              ?.copyWith(color: Colors.white70),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      GestureDetector(
+                        onTap: _retryMatches,
+                        child: const Text(
+                          'Retry',
+                          style: TextStyle(
+                              color: Color(0xFFFEBD38),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
-            ),
             const SizedBox(height: 12),
             if (isLoading || _isLoadingMatches) ...[
               _matchShimmer(context),

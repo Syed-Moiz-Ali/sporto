@@ -12,7 +12,7 @@ class RefereeProfileScreen extends StatefulWidget {
 }
 
 class _RefereeProfileScreenState extends State<RefereeProfileScreen> {
-  late final Future<RefereeProfileResponse> _profile =
+  late Future<RefereeProfileResponse> _profile =
       DependencyInjector.instance.refereeRemoteDataSource.getProfile();
 
   @override
@@ -21,12 +21,56 @@ class _RefereeProfileScreenState extends State<RefereeProfileScreen> {
     return FutureBuilder<RefereeProfileResponse>(
       future: _profile,
       builder: (context, snapshot) {
-        final profile = snapshot.data;
-        final name = profile?.name ?? 'Priya Agrawal';
-        final phone = profile?.mobile ?? '+91 98765XXXXX';
-        final sport =
-            (profile?.sports.isNotEmpty == true) ? profile!.sports.first : 'Cricket';
-        final matches = '${profile?.experienceYears ?? 48}';
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Container(
+            color: const Color(0xFF090C10),
+            child: const Center(
+              child: CircularProgressIndicator(color: Color(0xFFED7B00)),
+            ),
+          );
+        }
+        if (snapshot.hasError || !snapshot.hasData) {
+          return Container(
+            color: const Color(0xFF090C10),
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      'Unable to load profile.',
+                      style: TextStyle(color: Colors.white, fontSize: 16),
+                    ),
+                    const SizedBox(height: 18),
+                    ElevatedButton(
+                      onPressed: () => setState(() {
+                        _profile = DependencyInjector
+                            .instance.refereeRemoteDataSource
+                            .getProfile();
+                      }),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFED7B00),
+                        foregroundColor: Colors.white,
+                      ),
+                      child: const Text('Retry'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }
+        final profile = snapshot.data!;
+        final name =
+            profile.name.trim().isEmpty ? 'Referee' : profile.name;
+        final phone = (profile.mobile ?? '').trim().isEmpty
+            ? '—'
+            : profile.mobile!;
+        final sport = profile.sports.isNotEmpty
+            ? profile.sports.first
+            : '—';
+        final matches = '${profile.experienceYears ?? '—'}';
 
         return Container(
           decoration: const BoxDecoration(

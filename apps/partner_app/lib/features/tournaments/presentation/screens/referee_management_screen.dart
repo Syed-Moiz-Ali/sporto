@@ -37,6 +37,7 @@ class _RefereeManagementScreenState extends State<RefereeManagementScreen> {
   List<RefereeScheduleMatch>? _apiMatches;
   List<ManagedReferee>? _apiReferees;
   bool _isLoading = false;
+  String? _loadError;
   int _filter = 0; // 0 = By Match, 1 = By Date, 2 = By Venue
 
   @override
@@ -56,6 +57,7 @@ class _RefereeManagementScreenState extends State<RefereeManagementScreen> {
   Future<void> _loadLiveData() async {
     setState(() {
       _isLoading = true;
+      _loadError = null;
     });
     try {
       final tournaments = await _remoteDataSource.listTournamentsData();
@@ -77,14 +79,21 @@ class _RefereeManagementScreenState extends State<RefereeManagementScreen> {
             referees.map(_managedRefereeFromPartnerReferee).toList();
         _isLoading = false;
       });
-    } catch (_) {
+    } catch (error) {
       if (!mounted) return;
       setState(() {
         _apiMatches ??= [];
         _apiReferees ??= [];
         _isLoading = false;
+        _loadError = error is SportoApiException
+            ? error.message
+            : 'Referee data could not be loaded. Please try again.';
       });
     }
+  }
+
+  void _retryLoading() {
+    if (widget.loadRemote) _loadLiveData();
   }
 
   ManagedReferee _managedRefereeFromPartnerReferee(
@@ -215,6 +224,44 @@ class _RefereeManagementScreenState extends State<RefereeManagementScreen> {
                       ],
                     ),
                     const SizedBox(height: 28),
+                    if (_loadError != null && !isLoading) ...[
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: const Color(0x1AFEBD38),
+                          borderRadius: BorderRadius.circular(12),
+                          border:
+                              Border.all(color: const Color(0x4DFEBD38)),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                _loadError!,
+                                style: const TextStyle(
+                                    color: Color(0xFFE8ECF1), fontSize: 12),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            GestureDetector(
+                              onTap: _retryLoading,
+                              child: const Text(
+                                'Retry',
+                                style: TextStyle(
+                                    color: Color(0xFFFEBD38),
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w700),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+                    ],
                     // Section: Needs Your Attention
                     Row(
                       children: [

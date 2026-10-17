@@ -43,6 +43,7 @@ class _AssignRefereeScreenState extends State<AssignRefereeScreen> {
   bool _isLoading = false;
   bool _isLoadingMatch = false;
   int? _assigningRefereeId;
+  String? _loadError;
 
   @override
   void initState() {
@@ -62,7 +63,10 @@ class _AssignRefereeScreenState extends State<AssignRefereeScreen> {
   }
 
   Future<void> _loadMatchDetails() async {
-    setState(() => _isLoadingMatch = true);
+    setState(() {
+      _isLoadingMatch = true;
+      _loadError = null;
+    });
     try {
       final match = await _remoteDataSource.showTournamentMatchData(
         widget.tournamentId!,
@@ -73,15 +77,19 @@ class _AssignRefereeScreenState extends State<AssignRefereeScreen> {
         _match = match;
         _isLoadingMatch = false;
       });
-    } catch (_) {
+    } catch (error) {
       if (!mounted) return;
-      setState(() => _isLoadingMatch = false);
+      setState(() {
+        _isLoadingMatch = false;
+        _loadError = _readableLoadError(error);
+      });
     }
   }
 
   Future<void> _loadEligibleReferees() async {
     setState(() {
       _isLoading = true;
+      _loadError = null;
     });
     try {
       List<PartnerEligibleRefereeResponse> list = [];
@@ -101,7 +109,7 @@ class _AssignRefereeScreenState extends State<AssignRefereeScreen> {
                 status: r.displayStatus,
                 available: r.isActive,
                 mobileNumber: r.mobileNumber,
-                sportName: r.displaySport,
+                sportName: r.sportName,
                 level: r.level,
                 rating: r.rating,
                 matches: r.matches,
@@ -116,13 +124,32 @@ class _AssignRefereeScreenState extends State<AssignRefereeScreen> {
         _apiReferees = list;
         _isLoading = false;
       });
-    } catch (_) {
+    } catch (error) {
       if (!mounted) return;
       setState(() {
         _apiReferees ??= [];
         _isLoading = false;
+        // Only complain when nothing is shown; initial data stays usable.
+        if (_apiReferees!.isEmpty) {
+          _loadError = _readableLoadError(error);
+        }
       });
     }
+  }
+
+  void _retryLoading() {
+    if (!widget.loadRemote) return;
+    if (_match == null &&
+        widget.tournamentId != null &&
+        widget.matchId != null) {
+      _loadMatchDetails();
+    }
+    _loadEligibleReferees();
+  }
+
+  static String _readableLoadError(Object error) {
+    if (error is SportoApiException) return error.message;
+    return error.toString();
   }
 
   @override
@@ -164,29 +191,30 @@ class _AssignRefereeScreenState extends State<AssignRefereeScreen> {
     final sourceReferees =
         _apiReferees ?? const <PartnerEligibleRefereeResponse>[];
 
-    var items = sourceReferees.map((api) {
-      final available = api.available != false &&
-          !api.displayStatus.toLowerCase().contains('busy');
-      return _AssignRefereeItem(
-        id: api.id,
-        name: api.displayName,
-        level: api.level ?? 3,
-        rating: api.rating ?? 4.8,
-        matches: api.matches ?? 0,
-        assignedMatches: api.assignedMatches ?? 0,
-        status: available ? 'Available Now' : 'Busy',
-        conflict: api.conflict,
-      );
-    }).toList();
+        var items = sourceReferees.map((api) {
+        final available = api.available != false &&
+            !api.displayStatus.toLowerCase().contains('busy');
+        return _AssignRefereeItem(
+          id: api.id,
+          name: api.displayName,
+          sportName: api.sportName,
+          level: api.level,
+          rating: api.rating,
+          matches: api.matches,
+          assignedMatches: api.assignedMatches,
+          status: available ? 'Available Now' : 'Busy',
+          conflict: api.conflict,
+        );
+      }).toList();
 
     if (query.isNotEmpty) {
       items = items.where((r) => r.name.toLowerCase().contains(query)).toList();
     }
 
     if (_sortIndex == 0) {
-      items.sort((a, b) => b.matches.compareTo(a.matches));
+      items.sort((a, b) => (b.matches ?? -1).compareTo(a.matches ?? -1));
     } else {
-      items.sort((a, b) => b.rating.compareTo(a.rating));
+      items.sort((a, b) => (b.rating ?? -1).compareTo(a.rating ?? -1));
     }
 
     return MediaQuery.withNoTextScaling(
@@ -232,6 +260,44 @@ class _AssignRefereeScreenState extends State<AssignRefereeScreen> {
             padding: const EdgeInsets.fromLTRB(20, 10, 20, 32),
             children: [
               _buildMatchSummaryCard(),
+              if (_loadError != null) ...[
+                const SizedBox(height: 12),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 14, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: const Color(0x1AFEBD38),
+                    borderRadius: BorderRadius.circular(12),
+                    border:
+                        Border.all(color: const Color(0x4DFEBD38)),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          _loadError!,
+                          style: const TextStyle(
+                              color: Color(0xFFE8ECF1), fontSize: 12),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      GestureDetector(
+                        onTap: _retryLoading,
+                        child: const Text(
+                          'Retry',
+                          style: TextStyle(
+                              color: Color(0xFFFEBD38),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
               const SizedBox(height: 24),
               _buildSearchBar(),
               const SizedBox(height: 20),
@@ -353,14 +419,15 @@ class _AssignRefereeScreenState extends State<AssignRefereeScreen> {
             : (formattedDate ?? ''));
     final displayRound = match?.displayRound ?? '';
     final displayVenue = match?.displayVenue ?? '';
+    final rawStatus = match?.displayStatus ?? '';
     final statusText = match?.isLive == true
-        ? 'Live Matches'
+        ? 'Live'
         : (match?.isNeedsReview == true
             ? 'Referee Needed'
-            : (match?.displayStatus.isNotEmpty == true
-                ? (match!.displayStatus.substring(0, 1).toUpperCase() +
-                    match.displayStatus.substring(1))
-                : 'Live Matches'));
+            : (rawStatus.isNotEmpty
+                ? (rawStatus.substring(0, 1).toUpperCase() +
+                    rawStatus.substring(1))
+                : (match == null ? '—' : 'Scheduled')));
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -633,7 +700,7 @@ class _AssignRefereeScreenState extends State<AssignRefereeScreen> {
               const SizedBox(width: 5),
               Expanded(
                 child: Text(
-                  'Cricket  •  Level: ${ref.level} referee',
+                    '${ref.sportLabel}  •  Level ${ref.levelLabel} referee',
                   style: const TextStyle(
                     color: Color(0xFF8E95A2),
                     fontSize: 12,
@@ -654,7 +721,7 @@ class _AssignRefereeScreenState extends State<AssignRefereeScreen> {
               const SizedBox(width: 4),
               Expanded(
                 child: Text(
-                  '${ref.rating}  •  ${ref.matches} matches',
+                    '${ref.ratingLabel}  •  ${ref.matchesLabel}',
                   style: const TextStyle(
                     color: Color(0xFF8E95A2),
                     fontSize: 11,
@@ -675,7 +742,7 @@ class _AssignRefereeScreenState extends State<AssignRefereeScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Assigned to ${ref.assignedMatches} matches',
+                      ref.assignedLabel,
                       style: const TextStyle(
                         color: Color(0xFF8E95A2),
                         fontSize: 11,
@@ -741,22 +808,32 @@ class _AssignRefereeItem {
   const _AssignRefereeItem({
     this.id,
     required this.name,
-    required this.level,
-    required this.rating,
-    required this.matches,
-    required this.assignedMatches,
+    this.sportName,
+    this.level,
+    this.rating,
+    this.matches,
+    this.assignedMatches,
     required this.status,
     this.conflict,
   });
 
   final int? id;
   final String name;
-  final int level;
-  final double rating;
-  final int matches;
-  final int assignedMatches;
+  final String? sportName;
+  final int? level;
+  final double? rating;
+  final int? matches;
+  final int? assignedMatches;
   final String status;
   final String? conflict;
+
+  String get levelLabel => level?.toString() ?? '—';
+  String get ratingLabel =>
+      rating != null ? rating!.toStringAsFixed(1) : '—';
+  String get matchesLabel => '${matches ?? '—'} matches';
+  String get assignedLabel =>
+      'Assigned to ${assignedMatches ?? '—'} matches';
+  String get sportLabel => sportName ?? '—';
 }
 
 String? _formatApiDate(String? value) {
