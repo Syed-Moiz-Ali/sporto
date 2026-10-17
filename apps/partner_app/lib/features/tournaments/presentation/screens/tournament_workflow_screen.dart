@@ -5,6 +5,25 @@ import 'package:ui_kit/ui_kit.dart';
 
 import 'team_details_screen.dart';
 
+/// Human-readable backend errors: first validation message when the server
+/// returns field errors, otherwise the plain message (never the raw
+/// `SportoApiException(...)` string).
+String _readableWorkflowError(Object error) {
+  if (error is SportoApiException) {
+    final validation = error.errors;
+    if (validation is Map) {
+      for (final value in validation.values) {
+        if (value is List && value.isNotEmpty) {
+          return value.first.toString();
+        }
+        if (value != null) return value.toString();
+      }
+    }
+    return error.message;
+  }
+  return error.toString();
+}
+
 /// Registration review and scheduling use real backend round/venue IDs.
 class TournamentWorkflowScreen extends StatefulWidget {
   const TournamentWorkflowScreen(
