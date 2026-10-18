@@ -32,9 +32,10 @@ class _SportoShimmerState extends State<SportoShimmer>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    final layout = Theme.of(context).extension<SportoLayoutTokens>();
     _controller ??= AnimationController(
       vsync: this,
-      duration: context.sportoLayout.shimmerDuration,
+      duration: layout?.shimmerDuration ?? const Duration(milliseconds: 1000),
     )..repeat();
   }
 
@@ -59,19 +60,22 @@ class _SportoShimmerState extends State<SportoShimmer>
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.sporto;
-    final layout = context.sportoLayout;
+    final theme = Theme.of(context);
+    final tokens = theme.extension<SportoDesignTokens>();
+    final layout = theme.extension<SportoLayoutTokens>();
     final controller = _controller;
-    final (begin, end) = _alignment(layout.shimmerDirection);
+    final (begin, end) =
+        _alignment(layout?.shimmerDirection ?? ShimmerDirection.leftToRight);
+    final curve = layout?.shimmerCurve ?? Curves.easeInOut;
+    final base =
+        tokens?.shimmerBase ?? theme.colorScheme.onSurface.withValues(alpha: 0.08);
+    final highlight = tokens?.shimmerHighlight ??
+        theme.colorScheme.onSurface.withValues(alpha: 0.22);
 
     return AnimatedBuilder(
       animation: controller ?? const AlwaysStoppedAnimation<double>(0),
       builder: (context, child) {
-        final t = controller == null
-            ? 0.5
-            : layout.shimmerCurve.transform(controller.value);
-        final base = tokens.shimmerBase;
-        final highlight = tokens.shimmerHighlight;
+        final t = controller == null ? 0.5 : curve.transform(controller.value);
         final center = (t * 2) - 0.5;
         final gradient = LinearGradient(
           begin: begin,

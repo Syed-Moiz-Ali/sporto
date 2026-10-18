@@ -58,7 +58,7 @@ class SportoBookingAppBar extends StatelessWidget implements PreferredSizeWidget
                       overflow: TextOverflow.ellipsis,
                       style: SportoTextStyles.text(
                         size: SportoTextStyles.size16,
-                        weight: SportoTextStyles.semiBold,
+                        weight: SportoTextStyles.bold,
                         color: Theme.of(context).colorScheme.onSurface,
                         height: 1.25,
                       ),
@@ -70,10 +70,10 @@ class SportoBookingAppBar extends StatelessWidget implements PreferredSizeWidget
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: SportoTextStyles.text(
-                          size: SportoTextStyles.size12,
+                          size: SportoTextStyles.size11,
                           weight: SportoTextStyles.medium,
                           color: tokens.muted,
-                          height: 1.15,
+                          height: 1.2,
                         ),
                       ),
                     ],

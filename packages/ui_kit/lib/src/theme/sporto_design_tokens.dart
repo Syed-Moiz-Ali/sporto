@@ -33,6 +33,7 @@ class SportoDesignTokens extends ThemeExtension<SportoDesignTokens> {
   final Color accentGreenSoft;
   final Color avatarGreen;
   final Color statusGreen;
+  final Color successArt;
   final Color gold;
   final Color goldSoft;
   final Color red;
@@ -78,6 +79,7 @@ class SportoDesignTokens extends ThemeExtension<SportoDesignTokens> {
     required this.accentGreenSoft,
     required this.avatarGreen,
     required this.statusGreen,
+    required this.successArt,
     required this.gold,
     required this.goldSoft,
     required this.red,
@@ -151,6 +153,8 @@ class SportoDesignTokens extends ThemeExtension<SportoDesignTokens> {
     avatarGreen: Color(0xFF28A166),
 
     statusGreen: Color(0xFF00D816),
+
+    successArt: Color(0xFFE5F4D9),
 
     gold: Color(0xFFF4B41A),
 
@@ -272,6 +276,7 @@ class SportoDesignTokens extends ThemeExtension<SportoDesignTokens> {
     Color? accentGreenSoft,
     Color? avatarGreen,
     Color? statusGreen,
+    Color? successArt,
     Color? gold,
     Color? goldSoft,
     Color? red,
@@ -317,6 +322,7 @@ class SportoDesignTokens extends ThemeExtension<SportoDesignTokens> {
         accentGreenSoft: accentGreenSoft ?? this.accentGreenSoft,
         avatarGreen: avatarGreen ?? this.avatarGreen,
         statusGreen: statusGreen ?? this.statusGreen,
+        successArt: successArt ?? this.successArt,
         gold: gold ?? this.gold,
         goldSoft: goldSoft ?? this.goldSoft,
         red: red ?? this.red,

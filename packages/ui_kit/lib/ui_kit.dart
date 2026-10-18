@@ -66,6 +66,9 @@ export 'src/widgets/sporto_stat_chip.dart';
 export 'src/widgets/sporto_star_rating.dart';
 export 'src/widgets/sporto_payment_method_tile.dart';
 export 'src/widgets/sporto_price_summary_card.dart';
+export 'src/widgets/sporto_gradient_text.dart';
+export 'src/widgets/sporto_skeletons.dart';
+export 'src/widgets/sporto_state_views.dart';
 
 // Screens (Mobile OTP & Onboarding)
 export 'src/screens/splash_screen.dart';

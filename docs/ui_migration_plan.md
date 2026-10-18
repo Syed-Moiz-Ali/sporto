@@ -626,6 +626,126 @@ Brand-new token-driven widgets in `packages/ui_kit/lib/src/widgets/` (exported f
 - Verified: `flutter analyze` clean in `ui_kit` and `partner_app`; `ui_kit` tests still **15 pass / 12 fail** (no change - new widgets are unused).
 - **Deferred to the screens slice (need @2x comparison):** exact gradient *opacity* on some translucent cards; on-accent dark text token (`#0E0C08` vs new canvas `#090C10`); Select-Sport grid non-cricket/football glyphs are Figma emoji text; `SportoStarRating` uses the small gold star asset (composed star-row assets available for exact display).
 
+### Slice 4 - State widgets ✅ (done, awaiting "continue")
+
+**Goldens:** regenerated the 8 verified palette-only `referee_intro_onboarding_*` goldens (only those; the other 4 failures untouched). `ui_kit` suite now **23 pass / 4 fail** (4 = pre-existing).
+
+**SportoShimmer changes** (`sporto_shimmer.dart`): now a gradient **sweep** (was an opacity pulse). Base/highlight colours, duration, curve and sweep **direction** all come from tokens. Added primitives `SkeletonBox`, `SkeletonLine`, `SkeletonCircle`; kept `SportoSkeletonCard`.
+
+**New tokens:** `SportoLayoutTokens.shimmerCurve` (`Curves.easeInOut`) and `.shimmerDirection` (`ShimmerDirection.leftToRight`); enum `ShimmerDirection` added.
+
+**Composite skeletons** (`sporto_skeletons.dart`) - mirror real layouts via `SportoDocCard` (no layout jump):
+- `RefereeTileSkeleton` (booking-tile: avatar + lines + trailing + optional footer)
+- `BookingListItemSkeleton` (compact row)
+- `PaymentTileSkeleton` (full-width payment tile)
+- `BookingDetailSectionSkeleton` (section rows + divider + total)
+- `SportoSkeletonList` (repeats a builder with a fixed gap)
+
+**State views** (`sporto_state_views.dart`):
+- `enum SportoUiStatus { loading, error, empty, data }`
+- `SportoErrorView` (icon/headline/description/retry; `.noInternet`, `.server` variants)
+- `SportoEmptyView` (icon/headline/description/optional action)
+- `AsyncStateView<T>` (generic, status-driven)
+- `SportoBlocStateView<B, S, T>` (Bloc-aware, delegates to `AsyncStateView`)
+- `SportoFutureStateView<T>` (FutureBuilder variant)
+
+**Signature / usage:**
+```dart
+AsyncStateView<List<Booking>>(
+  status: status, data: bookings, error: failure,
+  onRetry: () => context.read<BookingBloc>().add(const Load()),
+  skeleton: const SportoSkeletonList(itemCount: 3, itemBuilder: ...),
+  empty: const SportoEmptyView(headline: 'No bookings'),
+  builder: (items) => BookingList(items),
+);
+
+SportoBlocStateView<BookingBloc, BookingState, List<Booking>>(
+  bloc: context.read<BookingBloc>(),
+  statusOf: (s) => s.isLoading ? SportoUiStatus.loading : s.hasError ? SportoUiStatus.error
+      : s.items.isEmpty ? SportoUiStatus.empty : SportoUiStatus.data,
+  dataOf: (s) => s.items, errorOf: (s) => s.error,
+  onRetry: () => context.read<BookingBloc>().add(const Load()),
+  skeleton: const SportoSkeletonList(itemCount: 3, itemBuilder: ...),
+  builder: (items) => BookingList(items),
+);
+```
+
+**Dependency:** added `flutter_bloc: ^8.1.3` to `ui_kit` (for the Bloc-aware wrapper only).
+**Verified:** `flutter analyze` clean in `ui_kit` and `partner_app`; `ui_kit` tests 23/4.
+
+**Deferred decisions:** skeleton item counts per screen (set in the screens slice from the JSON list lengths); whether error/empty views should ever be page-level vs inside a scrolled section (per-section via `AsyncStateView` per plan §4.4); no Figma error/empty art exists, so a token-styled Material icon is used (can swap for an SVG later).
+
+### Slice 5 - Screens (in progress)
+
+**Mock data layer (one-time):**
+- `features/referee_booking/application/booking_models.dart` - `BookingStatus`, `Sport`, `Location`, `Referee`, `Payment`, `Rating`, `Booking`, `Failure` (Equatable).
+- `features/referee_booking/application/booking_repository.dart` - `abstract BookingRepository` + `MockBookingRepository` (hardcoded data, random 100-500 ms delay; `.instant()` factory for tests). Ready to swap for a real API impl.
+- `features/referee_booking/application/booking_bloc.dart` - `BookingEvent` (sealed: `BookingLoad`, `BookingRetry`, `BookingSelectSport/Location/Referee`, `BookingConfirm`, `BookingPay`, `BookingRateReview`), `BookingState` (isLoading/hasError/error/bookings/selectedSport/selectedLocation/selectedReferee/bookingDetails/ratings) + `BookingBloc`. No API calls.
+- **Deviations from the brief:** `BookingEvent` is a **sealed class, not an enum** (events must carry payloads); `BookingState.isLoading` defaults to `true` (avoids an empty-state flash before the first load).
+
+**Screen 1 - Booking List (E1-01)** ✅
+- `features/referee_booking/presentation/screens/booking_list_screen.dart`; route `/book-referee/bookings` added to `AppRouter` (self-contained `BlocProvider`, no DI change).
+- `features/referee_booking/presentation/widgets/booking_tile.dart` - `BookingTile` (built directly from shared primitives for exact Figma composition: avatar 50, name 16, sport green + dot + level, status pill, duration gold + date/time + price).
+- Uses `SportoBlocStateView` with skeleton (`SportoSkeletonList` + `BookingListItemSkeleton`), `SportoEmptyView`, and a `ListView.separated` of tiles.
+- Golden: `apps/partner_app/test/figma/goldens/booking_list_390x844.png` (own baseline; 390x844). **`flutter analyze` clean.**
+- **Deferred decisions:** (1) the Figma E1-01 also has a gold promo card, status tabs and a "Last Assigned" section - omitted per the simplified Screen-1 spec; (2) tiles use the feature `BookingTile` because `SportoBookingTile` (ui_kit) is slot-based and cannot take the app `Booking` model; (3) no blue clock asset - the Ongoing pill reuses the orange clock; (4) status-pill label rendered white (Figma used gradient text); (5) avatar raster not decoded during the 3-frame golden (shows the green tint) - optional precache; (6) taps target `/bookings/:id` and `/book-referee/sport`, which are not registered yet; (7) no visible entry point.
+
+**Screen 2 - Booking Overview (E1-02)** ✅
+- `features/referee_booking/presentation/screens/booking_overview_screen.dart`; route `/book-referee/overview` added to `AppRouter` (no bloc).
+- **Important:** the brief's described layout (sport summary card + "Quick Stats" 3x `SportoStatChip` + "Available Referees" list) does **not** exist in E1-02. The export is a **"how it works" overview**. Per your choice, the **real E1-02** was built: hero `Section` card (gradient image box 140x120, eyebrow "BOOK A REFEREE" 18/w600, subtitle "Find the right official for your game." 14/w400), a steps card (`#1B2335 @0.3`, r20) with three numbered steps (badge 26x26 r10 `#E1263F@0.06` + gradient number; title 12/w500 muted; subtitle 11/w500 `#666666`), and the CTA "Register Individually" (270x48, r16, orange gradient, glow). No `SportoStatChip`/`RefereeTile` used.
+- Static screen - nothing loads, so no `SportoBlocStateView`/skeletons.
+- Golden: `apps/partner_app/test/figma/goldens/booking_overview_390x844.png` (390x844 = the 02_Referees frame; not 935).
+- **Also updated:** `SportoBookingAppBar` title to 16/w700 and subtitle to 11/w500 (per JSON) → Screen 1 golden regenerated.
+- **Deferred:** hero "image" is a gradient placeholder (Frame 2 exports no raster, only a gradient); CTA targets `/book-referee/sport` (unregistered); step-number gradient text uses a `ShaderMask`.
+
+**Screen 3 - Select Sport (E1-03)** ✅
+- `features/referee_booking/presentation/screens/select_sport_screen.dart`; route `/book-referee/sport`.
+- **Followed the real Figma E1-03** (your choice): gradient title "Which sport needs an official?" (14/w600, `#7AD3FF→#4FBAF0`); 2-column `Wrap` of cards (`167` wide, intrinsic ~91 high, r14); card icon tile `50x50` (`#313135@0.5`); name 12/w500 muted; **selected** = `gradientBlue` fill + dark name (`#090C10`) with `BookingEvent.SelectSport` persisting to `BookingState.selectedSport`, then `context.go('/book-referee/location')`.
+- Icons: Cricket + Football use the composed SVG tiles (`sport_cricket`/`sport_football`); the rest render Figma's emoji as text (no assets). Figma's duplicate "Volleyball" deduped; the Figma "Darts = football vector" export bug replaced with 🎯.
+- **Architecture change:** referee-booking routes now live under a **`ShellRoute`** providing **one shared `BookingBloc`** so selections persist across steps (list/overview/sport share it).
+- Golden: `apps/partner_app/test/figma/goldens/select_sport_390x844.png` (390x844) - Cricket pre-selected to match the reference.
+
+**Fixes made while building Screen 3:**
+- `SportoGlassSurface` gradient-border previously grew the surface by `2*borderWidth` (emoji tiles were 52 not 50). Fixed so `width/height` apply to the outer box. (An initial refactor unexpectedly shifted Screen 2 by ~7px; reverted to the original sizing and instead used a solid hairline for the tile.)
+- Removed a **double fill** quirk in the borderColor branch (it painted the fill on both the border container and the core) → badges/tiles now show the correct single Figma tint (`#E1263F@0.06`, `#313135@0.5`). **Screen 2 golden regenerated** (badge tint correction).
+- `SportoShimmer` now reads tokens via `Theme.of(context).extension<...>()` with fallbacks, so screens pumped without `SportoTheme` no longer crash (fixed 4 `referee_flow_test.dart` failures introduced in Slice 4).
+- Added reusable `SportoGradientText`.
+
+**Status:** `flutter analyze` clean; `partner_app` **25/25 tests pass**; `ui_kit` 23/4 (same 4 pre-existing).
+
+**Deferred:** emoji sports render as tofu in the headless golden (no emoji font in `flutter test`) - fine on device; offer to switch to Material sport icons for golden-accurate output. Card height is intrinsic (~91) rather than hard-pinned to 91.
+
+**Screen 4 - Game Location (E1-04)** ✅
+- `features/referee_booking/presentation/screens/select_location_screen.dart`; route `/book-referee/location` (in the booking ShellRoute).
+- **Followed the real Figma E1-04** (your choice): it is a location INPUT screen, not a list. Sport summary card (`gradientPink` @0.1, r16, blur) with "Sport" + sport glyph + "Cricket" (green 12/w700); gradient title "Where is your game?" (14/w600 blue); subtitle (14/w400 muted); a 48-high "Use My Current Location" field (`#1C2026` + white-gradient hairline + blur, `ic_gps`) and an "Or search venue, area or address" search field (`ic_search` button).
+- Tap current-location field → `BookingSelectLocation(current)` (persists to `BookingState.selectedLocation`) → `context.go('/book-referee/location/current')`.
+- Golden: `apps/partner_app/test/figma/goldens/select_location_390x844.png` (390x844).
+- **Deferred:** target `/book-referee/location/current` (E1-05) isn't registered yet (crashes if tapped until Screen 5). Field copy uses `representativeText` ("Use My Current Location" / "Or search venue, area or address"); the raw node text was a Figma leftover placeholder ("Enter your team name").
+- **Status:** `flutter analyze` clean; `partner_app` **26/26 tests pass**.
+
+**Screens 4-7 - booking_location_screen.dart (ONE screen, 4 states)** ✅ (per your correction)
+- Replaced `select_location_screen.dart` with `booking_location_screen.dart` (same route `/book-referee/location`). The old file + test + golden were deleted.
+- **State machine** in `BookingBloc`: `enum LocationStep { search, detected, venue, bookingType }` (+ `enum BookingMode { quick, choose }`). Events: `BookingSelectLocation` (search->detected), `BookingConfirmLocation` (detected->venue), `BookingSelectBookingType` (venue->bookingType), `BookingChooseMode`, plus `BookingResetLocation` ("Change Location" -> search). State fields: `locationStep`, `confirmedLocation`, `bookingMode`.
+- States: **0 (E1-04)** sport card + prompt + fields; **1 (E1-05)** + green "Your Game Location"/"Current Location" card + "Change Location" (140) / "Confirm & Continue" (196); **2 (E1-06)** + green card with venue "KPHB Indoor Stadium" + single "Confirm & Continue" (270); **3 (E1-07)** venue header card + "How would you like to book?" + green "Find Me a Referee"/"Quick Book" card + blue "Choose Your Referee"/"Browse Referees" card.
+- Goldens (4): `booking_location_state0..3_390x844.png` (390x844 each), all verified visually.
+- Fixes: buttons were `Expanded(flex:1 vs 196)` -> collapsed; switched to fixed 140/196 widths. Option-card buttons use Figma's dark `#090C10` text; card titles 16/w600; bullets 11/w500.
+- **Status:** `flutter analyze` clean; `partner_app` **29/29 tests pass**.
+- **Deferred:** app-bar stays "Game Location"/"Book A Referee" across all 4 states (Figma frames vary); option buttons navigate to `/book-referee/type/pending` and `/book-referee/referee` (unregistered yet); blue "Choose Your Referee" card keeps Figma's white-on-cyan low-contrast text (faithful, not a bug).
+
+**Fix - "Choose Your Referee" card fill (E1-07 state 3)**
+- JSON: blue card = `GRADIENT_LINEAR opacity 0.06 #7AD3FF->#4FBAF0`, stroke = same gradient at opacity **0.2** (not solid/full). Updated `booking_location_screen.dart` to use `gradientBlue @ 0.06` fill + `gradientBlue @ 0.2` hairline (derived from `SportoDesignTokens.gradientBlue`, no hardcoding). Golden regenerated.
+
+**Screens 8-12 (E1-08..E1-12)** ✅
+- **Structure:** E1-08 + E1-12 = **ONE screen** ("Your Sponsorship" schedule) whose only difference is the Hourly/Daily segment; **E1-09, E1-10, E1-11 = separate screens**.
+- **Routes (in the booking ShellRoute):** `/book-referee/schedule` (schedule), `/book-referee/confirm` (E1-09), `/book-referee/payment` (E1-10), `/book-referee/success` (E1-11).
+- **State machine additions:** `enum ScheduleMode { hourly, daily }`; state `scheduleMode`, `selectedDate`, `selectedTime`, `selectedDuration`; events `BookingSelectScheduleMode`, `BookingSelectDate`, `BookingSelectTime`, `BookingSelectDuration`.
+- **Files:** `booking_schedule_screen.dart`, `confirm_booking_screen.dart`, `payment_screen.dart`, `booking_success_screen.dart` + shared widgets `booking_venue_card.dart`, `booking_primary_button.dart`, `booking_details_section.dart`.
+- **Details from JSON:** schedule = venue card + "Booking Type" gradient + Hourly/Daily segmented (track = gradientBlue@0.1, selected pill = full blue, unselected = `#0E0C08@0.3`) + Date/Start Time/Duration gold chips + CTA "Register Individually". Confirm = venue card + Section(`#12161C`) details + gold notice card (gold@0.06 + 0.5 hairline) + price summary (₹1350/₹135/₹1385) + CTA "Proceed To Booking". Payment = summary + Credit Card/Wallet tiles + G Pay/Add UPI/Add New Wallet rows + CTA "Pay ₹1385". Success = hero ("REFEREE FOUND!") + ref-id card + referee card + details + "View My Bookings" + "Back to Home".
+- **Goldens (5):** `booking_schedule_hourly_390x844.png`, `booking_schedule_daily_390x844.png`, `confirm_booking_390x844.png`, `payment_390x844.png`, `booking_success_390x976.png` (success uses the 976-tall frame).
+- Added token `SportoDesignTokens.successArt` (#E5F4D9).
+- **Status:** `flutter analyze` clean; `partner_app` **34/34 pass**; `ui_kit` 23/4 (4 pre-existing).
+- **Deferred:** today/~/₹ symbols via `representativeText`; "Back to Home"/"View My Bookings" go to `/` and `/book-referee/bookings`; success ✅ badge renders as tofu in the headless golden (emoji font) - fine on device; the gold notice text uses a `ShaderMask`.
+
 ---
 
 ## 9. Follow-up (task #4) - hardcoded colors in existing partner/referee screens

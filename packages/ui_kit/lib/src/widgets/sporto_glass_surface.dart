@@ -73,11 +73,11 @@ class SportoGlassSurface extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final innerRadius = Radius.circular(radius);
+    final innerRadius = BorderRadius.circular(radius);
     final fill = BoxDecoration(
       color: gradient == null ? color : null,
       gradient: gradient,
-      borderRadius: BorderRadius.all(innerRadius),
+      borderRadius: innerRadius,
     );
 
     Widget core = Container(
@@ -90,7 +90,7 @@ class SportoGlassSurface extends StatelessWidget {
 
     if (blur > 0) {
       core = ClipRRect(
-        borderRadius: BorderRadius.all(innerRadius),
+        borderRadius: innerRadius,
         clipBehavior: clipBehavior,
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
@@ -104,7 +104,7 @@ class SportoGlassSurface extends StatelessWidget {
       bordered = Container(
         decoration: BoxDecoration(
           gradient: borderGradient,
-          borderRadius: BorderRadius.all(innerRadius),
+          borderRadius: innerRadius,
           boxShadow: shadows,
         ),
         padding: EdgeInsets.all(borderWidth),
@@ -113,8 +113,7 @@ class SportoGlassSurface extends StatelessWidget {
     } else if (borderColor != null) {
       bordered = Container(
         decoration: BoxDecoration(
-          color: color ?? (gradient == null ? null : null),
-          borderRadius: BorderRadius.all(innerRadius),
+          borderRadius: innerRadius,
           border: Border.all(color: borderColor!, width: borderWidth),
           boxShadow: shadows,
         ),
@@ -123,7 +122,7 @@ class SportoGlassSurface extends StatelessWidget {
     } else if (shadows != null) {
       bordered = Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(innerRadius),
+          borderRadius: innerRadius,
           boxShadow: shadows,
         ),
         child: core,
