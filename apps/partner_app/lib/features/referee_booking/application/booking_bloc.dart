@@ -13,6 +13,9 @@ enum BookingMode { quick, choose }
 /// Booking-type segment on the schedule screen (Figma E1-08 / E1-12).
 enum ScheduleMode { hourly, daily }
 
+/// Status of a booking shown on the Booking Details screen (Package 2).
+enum BookingDetailsStatus { upcoming, ongoing, completed }
+
 /// Events for the referee-booking flow.
 ///
 /// Implemented as a sealed hierarchy (rather than a bare enum) so events can
@@ -104,6 +107,15 @@ class BookingSelectDuration extends BookingEvent {
   List<Object?> get props => [duration];
 }
 
+/// Switches the Booking Details screen between status variants.
+class BookingSelectDetailsStatus extends BookingEvent {
+  final BookingDetailsStatus status;
+  const BookingSelectDetailsStatus(this.status);
+
+  @override
+  List<Object?> get props => [status];
+}
+
 class BookingSelectReferee extends BookingEvent {
   final Referee referee;
   const BookingSelectReferee(this.referee);
@@ -152,6 +164,7 @@ class BookingState extends Equatable {
   final String selectedDate;
   final String selectedTime;
   final String selectedDuration;
+  final BookingDetailsStatus detailsStatus;
 
   const BookingState({
     this.isLoading = true,
@@ -167,9 +180,10 @@ class BookingState extends Equatable {
     this.locationStep = LocationStep.search,
     this.bookingMode,
     this.scheduleMode = ScheduleMode.hourly,
-    this.selectedDate = '13 Oct 2026',
-    this.selectedTime = '5:00 PM',
+    this.selectedDate = '12 Oct 2026',
+    this.selectedTime = '3:00 PM',
     this.selectedDuration = '1 Hour',
+    this.detailsStatus = BookingDetailsStatus.upcoming,
   });
 
   BookingState copyWith({
@@ -189,6 +203,7 @@ class BookingState extends Equatable {
     String? selectedDate,
     String? selectedTime,
     String? selectedDuration,
+    BookingDetailsStatus? detailsStatus,
     bool clearError = false,
   }) {
     return BookingState(
@@ -208,6 +223,7 @@ class BookingState extends Equatable {
       selectedDate: selectedDate ?? this.selectedDate,
       selectedTime: selectedTime ?? this.selectedTime,
       selectedDuration: selectedDuration ?? this.selectedDuration,
+      detailsStatus: detailsStatus ?? this.detailsStatus,
     );
   }
 
@@ -229,6 +245,7 @@ class BookingState extends Equatable {
         selectedDate,
         selectedTime,
         selectedDuration,
+        detailsStatus,
       ];
 }
 
@@ -264,6 +281,8 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
         (event, emit) => emit(state.copyWith(selectedTime: event.time)));
     on<BookingSelectDuration>(
         (event, emit) => emit(state.copyWith(selectedDuration: event.duration)));
+    on<BookingSelectDetailsStatus>((event, emit) =>
+        emit(state.copyWith(detailsStatus: event.status)));
     on<BookingSelectReferee>((event, emit) =>
         emit(state.copyWith(selectedReferee: event.referee)));
     on<BookingConfirm>((event, emit) =>

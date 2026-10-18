@@ -485,6 +485,24 @@ class SportoLayoutTokens extends ThemeExtension<SportoLayoutTokens> {
     shimmerDirection: ShimmerDirection.leftToRight,
   );
 
+  /// Colour-matched button shadow used across the booking flow.
+  ///
+  /// Figma buttons carry a colour glow that matches their fill plus a soft
+  /// black drop shadow: glow `blur 4 / offset 0,2 / @0.35` and drop
+  /// `blur 8 / offset 0,2 / @0.1`. `base` is the button's background colour.
+  List<BoxShadow> buttonShadow(Color base) => [
+        BoxShadow(
+          color: base.withValues(alpha: 0.35),
+          blurRadius: 4,
+          offset: const Offset(0, 2),
+        ),
+        const BoxShadow(
+          color: Color(0x1A000000),
+          blurRadius: 8,
+          offset: Offset(0, 2),
+        ),
+      ];
+
   @override
   SportoLayoutTokens copyWith({
     double? space2,

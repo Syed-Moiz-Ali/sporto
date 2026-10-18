@@ -15,7 +15,7 @@ class BookingLocationScreen extends StatelessWidget {
 
   static const Location _detected = Location(
     id: 'current',
-    venue: 'Kompally',
+    venue: 'KPHB Indoor Stadium',
     area: 'Kompally, Hyderabad',
   );
   static const Location _venue = Location(
@@ -128,7 +128,6 @@ class _DetectedState extends StatelessWidget {
               child: _Button(
                 label: 'Confirm & Continue',
                 gradient: context.sporto.primaryGradient,
-                glow: true,
                 onTap: () => context
                     .read<BookingBloc>()
                     .add(const BookingConfirmLocation()),
@@ -171,7 +170,6 @@ class _VenueState extends StatelessWidget {
             child: _Button(
               label: 'Confirm & Continue',
               gradient: context.sporto.primaryGradient,
-              glow: true,
               onTap: () => context
                   .read<BookingBloc>()
                   .add(const BookingSelectBookingType()),
@@ -545,7 +543,7 @@ class _VenueHeaderCard extends StatelessWidget {
     final layout = context.sportoLayout;
     final pink = LinearGradient(
       colors:
-          tokens.gradientPink.colors.map((c) => c.withValues(alpha: 0.1)).toList(),
+          tokens.gradientPink.colors.map((c) => c.withValues(alpha: 0.2)).toList(),
     );
     return SportoGlassSurface(
       radius: layout.radius20,
@@ -726,7 +724,6 @@ class _Button extends StatelessWidget {
   final String label;
   final Color? color;
   final Gradient? gradient;
-  final bool glow;
   final Color? textColor;
   final FontWeight weight;
   final VoidCallback onTap;
@@ -735,7 +732,6 @@ class _Button extends StatelessWidget {
     required this.label,
     this.color,
     this.gradient,
-    this.glow = false,
     this.textColor,
     this.weight = SportoTextStyles.semiBold,
     required this.onTap,
@@ -743,7 +739,9 @@ class _Button extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tokens = context.sporto;
     final layout = context.sportoLayout;
+    final base = gradient?.colors.first ?? color ?? tokens.cardElevated;
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
@@ -753,7 +751,7 @@ class _Button extends StatelessWidget {
           radius: layout.radius16,
           color: gradient == null ? color : null,
           gradient: gradient,
-          shadows: glow ? layout.ctaGlow : null,
+          shadows: layout.buttonShadow(base),
           child: Center(
             child: Text(
               label,
@@ -783,4 +781,6 @@ LinearGradient _alphaGradient(Gradient g, double alpha) {
 
 /// Flat single-colour fill expressed as a gradient (Figma solid card fills).
 LinearGradient _flatGradient(Color c) => LinearGradient(colors: [c, c]);
+
+
 

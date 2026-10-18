@@ -33,6 +33,17 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 50));
     await tester.pump();
+    // Let real asset I/O (avatar raster) complete before capturing.
+    await tester.runAsync(() async {
+      await precacheImage(
+        const AssetImage(
+          'assets/referee_booking/images/avatar_referee.png',
+          package: 'ui_kit',
+        ),
+        tester.element(find.byType(BookingListScreen)),
+      );
+    });
+    await tester.pump();
 
     await expectLater(
       find.byType(BookingListScreen),

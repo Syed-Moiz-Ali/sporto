@@ -8,6 +8,7 @@ class BookingPrimaryButton extends StatelessWidget {
   final double width;
   final double height;
   final double fontSize;
+  final bool outlined;
 
   const BookingPrimaryButton({
     super.key,
@@ -16,6 +17,7 @@ class BookingPrimaryButton extends StatelessWidget {
     this.width = 270,
     this.height = 48,
     this.fontSize = SportoTextStyles.size16,
+    this.outlined = false,
   });
 
   @override
@@ -31,15 +33,19 @@ class BookingPrimaryButton extends StatelessWidget {
           height: height,
           child: SportoGlassSurface(
             radius: layout.radius16,
-            gradient: tokens.primaryGradient,
-            shadows: layout.ctaGlow,
+            gradient: outlined ? null : tokens.primaryGradient,
+            borderGradient: outlined ? tokens.primaryGradient : null,
+            borderWidth: 1.5,
+            shadows: outlined ? null : layout.buttonShadow(tokens.primaryGradient.colors.first),
             child: Center(
               child: Text(
                 label,
                 style: SportoTextStyles.text(
                   size: fontSize,
                   weight: SportoTextStyles.bold,
-                  color: Theme.of(context).colorScheme.onSurface,
+                  color: outlined
+                      ? tokens.primaryGradient.colors.first
+                      : Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ),

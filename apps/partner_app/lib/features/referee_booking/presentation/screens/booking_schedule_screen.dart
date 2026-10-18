@@ -46,21 +46,25 @@ class BookingScheduleScreen extends StatelessWidget {
                     area: 'Kompally, Hyderabad',
                   ),
                   SizedBox(height: gap.space20),
-                  SportoGradientText(
-                    'Booking Type',
-                    gradient: tokens.gradientBlue,
-                    style: SportoTextStyles.text(
-                      size: SportoTextStyles.size14,
-                      weight: SportoTextStyles.semiBold,
-                      color: Colors.white,
+                  Center(
+                    child: SportoGradientText(
+                      'Booking Type',
+                      gradient: tokens.gradientBlue,
+                      style: SportoTextStyles.text(
+                        size: SportoTextStyles.size14,
+                        weight: SportoTextStyles.semiBold,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                   SizedBox(height: gap.space10),
-                  _Segmented(
-                    selected: state.scheduleMode,
-                    onChanged: (mode) => context
-                        .read<BookingBloc>()
-                        .add(BookingSelectScheduleMode(mode)),
+                  Center(
+                    child: _Segmented(
+                      selected: state.scheduleMode,
+                      onChanged: (mode) => context
+                          .read<BookingBloc>()
+                          .add(BookingSelectScheduleMode(mode)),
+                    ),
                   ),
                   SizedBox(height: gap.space20),
                   _ChipSection(
@@ -189,17 +193,20 @@ class _ChipSection extends StatelessWidget {
           ),
         ),
         SizedBox(height: gap.space10),
-        Wrap(
-          spacing: gap.space10,
-          runSpacing: gap.space10,
-          children: [
-            for (final option in options)
-              SportoChoiceChip(
-                label: option,
-                selected: selected == option,
-                onTap: () => onSelect(option),
-              ),
-          ],
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              for (var i = 0; i < options.length; i++) ...[
+                SportoChoiceChip(
+                  label: options[i],
+                  selected: selected == options[i],
+                  onTap: () => onSelect(options[i]),
+                ),
+                if (i != options.length - 1) SizedBox(width: gap.space10),
+              ],
+            ],
+          ),
         ),
       ],
     );

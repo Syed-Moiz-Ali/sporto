@@ -5,13 +5,18 @@ import 'package:go_router/go_router.dart';
 import '../../features/auth/presentation/views/auth_flow_view.dart';
 import '../../features/referee_booking/application/booking_bloc.dart';
 import '../../features/referee_booking/application/booking_repository.dart';
+import '../../features/referee_booking/presentation/screens/booking_details_screen.dart';
 import '../../features/referee_booking/presentation/screens/booking_list_screen.dart';
 import '../../features/referee_booking/presentation/screens/booking_location_screen.dart';
 import '../../features/referee_booking/presentation/screens/booking_overview_screen.dart';
 import '../../features/referee_booking/presentation/screens/booking_schedule_screen.dart';
 import '../../features/referee_booking/presentation/screens/booking_success_screen.dart';
+import '../../features/referee_booking/presentation/screens/booking_summary_screen.dart';
+import '../../features/referee_booking/presentation/screens/choose_referee_screen.dart';
 import '../../features/referee_booking/presentation/screens/confirm_booking_screen.dart';
 import '../../features/referee_booking/presentation/screens/payment_screen.dart';
+import '../../features/referee_booking/presentation/screens/rate_review_screen.dart';
+import '../../features/referee_booking/presentation/screens/referee_profile_screen.dart';
 import '../../features/referee_booking/presentation/screens/select_sport_screen.dart';
 import '../../features/tournaments/presentation/screens/create_tournament_wizard_screen.dart';
 import '../../features/tournaments/presentation/screens/tournament_detail_screen.dart';
@@ -31,6 +36,11 @@ abstract final class AppRouter {
   static const String confirmBookingPath = '/book-referee/confirm';
   static const String paymentPath = '/book-referee/payment';
   static const String bookingSuccessPath = '/book-referee/success';
+  static const String chooseRefereePath = '/book-referee/referee';
+  static const String refereeProfilePath = '/book-referee/referee/:id';
+  static const String bookingSummaryPath = '/book-referee/summary';
+  static const String bookingDetailsPath = '/bookings/:id';
+  static const String rateReviewPath = '/bookings/review';
 
   static String tournamentDetailRoute(String tournamentId) =>
       '/tournaments/$tournamentId';
@@ -127,6 +137,33 @@ abstract final class AppRouter {
             path: bookingSuccessPath,
             name: 'bookingSuccess',
             builder: (context, state) => const BookingSuccessScreen(),
+          ),
+          GoRoute(
+            path: bookingSummaryPath,
+            name: 'bookingSummary',
+            builder: (context, state) => const BookingSummaryScreen(),
+          ),
+          GoRoute(
+            path: chooseRefereePath,
+            name: 'chooseReferee',
+            builder: (context, state) => const ChooseRefereeScreen(),
+            routes: [
+              GoRoute(
+                path: ':id',
+                name: 'refereeProfile',
+                builder: (context, state) => const RefereeProfileScreen(),
+              ),
+            ],
+          ),
+          GoRoute(
+            path: bookingDetailsPath,
+            name: 'bookingDetails',
+            builder: (context, state) => const BookingDetailsScreen(),
+          ),
+          GoRoute(
+            path: rateReviewPath,
+            name: 'rateReview',
+            builder: (context, state) => const RateReviewScreen(),
           ),
         ],
       ),

@@ -211,7 +211,7 @@ class _RegisterButton extends StatelessWidget {
           height: 48,
           radius: layout.radius16,
           gradient: tokens.primaryGradient,
-          shadows: layout.ctaGlow,
+          shadows: layout.buttonShadow(tokens.primaryGradient.colors.first),
           child: Center(
             child: Text(
               'Register Individually',

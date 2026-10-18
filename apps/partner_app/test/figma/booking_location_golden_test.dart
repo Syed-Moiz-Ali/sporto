@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -38,7 +38,16 @@ void main() {
 
   testWidgets('Location state 0 - search (E1-04)', (tester) async {
     await render(tester, baseBloc());
-    await expectLater(
+    await tester.runAsync(() async {
+      await precacheImage(
+        const AssetImage(
+          'assets/referee_booking/images/avatar_referee.png',
+          package: 'ui_kit',
+        ),
+        tester.element(find.byType(MaterialApp)),
+      );
+    });
+    await tester.pump();    await expectLater(
       find.byType(BookingLocationScreen),
       matchesGoldenFile('goldens/booking_location_state0_390x844.png'),
     );
@@ -50,7 +59,16 @@ void main() {
         Location(id: 'current', venue: 'Kompally', area: 'Kompally, Hyderabad'),
       ));
     await render(tester, bloc);
-    await expectLater(
+    await tester.runAsync(() async {
+      await precacheImage(
+        const AssetImage(
+          'assets/referee_booking/images/avatar_referee.png',
+          package: 'ui_kit',
+        ),
+        tester.element(find.byType(MaterialApp)),
+      );
+    });
+    await tester.pump();    await expectLater(
       find.byType(BookingLocationScreen),
       matchesGoldenFile('goldens/booking_location_state1_390x844.png'),
     );
@@ -63,7 +81,16 @@ void main() {
       ))
       ..add(const BookingConfirmLocation());
     await render(tester, bloc);
-    await expectLater(
+    await tester.runAsync(() async {
+      await precacheImage(
+        const AssetImage(
+          'assets/referee_booking/images/avatar_referee.png',
+          package: 'ui_kit',
+        ),
+        tester.element(find.byType(MaterialApp)),
+      );
+    });
+    await tester.pump();    await expectLater(
       find.byType(BookingLocationScreen),
       matchesGoldenFile('goldens/booking_location_state2_390x844.png'),
     );
@@ -77,7 +104,16 @@ void main() {
       ..add(const BookingConfirmLocation())
       ..add(const BookingSelectBookingType());
     await render(tester, bloc);
-    await expectLater(
+    await tester.runAsync(() async {
+      await precacheImage(
+        const AssetImage(
+          'assets/referee_booking/images/avatar_referee.png',
+          package: 'ui_kit',
+        ),
+        tester.element(find.byType(MaterialApp)),
+      );
+    });
+    await tester.pump();    await expectLater(
       find.byType(BookingLocationScreen),
       matchesGoldenFile('goldens/booking_location_state3_390x844.png'),
     );
@@ -101,3 +137,4 @@ Future<void> _loadFonts() async {
     await loader.load();
   }
 }
+

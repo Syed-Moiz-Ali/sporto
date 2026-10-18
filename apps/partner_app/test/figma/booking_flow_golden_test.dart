@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -39,7 +39,16 @@ void main() {
   testWidgets('Schedule - Hourly (E1-08)', (tester) async {
     final bloc = BookingBloc(MockBookingRepository.instant(seed: 1));
     await render(tester, const BookingScheduleScreen(), bloc: bloc);
-    await expectLater(
+    await tester.runAsync(() async {
+      await precacheImage(
+        const AssetImage(
+          'assets/referee_booking/images/avatar_referee.png',
+          package: 'ui_kit',
+        ),
+        tester.element(find.byType(MaterialApp)),
+      );
+    });
+    await tester.pump();    await expectLater(
       find.byType(BookingScheduleScreen),
       matchesGoldenFile('goldens/booking_schedule_hourly_390x844.png'),
     );
@@ -49,7 +58,16 @@ void main() {
     final bloc = BookingBloc(MockBookingRepository.instant(seed: 1))
       ..add(const BookingSelectScheduleMode(ScheduleMode.daily));
     await render(tester, const BookingScheduleScreen(), bloc: bloc);
-    await expectLater(
+    await tester.runAsync(() async {
+      await precacheImage(
+        const AssetImage(
+          'assets/referee_booking/images/avatar_referee.png',
+          package: 'ui_kit',
+        ),
+        tester.element(find.byType(MaterialApp)),
+      );
+    });
+    await tester.pump();    await expectLater(
       find.byType(BookingScheduleScreen),
       matchesGoldenFile('goldens/booking_schedule_daily_390x844.png'),
     );
@@ -57,7 +75,16 @@ void main() {
 
   testWidgets('Confirm Booking (E1-09)', (tester) async {
     await render(tester, const ConfirmBookingScreen());
-    await expectLater(
+    await tester.runAsync(() async {
+      await precacheImage(
+        const AssetImage(
+          'assets/referee_booking/images/avatar_referee.png',
+          package: 'ui_kit',
+        ),
+        tester.element(find.byType(MaterialApp)),
+      );
+    });
+    await tester.pump();    await expectLater(
       find.byType(ConfirmBookingScreen),
       matchesGoldenFile('goldens/confirm_booking_390x844.png'),
     );
@@ -65,7 +92,16 @@ void main() {
 
   testWidgets('Payment (E1-10)', (tester) async {
     await render(tester, const PaymentScreen());
-    await expectLater(
+    await tester.runAsync(() async {
+      await precacheImage(
+        const AssetImage(
+          'assets/referee_booking/images/avatar_referee.png',
+          package: 'ui_kit',
+        ),
+        tester.element(find.byType(MaterialApp)),
+      );
+    });
+    await tester.pump();    await expectLater(
       find.byType(PaymentScreen),
       matchesGoldenFile('goldens/payment_390x844.png'),
     );
@@ -73,7 +109,16 @@ void main() {
 
   testWidgets('Booking Success (E1-11)', (tester) async {
     await render(tester, const BookingSuccessScreen(), height: 976);
-    await expectLater(
+    await tester.runAsync(() async {
+      await precacheImage(
+        const AssetImage(
+          'assets/referee_booking/images/avatar_referee.png',
+          package: 'ui_kit',
+        ),
+        tester.element(find.byType(MaterialApp)),
+      );
+    });
+    await tester.pump();    await expectLater(
       find.byType(BookingSuccessScreen),
       matchesGoldenFile('goldens/booking_success_390x976.png'),
     );
@@ -97,3 +142,4 @@ Future<void> _loadFonts() async {
     await loader.load();
   }
 }
+

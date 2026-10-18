@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:ui_kit/ui_kit.dart';
 
 /// Venue/sport summary card used across the booking flow
@@ -7,6 +7,7 @@ class BookingVenueCard extends StatelessWidget {
   final String sport;
   final String venue;
   final String area;
+  final String? meta;
   final double radius;
 
   const BookingVenueCard({
@@ -14,6 +15,7 @@ class BookingVenueCard extends StatelessWidget {
     required this.sport,
     required this.venue,
     required this.area,
+    this.meta,
     this.radius = 20,
   });
 
@@ -23,7 +25,7 @@ class BookingVenueCard extends StatelessWidget {
     final layout = context.sportoLayout;
     final pink = LinearGradient(
       colors:
-          tokens.gradientPink.colors.map((c) => c.withValues(alpha: 0.1)).toList(),
+          tokens.gradientPink.colors.map((c) => c.withValues(alpha: 0.2)).toList(),
     );
     return SportoGlassSurface(
       radius: radius,
@@ -82,8 +84,20 @@ class BookingVenueCard extends StatelessWidget {
               ),
             ],
           ),
+          if (meta != null) ...[
+            SizedBox(height: layout.space6),
+            Text(
+              meta!,
+              style: SportoTextStyles.text(
+                size: SportoTextStyles.size13,
+                weight: SportoTextStyles.medium,
+                color: tokens.muted,
+              ),
+            ),
+          ],
         ],
       ),
     );
   }
 }
+

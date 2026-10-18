@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ui_kit/ui_kit.dart';
 
+import '../../application/booking_bloc.dart';
 import '../widgets/booking_details_section.dart';
 import '../widgets/booking_primary_button.dart';
 
-/// Screen 11 - Booking success / "Referee found" (Figma E1-11).
+/// Screen 11 / 17 - Booking success (Figma E1-11 quick, E1-17 choose-referee).
 class BookingSuccessScreen extends StatelessWidget {
   const BookingSuccessScreen({super.key});
 
@@ -13,6 +15,8 @@ class BookingSuccessScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final tokens = context.sporto;
     final gap = context.sportoLayout;
+    final isReferee =
+        context.watch<BookingBloc>().state.bookingMode == BookingMode.choose;
     return MediaQuery.withNoTextScaling(
       child: Scaffold(
         backgroundColor: tokens.canvas,
@@ -25,11 +29,17 @@ class BookingSuccessScreen extends StatelessWidget {
           child: ListView(
             padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
             children: [
-              const _SuccessHero(),
+              _SuccessHero(
+                title: isReferee ? 'BOOKING CONFIRMED!' : 'REFEREE FOUND!',
+                subtitleName: isReferee ? 'Vijay Mohan' : null,
+                subtitleText: isReferee
+                    ? ' is confirmed for your match.'
+                    : 'Your registration for SPOTO Random Cricket is confirmed.',
+              ),
               SizedBox(height: gap.space20),
-              const _RefIdCard(),
+              _RefIdCard(refId: isReferee ? 'REF-83836615' : 'REF-61307662'),
               SizedBox(height: gap.space20),
-              const _RefereeCard(),
+              _RefereeCard(name: isReferee ? 'Vijay Mohan' : 'Suresh Reddy'),
               SizedBox(height: gap.space20),
               const BookingDetailsSection(
                 tournament: 'SPOTO Random Cricket \u2014 Hyderabad',
@@ -43,6 +53,7 @@ class BookingSuccessScreen extends StatelessWidget {
               SizedBox(height: gap.space20),
               BookingPrimaryButton(
                 label: 'View My Bookings',
+                outlined: true,
                 onTap: () => context.go('/book-referee/bookings'),
               ),
               SizedBox(height: gap.space16),
@@ -61,7 +72,14 @@ class BookingSuccessScreen extends StatelessWidget {
 }
 
 class _SuccessHero extends StatelessWidget {
-  const _SuccessHero();
+  final String title;
+  final String? subtitleName;
+  final String subtitleText;
+  const _SuccessHero({
+    required this.title,
+    required this.subtitleText,
+    this.subtitleName,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -77,16 +95,16 @@ class _SuccessHero extends StatelessWidget {
             width: 120,
             height: 120,
             decoration: BoxDecoration(
-              color: tokens.successArt,
-              borderRadius: BorderRadius.circular(layout.radius30),
+              color: tokens.iconTile,
+              borderRadius: BorderRadius.circular(layout.radius30 + 10),
             ),
             child: const Center(
-              child: Text('\u2705', style: TextStyle(fontSize: 44)),
+              child: Text('\u{1F389}', style: TextStyle(fontSize: 64)),
             ),
           ),
           SizedBox(height: layout.space30),
           Text(
-            'REFEREE FOUND!',
+            title,
             style: SportoTextStyles.text(
               size: SportoTextStyles.size24,
               weight: SportoTextStyles.bold,
@@ -94,14 +112,29 @@ class _SuccessHero extends StatelessWidget {
             ),
           ),
           SizedBox(height: layout.space12),
-          Text(
-            'Your registration for SPOTO Random Cricket is confirmed.',
-            textAlign: TextAlign.center,
-            style: SportoTextStyles.text(
-              size: SportoTextStyles.size16,
-              weight: SportoTextStyles.medium,
-              color: tokens.muted,
+          Text.rich(
+            TextSpan(
+              children: [
+                if (subtitleName != null)
+                  TextSpan(
+                    text: subtitleName,
+                    style: SportoTextStyles.text(
+                      size: SportoTextStyles.size16,
+                      weight: SportoTextStyles.semiBold,
+                      color: tokens.gold,
+                    ),
+                  ),
+                TextSpan(
+                  text: subtitleText,
+                  style: SportoTextStyles.text(
+                    size: SportoTextStyles.size16,
+                    weight: SportoTextStyles.medium,
+                    color: tokens.muted,
+                  ),
+                ),
+              ],
             ),
+            textAlign: TextAlign.center,
           ),
         ],
       ),
@@ -110,7 +143,8 @@ class _SuccessHero extends StatelessWidget {
 }
 
 class _RefIdCard extends StatelessWidget {
-  const _RefIdCard();
+  final String refId;
+  const _RefIdCard({required this.refId});
 
   @override
   Widget build(BuildContext context) {
@@ -124,7 +158,7 @@ class _RefIdCard extends StatelessWidget {
       child: Row(
         children: [
           Text(
-            'REF-61307662',
+            refId,
             style: SportoTextStyles.text(
               size: SportoTextStyles.size13,
               weight: SportoTextStyles.medium,
@@ -154,7 +188,8 @@ class _RefIdCard extends StatelessWidget {
 }
 
 class _RefereeCard extends StatelessWidget {
-  const _RefereeCard();
+  final String name;
+  const _RefereeCard({required this.name});
 
   @override
   Widget build(BuildContext context) {
@@ -188,7 +223,7 @@ class _RefereeCard extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Suresh Reddy',
+                  name,
                   style: SportoTextStyles.text(
                     size: SportoTextStyles.size16,
                     weight: SportoTextStyles.semiBold,

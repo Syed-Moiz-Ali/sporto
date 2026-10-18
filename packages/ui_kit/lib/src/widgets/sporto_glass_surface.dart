@@ -101,14 +101,21 @@ class SportoGlassSurface extends StatelessWidget {
 
     Widget bordered = core;
     if (borderGradient != null) {
+      // Draw only a hairline ring so translucent fills are not tinted by the
+      // border colour (the old padding ring filled the whole box).
       bordered = Container(
         decoration: BoxDecoration(
-          gradient: borderGradient,
           borderRadius: innerRadius,
           boxShadow: shadows,
         ),
-        padding: EdgeInsets.all(borderWidth),
-        child: core,
+        child: CustomPaint(
+          painter: _GradientBorderPainter(
+            radius: radius,
+            gradient: borderGradient!,
+            strokeWidth: borderWidth,
+          ),
+          child: core,
+        ),
       );
     } else if (borderColor != null) {
       bordered = Container(
@@ -132,4 +139,33 @@ class SportoGlassSurface extends StatelessWidget {
     if (margin == null) return bordered;
     return Padding(padding: margin!, child: bordered);
   }
+}
+
+class _GradientBorderPainter extends CustomPainter {
+  final double radius;
+  final Gradient gradient;
+  final double strokeWidth;
+
+  const _GradientBorderPainter({
+    required this.radius,
+    required this.gradient,
+    required this.strokeWidth,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final rect = Rect.fromLTWH(0, 0, size.width, size.height);
+    final rrect = RRect.fromRectAndRadius(rect, Radius.circular(radius));
+    final paint = Paint()
+      ..shader = gradient.createShader(rect)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth;
+    canvas.drawRRect(rrect.deflate(strokeWidth / 2), paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant _GradientBorderPainter oldDelegate) =>
+      oldDelegate.radius != radius ||
+      oldDelegate.gradient != gradient ||
+      oldDelegate.strokeWidth != strokeWidth;
 }

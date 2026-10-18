@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:partner_app/features/referee_booking/presentation/screens/booking_overview_screen.dart';
@@ -22,7 +22,16 @@ void main() {
     );
     await tester.pump();
 
-    await expectLater(
+    await tester.runAsync(() async {
+      await precacheImage(
+        const AssetImage(
+          'assets/referee_booking/images/avatar_referee.png',
+          package: 'ui_kit',
+        ),
+        tester.element(find.byType(MaterialApp)),
+      );
+    });
+    await tester.pump();    await expectLater(
       find.byType(BookingOverviewScreen),
       matchesGoldenFile('goldens/booking_overview_390x844.png'),
     );
@@ -46,3 +55,4 @@ Future<void> _loadFonts() async {
     await loader.load();
   }
 }
+

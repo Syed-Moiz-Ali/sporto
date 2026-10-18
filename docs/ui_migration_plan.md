@@ -744,7 +744,85 @@ SportoBlocStateView<BookingBloc, BookingState, List<Booking>>(
 - **Goldens (5):** `booking_schedule_hourly_390x844.png`, `booking_schedule_daily_390x844.png`, `confirm_booking_390x844.png`, `payment_390x844.png`, `booking_success_390x976.png` (success uses the 976-tall frame).
 - Added token `SportoDesignTokens.successArt` (#E5F4D9).
 - **Status:** `flutter analyze` clean; `partner_app` **34/34 pass**; `ui_kit` 23/4 (4 pre-existing).
+
+**Screens 13-17 + Package 2 (final 7)** ✅
+- **Structure:** E1-13 = scrollable **list**; E1-14 = **full page**; E1-15/16/17 = the **choose-referee branch** (parallel to E1-09/10/11, same layouts, different data/copy). Package 2 = Booking Details (**one screen, 3 status states**) + Rate & Review (separate).
+- **New screens:** `choose_referee_screen.dart` (`/book-referee/referee`), `referee_profile_screen.dart` (`/book-referee/referee/:id`), `booking_summary_screen.dart` (`/book-referee/summary`), `booking_details_screen.dart` (`/bookings/:id`), `rate_review_screen.dart` (`/bookings/review`).
+- **Parameterized:** `PaymentScreen` and `BookingSuccessScreen` now render the choose-referee variant when `BookingState.bookingMode == choose` (E1-16: referee summary card + Total ₹1440 + "Pay ₹1440"; E1-17: "BOOKING CONFIRMED!" + REF-83836615).
+- **Shared widgets added:** `booking_referee_card.dart`, `booking_venue_card.dart` gained an optional `meta` row.
+- **State machine:** `enum BookingDetailsStatus { upcoming, ongoing, completed }` + `BookingSelectDetailsStatus` event → Booking Details renders the OTP/schedule/payment/footer variants.
+- **Goldens (9):** `choose_referee_390x844`, `referee_profile_390x935`, `booking_summary_390x935`, `payment_referee_390x844`, `booking_success_referee_390x976`, `booking_details_upcoming_390x935`, `booking_details_ongoing_390x935`, `booking_details_completed_390x935`, `rate_review_390x844`.
+- **Status:** `flutter analyze` clean; `partner_app` **43/43 pass**; `ui_kit` 23/4 (4 pre-existing).
+- **Deferred:** Rate & Review tag list drops Figma's erroneous "Cancel Booking" chip (kept On Time/Fair Decisions/Good Communication/Experienced); app-bar titles per frame; Booking Details uses the bloc's `detailsStatus` rather than loading a booking by id; OTP digits rendered as a spaced string; the choose-referee branch reaches `/book-referee/referee/:id` after a card tap.
+
+### Slice 6 - Verification & final polish
+
+**Task 1 - End-to-end flow test** ✅ (device/emulator walkthrough replaced by a routed widget E2E; no device available)
+- Added `apps/partner_app/test/e2e/booking_flow_e2e_test.dart` (3 tests) driving the real screens through a `GoRouter` + shared `ShellRoute` `BookingBloc`:
+  1. **Quick Book**: Sport -> Location (search -> detected -> venue -> bookingType) -> Quick Book -> Schedule -> Confirm -> Payment -> Success ("REFEREE FOUND!").
+  2. **Choose Referee**: ... -> Browse Referees -> Choose list -> Referee Profile -> Booking Summary -> Payment (referee variant, "Vijay Mohan" + Pay ₹1440) -> Success ("BOOKING CONFIRMED!").
+  3. Booking List -> Booking Details.
+- Verifies route transitions, bloc persistence across steps, and asserts `tester.takeException() == null` (no overflow/crash).
+- **Bug found & fixed:** the "Use My Current Location" field dispatched a `Location` whose venue was `Kompally` (so the venue state showed "Kompally", not the stadium). Changed `BookingLocationScreen._detected.venue` to `KPHB Indoor Stadium` - flow now matches Figma.
+- **Non-issue identified:** initial horizontal overflows (157/96/19 px) were a **test-font artifact** - the E2E didn't load Quicksand, so Flutter's Ahem test font (each glyph = full em square) inflated text ~2x. Loading the fonts (as the golden tests do) removed them; no real overflow in the app.
+- **Status:** `flutter analyze` clean; `partner_app` **46/46 pass**.
+
+**Task 3 - Golden diffs audit vs Figma @2x previews** ✅
+- Generated side-by-side composites (Figma `@2x` left | our golden right) for **all 21** screens in `docs/golden_diffs/` (`NN_<screen>_figma_vs_ours.png`).
+- **Deviations found and FIXED this task:**
+  1. **Success hero badge** - was a light mint rounded-square with a tofu glyph; Figma is a **dark rounded badge with the 🎉 emoji** (sampled the preview: badge bg ≈ `#34393B`). Fixed to `iconTile` badge + `🎉`.
+  2. **Success referee name** - the referee card hard-coded "Suresh Reddy"; now wired (`Vijay Mohan` on the choose-referee branch, `Suresh Reddy` on quick). **Bug fixed.**
+  3. **Success CTA** - was a filled orange button; Figma is **outlined** (transparent + gradient hairline + orange label). Added `outlined` to `BookingPrimaryButton`.
+  4. **Success subtitle** - the referee name is now **gold-highlighted** (`Text.rich`).
+  5. **Referee Profile** - added the per-review **5-star rows** and the star in the "Reviews ★4.8 (184)" header.
+  6. **Booking Details ticket card** (all 3 statuses) - now shows **Tournament / 24 Aug 2026 / Kompally Turf Arena / Team: Smash Arena** + a "Booking Location" row with a gold action button (was a "SIGNATURE: MATCH TICKET" placeholder).
+- **Accepted deviations (no fix):** emoji render as tofu in headless goldens (device-only); sample fee/OTP values differ between `representativeText` (ours) and the preview; the pink glass cards render marginally more saturated than the @2x preview (alpha compositing). Intentional non-copies: Rate & Review "Cancel Booking" tag, Select-Sport "Darts" emoji, deduped "Volleyball".
+- **Files modified:** `booking_success_screen.dart`, `widgets/booking_primary_button.dart`, `referee_profile_screen.dart`, `booking_details_screen.dart`.
+- **Goldens regenerated:** `booking_success_390x976`, `booking_success_referee_390x976`, `referee_profile_390x935`, `booking_details_upcoming/ongoing/completed_390x935`.
+- **Status:** `flutter analyze` clean; `partner_app` **46/46 pass**.
+
+**Task 3b - Pixel-match pass vs Figma** ✅
+Root-cause fixes (each verified by re-measuring per-screen diff vs the @2x preview):
+- **`SportoGlassSurface` gradient-border bug (root cause of the mismatch):** the gradient border *filled the whole box* (then inset the core 1px), so every card with a **translucent fill + gradient border** (blue OTP card, gold notice, blue mode card, red finish card, green/gold tickets) rendered the border colour as a full tint. Replaced with a real hairline `CustomPainter` ring. **`18_details_upcoming` 28.3% -> 7.9%**, `09_confirm` 25% -> 9.6%, `15_summary` 23.7% -> 10.7%, `07_booktype` 26% -> 7.4%, `10_payment` 10.5% -> 5.6%, `20_completed` 15.8% -> 5.9%.
+- **Schedule (E1-08/12):** chips now a **single horizontal row** (were wrapping), "Booking Type" **centered**, defaults **12 Oct / 3:00 PM**; 20.2% -> 7.9%.
+- **Booking Details:** **Schedule card now precedes the OTP card** (was swapped); referee name **pink-gradient**; schedule values **gold-gradient**; ticket card = **Tournament / date / Kompally Turf Arena / Team: Smash Arena** + Booking Location.
+- **`SportoStatChip`** gold fill was solid; Figma uses gold @ **0.1** -> fixed (referee profile 13.8% -> 9.9%).
+- **Booking List (E1-01) rebuilt to the full frame:** gold promo card, gold-soft tabs card ("Upcoming (1)/Ongoing (1)" + 2 booking rows), "Last Assigned" (2 referee cards); booking price 2750, last-assigned 800; booking rows now tap -> Booking Details.
+- **`BookingRefereeCard`** layout: rating in the **left** column ("4.8 · 34 matches"), "Available" in the **right** column.
+- **Golden tests pre-cache the avatar raster** (`tester.runAsync` + `precacheImage`) so the photo renders.
+
+**Measured diff (best alignment, mock status bar excluded) - now:** 04 location 2.6%, 21 rate&review 5.2%, 10 payment 5.6%, 20 details(completed) 5.9%, 13 choose 6.7%, 07 booktype 7.4%, 08 schedule 7.9%, 18 details(upcoming) 7.9%, 03 select sport 8.5%, 09 confirm 9.6%, 14 profile 9.9%, 15 summary 10.7%, 02 overview 11%, 01 list 13.4%. Residual = mock status bar offset + text AA + a few sample values + minor spacing. Aligned composites: `docs/golden_diffs/*_aligned.png`.
+**Files modified:** `sporto_glass_surface.dart`, `sporto_stat_chip.dart`, `booking_schedule_screen.dart`, `booking_details_screen.dart`, `booking_list_screen.dart`, `booking_referee_card.dart`, `booking_models.dart`, `booking_repository.dart`, `booking_bloc.dart` (+ golden tests).
+- **Status:** `flutter analyze` clean; `partner_app` **46/46 pass**; all 21 goldens regenerated.
+
+**Task 3c - Objective colour match (histogram) + pink fix** ✅
+- Method: compared a quantized **colour histogram** of our golden vs the (status-bar-cropped) Figma preview per screen. This objectively revealed the remaining colour mismatch instead of eyeballing.
+- **Root cause found:** the **venue/referee header cards** use the pink gradient at **opacity 0.2**, but I had used **0.1** everywhere (half intensity) - our pink was `#201420`, Figma's `#381C38`. Confirmed the exact value in the JSON (`SIGNATURE: MATCH TICKET` 350x85/86/113/152 = op **0.2**; the Pricing card is 0.1; the E1-04 sport summary card is 0.1).
+- Fixed `BookingVenueCard` + the header cards in booking_details / booking_summary / payment / rate_review / booking_location to pink **@ 0.2** (pricing + sport-summary kept at 0.1).
+- Post-fix histograms now match: 14 -> `#381C38`; 16 -> `#341C30/#381C34/#381C38`; 08 -> `#341C30/#381C34/#381C38` (all present in both).
+- **Files modified:** `booking_venue_card.dart`, `booking_details_screen.dart`, `booking_summary_screen.dart`, `payment_screen.dart`, `rate_review_screen.dart`, `booking_location_screen.dart`.
+- **Status:** `flutter analyze` clean; `partner_app` **46/46 pass**; all 21 goldens regenerated.
+
+**Task 3d - Transparent app bar** ✅
+- `SportoBookingAppBar` no longer renders the Figma tinted/blurred header background (`canvas@0.2` + blur 100) - it is now **transparent** so no band shows behind the app bar when the body scrolls (deviates from Figma intentionally per request). Verified: `flutter analyze` clean; `partner_app` **46/46 pass**; all 21 goldens regenerated.
+
+**Task 2 - Fix deferred items** ✅
+1. **Rate & Review tags** - already correct: the screen ships only On Time / Fair Decisions / Good Communication / Experienced (the erroneous "Cancel Booking" chip was never included). `rate_review_390x844.png` re-run, unchanged.
+2. **OTP display** - read E2-01 JSON: the OTP is a **single string `220788`**, Quicksand Bold 40, **letterSpacing 6% (= 2.4px)**, blue-gradient fill, on a box filled blue at **4% alpha** (I had used a full-blue box + spaced digits + dark text, which hid the digits). Fixed in `booking_details_screen.dart`: OTP box = blue@0.04, text = `SportoGradientText('220788', size 40, w700, letterSpacing 2.4)`; card fill blue@0.05 + hairline @0.5, title 16/w700. Same treatment applied to the ongoing "Finish Session?" card (red gradient). Regenerated `booking_details_upcoming_390x935.png` + `booking_details_ongoing_390x935.png`.
+3. **Colour-matched button shadows** - already implemented via `SportoLayoutTokens.buttonShadow(base)`; re-confirmed applied to every booking-flow button (`BookingPrimaryButton` orange, location `_Button` grey/green/blue, overview `_RegisterButton` orange, rate-review `_SubmitButton` blue). Figma-derived values: colour glow **blur 4, offset (0,2), spread 0, @0.35** + soft black drop **blur 8, offset (0,2), spread 0, @0.1**. All shadow-bearing goldens re-run, unchanged (no shadow code changed this task).
+
+**Files modified this task:** `apps/partner_app/lib/features/referee_booking/presentation/screens/booking_details_screen.dart`.
+**Goldens regenerated:** `booking_details_upcoming_390x935.png`, `booking_details_ongoing_390x935.png` (all other goldens re-run and unchanged).
+**Status:** `flutter analyze` clean; `partner_app` **46/46 pass**.
 - **Deferred:** today/~/₹ symbols via `representativeText`; "Back to Home"/"View My Bookings" go to `/` and `/book-referee/bookings`; success ✅ badge renders as tofu in the headless golden (emoji font) - fine on device; the gold notice text uses a `ShaderMask`.
+
+**Global colour-matched button shadows** ✅
+- Read Figma `Controls` effects: colour glow `blur 4 / offset 0,2 / @0.35` + soft black drop `blur 8 / offset 0,2 / @0.1` (green `#2BB673@0.4`, blue `#64C6F7@0.3`, orange `#ED7B00@0.35`, grey `#1B2335@0.2`).
+- Added `SportoLayoutTokens.buttonShadow(Color base)` (centralized; no per-screen values).
+- Applied to every booking-flow primary button, deriving `base` from the button's own fill/gradient: `BookingPrimaryButton` (orange), `_Button` in `booking_location_screen.dart` (grey "Change Location", orange "Confirm & Continue", green/blue mode-card buttons), and `_RegisterButton` in `booking_overview_screen.dart`.
+- **Files changed:** `packages/ui_kit/lib/src/theme/sporto_design_tokens.dart`; `apps/partner_app/.../widgets/booking_primary_button.dart`; `.../screens/booking_location_screen.dart`; `.../screens/booking_overview_screen.dart`.
+- Regenerated 10 goldens (overview + location states 1-3 + schedule x2 + confirm + payment + success).
+- **Status:** `flutter analyze` clean; `partner_app` **34/34 pass**; `ui_kit` 23/4 (4 pre-existing).
 
 ---
 

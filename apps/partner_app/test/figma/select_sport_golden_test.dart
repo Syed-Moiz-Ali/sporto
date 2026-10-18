@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -33,7 +33,16 @@ void main() {
     await tester.pump(const Duration(milliseconds: 50));
     await tester.pump();
 
-    await expectLater(
+    await tester.runAsync(() async {
+      await precacheImage(
+        const AssetImage(
+          'assets/referee_booking/images/avatar_referee.png',
+          package: 'ui_kit',
+        ),
+        tester.element(find.byType(MaterialApp)),
+      );
+    });
+    await tester.pump();    await expectLater(
       find.byType(SelectSportScreen),
       matchesGoldenFile('goldens/select_sport_390x844.png'),
     );
@@ -57,3 +66,4 @@ Future<void> _loadFonts() async {
     await loader.load();
   }
 }
+

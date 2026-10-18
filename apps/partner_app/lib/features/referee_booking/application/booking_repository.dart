@@ -56,7 +56,7 @@ class MockBookingRepository implements BookingRepository {
         durationLabel: 'Full Day',
         dateLabel: '13 Oct 2026',
         timeLabel: '5:00 PM',
-        price: 1800,
+        price: 2750,
       ),
       Booking(
         id: 'REF-71910900',
@@ -67,7 +67,7 @@ class MockBookingRepository implements BookingRepository {
         durationLabel: 'Full Day',
         dateLabel: '13 Oct 2026',
         timeLabel: '5:00 PM',
-        price: 1800,
+        price: 2750,
       ),
       Booking(
         id: 'REF-71200455',
@@ -78,7 +78,7 @@ class MockBookingRepository implements BookingRepository {
         durationLabel: '2 Hours',
         dateLabel: '12 Oct 2026',
         timeLabel: '7:00 PM',
-        price: 1500,
+        price: 2750,
       ),
     ];
   }

@@ -107,6 +107,7 @@ class Booking extends Equatable {
   final String dateLabel;
   final String timeLabel;
   final double price;
+  final String venue;
 
   const Booking({
     required this.id,
@@ -118,6 +119,7 @@ class Booking extends Equatable {
     required this.dateLabel,
     required this.timeLabel,
     required this.price,
+    this.venue = 'Kompally Turf Arena',
   });
 
   @override
@@ -131,6 +133,7 @@ class Booking extends Equatable {
         dateLabel,
         timeLabel,
         price,
+        venue,
       ];
 }
 

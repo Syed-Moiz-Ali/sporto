@@ -24,7 +24,11 @@ class SportoStatChip extends StatelessWidget {
     final layout = context.sportoLayout;
     return SportoGlassSurface(
       radius: layout.radius16,
-      gradient: tokens.gradientGold,
+      gradient: LinearGradient(
+        colors: tokens.gradientGold.colors
+            .map((c) => c.withValues(alpha: 0.1))
+            .toList(),
+      ),
       borderColor: tokens.hairlineWarm.withValues(alpha: 0.08),
       padding: const EdgeInsets.all(10),
       child: Column(
