@@ -1,0 +1,20 @@
+<svg width="40" height="30" viewBox="0 0 40 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="mic">
+<path id="Line 11" opacity="0.2" d="M0.5 0.5L0.499999 29.5" stroke-linecap="round" stroke="#A0A0A0"/>
+<g id="ri-mic-2-line" opacity="0.5" clip-path="url(#clip0_2958_3704)">
+<g id="Group">
+<path id="Vector" d="M28 19C30.2091 19 32 17.2091 32 15V9C32 6.79086 30.2091 5 28 5C25.7909 5 24 6.79086 24 9V15C24 17.2091 25.7909 19 28 19Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="#A0A0A0"/>
+<path id="Vector_2" d="M36.7741 17.0137C35.8599 21.0151 32.2787 24.0007 28.0001 24.0007C23.7215 24.0007 20.1403 21.0151 19.2261 17.0137" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="url(#paint0_linear_2958_3704)"/>
+</g>
+</g>
+</g>
+<defs>
+<linearGradient id="paint0_linear_2958_3704" x1="19.2261" y1="20.5072" x2="36.7741" y2="20.5072" gradientUnits="userSpaceOnUse">
+<stop stop-color="#ED7B00"/>
+<stop offset="1" stop-color="#CF9E24"/>
+</linearGradient>
+<clipPath id="clip0_2958_3704">
+<rect width="24" height="24" fill="white" transform="translate(16 3)"/>
+</clipPath>
+</defs>
+</svg>
