@@ -29,6 +29,7 @@ flutter:
     - assets/images/
     - assets/referee_booking/icons/
     - assets/referee_booking/images/
+    - assets/home_redesign/icons/
   fonts:
     - family: Space Grotesk
       fonts:

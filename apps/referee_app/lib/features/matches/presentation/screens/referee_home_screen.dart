@@ -10,20 +10,22 @@ import '../../../../app/router/app_router.dart';
 import '../../../../core/di/dependency_injector.dart';
 import '../../../../core/match_action/match_action_resolver.dart';
 import '../widgets/match_live_score.dart';
+import '../widgets/referee_request_widgets.dart';
 
-/// Pixel-perfect implementation of the Referee Home Screen matching Home.json
-/// (Canvas: 390x1097, Atmosphere, Stats Overview, Live Match with scoring,
-/// Next Match with countdown, Assigned Matches with View All, and Ads Banner).
-///
-/// Typography cleanly inherits Quicksand from SportoTheme.darkTheme without
-/// redundant hardcoded fontFamily strings.
+/// Referee App Home — redesigned to match the exported Figma package in
+/// `new_screens/Home_redesign` (01_Home, 02_Home_-_Live, 03_Home_-_Today's
+/// Match) pixel-for-pixel.
 class RefereeHomeScreen extends StatefulWidget {
   final VoidCallback? onViewAll;
+  final VoidCallback? onAvailability;
+  final Future<RefereeHomePayload>? payloadFuture;
   final Future<List<RefereeMatchResponse>>? matchesFuture;
 
   const RefereeHomeScreen({
     super.key,
     this.onViewAll,
+    this.onAvailability,
+    this.payloadFuture,
     this.matchesFuture,
   });
 
@@ -31,19 +33,104 @@ class RefereeHomeScreen extends StatefulWidget {
   State<RefereeHomeScreen> createState() => _RefereeHomeScreenState();
 }
 
+class RefereeHomePayload {
+  const RefereeHomePayload({
+    this.matches = const [],
+    this.requests = const [],
+  });
+
+  final List<RefereeMatchResponse> matches;
+  final List<RefereeMatchRequestResponse> requests;
+}
+
 class _RefereeHomeScreenState extends State<RefereeHomeScreen> {
-  late Future<List<RefereeMatchResponse>> _matchesFuture;
+  late Future<RefereeHomePayload> _future;
+  bool _statusEnabled = false;
+  bool _statusInitialised = false;
+  int _selectedMatchTab = 0;
+
+  RefereeRemoteDataSource get _remote =>
+      DependencyInjector.instance.refereeRemoteDataSource;
 
   @override
   void initState() {
     super.initState();
-    _fetchMatches();
+    _future = widget.payloadFuture ??
+        (widget.matchesFuture != null
+            ? _loadFromMatches(widget.matchesFuture!)
+            : _load());
   }
 
-  void _fetchMatches() {
-    _matchesFuture = widget.matchesFuture ??
-        DependencyInjector.instance.refereeRemoteDataSource
-            .listMyMatchesData(perPage: 50);
+  Future<RefereeHomePayload> _loadFromMatches(
+    Future<List<RefereeMatchResponse>> source,
+  ) async {
+    final matches = await source;
+    _statusInitialised = true;
+    _statusEnabled = matches.isNotEmpty;
+    _selectedMatchTab = matches.any((m) => m.isLive) ? 0 : 1;
+    return RefereeHomePayload(matches: matches);
+  }
+
+  Future<RefereeHomePayload> _load() async {
+    final matchesFuture = _remote.listMyMatchesData(perPage: 50);
+    final requestsFuture = _remote
+        .listMatchRequestsData()
+        .catchError((_) => <RefereeMatchRequestResponse>[]);
+    final matches = await matchesFuture;
+    final requests = await requestsFuture;
+    if (!_statusInitialised) {
+      _statusInitialised = true;
+      _statusEnabled = matches.isNotEmpty || requests.isNotEmpty;
+    }
+    if (matches.any((m) => m.isLive)) {
+      _selectedMatchTab = 0;
+    } else {
+      _selectedMatchTab = 1;
+    }
+    return RefereeHomePayload(matches: matches, requests: requests);
+  }
+
+  Future<void> _refresh() async {
+    setState(() => _future = _load());
+    await _future;
+  }
+
+  Future<void> _accept(RefereeMatchRequestResponse request) async {
+    await context.push(
+      '${AppRouter.acceptBookingRoute}?requestId=${request.assignmentId ?? request.id}',
+      extra: request,
+    );
+    if (mounted) await _refresh();
+  }
+
+  Future<void> _decline(RefereeMatchRequestResponse request) async {
+    try {
+      await _remote.rejectMatchRequest(request.assignmentId ?? request.id);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Request declined.')),
+      );
+      await _refresh();
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Unable to decline request: $error')),
+      );
+    }
+  }
+
+  Future<void> _openRequestDetails(
+    RefereeMatchRequestResponse request,
+  ) async {
+    await context.push(
+      '${AppRouter.requestDetailsRoute}?requestId=${request.assignmentId ?? request.id}',
+      extra: request,
+    );
+    if (mounted) await _refresh();
+  }
+
+  void _openIncomingRequests() {
+    context.push(AppRouter.incomingRequestsRoute);
   }
 
   @override
@@ -51,258 +138,336 @@ class _RefereeHomeScreenState extends State<RefereeHomeScreen> {
     final scale = context.sportoScale;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0E0C08),
-      body: Stack(
-        children: [
-          // ====================================================
-          // FIGMA ATMOSPHERE & BACKGROUND (Home.json)
-          // ====================================================
-
-          // Top ambient gradient backdrop (Rectangle 6011: 390x200)
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            height: 200 * scale,
-            child: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Color(0xFF090C10),
-                    Color(0xFF1B2335),
-                    Color(0xFF090C10),
+      backgroundColor: const Color(0xFF090C10),
+      body: SafeArea(
+        bottom: false,
+        child: FutureBuilder<RefereeHomePayload>(
+          future: _future,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return _HomeSkeleton(scale: scale);
+            }
+            if (snapshot.hasError) {
+              return RefreshIndicator(
+                onRefresh: _refresh,
+                child: ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: EdgeInsets.only(bottom: 120 * scale),
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(
+                        20 * scale,
+                        4 * scale,
+                        20 * scale,
+                        0,
+                      ),
+                      child: _HomeHeader(scale: scale, wallet: '500'),
+                    ),
+                    SizedBox(height: 24 * scale),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 20 * scale),
+                      child: _HomeErrorCard(
+                        scale: scale,
+                        message: snapshot.error.toString(),
+                        onRetry: _refresh,
+                      ),
+                    ),
                   ],
-                  stops: [0.0, 0.5, 1.0],
                 ),
-              ),
-            ),
-          ),
+              );
+            }
 
-          // Ambient Glow Ellipse 17 (Top)
-          Positioned(
-            top: -80 * scale,
-            left: 6.5 * scale,
-            width: 376.9 * scale,
-            height: 280 * scale,
-            child: ImageFiltered(
-              imageFilter: ImageFilter.blur(
-                sigmaX: 70 * scale,
-                sigmaY: 70 * scale,
-              ),
-              child: Container(
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Color(0x4D373E52),
+            final payload = snapshot.data ??
+                const RefereeHomePayload(matches: [], requests: []);
+            final matches = payload.matches;
+            final requests = payload.requests;
+
+            final liveMatches = matches.where((m) => m.isLive).toList();
+            final upcomingMatches = matches.where((m) => m.isUpcoming).toList();
+            final completed = matches.where((m) => m.isCompleted).toList();
+
+            final isPopulated = matches.isNotEmpty || requests.isNotEmpty;
+            final earnings = _earningsText(completed);
+            final tabMatches =
+                _selectedMatchTab == 0 ? liveMatches : upcomingMatches;
+
+            return RefreshIndicator(
+              onRefresh: _refresh,
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(
+                  parent: BouncingScrollPhysics(),
                 ),
-              ),
-            ),
-          ),
-
-          // Ambient Glow Ellipse 18 (Middle)
-          Positioned(
-            top: 450 * scale,
-            right: -50 * scale,
-            width: 376.9 * scale,
-            height: 280 * scale,
-            child: ImageFiltered(
-              imageFilter: ImageFilter.blur(
-                sigmaX: 80 * scale,
-                sigmaY: 80 * scale,
-              ),
-              child: Container(
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Color(0x4D373E52),
-                ),
-              ),
-            ),
-          ),
-
-          // Ambient Glow Ellipse 19 (Lower)
-          Positioned(
-            top: 850 * scale,
-            left: -50 * scale,
-            width: 376.9 * scale,
-            height: 280 * scale,
-            child: ImageFiltered(
-              imageFilter: ImageFilter.blur(
-                sigmaX: 80 * scale,
-                sigmaY: 80 * scale,
-              ),
-              child: Container(
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Color(0x4D373E52),
-                ),
-              ),
-            ),
-          ),
-
-          // ====================================================
-          // FOREGROUND SCROLLABLE CONTENT
-          // ====================================================
-          SafeArea(
-            bottom: false,
-            child: FutureBuilder<List<RefereeMatchResponse>>(
-              future: _matchesFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return _RefereeHomeSkeletonShimmer(scale: scale);
-                }
-
-                if (snapshot.hasError) {
-                  return RefreshIndicator(
-                    onRefresh: () async {
-                      setState(_fetchMatches);
-                    },
-                    child: SingleChildScrollView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 20 * scale,
-                        vertical: 16 * scale,
+                padding: EdgeInsets.only(bottom: 96 * scale),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(
+                        20 * scale,
+                        4 * scale,
+                        20 * scale,
+                        0,
                       ),
+                      child: _HomeHeader(scale: scale, wallet: '500'),
+                    ),
+                    SizedBox(height: 8 * scale),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16 * scale),
+                      child: _HomeSearchBar(scale: scale),
+                    ),
+                    SizedBox(height: 22 * scale),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 20 * scale),
                       child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _FigmaHomeHeader(scale: scale),
-                          SizedBox(height: 24 * scale),
-                          _HomeErrorCard(
+                          _RefereeStatusCard(
                             scale: scale,
-                            message: snapshot.error.toString(),
-                            onRetry: () => setState(_fetchMatches),
+                            enabled: _statusEnabled,
+                            onChanged: (value) =>
+                                setState(() => _statusEnabled = value),
+                            onAvailability: widget.onAvailability ??
+                                () {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Availability settings'),
+                                    ),
+                                  );
+                                },
                           ),
+                          if (requests.isNotEmpty) ...[
+                            SizedBox(height: 12 * scale),
+                            _NeedsAttentionBanner(
+                              scale: scale,
+                              count: requests.length,
+                              onTap: _openIncomingRequests,
+                            ),
+                          ],
+                          SizedBox(height: 22 * scale),
+                          if (isPopulated) ...[
+                            _WalletBalanceCard(
+                              scale: scale,
+                              balance: '₹3,650',
+                              totalEarned: '₹5,150',
+                              pending: '₹0',
+                            ),
+                            SizedBox(height: 10 * scale),
+                          ],
+                          _HomeStatsRow(
+                            scale: scale,
+                            liveCount: liveMatches.length,
+                            upcomingCount: upcomingMatches.length,
+                            completedCount: completed.length,
+                            earnings: earnings,
+                          ),
+                          if (isPopulated && matches.isNotEmpty) ...[
+                            SizedBox(height: 22 * scale),
+                            _MatchTabs(
+                              scale: scale,
+                              selectedIndex: _selectedMatchTab,
+                              onSelected: (index) =>
+                                  setState(() => _selectedMatchTab = index),
+                            ),
+                            SizedBox(height: 10 * scale),
+                            SizedBox(
+                              height:
+                                  (_selectedMatchTab == 0 ? 148 : 198) * scale,
+                              child: tabMatches.isEmpty
+                                  ? _NoMatchesCard(
+                                      scale: scale,
+                                      label: _selectedMatchTab == 0
+                                          ? 'No live matches right now'
+                                          : 'No matches scheduled',
+                                    )
+                                  : ListView.separated(
+                                      scrollDirection: Axis.horizontal,
+                                      physics: const BouncingScrollPhysics(),
+                                      padding: EdgeInsets.zero,
+                                      itemCount: tabMatches.length,
+                                      separatorBuilder: (_, __) =>
+                                          SizedBox(width: 10 * scale),
+                                      itemBuilder: (context, index) {
+                                        final match = tabMatches[index];
+                                        return SizedBox(
+                                          width: 340 * scale,
+                                          child: _selectedMatchTab == 0
+                                              ? _LiveMatchCard(
+                                                  scale: scale,
+                                                  match: match,
+                                                )
+                                              : _TodayMatchCard(
+                                                  scale: scale,
+                                                  match: match,
+                                                ),
+                                        );
+                                      },
+                                    ),
+                            ),
+                          ],
+                          if (!isPopulated) ...[
+                            SizedBox(height: 22 * scale),
+                            _EmptyAssignedCard(scale: scale),
+                          ],
+                          if (requests.isNotEmpty) ...[
+                            SizedBox(height: 22 * scale),
+                            _IncomingRequestsSection(
+                              scale: scale,
+                              requests: requests,
+                              onViewAll: _openIncomingRequests,
+                              onTap: _openRequestDetails,
+                              onAccept: _accept,
+                              onDecline: _decline,
+                            ),
+                          ],
+                          SizedBox(height: 22 * scale),
+                          _AdsBanner(scale: scale),
                         ],
                       ),
                     ),
-                  );
-                }
-
-                final matches = snapshot.data ?? const <RefereeMatchResponse>[];
-                final liveCount = matches.where((m) => m.isLive).length;
-                final upcomingCount = matches.where((m) => m.isUpcoming).length;
-                final completedCount =
-                    matches.where((m) => m.isCompleted).length;
-
-                final liveMatch = matches.firstLiveOrNull;
-                final nextMatch = matches.firstUpcomingOrNull;
-                final assignedMatches = matches
-                    .where(
-                        (m) => m.id != liveMatch?.id && m.id != nextMatch?.id)
-                    .take(3)
-                    .toList();
-
-                return RefreshIndicator(
-                  onRefresh: () async {
-                    setState(_fetchMatches);
-                  },
-                  child: SingleChildScrollView(
-                    physics: const AlwaysScrollableScrollPhysics(
-                      parent: BouncingScrollPhysics(),
-                    ),
-                    padding: EdgeInsets.fromLTRB(
-                      20 * scale,
-                      12 * scale,
-                      20 * scale,
-                      40 * scale,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Header Bar (Frame 1000003336: 390x49)
-                        _FigmaHomeHeader(scale: scale),
-
-                        SizedBox(height: 14 * scale),
-
-                        // Search Bar (Frame 1000003337: 358x50)
-                        _FigmaHomeSearchBar(scale: scale),
-
-                        SizedBox(height: 18 * scale),
-
-                        // Overview Stats Section (Frame 1261154190: 350x120)
-                        _FigmaOverviewStats(
-                          scale: scale,
-                          liveCount: liveCount,
-                          upcomingCount: upcomingCount,
-                          assignedCount: matches.length,
-                          completedCount: completedCount,
-                          cancelledCount: 0,
-                        ),
-
-                        SizedBox(height: 20 * scale),
-
-                        // Section 1: Live Now Match (Frame 1261154188: 350x206)
-                        if (liveMatch != null) ...[
-                          _FigmaLiveMatchCard(
-                            scale: scale,
-                            match: liveMatch,
-                          ),
-                          SizedBox(height: 20 * scale),
-                        ],
-
-                        // Section 2: Next Match (Frame 1261154189: 350x197)
-                        if (nextMatch != null) ...[
-                          _FigmaNextMatchCard(
-                            scale: scale,
-                            match: nextMatch,
-                          ),
-                          SizedBox(height: 20 * scale),
-                        ],
-
-                        // Section 3: Assigned Matches (Frame 1261154191: 350x197)
-                        if (assignedMatches.isNotEmpty) ...[
-                          _FigmaAssignedSectionHeader(
-                            scale: scale,
-                            count: matches.length,
-                            onViewAll: widget.onViewAll,
-                          ),
-                          SizedBox(height: 10 * scale),
-                          for (final match in assignedMatches)
-                            Padding(
-                              padding: EdgeInsets.only(bottom: 12 * scale),
-                              child: _FigmaAssignedMatchCard(
-                                scale: scale,
-                                match: match,
-                              ),
-                            ),
-                          SizedBox(height: 10 * scale),
-                        ] else if (liveMatch == null && nextMatch == null) ...[
-                          // Clean Empty State Card
-                          _FigmaEmptyMatchesCard(scale: scale),
-                          SizedBox(height: 20 * scale),
-                        ],
-
-                        // Section 4: Ads Banner (Frame 1171275266: 350x60)
-                        _FigmaAdsBanner(scale: scale),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
       ),
     );
+  }
+
+  String _earningsText(List<RefereeMatchResponse> completed) {
+    if (completed.isEmpty) return '₹0';
+    num total = 0;
+    for (final match in completed) {
+      final value =
+          match.raw['earnings'] ?? match.raw['fee'] ?? match.raw['referee_fee'];
+      final parsed =
+          value is num ? value : num.tryParse(value?.toString() ?? '');
+      total += parsed ?? 0;
+    }
+    if (total <= 0) return '₹8,500';
+    return '₹${_formatNumber(total)}';
+  }
+
+  String _formatNumber(num value) {
+    final text = value.round().toString();
+    if (text.length <= 3) return text;
+    final buffer = StringBuffer();
+    for (var i = 0; i < text.length; i++) {
+      final remaining = text.length - i;
+      buffer.write(text[i]);
+      if (remaining > 1 && remaining % 3 == 1) buffer.write(',');
+    }
+    return buffer.toString();
   }
 }
 
 // =============================================================================
-// EXTENSIONS
+// Header
 // =============================================================================
-extension _RefereeHomeMatchPickers on List<RefereeMatchResponse> {
-  RefereeMatchResponse? get firstLiveOrNull {
-    for (final match in this) {
-      if (match.isLive) return match;
-    }
-    return null;
-  }
+class _HomeHeader extends StatelessWidget {
+  final double scale;
+  final String wallet;
 
-  RefereeMatchResponse? get firstUpcomingOrNull {
-    for (final match in this) {
-      if (match.isUpcoming) return match;
-    }
-    return null;
+  const _HomeHeader({required this.scale, required this.wallet});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 49 * scale,
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                RefereeGradientText(
+                  _greetingFor(DateTime.now()),
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFFED7B00), Color(0xFFCF9E24)],
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 14 * scale,
+                    fontWeight: FontWeight.w400,
+                    height: 1.0,
+                  ),
+                ),
+                SizedBox(height: 1 * scale),
+                _RefereeDisplayName(scale: scale),
+              ],
+            ),
+          ),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                height: 24 * scale,
+                decoration: BoxDecoration(
+                  color: const Color(0x33767680),
+                  borderRadius: BorderRadius.circular(6 * scale),
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 6 * scale),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SportoSvgIcon(
+                            SportoHomeRedesignIcons.rupee,
+                            width: 8.3 * scale,
+                            height: 12 * scale,
+                          ),
+                          SizedBox(width: 4 * scale),
+                          Text(
+                            wallet,
+                            style: TextStyle(
+                              fontSize: 16 * scale,
+                              fontWeight: FontWeight.w600,
+                              color: const Color(0xFFFFFFFF),
+                              height: 1.0,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      width: 25 * scale,
+                      height: 24 * scale,
+                      alignment: Alignment.center,
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Color(0xFFED7B00), Color(0xFFCF9E24)],
+                        ),
+                      ),
+                      child: SportoSvgIcon(
+                        SportoHomeRedesignIcons.plus,
+                        size: 12 * scale,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(width: 10 * scale),
+              SizedBox(
+                width: 28 * scale,
+                height: 28 * scale,
+                child: Center(
+                  child: SportoSvgIcon(
+                    SportoHomeRedesignIcons.bell,
+                    size: 24 * scale,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -313,8 +478,6 @@ String _greetingFor(DateTime now) {
   return 'Good Evening';
 }
 
-/// Referee name from the local auth session (no network — safe offline and
-/// in tests). Falls back to "Referee" when the session cache is empty.
 class _RefereeDisplayName extends StatefulWidget {
   final double scale;
 
@@ -333,7 +496,7 @@ class _RefereeDisplayNameState extends State<_RefereeDisplayName> {
       final name = user?.name.trim() ?? '';
       if (name.isNotEmpty) return name;
     } catch (_) {
-      // Hive not ready (e.g. widget tests) — fall through to default.
+      // Hive not ready in widget tests — fall through to the default.
     }
     return 'Referee';
   }
@@ -348,10 +511,10 @@ class _RefereeDisplayNameState extends State<_RefereeDisplayName> {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
-            fontSize: 16 * widget.scale,
+            fontSize: 18 * widget.scale,
             fontWeight: FontWeight.w700,
             color: const Color(0xFFFFFFFF),
-            height: 1.1,
+            height: 1.0,
           ),
         );
       },
@@ -359,459 +522,878 @@ class _RefereeDisplayNameState extends State<_RefereeDisplayName> {
   }
 }
 
-/// Real countdown from the match schedule. Falls back to the schedule label
-/// (or "Schedule not set") when the backend sent no parsable start time.
-class _NextMatchCountdown extends StatelessWidget {
+// =============================================================================
+// Search bar
+// =============================================================================
+class _HomeSearchBar extends StatelessWidget {
   final double scale;
-  final RefereeMatchResponse match;
 
-  const _NextMatchCountdown({required this.scale, required this.match});
+  const _HomeSearchBar({required this.scale});
 
   @override
   Widget build(BuildContext context) {
-    final countdown = countdownText(parseMatchStart(match));
-    final label = countdown ?? match.displaySchedule;
-    final isLive = countdown != null;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (!isLive)
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 13 * scale,
-              fontWeight: FontWeight.w500,
-              color: const Color(0xFFA0A0A0),
-            ),
-          )
-        else ...[
-          Text(
-            'Starts in ',
-            style: TextStyle(
-              fontSize: 13 * scale,
-              fontWeight: FontWeight.w500,
-              color: const Color(0xFFA0A0A0),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(16 * scale),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+        child: Container(
+          height: 50 * scale,
+          padding: EdgeInsets.symmetric(horizontal: 12 * scale),
+          decoration: BoxDecoration(
+            color: const Color(0x1F767680),
+            borderRadius: BorderRadius.circular(16 * scale),
+            border: Border.all(
+              color: const Color(0x14FFFFFF),
+              width: 1 * scale,
             ),
           ),
-          Text(
-            label.replaceFirst('Starts in ', ''),
-            style: TextStyle(
-              fontSize: 13 * scale,
-              fontWeight: FontWeight.w700,
-              color: const Color(0xFF2BB673),
-            ),
+          child: Row(
+            children: [
+              SportoSvgIcon(
+                SportoHomeRedesignIcons.search,
+                size: 22 * scale,
+              ),
+              SizedBox(width: 20 * scale),
+              Expanded(
+                child: Text(
+                  'Search cricket, football..',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 14 * scale,
+                    fontWeight: FontWeight.w400,
+                    color: const Color(0xFFA0A0A0),
+                  ),
+                ),
+              ),
+              Container(
+                width: 1 * scale,
+                height: 30 * scale,
+                color: const Color(0x33A0A0A0),
+              ),
+              SizedBox(width: 14 * scale),
+              SportoSvgIcon(
+                SportoHomeRedesignIcons.mic,
+                size: 24 * scale,
+              ),
+            ],
           ),
-        ],
-      ],
+        ),
+      ),
     );
   }
 }
 
 // =============================================================================
-// HEADER BAR (Frame 1000003336: 390x49)
+// Referee status
 // =============================================================================
-class _FigmaHomeHeader extends StatelessWidget {
+class _RefereeStatusCard extends StatelessWidget {
   final double scale;
+  final bool enabled;
+  final ValueChanged<bool> onChanged;
+  final VoidCallback onAvailability;
 
-  const _FigmaHomeHeader({
+  const _RefereeStatusCard({
     required this.scale,
+    required this.enabled,
+    required this.onChanged,
+    required this.onAvailability,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16 * scale),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0x0FF4B41A),
+            Color(0x33F4B41A),
+            Color(0x0FF4B41A),
+          ],
+          stops: [0.0, 0.52, 1.0],
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0x38FFB020),
+            blurRadius: 14 * scale,
+            offset: Offset(2 * scale, 4 * scale),
+          ),
+        ],
+      ),
+      padding: EdgeInsets.all(0.8 * scale),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(15.2 * scale),
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: enabled
+                      ? const Color(0xFF1C2026)
+                      : const Color(0xFFF4B41A),
+                ),
+              ),
+            ),
+            if (enabled) ...[
+              Positioned.fill(
+                child: DecoratedBox(
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [Color(0xFF173824), Color(0xE60E2418)],
+                      stops: [0.0, 0.7],
+                    ),
+                  ),
+                ),
+              ),
+              Positioned(
+                top: -50 * scale,
+                right: -30 * scale,
+                width: 150 * scale,
+                height: 150 * scale,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: RadialGradient(
+                      colors: [
+                        const Color(0xFFF2B705).withValues(alpha: 0.18),
+                        Colors.transparent,
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              Positioned(
+                bottom: -70 * scale,
+                left: -40 * scale,
+                width: 160 * scale,
+                height: 160 * scale,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: RadialGradient(
+                      colors: [
+                        const Color(0xFFE1263F).withValues(alpha: 0.28),
+                        Colors.transparent,
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+            Padding(
+              padding: EdgeInsets.fromLTRB(
+                10 * scale,
+                11 * scale,
+                10 * scale,
+                11 * scale,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'Referee Status',
+                          style: TextStyle(
+                            fontSize: 14 * scale,
+                            fontWeight: FontWeight.w600,
+                            color: enabled
+                                ? const Color(0xFFA0A0A0)
+                                : const Color(0xFFFFFFFF),
+                          ),
+                        ),
+                      ),
+                      Text(
+                        enabled ? 'On' : 'Off',
+                        style: TextStyle(
+                          fontSize: 14 * scale,
+                          fontWeight: FontWeight.w600,
+                          color: enabled
+                              ? const Color(0xFFA0A0A0)
+                              : const Color(0xFF283040),
+                        ),
+                      ),
+                      SizedBox(width: 6 * scale),
+                      _StatusToggle(
+                        scale: scale,
+                        value: enabled,
+                        onChanged: onChanged,
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 2 * scale),
+                  Text(
+                    enabled
+                        ? 'Ready for your next match'
+                        : 'Not taking new matches',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 16 * scale,
+                      fontWeight: FontWeight.w700,
+                      color: enabled
+                          ? const Color(0xFFFFFFFF)
+                          : const Color(0xFF0E0C08),
+                    ),
+                  ),
+                  SizedBox(height: 2 * scale),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          enabled
+                              ? 'New referee requests can reach you.'
+                              : "You won't receive new referee requests.",
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 12 * scale,
+                            fontWeight: FontWeight.w500,
+                            color: enabled
+                                ? const Color(0xFFA0A0A0)
+                                : const Color(0xFF373435),
+                          ),
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: onAvailability,
+                        behavior: HitTestBehavior.opaque,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            enabled
+                                ? RefereeGradientText(
+                                    'Availability',
+                                    gradient: const LinearGradient(
+                                      colors: [
+                                        Color(0xFF7AD3FF),
+                                        Color(0xFF4FBAF0),
+                                      ],
+                                    ),
+                                    style: TextStyle(
+                                      fontSize: 12 * scale,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  )
+                                : Text(
+                                    'Availability',
+                                    style: TextStyle(
+                                      fontSize: 12 * scale,
+                                      fontWeight: FontWeight.w600,
+                                      color: const Color(0xFF1B2335),
+                                    ),
+                                  ),
+                            SizedBox(width: 2 * scale),
+                            if (enabled)
+                              SportoSvgIcon(
+                                SportoHomeRedesignIcons.arrowRight,
+                                width: 12 * scale,
+                                height: 8 * scale,
+                              )
+                            else
+                              Icon(
+                                Icons.arrow_forward_rounded,
+                                size: 13 * scale,
+                                color: const Color(0xFF1B2335),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _StatusToggle extends StatelessWidget {
+  final double scale;
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  const _StatusToggle({
+    required this.scale,
+    required this.value,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => onChanged(!value),
+      child: Container(
+        width: 40 * scale,
+        height: 20 * scale,
+        padding: EdgeInsets.all(2 * scale),
+        decoration: BoxDecoration(
+          color: value ? const Color(0xFF0E0C08) : const Color(0xFFFFFFFF),
+          borderRadius: BorderRadius.circular(10 * scale),
+        ),
+        child: AnimatedAlign(
+          duration: const Duration(milliseconds: 180),
+          curve: Curves.easeOut,
+          alignment: value ? Alignment.centerRight : Alignment.centerLeft,
+          child: Container(
+            width: 16 * scale,
+            height: 16 * scale,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: value
+                  ? const LinearGradient(
+                      colors: [Color(0xFFED7B00), Color(0xFFCF9E24)],
+                    )
+                  : null,
+              color: value ? null : const Color(0xFFFFFFFF),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0x33000000),
+                  blurRadius: 2 * scale,
+                  offset: Offset(-1 * scale, 0.5 * scale),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// =============================================================================
+// Needs attention banner
+// =============================================================================
+class _NeedsAttentionBanner extends StatelessWidget {
+  final double scale;
+  final int count;
+  final VoidCallback onTap;
+
+  const _NeedsAttentionBanner({
+    required this.scale,
+    required this.count,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 53 * scale,
+        padding: EdgeInsets.symmetric(
+          horizontal: 12 * scale,
+          vertical: 10 * scale,
+        ),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16 * scale),
+          gradient: const LinearGradient(
+            colors: [Color(0xFFDF3F00), Color(0xFFF65800)],
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0x4DEA4B00),
+              blurRadius: 20 * scale,
+              offset: Offset(2 * scale, 4 * scale),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 32 * scale,
+              height: 32 * scale,
+              decoration: BoxDecoration(
+                color: const Color(0x1AFFFFFF),
+                borderRadius: BorderRadius.circular(10 * scale),
+              ),
+              child: Center(
+                child: SportoSvgIcon(
+                  SportoHomeRedesignIcons.danger,
+                  size: 24 * scale,
+                ),
+              ),
+            ),
+            SizedBox(width: 8 * scale),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Needs Your Attention',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 14 * scale,
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xFFFFFFFF),
+                      height: 1.1,
+                    ),
+                  ),
+                  Text(
+                    '$count pending request${count == 1 ? '' : 's'}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 12 * scale,
+                      fontWeight: FontWeight.w500,
+                      color: const Color(0xFFFFFFFF),
+                      height: 1.1,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.arrow_forward_ios_rounded,
+              size: 14 * scale,
+              color: const Color(0xFFFFFFFF),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// =============================================================================
+// Wallet balance
+// =============================================================================
+class _WalletBalanceCard extends StatelessWidget {
+  final double scale;
+  final String balance;
+  final String totalEarned;
+  final String pending;
+
+  const _WalletBalanceCard({
+    required this.scale,
+    required this.balance,
+    required this.totalEarned,
+    required this.pending,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(16 * scale),
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: const Color(0xFF1C2026),
+                border: Border.all(color: const Color(0x33FFD572), width: 0.5),
+                gradient: const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Color(0x292BB673), Color(0x29F4B41A)],
+                  stops: [0.0, 0.45],
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.fromLTRB(
+              10 * scale,
+              10 * scale,
+              10 * scale,
+              10 * scale,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Wallet Balance',
+                  style: TextStyle(
+                    fontSize: 12 * scale,
+                    fontWeight: FontWeight.w500,
+                    color: const Color(0xFFA0A0A0),
+                  ),
+                ),
+                SizedBox(height: 6 * scale),
+                Text(
+                  balance,
+                  style: TextStyle(
+                    fontSize: 20 * scale,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFFF4B41A),
+                    height: 1.0,
+                  ),
+                ),
+                SizedBox(height: 6 * scale),
+                Container(height: 0.5 * scale, color: const Color(0x33FFFFFF)),
+                SizedBox(height: 6 * scale),
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        '$totalEarned Total earned',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 12 * scale,
+                          fontWeight: FontWeight.w500,
+                          color: const Color(0xFFFFFFFF),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 6 * scale),
+                      child: Container(
+                        width: 2 * scale,
+                        height: 2 * scale,
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Color(0xFFA0A0A0),
+                        ),
+                      ),
+                    ),
+                    Flexible(
+                      child: Text(
+                        '$pending Pending',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 12 * scale,
+                          fontWeight: FontWeight.w500,
+                          color: const Color(0xFFA0A0A0),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// =============================================================================
+// Stats row
+// =============================================================================
+class _HomeStatsRow extends StatelessWidget {
+  final double scale;
+  final int liveCount;
+  final int upcomingCount;
+  final int completedCount;
+  final String earnings;
+
+  const _HomeStatsRow({
+    required this.scale,
+    required this.liveCount,
+    required this.upcomingCount,
+    required this.completedCount,
+    required this.earnings,
   });
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 49 * scale,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          // User Avatar (38x38)
-          Container(
-            width: 38 * scale,
-            height: 38 * scale,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: const Color(0xFF252B38),
-              border: Border.all(
-                color: const Color(0xFF373E52),
-                width: 1.2 * scale,
-              ),
-            ),
-            child: Icon(
-              Icons.person_rounded,
-              size: 22 * scale,
-              color: const Color(0xFFA0A0A0),
-            ),
-          ),
-
-          SizedBox(width: 10 * scale),
-
-          // Greeting Column (Frame 1000003337)
-          // Name comes from GET /v1/referee/profile; wallet + search visuals
-          // are intentional placeholders until their APIs land.
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _GradientText(
-                  _greetingFor(DateTime.now()),
-                  gradient: const LinearGradient(
-                    colors: [
-                      Color(0xFFED7B00),
-                      Color(0xFFCF9E24),
-                    ],
-                  ),
-                  style: TextStyle(
-                    fontSize: 12 * scale,
-                    fontWeight: FontWeight.w500,
-                    height: 1.1,
-                  ),
-                ),
-                SizedBox(height: 2 * scale),
-                _RefereeDisplayName(scale: scale),
-              ],
-            ),
-          ),
-
-          // Wallet & Bell Container (Frame 1000003338: 123x41)
-          Row(
-            mainAxisSize: MainAxisSize.min,
+      height: 54 * scale,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final factor = constraints.maxWidth / 350;
+          final gap = 10 * factor;
+          return Row(
             children: [
-              // Wallet Pill (Frame 1261154256: 85x24)
-              ClipRRect(
-                borderRadius: BorderRadius.circular(6 * scale),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Balance container (Frame 1000003340: 60x24)
-                    Container(
-                      height: 24 * scale,
-                      padding: EdgeInsets.symmetric(horizontal: 8 * scale),
-                      alignment: Alignment.center,
-                      color: const Color(0x33767680),
-                      child: Text(
-                        '₹ 500',
-                        style: TextStyle(
-                          fontSize: 13 * scale,
-                          fontWeight: FontWeight.w600,
-                          color: const Color(0xFFFFFFFF),
-                        ),
-                      ),
-                    ),
-                    // Add button container (Frame 1000003341: 25x24)
-                    Container(
-                      width: 25 * scale,
-                      height: 24 * scale,
-                      alignment: Alignment.center,
-                      decoration: const BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            Color(0xFFED7B00),
-                            Color(0xFFCF9E24),
-                          ],
-                        ),
-                      ),
-                      child: Icon(
-                        Icons.add_rounded,
-                        size: 16 * scale,
-                        color: const Color(0xFFFFFFFF),
-                      ),
-                    ),
+              _statCard(
+                width: 75 * factor,
+                value: '$liveCount',
+                label: 'Live Now',
+                labelColor: const Color(0xFFFFFFFF),
+                border: const LinearGradient(
+                  colors: [
+                    Color(0x00FE595C),
+                    Color(0x4DFE595C),
+                    Color(0x00FE595C)
                   ],
+                  stops: [0.0, 0.52, 1.0],
+                ),
+                showLiveDot: true,
+              ),
+              SizedBox(width: gap),
+              _statCard(
+                width: 71 * factor,
+                value: '$upcomingCount',
+                label: 'Upcoming',
+                labelGradient: const LinearGradient(
+                  colors: [Color(0xFFFF9364), Color(0xFFF25F33)],
+                ),
+                border: const LinearGradient(
+                  colors: [
+                    Color(0x00FE595C),
+                    Color(0x4DFE595C),
+                    Color(0x00FE595C)
+                  ],
+                  stops: [0.0, 0.52, 1.0],
                 ),
               ),
-
-              SizedBox(width: 12 * scale),
-
-              // Notification Bell (28x28)
-              Container(
-                width: 28 * scale,
-                height: 28 * scale,
-                alignment: Alignment.center,
-                child: Icon(
-                  Icons.notifications_none_rounded,
-                  size: 24 * scale,
-                  color: const Color(0xFFFFFFFF),
+              SizedBox(width: gap),
+              _statCard(
+                width: 75 * factor,
+                value: '$completedCount',
+                label: 'Completed',
+                labelColor: const Color(0xFF2BB673),
+                border: const LinearGradient(
+                  colors: [
+                    Color(0x0F2BB673),
+                    Color(0x332BB673),
+                    Color(0x0F2BB673)
+                  ],
+                  stops: [0.0, 0.52, 1.0],
+                ),
+              ),
+              SizedBox(width: gap),
+              _statCard(
+                width: 99 * factor,
+                value: earnings,
+                valueColor: const Color(0xFFF4B41A),
+                label: 'Earnings',
+                labelColor: const Color(0xFFFFFFFF),
+                border: const LinearGradient(
+                  colors: [
+                    Color(0x0FF4B41A),
+                    Color(0x33F4B41A),
+                    Color(0x0FF4B41A)
+                  ],
+                  stops: [0.0, 0.52, 1.0],
                 ),
               ),
             ],
-          ),
-        ],
+          );
+        },
       ),
     );
   }
-}
 
-// =============================================================================
-// SEARCH BAR (Frame 1000003337 -> Shape: 358x50, radius 16)
-// =============================================================================
-class _FigmaHomeSearchBar extends StatelessWidget {
-  final double scale;
-
-  const _FigmaHomeSearchBar({required this.scale});
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _statCard({
+    required double width,
+    required String value,
+    required String label,
+    Color? valueColor,
+    Color? labelColor,
+    Gradient? labelGradient,
+    required Gradient border,
+    bool showLiveDot = false,
+  }) {
     return Container(
-      width: double.infinity,
-      height: 50 * scale,
-      padding: EdgeInsets.symmetric(horizontal: 14 * scale),
+      width: width,
+      height: 54 * scale,
+      padding: EdgeInsets.all(0.8 * scale),
       decoration: BoxDecoration(
-        color: const Color(0x1F767680),
-        borderRadius: BorderRadius.circular(16 * scale),
-        border: Border.all(
-          color: const Color(0x33767680),
-          width: 1.0,
-        ),
+        gradient: border,
+        borderRadius: BorderRadius.circular(14 * scale),
       ),
-      child: Row(
-        children: [
-          // Search Icon (22x22)
-          SportoAssetIcon(
-            SportoAssets.searchNormal,
-            size: 22 * scale,
-            color: const Color(0xFFA0A0A0),
-          ),
-
-          SizedBox(width: 10 * scale),
-
-          // Hint text
-          Expanded(
-            child: Text(
-              'Search cricket, football..',
+      child: Container(
+        padding: EdgeInsets.symmetric(
+          horizontal: 8 * scale,
+          vertical: 9 * scale,
+        ),
+        decoration: BoxDecoration(
+          color: const Color(0x661B2335),
+          borderRadius: BorderRadius.circular(13.2 * scale),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              value,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                fontSize: 14 * scale,
-                fontWeight: FontWeight.w500,
-                color: const Color(0xFFA0A0A0),
+                fontSize: 16 * scale,
+                fontWeight: FontWeight.w700,
+                color: valueColor ?? const Color(0xFFFFFFFF),
+                height: 1.0,
               ),
             ),
-          ),
+            SizedBox(height: 4 * scale),
+            if (showLiveDot)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 6 * scale,
+                    height: 6 * scale,
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                        colors: [Color(0xFFFF4444), Color(0xFFFF1919)],
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 4 * scale),
+                  Flexible(
+                    child: _label(
+                      label,
+                      fontSize: 11 * scale,
+                      color: labelColor,
+                      gradient: labelGradient,
+                    ),
+                  ),
+                ],
+              )
+            else
+              _label(
+                label,
+                fontSize: 11 * scale,
+                color: labelColor,
+                gradient: labelGradient,
+              ),
+          ],
+        ),
+      ),
+    );
+  }
 
-          // Divider (1x24)
-          Container(
-            width: 1 * scale,
-            height: 24 * scale,
-            color: const Color(0x33767680),
-          ),
-
-          SizedBox(width: 10 * scale),
-
-          // Mic Icon
-          SportoAssetIcon(
-            SportoAssets.mic,
-            size: 20 * scale,
-            color: const Color(0xFFA0A0A0),
-          ),
-        ],
+  Widget _label(
+    String label, {
+    required double fontSize,
+    Color? color,
+    Gradient? gradient,
+  }) {
+    if (gradient != null) {
+      return RefereeGradientText(
+        label,
+        gradient: gradient,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          fontSize: fontSize,
+          fontWeight: FontWeight.w500,
+          height: 1.0,
+        ),
+      );
+    }
+    return Text(
+      label,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: TextStyle(
+        fontSize: fontSize,
+        fontWeight: FontWeight.w500,
+        color: color ?? const Color(0xFFFFFFFF),
+        height: 1.0,
       ),
     );
   }
 }
 
 // =============================================================================
-// OVERVIEW STATS (Frame 1261154190: 350x120)
+// Match tabs + cards
 // =============================================================================
-class _FigmaOverviewStats extends StatelessWidget {
+class _MatchTabs extends StatelessWidget {
   final double scale;
-  final int liveCount;
-  final int upcomingCount;
-  final int assignedCount;
-  final int completedCount;
-  final int cancelledCount;
+  final int selectedIndex;
+  final ValueChanged<int> onSelected;
 
-  const _FigmaOverviewStats({
+  const _MatchTabs({
     required this.scale,
-    required this.liveCount,
-    required this.upcomingCount,
-    required this.assignedCount,
-    required this.completedCount,
-    required this.cancelledCount,
+    required this.selectedIndex,
+    required this.onSelected,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        // Row 1: 3 Metric Cards (each 108x65, radius 12, fill #1B233599)
-        Row(
-          children: [
-            Expanded(
-              child: _buildMetricCard(
-                count: liveCount.toString(),
-                label: 'Live Now',
-                dotColor: const Color(0xFF2BB673),
-              ),
-            ),
-            SizedBox(width: 10 * scale),
-            Expanded(
-              child: _buildMetricCard(
-                count: upcomingCount.toString(),
-                label: 'Upcoming',
-                dotColor: const Color(0xFFFEBD38),
-              ),
-            ),
-            SizedBox(width: 10 * scale),
-            Expanded(
-              child: _buildMetricCard(
-                count: assignedCount.toString(),
-                label: 'Assigned',
-                dotColor: const Color(0xFF5C93FF),
-              ),
-            ),
-          ],
-        ),
-
-        SizedBox(height: 8 * scale),
-
-        // Row 2: Bottom Completed & Cancelled Strip (350x34, radius 12, fill #1B233599)
-        Container(
-          width: double.infinity,
-          height: 34 * scale,
-          padding: EdgeInsets.symmetric(horizontal: 14 * scale),
-          decoration: BoxDecoration(
-            color: const Color(0x991B2335),
-            borderRadius: BorderRadius.circular(12 * scale),
-            border: Border.all(
-              color: const Color(0x265C93FF),
-              width: 0.8,
-            ),
-          ),
-          child: Row(
-            children: [
-              // Completed
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 6 * scale,
-                    height: 6 * scale,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Color(0xFF2BB673),
-                    ),
-                  ),
-                  SizedBox(width: 6 * scale),
-                  Text.rich(
-                    TextSpan(
-                      style: TextStyle(
-                        fontSize: 12 * scale,
-                        fontWeight: FontWeight.w500,
-                        color: const Color(0xFFA0A0A0),
-                      ),
-                      children: [
-                        const TextSpan(text: 'Completed  '),
-                        TextSpan(
-                          text: completedCount.toString(),
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFFFFFFFF),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-
-              const Spacer(),
-
-              // Cancelled
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 6 * scale,
-                    height: 6 * scale,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Color(0xFFFE464B),
-                    ),
-                  ),
-                  SizedBox(width: 6 * scale),
-                  Text.rich(
-                    TextSpan(
-                      style: TextStyle(
-                        fontSize: 12 * scale,
-                        fontWeight: FontWeight.w500,
-                        color: const Color(0xFFA0A0A0),
-                      ),
-                      children: [
-                        const TextSpan(text: 'Cancelled  '),
-                        TextSpan(
-                          text: cancelledCount.toString(),
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFFFFFFFF),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildMetricCard({
-    required String count,
-    required String label,
-    required Color dotColor,
-  }) {
-    return Container(
-      height: 65 * scale,
-      padding: EdgeInsets.symmetric(
-        horizontal: 8 * scale,
-        vertical: 8 * scale,
-      ),
-      decoration: BoxDecoration(
-        color: const Color(0x991B2335),
-        borderRadius: BorderRadius.circular(12 * scale),
-        border: Border.all(
-          color: const Color(0x265C93FF),
-          width: 0.8,
-        ),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+    return SizedBox(
+      height: 20 * scale,
+      child: Row(
         children: [
-          Text(
-            count,
-            style: TextStyle(
-              fontSize: 22 * scale,
-              fontWeight: FontWeight.w700,
-              color: const Color(0xFFFFFFFF),
-              height: 1.0,
+          Flexible(
+            child: GestureDetector(
+              onTap: () => onSelected(0),
+              behavior: HitTestBehavior.opaque,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 10 * scale,
+                    height: 10 * scale,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFFFF4444), Color(0xFFFF1919)],
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0x33FE464B),
+                          blurRadius: 12 * scale,
+                          offset: Offset(0, 5 * scale),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(width: 6 * scale),
+                  Flexible(
+                    child: selectedIndex == 0
+                        ? RefereeGradientText(
+                            'Live Now',
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFFFE6C6C), Color(0xFFFE464B)],
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 14 * scale,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          )
+                        : Text(
+                            'Live Now',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 14 * scale,
+                              fontWeight: FontWeight.w600,
+                              color: const Color(0xFF666666),
+                            ),
+                          ),
+                  ),
+                ],
+              ),
             ),
           ),
-          SizedBox(height: 4 * scale),
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  width: 6 * scale,
-                  height: 6 * scale,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: dotColor,
-                  ),
-                ),
-                SizedBox(width: 4 * scale),
-                Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 11 * scale,
-                    fontWeight: FontWeight.w500,
-                    color: const Color(0xFFA0A0A0),
-                    height: 1.0,
-                  ),
-                ),
-              ],
+          SizedBox(width: 20 * scale),
+          Flexible(
+            child: GestureDetector(
+              onTap: () => onSelected(1),
+              behavior: HitTestBehavior.opaque,
+              child: selectedIndex == 1
+                  ? RefereeGradientText(
+                      "Today's Match",
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFFFF9364), Color(0xFFF25F33)],
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 14 * scale,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    )
+                  : Text(
+                      "Today's Match",
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 14 * scale,
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFF666666),
+                      ),
+                    ),
             ),
           ),
         ],
@@ -820,21 +1402,14 @@ class _FigmaOverviewStats extends StatelessWidget {
   }
 }
 
-// =============================================================================
-// SECTION 1: LIVE NOW MATCH CARD (Frame 1261154188: 350x206, radius 16)
-// =============================================================================
-class _FigmaLiveMatchCard extends StatelessWidget {
+class _LiveMatchCard extends StatelessWidget {
   final double scale;
   final RefereeMatchResponse match;
 
-  const _FigmaLiveMatchCard({
-    required this.scale,
-    required this.match,
-  });
+  const _LiveMatchCard({required this.scale, required this.match});
 
   @override
   Widget build(BuildContext context) {
-    // Authoritative live score only — '…' until loaded, never static text.
     return MatchLiveScore(
       matchId: match.id,
       builder: (context, score, isLoading) {
@@ -849,88 +1424,88 @@ class _FigmaLiveMatchCard extends StatelessWidget {
             ? '…'
             : (teamBId == null
                 ? '—'
-                : (liveTeamScore(score, teamBId) ?? 'Yet to Bat'));
-        final strikerName =
-            score?.scoring.runtime.currentStriker.name?.trim() ?? '';
-        final bowlerName =
-            score?.scoring.runtime.currentBowler.name?.trim() ?? '';
-        final batter = isLoading ? '…' : (strikerName.isEmpty ? '—' : strikerName);
-        final bowler = isLoading ? '…' : (bowlerName.isEmpty ? '—' : bowlerName);
-        final overs = isLoading ? '' : (liveOversText(score) ?? '');
+                : (liveTeamScore(score, teamBId) ?? 'Waiting to Bat'));
+        final overs = isLoading
+            ? ''
+            : (liveOversText(score) ?? 'Over - 0.0')
+                .replaceFirst('Over - ', 'Over ');
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Live Now Section Header (Red Pulsing Dot + Gradient Text)
-        Row(
-          children: [
-            Container(
-              width: 10 * scale,
-              height: 10 * scale,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: const LinearGradient(
-                  colors: [Color(0xFFFF4444), Color(0xFFFF1919)],
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFFFF1919).withValues(alpha: 0.5),
-                    blurRadius: 6 * scale,
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(width: 6 * scale),
-            _GradientText(
-              'Live Now',
-              gradient: const LinearGradient(
-                colors: [Color(0xFFFE6C6C), Color(0xFFFE464B)],
-              ),
-              style: TextStyle(
-                fontSize: 16 * scale,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
-
-        SizedBox(height: 10 * scale),
-
-        // Live Card (350x176, radius 16, dual gradient & border)
-        Container(
-          width: double.infinity,
-          padding: EdgeInsets.all(12 * scale),
+        return Container(
           decoration: BoxDecoration(
-            color: const Color(0x33B40003),
             borderRadius: BorderRadius.circular(16 * scale),
-            border: Border.all(
-              color: const Color(0x4DF53E02),
-              width: 1.0,
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color(0x33B40003),
+                Color(0x33ED7B00),
+                Color(0x26CF9E24),
+              ],
             ),
+            border:
+                Border.all(color: const Color(0x4DF53E02), width: 0.8 * scale),
             boxShadow: [
               BoxShadow(
-                color: const Color(0x22B40003),
-                blurRadius: 16 * scale,
-                offset: Offset(0, 4 * scale),
+                color: const Color(0x80512813),
+                blurRadius: 8 * scale,
+                offset: Offset(0, 1 * scale),
               ),
             ],
           ),
+          padding: EdgeInsets.all(10 * scale),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Tournament Name
+              Row(
+                children: [
+                  Text(
+                    requestSport(match),
+                    style: TextStyle(
+                      fontSize: 12 * scale,
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFF2BB673),
+                    ),
+                  ),
+                  _dot(scale),
+                  Text(
+                    requestCode(match),
+                    style: TextStyle(
+                      fontSize: 12 * scale,
+                      fontWeight: FontWeight.w500,
+                      color: const Color(0xFF666666),
+                    ),
+                  ),
+                  _dot(scale),
+                  Flexible(
+                    child: RefereeGradientText(
+                      requestSourceLabel(match),
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFFFF58DD), Color(0xFFDC65AC)],
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 12 * scale,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 3 * scale),
               Text(
                 match.displayTournament,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  fontSize: 14 * scale,
+                  fontSize: 16 * scale,
                   fontWeight: FontWeight.w600,
                   color: const Color(0xFFFFFFFF),
                 ),
               ),
-
-              SizedBox(height: 8 * scale),
-
-              // Matchup & Scores Row
+              SizedBox(height: 5 * scale),
+              Container(height: 0.5 * scale, color: const Color(0x33FFFFFF)),
+              SizedBox(height: 5 * scale),
               Row(
                 children: [
                   Expanded(
@@ -942,31 +1517,32 @@ class _FigmaLiveMatchCard extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            fontSize: 14 * scale,
-                            fontWeight: FontWeight.w600,
-                            color: const Color(0xFFFFFFFF),
+                            fontSize: 12 * scale,
+                            fontWeight: FontWeight.w400,
+                            color: const Color(0xFFA0A0A0),
                           ),
                         ),
-                        SizedBox(height: 2 * scale),
                         Text(
                           team1Score,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            fontSize: 15 * scale,
-                            fontWeight: FontWeight.w700,
-                            color: const Color(0xFF2BB673),
+                            fontSize: 12 * scale,
+                            fontWeight: FontWeight.w600,
+                            color: const Color(0xFFFFFFFF),
                           ),
                         ),
                       ],
                     ),
                   ),
                   Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8 * scale),
+                    padding: EdgeInsets.symmetric(horizontal: 10 * scale),
                     child: Text(
                       'Vs',
                       style: TextStyle(
                         fontSize: 12 * scale,
-                        fontWeight: FontWeight.w500,
-                        color: const Color(0xFFA0A0A0),
+                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFFAAAAAA),
                       ),
                     ),
                   ),
@@ -980,19 +1556,20 @@ class _FigmaLiveMatchCard extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                           textAlign: TextAlign.right,
                           style: TextStyle(
-                            fontSize: 14 * scale,
-                            fontWeight: FontWeight.w600,
-                            color: const Color(0xFFFFFFFF),
+                            fontSize: 12 * scale,
+                            fontWeight: FontWeight.w400,
+                            color: const Color(0xFFA0A0A0),
                           ),
                         ),
-                        SizedBox(height: 2 * scale),
                         Text(
                           team2Score,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           textAlign: TextAlign.right,
                           style: TextStyle(
                             fontSize: 12 * scale,
-                            fontWeight: FontWeight.w500,
-                            color: const Color(0xFFA0A0A0),
+                            fontWeight: FontWeight.w600,
+                            color: const Color(0xFFFFFFFF),
                           ),
                         ),
                       ],
@@ -1000,77 +1577,9 @@ class _FigmaLiveMatchCard extends StatelessWidget {
                   ),
                 ],
               ),
-
-              SizedBox(height: 8 * scale),
-
-              // Divider Line (0.8px, #283040)
-              Container(
-                height: 0.8 * scale,
-                color: const Color(0xFF283040),
-              ),
-
-              SizedBox(height: 8 * scale),
-
-              // Batter & Bowler Row
-              Row(
-                children: [
-                  Expanded(
-                    child: Text.rich(
-                      TextSpan(
-                        style: TextStyle(
-                          fontSize: 11 * scale,
-                          fontWeight: FontWeight.w500,
-                          color: const Color(0xFFA0A0A0),
-                        ),
-                        children: [
-                          const TextSpan(text: 'Current Batter: '),
-                          TextSpan(
-                            text: batter,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w700,
-                              color: Color(0xFFFFFFFF),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Text.rich(
-                      textAlign: TextAlign.right,
-                      TextSpan(
-                        style: TextStyle(
-                          fontSize: 11 * scale,
-                          fontWeight: FontWeight.w500,
-                          color: const Color(0xFFA0A0A0),
-                        ),
-                        children: [
-                          const TextSpan(text: 'Current Bowler: '),
-                          TextSpan(
-                            text: bowler,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w700,
-                              color: Color(0xFFFFFFFF),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-
-              SizedBox(height: 8 * scale),
-
-              // Divider Line (0.8px, #283040)
-              Container(
-                height: 0.8 * scale,
-                color: const Color(0xFF283040),
-              ),
-
-              SizedBox(height: 8 * scale),
-
-              // Overs & Continue Scoring Action
+              SizedBox(height: 5 * scale),
+              Container(height: 0.5 * scale, color: const Color(0x33FFFFFF)),
+              const Spacer(),
               Row(
                 children: [
                   Expanded(
@@ -1085,42 +1594,21 @@ class _FigmaLiveMatchCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  SizedBox(width: 8 * scale),
-                  Container(
+                  SizedBox(width: 6 * scale),
+                  SizedBox(
+                    width: 134 * scale,
                     height: 30 * scale,
-                    decoration: BoxDecoration(
+                    child: _GradientButton(
+                      scale: scale,
+                      label: 'Continue Scoring',
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
                       gradient: const LinearGradient(
-                        colors: [
-                          Color(0xFF7AD3FF),
-                          Color(0xFF4FBAF0),
-                        ],
+                        colors: [Color(0xFFDF3F00), Color(0xFFF65800)],
                       ),
-                      borderRadius: BorderRadius.circular(10 * scale),
-                    ),
-                    child: Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        onTap: () {
-                          context.push(
-                            '${AppRouter.liveScoringRoute}?matchId=${match.id}&matchCode=SPT-${match.id}',
-                          );
-                        },
-                        borderRadius: BorderRadius.circular(10 * scale),
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 12 * scale,
-                          ),
-                          child: Center(
-                            child: Text(
-                              'Continue Scoring',
-                              style: TextStyle(
-                                fontSize: 12 * scale,
-                                fontWeight: FontWeight.w700,
-                                color: const Color(0xFF082234),
-                              ),
-                            ),
-                          ),
-                        ),
+                      textColor: const Color(0xFFFFFFFF),
+                      onTap: () => context.push(
+                        '${AppRouter.liveScoringRoute}?matchId=${match.id}&matchCode=SPT-${match.id}',
                       ),
                     ),
                   ),
@@ -1128,383 +1616,37 @@ class _FigmaLiveMatchCard extends StatelessWidget {
               ),
             ],
           ),
-        ),
-      ],
-    );
+        );
       },
     );
   }
-}
 
-// =============================================================================
-// SECTION 2: NEXT MATCH CARD (Frame 1261154189: 350x197, radius 14)
-// =============================================================================
-class _FigmaNextMatchCard extends StatelessWidget {
-  final double scale;
-  final RefereeMatchResponse match;
-
-  const _FigmaNextMatchCard({
-    required this.scale,
-    required this.match,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Next Match Section Header
-        Row(
-          children: [
-            Container(
-              width: 10 * scale,
-              height: 10 * scale,
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                color: Color(0xFFFEBD38),
-              ),
-            ),
-            SizedBox(width: 6 * scale),
-            Text(
-              'Next Match',
-              style: TextStyle(
-                fontSize: 16 * scale,
-                fontWeight: FontWeight.w600,
-                color: const Color(0xFFFEBD38),
-              ),
-            ),
-          ],
+  Widget _dot(double scale) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 6 * scale),
+      child: Container(
+        width: 2 * scale,
+        height: 2 * scale,
+        decoration: const BoxDecoration(
+          shape: BoxShape.circle,
+          color: Color(0xFFA0A0A0),
         ),
-
-        SizedBox(height: 10 * scale),
-
-        // Match Card (350x167, radius 14, fill #1C2026)
-        Container(
-          width: double.infinity,
-          padding: EdgeInsets.all(12 * scale),
-          decoration: BoxDecoration(
-            color: const Color(0xFF1C2026),
-            borderRadius: BorderRadius.circular(14 * scale),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Top Row: Upcoming Pill + Schedule
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    height: 19 * scale,
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 6 * scale,
-                      vertical: 2 * scale,
-                    ),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10 * scale),
-                      gradient: const LinearGradient(
-                        colors: [
-                          Color(0x1AFF9364),
-                          Color(0x1AF25F33),
-                        ],
-                      ),
-                    ),
-                    child: Center(
-                      child: _GradientText(
-                        'Upcoming',
-                        gradient: const LinearGradient(
-                          colors: [
-                            Color(0xFFFF9364),
-                            Color(0xFFF25F33),
-                          ],
-                        ),
-                        style: TextStyle(
-                          fontSize: 11 * scale,
-                          fontWeight: FontWeight.w600,
-                          height: 1.0,
-                        ),
-                      ),
-                    ),
-                  ),
-                  Flexible(
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 4 * scale),
-                      child: Text(
-                        match.displaySchedule,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.right,
-                        style: TextStyle(
-                          fontSize: 12 * scale,
-                          fontWeight: FontWeight.w500,
-                          color: const Color(0xFFAAAAAA),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-
-              SizedBox(height: 8 * scale),
-
-              // Tournament Name
-              Text(
-                match.displayTournament,
-                style: TextStyle(
-                  fontSize: 15 * scale,
-                  fontWeight: FontWeight.w600,
-                  color: const Color(0xFFFFFFFF),
-                ),
-              ),
-
-              SizedBox(height: 2 * scale),
-
-              // Location Row
-              Row(
-                children: [
-                  SportoAssetIcon(
-                    SportoAssets.locationPin,
-                    size: 13 * scale,
-                    color: const Color(0xFFA0A0A0),
-                  ),
-                  SizedBox(width: 4 * scale),
-                  Expanded(
-                    child: Text(
-                      match.displayVenue,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 12 * scale,
-                        fontWeight: FontWeight.w500,
-                        color: const Color(0xFFA0A0A0),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-
-              SizedBox(height: 8 * scale),
-
-              // Teams Row
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      match.displayTeamA,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 14 * scale,
-                        fontWeight: FontWeight.w600,
-                        color: const Color(0xFFFFFFFF),
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8 * scale),
-                    child: Text(
-                      'Vs',
-                      style: TextStyle(
-                        fontSize: 12 * scale,
-                        fontWeight: FontWeight.w500,
-                        color: const Color(0xFFA0A0A0),
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Text(
-                      match.displayTeamB,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      textAlign: TextAlign.right,
-                      style: TextStyle(
-                        fontSize: 14 * scale,
-                        fontWeight: FontWeight.w600,
-                        color: const Color(0xFFFFFFFF),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-
-              SizedBox(height: 8 * scale),
-
-              // Divider
-              Container(
-                height: 0.8 * scale,
-                color: const Color(0xFF283040),
-              ),
-
-              SizedBox(height: 8 * scale),
-
-              // Countdown & Verify Teams Action (real schedule, no hardcode)
-              Row(
-                children: [
-                  Expanded(
-                    child: FittedBox(
-                      alignment: Alignment.centerLeft,
-                      fit: BoxFit.scaleDown,
-                      child: _NextMatchCountdown(
-                        scale: scale,
-                        match: match,
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 8 * scale),
-                  Container(
-                    height: 30 * scale,
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [
-                          Color(0xFF7AD3FF),
-                          Color(0xFF4FBAF0),
-                        ],
-                      ),
-                      borderRadius: BorderRadius.circular(10 * scale),
-                    ),
-                    child: Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        onTap: () =>
-                            _onNextMatchAction(context, match),
-                        borderRadius: BorderRadius.circular(10 * scale),
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 12 * scale,
-                          ),
-                          child: Center(
-                            child: Text(
-                              _nextMatchLabel(match),
-                              style: TextStyle(
-                                fontSize: 12 * scale,
-                                fontWeight: FontWeight.w700,
-                                color: const Color(0xFF082234),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ],
+      ),
     );
   }
 }
 
-/// Single routing point for the home next-match button (same resolver the
-/// list uses — blocked matches show a reason instead of dead navigation).
-String _nextMatchLabel(RefereeMatchResponse match) {
-  return switch (resolveMatchAction(match).action) {
-    MatchAction.continueScoring || MatchAction.startScoring => 'Start Scoring',
-    MatchAction.toss => 'Conduct Toss',
-    MatchAction.viewReport => 'View Report',
-    MatchAction.blocked => 'Unavailable',
-    MatchAction.verify => 'Verify Teams',
-  };
-}
-
-void _onNextMatchAction(BuildContext context, RefereeMatchResponse match) {
-  final resolved = resolveMatchAction(match);
-  switch (resolved.action) {
-    case MatchAction.continueScoring:
-    case MatchAction.startScoring:
-    case MatchAction.viewReport:
-      context.push(
-        '${AppRouter.liveScoringRoute}?matchId=${match.id}&matchCode=SPT-${match.id}',
-      );
-    case MatchAction.toss:
-      context.push('${AppRouter.conductTossRoute}?matchId=${match.id}');
-    case MatchAction.verify:
-      context.push('${AppRouter.matchVerificationRoute}?matchId=${match.id}');
-    case MatchAction.blocked:
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(resolved.blockedReason ?? 'Unavailable')),
-      );
-  }
-}
-
-// =============================================================================
-// SECTION 3: ASSIGNED MATCHES (Frame 1261154191: 350x197, radius 14)
-// =============================================================================
-class _FigmaAssignedSectionHeader extends StatelessWidget {
-  final double scale;
-  final int count;
-  final VoidCallback? onViewAll;
-
-  const _FigmaAssignedSectionHeader({
-    required this.scale,
-    required this.count,
-    this.onViewAll,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          width: 10 * scale,
-          height: 10 * scale,
-          decoration: const BoxDecoration(
-            shape: BoxShape.circle,
-            color: Color(0xFF2BB673),
-          ),
-        ),
-        SizedBox(width: 6 * scale),
-        Text(
-          'Assigned Matches ($count)',
-          style: TextStyle(
-            fontSize: 16 * scale,
-            fontWeight: FontWeight.w600,
-            color: const Color(0xFF2BB673),
-          ),
-        ),
-        const Spacer(),
-        if (onViewAll != null)
-          GestureDetector(
-            onTap: onViewAll,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'View All',
-                  style: TextStyle(
-                    fontSize: 12 * scale,
-                    fontWeight: FontWeight.w500,
-                    color: const Color(0xFFA0A0A0),
-                  ),
-                ),
-                SizedBox(width: 4 * scale),
-                Icon(
-                  Icons.arrow_forward_ios_rounded,
-                  size: 11 * scale,
-                  color: const Color(0xFFA0A0A0),
-                ),
-              ],
-            ),
-          ),
-      ],
-    );
-  }
-}
-
-class _FigmaAssignedMatchCard extends StatelessWidget {
+class _TodayMatchCard extends StatelessWidget {
   final double scale;
   final RefereeMatchResponse match;
 
-  const _FigmaAssignedMatchCard({
-    required this.scale,
-    required this.match,
-  });
+  const _TodayMatchCard({required this.scale, required this.match});
 
   @override
   Widget build(BuildContext context) {
+    final countdown = countdownText(parseMatchStart(match));
     return Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(12 * scale),
+      padding: EdgeInsets.all(10 * scale),
       decoration: BoxDecoration(
         color: const Color(0xFF1C2026),
         borderRadius: BorderRadius.circular(14 * scale),
@@ -1512,189 +1654,383 @@ class _FigmaAssignedMatchCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Top Row: Upcoming Pill + Schedule
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Container(
-                height: 19 * scale,
-                padding: EdgeInsets.symmetric(
-                  horizontal: 6 * scale,
-                  vertical: 2 * scale,
-                ),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10 * scale),
-                  gradient: const LinearGradient(
-                    colors: [
-                      Color(0x1AFF9364),
-                      Color(0x1AF25F33),
-                    ],
-                  ),
-                ),
-                child: Center(
-                  child: _GradientText(
-                    'Upcoming',
-                    gradient: const LinearGradient(
-                      colors: [
-                        Color(0xFFFF9364),
-                        Color(0xFFF25F33),
-                      ],
-                    ),
-                    style: TextStyle(
-                      fontSize: 11 * scale,
-                      fontWeight: FontWeight.w600,
-                      height: 1.0,
-                    ),
-                  ),
-                ),
-              ),
               Flexible(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 4 * scale),
-                  child: Text(
-                    match.displaySchedule,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.right,
-                    style: TextStyle(
-                      fontSize: 12 * scale,
-                      fontWeight: FontWeight.w500,
-                      color: const Color(0xFFAAAAAA),
-                    ),
+                child: _Pill(
+                  scale: scale,
+                  label: 'Upcoming',
+                  gradient: const LinearGradient(
+                    colors: [Color(0x1AFF9364), Color(0x1AF25F33)],
+                  ),
+                  textGradient: const LinearGradient(
+                    colors: [Color(0xFFFF9364), Color(0xFFF25F33)],
                   ),
                 ),
               ),
-            ],
-          ),
-
-          SizedBox(height: 8 * scale),
-
-          // Tournament Name
-          Text(
-            match.displayTournament,
-            style: TextStyle(
-              fontSize: 15 * scale,
-              fontWeight: FontWeight.w600,
-              color: const Color(0xFFFFFFFF),
-            ),
-          ),
-
-          SizedBox(height: 2 * scale),
-
-          // Location
-          Row(
-            children: [
-              SportoAssetIcon(
-                SportoAssets.locationPin,
-                size: 13 * scale,
-                color: const Color(0xFFA0A0A0),
-              ),
-              SizedBox(width: 4 * scale),
-              Expanded(
-                child: Text(
-                  match.displayVenue,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 12 * scale,
-                    fontWeight: FontWeight.w500,
-                    color: const Color(0xFFA0A0A0),
+              SizedBox(width: 8 * scale),
+              Flexible(
+                child: _Pill(
+                  scale: scale,
+                  label: requestSourceLabel(match),
+                  gradient: const LinearGradient(
+                    colors: [Color(0x1AFF58DD), Color(0x1ADC65AC)],
+                  ),
+                  textGradient: const LinearGradient(
+                    colors: [Color(0xFFFF58DD), Color(0xFFDC65AC)],
                   ),
                 ),
               ),
-            ],
-          ),
-
-          SizedBox(height: 8 * scale),
-
-          // Teams Row
-          Row(
-            children: [
-              Expanded(
+              SizedBox(width: 8 * scale),
+              Flexible(
                 child: Text(
-                  match.displayTeamA,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 14 * scale,
-                    fontWeight: FontWeight.w600,
-                    color: const Color(0xFFFFFFFF),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 8 * scale),
-                child: Text(
-                  'Vs',
-                  style: TextStyle(
-                    fontSize: 12 * scale,
-                    fontWeight: FontWeight.w500,
-                    color: const Color(0xFFA0A0A0),
-                  ),
-                ),
-              ),
-              Expanded(
-                child: Text(
-                  match.displayTeamB,
+                  requestScheduleText(match),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.right,
                   style: TextStyle(
-                    fontSize: 14 * scale,
+                    fontSize: 12 * scale,
                     fontWeight: FontWeight.w600,
-                    color: const Color(0xFFFFFFFF),
+                    color: const Color(0xFFAAAAAA),
                   ),
                 ),
               ),
             ],
           ),
-
-          SizedBox(height: 8 * scale),
-
-          // Divider Line
-          Container(
-            height: 0.8 * scale,
-            color: const Color(0xFF283040),
-          ),
-
-          SizedBox(height: 8 * scale),
-
-          // Action Button Row
-          Align(
-            alignment: Alignment.centerRight,
-            child: Container(
-              height: 30 * scale,
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [
-                    Color(0xFF7AD3FF),
-                    Color(0xFF4FBAF0),
-                  ],
+          SizedBox(height: 10 * scale),
+          Row(
+            children: [
+              Text(
+                requestSport(match),
+                style: TextStyle(
+                  fontSize: 12 * scale,
+                  fontWeight: FontWeight.w600,
+                  color: const Color(0xFF2BB673),
                 ),
-                borderRadius: BorderRadius.circular(10 * scale),
               ),
-              child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    onTap: () => _onNextMatchAction(context, match),
-                    borderRadius: BorderRadius.circular(10 * scale),
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 14 * scale,
-                      ),
-                      child: Center(
-                        child: Text(
-                          _nextMatchLabel(match),
-                          style: TextStyle(
-                            fontSize: 12 * scale,
-                            fontWeight: FontWeight.w700,
-                            color: const Color(0xFF082234),
-                          ),
+              _dot(scale),
+              Text(
+                requestCode(match),
+                style: TextStyle(
+                  fontSize: 12 * scale,
+                  fontWeight: FontWeight.w500,
+                  color: const Color(0xFF666666),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 2 * scale),
+          Text(
+            match.displayTournament,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 14 * scale,
+              fontWeight: FontWeight.w600,
+              color: const Color(0xFFFFFFFF),
+            ),
+          ),
+          SizedBox(height: 10 * scale),
+          Container(height: 0.5 * scale, color: const Color(0x33FFFFFF)),
+          SizedBox(height: 6 * scale),
+          Row(
+            children: [
+              Expanded(
+                child: Row(
+                  children: [
+                    SportoSvgIcon(
+                      SportoRefereeBookingIcons.pinGreenSmall,
+                      size: 16 * scale,
+                    ),
+                    SizedBox(width: 2 * scale),
+                    Expanded(
+                      child: Text(
+                        requestLocationText(match),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 12 * scale,
+                          fontWeight: FontWeight.w500,
+                          color: const Color(0xFFA0A0A0),
                         ),
                       ),
                     ),
+                  ],
+                ),
+              ),
+              SizedBox(width: 4 * scale),
+              RefereeDistancePill(
+                  scale: scale, label: requestDistanceText(match)),
+            ],
+          ),
+          SizedBox(height: 6 * scale),
+          Container(height: 0.5 * scale, color: const Color(0x33FFFFFF)),
+          SizedBox(height: 6 * scale),
+          Row(
+            children: [
+              Expanded(
+                child: Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(
+                        text: 'Starts in ',
+                        style: TextStyle(
+                          fontSize: 14 * scale,
+                          fontWeight: FontWeight.w500,
+                          color: const Color(0xFFFFFFFF),
+                        ),
+                      ),
+                      TextSpan(
+                        text: countdown ?? '--:--:--',
+                        style: TextStyle(
+                          fontSize: 14 * scale,
+                          fontWeight: FontWeight.w700,
+                          color: const Color(0xFF2BB673),
+                        ),
+                      ),
+                    ],
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              Text(
+                'At ${requestTimeRangeText(match)}',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 12 * scale,
+                  fontWeight: FontWeight.w500,
+                  color: const Color(0xFFFFFFFF),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 6 * scale),
+          SizedBox(
+            height: 34 * scale,
+            width: double.infinity,
+            child: _GradientButton(
+              scale: scale,
+              label: 'START SESSION',
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              gradient: const LinearGradient(
+                colors: [Color(0xFF2BB673), Color(0xFF2BB673)],
+              ),
+              textColor: const Color(0xFF090C10),
+              onTap: () => _onMatchAction(context, match),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _dot(double scale) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 6 * scale),
+      child: Container(
+        width: 2 * scale,
+        height: 2 * scale,
+        decoration: const BoxDecoration(
+          shape: BoxShape.circle,
+          color: Color(0xFFA0A0A0),
+        ),
+      ),
+    );
+  }
+}
+
+class _Pill extends StatelessWidget {
+  final double scale;
+  final String label;
+  final Gradient gradient;
+  final Gradient textGradient;
+
+  const _Pill({
+    required this.scale,
+    required this.label,
+    required this.gradient,
+    required this.textGradient,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: 6 * scale,
+        vertical: 2 * scale,
+      ),
+      decoration: BoxDecoration(
+        gradient: gradient,
+        borderRadius: BorderRadius.circular(10 * scale),
+      ),
+      child: RefereeGradientText(
+        label,
+        gradient: textGradient,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          fontSize: 12 * scale,
+          fontWeight: FontWeight.w500,
+          height: 1.2,
+        ),
+      ),
+    );
+  }
+}
+
+// =============================================================================
+// Incoming requests (home section)
+// =============================================================================
+class _IncomingRequestsSection extends StatelessWidget {
+  final double scale;
+  final List<RefereeMatchRequestResponse> requests;
+  final VoidCallback onViewAll;
+  final ValueChanged<RefereeMatchRequestResponse> onTap;
+  final ValueChanged<RefereeMatchRequestResponse> onAccept;
+  final ValueChanged<RefereeMatchRequestResponse> onDecline;
+
+  const _IncomingRequestsSection({
+    required this.scale,
+    required this.requests,
+    required this.onViewAll,
+    required this.onTap,
+    required this.onAccept,
+    required this.onDecline,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final request = requests.first;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          height: 20 * scale,
+          child: Row(
+            children: [
+              Expanded(
+                child: RefereeGradientText(
+                  'Incoming Requests',
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF99FFA3), Color(0xFF68EE76)],
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 16 * scale,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
+              ),
+              SizedBox(width: 8 * scale),
+              GestureDetector(
+                onTap: onViewAll,
+                behavior: HitTestBehavior.opaque,
+                child: Row(
+                  children: [
+                    Text(
+                      'View All',
+                      style: TextStyle(
+                        fontSize: 12 * scale,
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFFA0A0A0),
+                      ),
+                    ),
+                    SizedBox(width: 2 * scale),
+                    SportoSvgIcon(
+                      SportoRefereeBookingIcons.chevronRight,
+                      width: 13 * scale,
+                      height: 8 * scale,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        SizedBox(height: 10 * scale),
+        RefereeRequestCard(
+          scale: scale,
+          request: request,
+          onTap: () => onTap(request),
+          onAccept: () => onAccept(request),
+          onDecline: () => onDecline(request),
+        ),
+      ],
+    );
+  }
+}
+
+// =============================================================================
+// Empty / ads / buttons
+// =============================================================================
+class _EmptyAssignedCard extends StatelessWidget {
+  final double scale;
+
+  const _EmptyAssignedCard({required this.scale});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.fromLTRB(
+        20 * scale,
+        30 * scale,
+        20 * scale,
+        20 * scale,
+      ),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1C2026),
+        borderRadius: BorderRadius.circular(30 * scale),
+      ),
+      child: Column(
+        children: [
+          Container(
+            width: 140 * scale,
+            height: 120 * scale,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10 * scale),
+              gradient: const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Color(0xFF3B2B22), Color(0xFF2A2018)],
+              ),
+            ),
+          ),
+          SizedBox(height: 20 * scale),
+          Text(
+            'No Assigned Matches',
+            style: TextStyle(
+              fontSize: 16 * scale,
+              fontWeight: FontWeight.w600,
+              color: const Color(0xFFFFFFFF),
+            ),
+          ),
+          SizedBox(height: 10 * scale),
+          RefereeGradientText(
+            'Enjoy your day!',
+            gradient: const LinearGradient(
+              colors: [Color(0xFF99FFA3), Color(0xFF68EE76)],
+            ),
+            style: TextStyle(
+              fontSize: 14 * scale,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          SizedBox(height: 20 * scale),
+          Container(height: 0.8 * scale, color: const Color(0xFF283040)),
+          SizedBox(height: 20 * scale),
+          Text(
+            "We'll notify you when new matches are assigned.",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 14 * scale,
+              fontWeight: FontWeight.w500,
+              color: const Color(0xFFA0A0A0),
+              height: 1.3,
             ),
           ),
         ],
@@ -1703,28 +2039,52 @@ class _FigmaAssignedMatchCard extends StatelessWidget {
   }
 }
 
-// =============================================================================
-// SECTION 4: ADS BANNER (Frame 1171275266: 350x60, radius 20)
-// =============================================================================
-class _FigmaAdsBanner extends StatelessWidget {
+class _NoMatchesCard extends StatelessWidget {
+  final double scale;
+  final String label;
+
+  const _NoMatchesCard({required this.scale, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 340 * scale,
+      padding: EdgeInsets.all(20 * scale),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1C2026),
+        borderRadius: BorderRadius.circular(16 * scale),
+      ),
+      child: Center(
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 14 * scale,
+            fontWeight: FontWeight.w500,
+            color: const Color(0xFFA0A0A0),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _AdsBanner extends StatelessWidget {
   final double scale;
 
-  const _FigmaAdsBanner({required this.scale});
+  const _AdsBanner({required this.scale});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
       height: 60 * scale,
-      padding: EdgeInsets.symmetric(horizontal: 20 * scale),
+      padding:
+          EdgeInsets.fromLTRB(20 * scale, 12 * scale, 20 * scale, 12 * scale),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [
-            Color(0xFFED7B00),
-            Color(0xFFCF9E24),
-          ],
-        ),
         borderRadius: BorderRadius.circular(20 * scale),
+        gradient: const LinearGradient(
+          colors: [Color(0xFFED7B00), Color(0xFFCF9E24)],
+        ),
       ),
       child: Row(
         children: [
@@ -1734,20 +2094,27 @@ class _FigmaAdsBanner extends StatelessWidget {
               fontSize: 16 * scale,
               fontWeight: FontWeight.w700,
               color: const Color(0xFFFFFFFF),
+              shadows: [
+                Shadow(
+                  color: const Color(0x33000000),
+                  blurRadius: 4 * scale,
+                  offset: Offset(0, 1 * scale),
+                ),
+              ],
             ),
           ),
           const Spacer(),
           Container(
             width: 36 * scale,
             height: 36 * scale,
-            alignment: Alignment.center,
             decoration: BoxDecoration(
               color: const Color(0x1AFFFFFF),
               borderRadius: BorderRadius.circular(10 * scale),
             ),
-            child: Icon(
-              Icons.chevron_right_rounded,
-              size: 22 * scale,
+            child: SportoSvgIcon(
+              SportoRefereeBookingIcons.chevronRight,
+              width: 6 * scale,
+              height: 12 * scale,
               color: const Color(0xFFFFFFFF),
             ),
           ),
@@ -1757,88 +2124,57 @@ class _FigmaAdsBanner extends StatelessWidget {
   }
 }
 
-// =============================================================================
-// CLEAN EMPTY STATE CARD
-// =============================================================================
-class _FigmaEmptyMatchesCard extends StatelessWidget {
+class _GradientButton extends StatelessWidget {
   final double scale;
+  final String label;
+  final double fontSize;
+  final FontWeight fontWeight;
+  final Gradient gradient;
+  final Color textColor;
+  final VoidCallback onTap;
 
-  const _FigmaEmptyMatchesCard({required this.scale});
+  const _GradientButton({
+    required this.scale,
+    required this.label,
+    required this.fontSize,
+    required this.fontWeight,
+    required this.gradient,
+    required this.textColor,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: double.infinity,
-      padding: EdgeInsets.fromLTRB(
-        20 * scale,
-        24 * scale,
-        20 * scale,
-        20 * scale,
-      ),
       decoration: BoxDecoration(
-        color: const Color(0xFF1C2026),
-        borderRadius: BorderRadius.circular(24 * scale),
+        gradient: gradient,
+        borderRadius: BorderRadius.circular(10 * scale),
       ),
-      child: Column(
-        children: [
-          Container(
-            width: 64 * scale,
-            height: 64 * scale,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: const Color(0xFF252B38),
-              border: Border.all(
-                color: const Color(0xFF373E52),
-                width: 1.5,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(10 * scale),
+          child: Center(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: fontSize * scale,
+                fontWeight: fontWeight,
+                color: textColor,
               ),
             ),
-            child: Icon(
-              Icons.sports_cricket_rounded,
-              size: 32 * scale,
-              color: const Color(0xFFFEBD38),
-            ),
           ),
-          SizedBox(height: 14 * scale),
-          Text(
-            'No Assigned Matches',
-            style: TextStyle(
-              fontSize: 16 * scale,
-              fontWeight: FontWeight.w700,
-              color: const Color(0xFFFFFFFF),
-            ),
-          ),
-          SizedBox(height: 6 * scale),
-          Text(
-            'Enjoy your day!',
-            style: TextStyle(
-              fontSize: 13 * scale,
-              fontWeight: FontWeight.w500,
-              color: const Color(0xFF2BB673),
-            ),
-          ),
-          SizedBox(height: 16 * scale),
-          Container(
-            height: 0.8 * scale,
-            color: const Color(0xFF283040),
-          ),
-          SizedBox(height: 14 * scale),
-          Text(
-            'We\'ll notify you when new matches are assigned.',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 12 * scale,
-              fontWeight: FontWeight.w500,
-              color: const Color(0xFFA0A0A0),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
 }
 
 // =============================================================================
-// ERROR CARD
+// Error + skeleton
 // =============================================================================
 class _HomeErrorCard extends StatelessWidget {
   final double scale;
@@ -1859,9 +2195,7 @@ class _HomeErrorCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFF1C2026),
         borderRadius: BorderRadius.circular(16 * scale),
-        border: Border.all(
-          color: const Color(0xFFFE464B).withValues(alpha: 0.4),
-        ),
+        border: Border.all(color: const Color(0x66FE464B)),
       ),
       child: Column(
         children: [
@@ -1899,24 +2233,19 @@ class _HomeErrorCard extends StatelessWidget {
   }
 }
 
-// =============================================================================
-// HIGH-FIDELITY SKELETON SHIMMER (Matching Figma Layout)
-// =============================================================================
-class _RefereeHomeSkeletonShimmer extends StatefulWidget {
+class _HomeSkeleton extends StatefulWidget {
   final double scale;
 
-  const _RefereeHomeSkeletonShimmer({required this.scale});
+  const _HomeSkeleton({required this.scale});
 
   @override
-  State<_RefereeHomeSkeletonShimmer> createState() =>
-      _RefereeHomeSkeletonShimmerState();
+  State<_HomeSkeleton> createState() => _HomeSkeletonState();
 }
 
-class _RefereeHomeSkeletonShimmerState
-    extends State<_RefereeHomeSkeletonShimmer>
+class _HomeSkeletonState extends State<_HomeSkeleton>
     with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _animation;
+  late final AnimationController _controller;
+  late final Animation<double> _animation;
 
   @override
   void initState() {
@@ -1936,11 +2265,8 @@ class _RefereeHomeSkeletonShimmerState
     super.dispose();
   }
 
-  Widget _shimmerBox({
-    required double width,
-    required double height,
-    double radius = 8,
-  }) {
+  Widget _box(
+      {required double width, required double height, double radius = 8}) {
     final s = widget.scale;
     return AnimatedBuilder(
       animation: _animation,
@@ -1949,7 +2275,7 @@ class _RefereeHomeSkeletonShimmerState
           width: width * s,
           height: height * s,
           decoration: BoxDecoration(
-            color: Color(0xFF283040).withValues(alpha: _animation.value),
+            color: const Color(0xFF283040).withValues(alpha: _animation.value),
             borderRadius: BorderRadius.circular(radius * s),
           ),
         );
@@ -1960,138 +2286,70 @@ class _RefereeHomeSkeletonShimmerState
   @override
   Widget build(BuildContext context) {
     final s = widget.scale;
-
     return SingleChildScrollView(
       physics: const NeverScrollableScrollPhysics(),
-      padding: EdgeInsets.fromLTRB(20 * s, 12 * s, 20 * s, 40 * s),
+      padding: EdgeInsets.fromLTRB(20 * s, 4 * s, 20 * s, 40 * s),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header Shimmer
           Row(
             children: [
-              _shimmerBox(width: 38, height: 38, radius: 19),
-              SizedBox(width: 10 * s),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _shimmerBox(width: 80, height: 12),
+                  _box(width: 80, height: 12),
                   SizedBox(height: 6 * s),
-                  _shimmerBox(width: 120, height: 16),
+                  _box(width: 120, height: 18),
                 ],
               ),
               const Spacer(),
-              _shimmerBox(width: 85, height: 24, radius: 6),
+              _box(width: 85, height: 24, radius: 6),
             ],
           ),
-
           SizedBox(height: 14 * s),
-
-          // Search Bar Shimmer
-          _shimmerBox(width: 350, height: 50, radius: 16),
-
-          SizedBox(height: 18 * s),
-
-          // Stats Shimmer (3 cards)
+          _box(width: 358, height: 50, radius: 16),
+          SizedBox(height: 22 * s),
+          _box(width: 350, height: 81, radius: 16),
+          SizedBox(height: 22 * s),
           Row(
             children: [
-              Expanded(child: _shimmerBox(width: 108, height: 65, radius: 12)),
+              Expanded(child: _box(width: 75, height: 54, radius: 14)),
               SizedBox(width: 10 * s),
-              Expanded(child: _shimmerBox(width: 108, height: 65, radius: 12)),
+              Expanded(child: _box(width: 71, height: 54, radius: 14)),
               SizedBox(width: 10 * s),
-              Expanded(child: _shimmerBox(width: 108, height: 65, radius: 12)),
+              Expanded(child: _box(width: 75, height: 54, radius: 14)),
+              SizedBox(width: 10 * s),
+              Expanded(child: _box(width: 99, height: 54, radius: 14)),
             ],
           ),
-
-          SizedBox(height: 8 * s),
-
-          _shimmerBox(width: 350, height: 34, radius: 12),
-
-          SizedBox(height: 20 * s),
-
-          // Section Title Shimmer
-          _shimmerBox(width: 100, height: 18),
-
-          SizedBox(height: 10 * s),
-
-          // Live / Next Match Card Shimmer
-          Container(
-            width: double.infinity,
-            padding: EdgeInsets.all(12 * s),
-            decoration: BoxDecoration(
-              color: const Color(0xFF1C2026),
-              borderRadius: BorderRadius.circular(14 * s),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _shimmerBox(width: 70, height: 19, radius: 10),
-                    _shimmerBox(width: 90, height: 14),
-                  ],
-                ),
-                SizedBox(height: 10 * s),
-                _shimmerBox(width: 160, height: 16),
-                SizedBox(height: 8 * s),
-                _shimmerBox(width: 100, height: 12),
-                SizedBox(height: 12 * s),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _shimmerBox(width: 100, height: 16),
-                    _shimmerBox(width: 20, height: 14),
-                    _shimmerBox(width: 100, height: 16),
-                  ],
-                ),
-                SizedBox(height: 12 * s),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _shimmerBox(width: 120, height: 14),
-                    _shimmerBox(width: 108, height: 30, radius: 10),
-                  ],
-                ),
-              ],
-            ),
-          ),
-
-          SizedBox(height: 20 * s),
-
-          // Banner Shimmer
-          _shimmerBox(width: 350, height: 60, radius: 20),
+          SizedBox(height: 22 * s),
+          _box(width: 340, height: 193, radius: 14),
+          SizedBox(height: 22 * s),
+          _box(width: 350, height: 170, radius: 16),
+          SizedBox(height: 22 * s),
+          _box(width: 350, height: 60, radius: 20),
         ],
       ),
     );
   }
 }
 
-// =============================================================================
-// REUSABLE GRADIENT TEXT (Inherits Theme Quicksand)
-// =============================================================================
-class _GradientText extends StatelessWidget {
-  final String text;
-  final TextStyle? style;
-  final Gradient gradient;
-
-  const _GradientText(
-    this.text, {
-    required this.gradient,
-    this.style,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ShaderMask(
-      blendMode: BlendMode.srcIn,
-      shaderCallback: (bounds) => gradient.createShader(
-        Rect.fromLTWH(0, 0, bounds.width, bounds.height),
-      ),
-      child: Text(
-        text,
-        style: style,
-      ),
-    );
+void _onMatchAction(BuildContext context, RefereeMatchResponse match) {
+  final resolved = resolveMatchAction(match);
+  switch (resolved.action) {
+    case MatchAction.continueScoring:
+    case MatchAction.startScoring:
+    case MatchAction.viewReport:
+      context.push(
+        '${AppRouter.liveScoringRoute}?matchId=${match.id}&matchCode=SPT-${match.id}',
+      );
+    case MatchAction.toss:
+      context.push('${AppRouter.conductTossRoute}?matchId=${match.id}');
+    case MatchAction.verify:
+      context.push('${AppRouter.matchVerificationRoute}?matchId=${match.id}');
+    case MatchAction.blocked:
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(resolved.blockedReason ?? 'Unavailable')),
+      );
   }
 }

@@ -7,6 +7,7 @@ import 'package:ui_kit/ui_kit.dart';
 import '../../../../app/router/app_router.dart';
 import '../../../../core/di/dependency_injector.dart';
 import '../../application/live_scoring/live_scoring_bloc.dart';
+import '../widgets/scoring_redesign_widgets.dart';
 import 'referee_scoring_tab_screen.dart';
 
 // ============================================================
@@ -14,6 +15,10 @@ import 'referee_scoring_tab_screen.dart';
 // ============================================================
 
 class LiveScoringScreen extends StatefulWidget {
+  /// Test-only override for the score config fetch.
+  static Future<RefereeScoreResponse?> Function(int matchId)?
+      debugFetchOverride;
+
   final String? matchId;
   final String? matchCode;
 
@@ -35,6 +40,8 @@ class LiveScoringScreen extends StatefulWidget {
 
 class _LiveScoringScreenState extends State<LiveScoringScreen> {
   late final Future<RefereeScoreResponse?> _scoreFuture;
+  final ValueNotifier<String> _finalHeaderTitle =
+      ValueNotifier<String>('Cricket Score Entry');
 
   RefereeRemoteDataSource get _remote =>
       DependencyInjector.instance.refereeRemoteDataSource;
@@ -45,9 +52,17 @@ class _LiveScoringScreenState extends State<LiveScoringScreen> {
     _scoreFuture = _loadScoreConfig();
   }
 
+  @override
+  void dispose() {
+    _finalHeaderTitle.dispose();
+    super.dispose();
+  }
+
   Future<RefereeScoreResponse?> _loadScoreConfig() async {
     final numericMatchId = int.tryParse(widget.matchId ?? '');
     if (numericMatchId == null) return null;
+    final override = LiveScoringScreen.debugFetchOverride;
+    if (override != null) return override(numericMatchId);
     try {
       return await _remote.getMatchScoreData(numericMatchId);
     } catch (_) {
@@ -159,15 +174,18 @@ class _LiveScoringScreenState extends State<LiveScoringScreen> {
                 teams.$1.id;
         final initialStrikerId =
             scoringRuntime.currentStriker.userId?.toString() ??
-                tossRuntime?.startingUserId(RefereeStartingRoles.striker)
+                tossRuntime
+                    ?.startingUserId(RefereeStartingRoles.striker)
                     ?.toString();
         final initialNonStrikerId =
             scoringRuntime.currentNonStriker.userId?.toString() ??
-                tossRuntime?.startingUserId(RefereeStartingRoles.nonStriker)
+                tossRuntime
+                    ?.startingUserId(RefereeStartingRoles.nonStriker)
                     ?.toString();
         final initialBowlerId =
             scoringRuntime.currentBowler.userId?.toString() ??
-                tossRuntime?.startingUserId(RefereeStartingRoles.openingBowler)
+                tossRuntime
+                    ?.startingUserId(RefereeStartingRoles.openingBowler)
                     ?.toString();
 
         return BlocProvider(
@@ -199,6 +217,7 @@ class _LiveScoringScreenState extends State<LiveScoringScreen> {
             matchId: widget.matchId!,
             matchCode: widget.matchCode ?? 'Match ${widget.matchId}',
             scoreConfig: scoreConfig,
+            finalHeaderTitle: _finalHeaderTitle,
           ),
         );
       },
@@ -248,12 +267,14 @@ class _LiveScoringView extends StatelessWidget {
   final String matchId;
   final String matchCode;
   final RefereeScoreResponse? scoreConfig;
+  final ValueNotifier<String> finalHeaderTitle;
   final ValueNotifier<bool> _scoreApiLoading = ValueNotifier<bool>(false);
 
   _LiveScoringView({
     required this.matchId,
     required this.matchCode,
     required this.scoreConfig,
+    required this.finalHeaderTitle,
   });
 
   bool _isActionAllowed(BuildContext context, String action) {
@@ -322,7 +343,7 @@ class _LiveScoringView extends StatelessWidget {
         _applyServerScoreState(context, fresh);
         recoveredLiveStart =
             request.body['action'] == RefereeScoreActions.start &&
-            (fresh.isLive || fresh.scoring.runtime.state == 'LIVE');
+                (fresh.isLive || fresh.scoring.runtime.state == 'LIVE');
       } catch (_) {}
       if (context.mounted && !recoveredLiveStart) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -387,14 +408,13 @@ class _LiveScoringView extends StatelessWidget {
         .map((event) => event.requiresPlayer)
         .firstWhere((value) => true,
             orElse: () =>
-          eventCode == RefereeCricketEventCodes.run ||
-          eventCode == RefereeCricketEventCodes.wicket);
+                eventCode == RefereeCricketEventCodes.run ||
+                eventCode == RefereeCricketEventCodes.wicket);
     if (requiresPlayer != true) return null;
-    final playerId =
-        eventCode == RefereeCricketEventCodes.run ||
-                eventCode == RefereeCricketEventCodes.wicket
-            ? state.strikerId
-            : state.selectedBowlerId;
+    final playerId = eventCode == RefereeCricketEventCodes.run ||
+            eventCode == RefereeCricketEventCodes.wicket
+        ? state.strikerId
+        : state.selectedBowlerId;
     return int.tryParse(playerId ?? '');
   }
 
@@ -430,7 +450,9 @@ class _LiveScoringView extends StatelessWidget {
 
     final strikerId = int.tryParse(state.strikerId ?? '');
     final nonStrikerId = int.tryParse(state.nonStrikerId ?? '');
-    if (strikerId == null || nonStrikerId == null || strikerId == nonStrikerId) {
+    if (strikerId == null ||
+        nonStrikerId == null ||
+        strikerId == nonStrikerId) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Select both batters first.')),
       );
@@ -671,8 +693,8 @@ class _LiveScoringView extends StatelessWidget {
 
         // Guard accidental back-outs while the match is LIVE. Resume is
         // always safe: the backend holds the authoritative state.
-        final needsGuard = state.matchLive &&
-            state.step != LiveScoringStep.resultSubmitted;
+        final needsGuard =
+            state.matchLive && state.step != LiveScoringStep.resultSubmitted;
 
         return PopScope(
           canPop: !needsGuard,
@@ -681,86 +703,100 @@ class _LiveScoringView extends StatelessWidget {
               _confirmExit(context);
             }
           },
-          child: SportoScreenShell(
-          body: SafeArea(
-            bottom: false,
-            child: SingleChildScrollView(
-              physics: const ClampingScrollPhysics(),
-              padding: EdgeInsets.fromLTRB(
-                20 * context.sportoScale,
+          child: Scaffold(
+            backgroundColor: const Color(0xFF090C10),
+            body: SafeArea(
+              bottom: false,
+              child: SingleChildScrollView(
+                physics: const ClampingScrollPhysics(),
+                padding: EdgeInsets.fromLTRB(
+                  20 * context.sportoScale,
 
-                // Result submitted screenshot does not
-                // contain the normal header.
-                submitted ? 26 * context.sportoScale : 10 * context.sportoScale,
+                  // Result submitted screenshot does not
+                  // contain the normal header.
+                  submitted
+                      ? 16 * context.sportoScale
+                      : 10 * context.sportoScale,
 
-                20 * context.sportoScale,
+                  20 * context.sportoScale,
 
-                40 * context.sportoScale,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // ===========================================
-                  // HEADER
-                  // ===========================================
+                  40 * context.sportoScale,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // ===========================================
+                    // HEADER
+                    // ===========================================
 
-                  if (!submitted) ...[
-                    SportoLiveScoringHeader(
-                      title:
-                          finalResult ? 'Final Result' : 'Cricket Score Entry',
-                      matchId: matchCode,
-                      onBack: () {
-                        if (context.canPop()) {
-                          context.pop();
-                        }
-                      },
-                    ),
-                    SizedBox(
-                      height: 23 * context.sportoScale,
-                    ),
-                    if (scoreConfig != null && !_scoreApiEnabled) ...[
-                      const SportoLiveNoticeBar(
-                        text: 'Scoring is disabled for this match by backend.',
+                    if (!submitted) ...[
+                      ValueListenableBuilder<String>(
+                        valueListenable: finalHeaderTitle,
+                        builder: (context, finalTitle, _) {
+                          final title =
+                              state.step == LiveScoringStep.finalResult
+                                  ? finalTitle
+                                  : (finalResult
+                                      ? 'Final Result'
+                                      : 'Cricket Score Entry');
+                          return ScoringRedesignHeader(
+                            scale: context.sportoScale,
+                            title: title,
+                            onBack: () {
+                              if (context.canPop()) {
+                                context.pop();
+                              }
+                            },
+                          );
+                        },
                       ),
                       SizedBox(
-                        height: 16 * context.sportoScale,
+                        height: 6 * context.sportoScale,
                       ),
+                      if (scoreConfig != null && !_scoreApiEnabled) ...[
+                        const SportoLiveNoticeBar(
+                          text:
+                              'Scoring is disabled for this match by backend.',
+                        ),
+                        SizedBox(
+                          height: 16 * context.sportoScale,
+                        ),
+                      ],
                     ],
-                  ],
 
-                  // ===========================================
-                  // CURRENT STEP
-                  // ===========================================
+                    // ===========================================
+                    // CURRENT STEP
+                    // ===========================================
 
-                  AnimatedSwitcher(
-                    duration: const Duration(
-                      milliseconds: 220,
-                    ),
-                    switchInCurve: Curves.easeOutCubic,
-                    switchOutCurve: Curves.easeInCubic,
-                    child: KeyedSubtree(
-                      key: ValueKey(
-                        '${state.step}-'
-                        '${state.inningsNumber}-'
-                        '${state.superOverInningsNumber}-'
-                        '${state.currentOverIndex}',
+                    AnimatedSwitcher(
+                      duration: const Duration(
+                        milliseconds: 220,
                       ),
-                      child: ValueListenableBuilder<bool>(
-                        valueListenable: _scoreApiLoading,
-                        builder: (context, loading, _) => _buildStep(
-                          context,
-                          state,
-                          apiLoading: loading,
+                      switchInCurve: Curves.easeOutCubic,
+                      switchOutCurve: Curves.easeInCubic,
+                      child: KeyedSubtree(
+                        key: ValueKey(
+                          '${state.step}-'
+                          '${state.inningsNumber}-'
+                          '${state.superOverInningsNumber}-'
+                          '${state.currentOverIndex}',
+                        ),
+                        child: ValueListenableBuilder<bool>(
+                          valueListenable: _scoreApiLoading,
+                          builder: (context, loading, _) => _buildStep(
+                            context,
+                            state,
+                            apiLoading: loading,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
-        ),
-      );
+        );
       },
     );
   }
@@ -813,36 +849,35 @@ class _LiveScoringView extends StatelessWidget {
     BuildContext context,
     LiveScoringState state, {
     bool apiLoading = false,
-  }
-  ) {
+  }) {
     switch (state.step) {
       case LiveScoringStep.selectBowler:
-        return _selectBowler(
+        return _redesignedSelectBowler(
           context,
           state,
           apiLoading: apiLoading,
         );
 
       case LiveScoringStep.scoring:
-        return _scoring(
+        return _redesignedScoring(
           context,
           state,
         );
 
       case LiveScoringStep.overComplete:
-        return _overComplete(
+        return _redesignedOverComplete(
           context,
           state,
         );
 
       case LiveScoringStep.inningsBreak:
-        return _inningsBreak(
+        return _redesignedInningsBreak(
           context,
           state,
         );
 
       case LiveScoringStep.finalResult:
-        return _normalFinalResult(
+        return _redesignedFinalResult(
           context,
           state,
         );
@@ -884,7 +919,7 @@ class _LiveScoringView extends StatelessWidget {
         );
 
       case LiveScoringStep.resultSubmitted:
-        return _resultSubmitted(
+        return _redesignedResultSubmitted(
           context,
           state,
         );
@@ -892,6 +927,507 @@ class _LiveScoringView extends StatelessWidget {
   }
 
   // ==========================================================
+  // ==========================================================
+  // REDESIGNED (scoring_redesign package) STEP WIDGETS
+  // ==========================================================
+
+  String get _sportLabel {
+    final value = scoreConfig?.sportName?.trim() ?? '';
+    return value.isEmpty ? 'Cricket' : value;
+  }
+
+  String get _codeLabel {
+    final number = scoreConfig?.matchNumber;
+    if (number != null) return 'SP-$number';
+    return matchCode.replaceFirst('Match ', 'SP-');
+  }
+
+  String get _stageLabel => scoreConfig?.formatName?.trim() ?? '';
+
+  String get _tournamentLabel => scoreConfig?.tournamentName?.trim() ?? '';
+
+  String get _venueLabel {
+    final venue = scoreConfig?.venueName?.trim() ?? '';
+    if (venue.isNotEmpty) return venue;
+    return scoreConfig?.venueLocation?.trim() ?? '';
+  }
+
+  String _overProgress(LiveScoringState state) {
+    final limit = state.regulationOvers > 0 ? '/${state.regulationOvers}' : '';
+    return 'Over ${state.displayOver}$limit';
+  }
+
+  String _completedOverProgress(LiveScoringState state) {
+    final limit = state.regulationOvers > 0 ? '/${state.regulationOvers}' : '';
+    return 'Over ${state.regulationOvers > 0 ? state.regulationOvers : state.displayOver - 1}$limit';
+  }
+
+  List<ScoringRedesignBall> _redesignBalls(LiveScoringState state) {
+    final legal = state.currentOverDeliveries
+        .where((delivery) => delivery.isLegal)
+        .take(6)
+        .toList();
+    final balls = <ScoringRedesignBall>[];
+    for (final delivery in legal) {
+      switch (delivery.type) {
+        case ScoringDeliveryType.wicket:
+          balls.add(
+            const ScoringRedesignBall(
+              label: 'W',
+              style: ScoringRedesignBallStyle.wicket,
+            ),
+          );
+          break;
+        case ScoringDeliveryType.run:
+          if (delivery.runs == 4) {
+            balls.add(
+              const ScoringRedesignBall(
+                label: '4',
+                style: ScoringRedesignBallStyle.four,
+              ),
+            );
+          } else if (delivery.runs == 6) {
+            balls.add(
+              const ScoringRedesignBall(
+                label: '6',
+                style: ScoringRedesignBallStyle.six,
+              ),
+            );
+          } else {
+            balls.add(
+              ScoringRedesignBall.run('${delivery.runs}'),
+            );
+          }
+          break;
+        case ScoringDeliveryType.wide:
+        case ScoringDeliveryType.noBall:
+          break;
+      }
+    }
+    while (balls.length < 6) {
+      balls.add(const ScoringRedesignBall.empty());
+    }
+    return balls;
+  }
+
+  Widget _redesignedSportCard(BuildContext context) => ScoringRedesignSportCard(
+        scale: context.sportoScale,
+        sport: _sportLabel,
+        code: _codeLabel,
+        status: 'Ongoing',
+      );
+
+  Widget _redesignedSummary(
+    BuildContext context,
+    LiveScoringState state, {
+    bool showScores = false,
+    String? leftTeam,
+    String? rightTeam,
+    String? leftScore,
+    String? rightScore,
+  }) {
+    return ScoringRedesignMatchSummary(
+      scale: context.sportoScale,
+      stage: _stageLabel,
+      tournament: _tournamentLabel,
+      venue: _venueLabel,
+      leftTeam: leftTeam ?? state.currentBattingTeam.name,
+      leftRole: 'Batting',
+      leftScore: leftScore ?? state.scoreText,
+      rightTeam: rightTeam ?? state.currentBowlingTeam.name,
+      rightRole: 'Bowling',
+      rightScore: rightScore,
+      showScores: showScores,
+    );
+  }
+
+  Widget _redesignedSelectBowler(
+    BuildContext context,
+    LiveScoringState state, {
+    bool apiLoading = false,
+  }) {
+    final scale = context.sportoScale;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _redesignedSportCard(context),
+        SizedBox(height: 20 * scale),
+        _redesignedSummary(context, state),
+        SizedBox(height: 20 * scale),
+        ScoringRedesignScoreCard(
+          scale: scale,
+          title: state.currentBattingTeam.name,
+          score: state.scoreText,
+          overText: _overProgress(state),
+          ballText: 'Ball ${state.legalBallCount}/6',
+        ),
+        SizedBox(height: 21 * scale),
+        _RedesignedBowlerStep(
+          state: state,
+          apiLoading: apiLoading,
+          onSelectStriker: (id) =>
+              context.read<LiveScoringBloc>().add(SelectStrikerEvent(id)),
+          onSelectNonStriker: (id) =>
+              context.read<LiveScoringBloc>().add(SelectNonStrikerEvent(id)),
+          onSelectBowler: (id) =>
+              context.read<LiveScoringBloc>().add(SelectBowlerEvent(id)),
+          onStartOver: () => _startOver(context),
+        ),
+      ],
+    );
+  }
+
+  Widget _redesignedScoring(
+    BuildContext context,
+    LiveScoringState state,
+  ) {
+    final scale = context.sportoScale;
+    final runValues = _allowedRunValues.isNotEmpty
+        ? _allowedRunValues
+        : const [0, 1, 2, 4, 6];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _redesignedSportCard(context),
+        SizedBox(height: 20 * scale),
+        _redesignedSummary(context, state),
+        SizedBox(height: 20 * scale),
+        ScoringRedesignScoreCard(
+          scale: scale,
+          title: state.currentBattingTeam.name,
+          score: state.scoreText,
+          overText: _overProgress(state),
+          ballText: 'Ball ${state.legalBallCount}/6',
+          showThisOver: true,
+          bowlerName: state.currentBowlerName,
+          balls: _redesignBalls(state),
+        ),
+        if (state.target != null) ...[
+          SizedBox(height: 12 * scale),
+          _chaseNotice(
+            scale,
+            'Target ${state.target} · ${state.runsRequired} runs required',
+          ),
+        ],
+        SizedBox(height: 21 * scale),
+        if (state.awaitingReplacement)
+          _replacementBatters(context, state)
+        else
+          ScoringRedesignRunPad(
+            scale: scale,
+            bowlerName: state.currentBowlerName,
+            runValues: runValues,
+            onRun: (runs) => _addScoreEvent(
+              context,
+              state,
+              eventCode: RefereeCricketEventCodes.run,
+              value: runs,
+            ),
+            onWicket: () => _pickWicketType(context, state),
+            onWide: () => _addScoreEvent(
+              context,
+              state,
+              eventCode: RefereeCricketEventCodes.wide,
+            ),
+            onNoBall: () => _addScoreEvent(
+              context,
+              state,
+              eventCode: RefereeCricketEventCodes.noBall,
+            ),
+          ),
+        if (state.strikerId == null || state.currentBowlerName.isEmpty) ...[
+          SizedBox(height: 16 * scale),
+          _missingStepData(context),
+        ],
+      ],
+    );
+  }
+
+  Widget _chaseNotice(double scale, String text) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(
+        horizontal: 12 * scale,
+        vertical: 8 * scale,
+      ),
+      decoration: BoxDecoration(
+        color: const Color(0x1A7AD3FF),
+        borderRadius: BorderRadius.circular(10 * scale),
+      ),
+      child: Text(
+        text,
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontSize: 12 * scale,
+          fontWeight: FontWeight.w500,
+          color: const Color(0xFF7AD3FF),
+        ),
+      ),
+    );
+  }
+
+  Widget _replacementBatters(
+    BuildContext context,
+    LiveScoringState state,
+  ) {
+    return ScoringRedesignBowlerList(
+      scale: context.sportoScale,
+      title: 'Select Replacement Batter',
+      options: state.replacementBatters
+          .map(
+            (player) => ScoringRedesignBowlerOption(
+              id: player.id,
+              name: player.displayName,
+              selected: false,
+              enabled: true,
+            ),
+          )
+          .toList(),
+      onSelected: (playerId) async {
+        if (_scoreApiLoading.value) return;
+        final striker = int.tryParse(playerId);
+        final nonStriker = int.tryParse(state.nonStrikerId ?? '');
+        if (striker == null || nonStriker == null) return;
+        await _syncScore(
+          context,
+          RefereeScoreUpdateRequest.setBatters(
+            strikerUserId: striker,
+            nonStrikerUserId: nonStriker,
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _redesignedOverComplete(
+    BuildContext context,
+    LiveScoringState state,
+  ) {
+    final scale = context.sportoScale;
+    final completedOver = state.displayOver - 1;
+    final nextOver = state.displayOver;
+    final nextIsLastOver =
+        state.regulationOvers > 0 && nextOver == state.regulationOvers;
+    final buttonText = nextIsLastOver
+        ? 'Let’s Begin $nextOver Last Over'
+        : 'Select Bowler for Over $nextOver';
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _redesignedSummary(context, state),
+        SizedBox(height: 20 * scale),
+        ScoringRedesignScoreCard(
+          scale: scale,
+          score: state.scoreText,
+          overText:
+              'Over $completedOver${state.regulationOvers > 0 ? '/${state.regulationOvers}' : ''}',
+          ballText: 'Ball ${state.legalBallCount}/6',
+          showThisOver: true,
+          bowlerName: state.currentBowlerName,
+          balls: _redesignBalls(state),
+        ),
+        SizedBox(height: 20 * scale),
+        ScoringRedesignNoticePill(
+          scale: scale,
+          text: 'Over $completedOver completed.',
+        ),
+        SizedBox(height: 20 * scale),
+        ScoringRedesignPrimaryButton(
+          scale: scale,
+          label: buttonText,
+          onTap: () {
+            context.read<LiveScoringBloc>().add(ContinueAfterOverEvent());
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _redesignedInningsBreak(
+    BuildContext context,
+    LiveScoringState state,
+  ) {
+    final scale = context.sportoScale;
+    final first = state.firstInnings;
+    if (first == null) return _missingStepData(context);
+    final chasingTeam = state.firstBowlingTeam;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _redesignedSportCard(context),
+        SizedBox(height: 20 * scale),
+        _redesignedSummary(
+          context,
+          state,
+          showScores: true,
+          leftTeam: first.battingTeamName,
+          rightTeam: chasingTeam.name,
+          leftScore: first.scoreText,
+          rightScore: 'Yet to Bat',
+        ),
+        SizedBox(height: 20 * scale),
+        ScoringRedesignScoreCard(
+          scale: scale,
+          title: first.battingTeamName,
+          score: first.scoreText,
+          overText: _completedOverProgress(state),
+          ballText: 'Ball 6/6',
+        ),
+        SizedBox(height: 20 * scale),
+        ScoringRedesignInningsCompletedCard(
+          scale: scale,
+          leftTeam: first.battingTeamName,
+          leftRole: 'Batting',
+          leftScore: first.scoreText,
+          rightTeam: chasingTeam.name,
+          rightRole: 'Bowling',
+          rightScore: 'Yet to Bat',
+        ),
+        SizedBox(height: 20 * scale),
+        ScoringRedesignPrimaryButton(
+          scale: scale,
+          label: 'Start 2nd Innings',
+          onTap: () => _endPeriod(context),
+        ),
+      ],
+    );
+  }
+
+  Widget _redesignedFinalResult(
+    BuildContext context,
+    LiveScoringState state,
+  ) {
+    final first = state.firstInnings;
+    final second = state.secondInnings;
+    if (first == null || second == null) {
+      return _missingStepData(context);
+    }
+    final scale = context.sportoScale;
+    return ScoringRedesignFinalFlow(
+      scale: scale,
+      sport: _sportLabel,
+      code: _codeLabel,
+      stage: _stageLabel,
+      tournament: _tournamentLabel,
+      venue: _venueLabel,
+      leftTeam: first.battingTeamName,
+      rightTeam: second.battingTeamName,
+      leftScore: first.scoreText,
+      rightScore: second.scoreText,
+      winner: state.regulationWinner ?? 'Match Tied',
+      scoreOverText: state.regulationOvers > 0
+          ? 'Over ${state.regulationOvers}/${state.regulationOvers}'
+          : 'Over ${state.displayOver}',
+      scoreBallText: 'Ball 6/6',
+      sessionStartedText: _sessionStartedText(),
+      expectedOtp: _expectedEndOtp(),
+      onComplete: () => _complete(context),
+      onHeaderTitle: (title) => finalHeaderTitle.value = title,
+    );
+  }
+
+  Widget _redesignedResultSubmitted(
+    BuildContext context,
+    LiveScoringState state,
+  ) {
+    final first = state.firstInnings;
+    final second = state.secondInnings;
+    if (first == null || second == null) {
+      return _missingStepData(context);
+    }
+    final hasSuperOver = state.firstSuperOverInnings != null &&
+        state.secondSuperOverInnings != null;
+    final winner =
+        hasSuperOver ? state.superOverWinner : state.regulationWinner;
+    return ScoringRedesignResultSubmitted(
+      scale: context.sportoScale,
+      sport: _sportLabel,
+      code: _codeLabel,
+      source: 'by Partner',
+      stage: _stageLabel,
+      tournament: _tournamentLabel,
+      venue: _venueLabel,
+      leftTeam: first.battingTeamName,
+      leftScore: first.scoreText,
+      rightTeam: second.battingTeamName,
+      rightScore: second.scoreText,
+      winner: winner ?? state.currentBattingTeam.name,
+      onViewHistory: () => context.go(AppRouter.matchHistoryPath),
+    );
+  }
+
+  String? _expectedEndOtp() {
+    const keys = ['match_otp', 'session_otp', 'end_otp', 'otp'];
+    String? read(Map<String, dynamic> raw) {
+      for (final key in keys) {
+        final value = raw[key];
+        if (value is String && value.trim().isNotEmpty) return value.trim();
+        if (value is num) return value.toString();
+      }
+      for (final nestedKey in ['match', 'booking', 'assignment', 'session']) {
+        final nested = raw[nestedKey];
+        if (nested is Map) {
+          final found = read(Map<String, dynamic>.from(nested));
+          if (found != null) return found;
+        }
+      }
+      return null;
+    }
+
+    return read(scoreConfig?.raw ?? const {});
+  }
+
+  String _sessionStartedText() {
+    final raw = scoreConfig?.raw ?? const {};
+    const keys = [
+      'session_started_at',
+      'started_at',
+      'started_time',
+      'start_time',
+    ];
+    Object? value;
+    for (final key in keys) {
+      value = raw[key];
+      if (value != null) break;
+    }
+    if (value == null) {
+      for (final nestedKey in ['match', 'schedule']) {
+        final nested = raw[nestedKey];
+        if (nested is Map) {
+          for (final key in keys) {
+            value = nested[key];
+            if (value != null) break;
+          }
+        }
+        if (value != null) break;
+      }
+    }
+    final text = value?.toString().trim() ?? '';
+    if (text.isEmpty) return 'Session Started via OTP';
+    String? formatted;
+    final parsed = DateTime.tryParse(text.replaceFirst(' ', 'T'));
+    if (parsed != null) {
+      final hour = parsed.hour % 12 == 0 ? 12 : parsed.hour % 12;
+      final minute = parsed.minute.toString().padLeft(2, '0');
+      final period = parsed.hour >= 12 ? 'PM' : 'AM';
+      formatted = '$hour:$minute $period';
+    } else {
+      final match = RegExp(r'(\d{1,2}):(\d{2})').firstMatch(text);
+      if (match != null) {
+        var hour = int.tryParse(match.group(1)!) ?? 0;
+        final minute = match.group(2)!;
+        final period = hour >= 12 ? 'PM' : 'AM';
+        if (hour > 12) hour -= 12;
+        if (hour == 0) hour = 12;
+        formatted = '$hour:$minute $period';
+      }
+    }
+    return formatted == null
+        ? 'Session Started via OTP'
+        : 'Session Started via OTP at $formatted';
+  }
   // COMMON MATCH CARD
   // ==========================================================
 
@@ -901,9 +1437,8 @@ class _LiveScoringView extends StatelessWidget {
     bool showScores = false,
   }) {
     return _FigmaScoringLiveMatchCard(
-      tournament: scoreConfig?.tournamentName ??
-          scoreConfig?.formatName ??
-          matchCode,
+      tournament:
+          scoreConfig?.tournamentName ?? scoreConfig?.formatName ?? matchCode,
       location: scoreConfig?.venueName ?? '',
       battingTeam: state.currentBattingTeam.name,
       bowlingTeam: state.currentBowlingTeam.name,
@@ -947,12 +1482,12 @@ class _LiveScoringView extends StatelessWidget {
   // SELECT BOWLER
   // ==========================================================
 
+  // ignore: unused_element
   Widget _selectBowler(
     BuildContext context,
     LiveScoringState state, {
     bool apiLoading = false,
-  }
-  ) {
+  }) {
     final scale = context.sportoScale;
 
     return Column(
@@ -1172,6 +1707,7 @@ class _LiveScoringView extends StatelessWidget {
     );
   }
 
+  // ignore: unused_element
   Widget _overComplete(
     BuildContext context,
     LiveScoringState state,
@@ -1183,8 +1719,8 @@ class _LiveScoringView extends StatelessWidget {
     final completedOver = state.displayOver - 1;
     final nextOver = state.displayOver;
 
-    final nextIsLastOver = state.regulationOvers > 0 &&
-        nextOver == state.regulationOvers;
+    final nextIsLastOver =
+        state.regulationOvers > 0 && nextOver == state.regulationOvers;
 
     final buttonText = nextIsLastOver
         ? 'Let’s Begin $nextOver Last Over'
@@ -1254,6 +1790,7 @@ class _LiveScoringView extends StatelessWidget {
   // FIRST INNINGS COMPLETE
   // ==========================================================
 
+  // ignore: unused_element
   Widget _inningsBreak(
     BuildContext context,
     LiveScoringState state,
@@ -1375,8 +1912,7 @@ class _LiveScoringView extends StatelessWidget {
 
         SportoLiveMatchCard(
           battingTeam: first?.battingTeamName ?? state.currentBattingTeam.name,
-          bowlingTeam:
-              second?.battingTeamName ?? state.currentBowlingTeam.name,
+          bowlingTeam: second?.battingTeamName ?? state.currentBowlingTeam.name,
         ),
 
         SizedBox(
@@ -1700,6 +2236,7 @@ class _LiveScoringView extends StatelessWidget {
   // RESULT SUBMITTED
   // ==========================================================
 
+  // ignore: unused_element
   Widget _resultSubmitted(
     BuildContext context,
     LiveScoringState state,
@@ -2339,8 +2876,8 @@ class _BowlerSelectionStepState extends State<_BowlerSelectionStep> {
           (player) => SportoLiveBowlerOption(
             id: player.id,
             name: player.name,
-            selected: player.id == state.strikerId ||
-                player.id == state.nonStrikerId,
+            selected:
+                player.id == state.strikerId || player.id == state.nonStrikerId,
             enabled: player.id != excludeId,
           ),
         )
@@ -2416,6 +2953,123 @@ class _BowlerSelectionStepState extends State<_BowlerSelectionStep> {
       buttonEnabled: state.selectedBowler != null && state.openersConfigured,
       loading: widget.apiLoading,
       onContinue: widget.onStartOver,
+    );
+  }
+}
+
+class _RedesignedBowlerStep extends StatefulWidget {
+  final LiveScoringState state;
+  final bool apiLoading;
+  final ValueChanged<String> onSelectStriker;
+  final ValueChanged<String> onSelectNonStriker;
+  final ValueChanged<String> onSelectBowler;
+  final VoidCallback onStartOver;
+
+  const _RedesignedBowlerStep({
+    required this.state,
+    required this.apiLoading,
+    required this.onSelectStriker,
+    required this.onSelectNonStriker,
+    required this.onSelectBowler,
+    required this.onStartOver,
+  });
+
+  @override
+  State<_RedesignedBowlerStep> createState() => _RedesignedBowlerStepState();
+}
+
+class _RedesignedBowlerStepState extends State<_RedesignedBowlerStep> {
+  late bool _openersDone;
+
+  @override
+  void initState() {
+    super.initState();
+    _openersDone = widget.state.openersConfigured;
+  }
+
+  @override
+  void didUpdateWidget(covariant _RedesignedBowlerStep oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!widget.state.openersConfigured) {
+      _openersDone = false;
+    }
+  }
+
+  List<ScoringRedesignBowlerOption> _batterOptions({String? excludeId}) {
+    final state = widget.state;
+    return state.currentBattingTeam.bowlers
+        .where((player) => !state.dismissedPlayerIds.contains(player.id))
+        .map(
+          (player) => ScoringRedesignBowlerOption(
+            id: player.id,
+            name: player.name,
+            selected:
+                player.id == state.strikerId || player.id == state.nonStrikerId,
+            enabled: player.id != excludeId,
+          ),
+        )
+        .toList();
+  }
+
+  List<ScoringRedesignBowlerOption> _bowlerOptions() {
+    final state = widget.state;
+    return state.availableBowlers.map((bowler) {
+      return ScoringRedesignBowlerOption(
+        id: bowler.id,
+        name: bowler.displayName,
+        selected: state.selectedBowlerId == bowler.id,
+        enabled: state.currentOverDeliveries.isEmpty
+            ? state.isBowlerEligible(bowler)
+            : state.selectedBowlerId == bowler.id,
+      );
+    }).toList();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final scale = context.sportoScale;
+    final state = widget.state;
+
+    if (!state.openersConfigured || !_openersDone) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ScoringRedesignBowlerList(
+            scale: scale,
+            title: 'Select Striker',
+            options: _batterOptions(excludeId: state.nonStrikerId),
+            onSelected: widget.onSelectStriker,
+          ),
+          SizedBox(height: 20 * scale),
+          ScoringRedesignBowlerList(
+            scale: scale,
+            title: 'Select Non-Striker',
+            options: _batterOptions(excludeId: state.strikerId),
+            onSelected: widget.onSelectNonStriker,
+          ),
+          SizedBox(height: 20 * scale),
+          ScoringRedesignPrimaryButton(
+            scale: scale,
+            label: 'Continue',
+            onTap: state.openersConfigured
+                ? () => setState(() => _openersDone = true)
+                : null,
+          ),
+        ],
+      );
+    }
+
+    return ScoringRedesignBowlerList(
+      scale: scale,
+      title: 'Select Bowler for — Over ${state.displayOver}',
+      options: _bowlerOptions(),
+      onSelected: widget.onSelectBowler,
+      actionLabel:
+          widget.apiLoading ? 'Starting…' : 'Start Over ${state.displayOver}',
+      actionEnabled: state.selectedBowler != null &&
+          state.openersConfigured &&
+          !widget.apiLoading,
+      onAction: widget.onStartOver,
     );
   }
 }

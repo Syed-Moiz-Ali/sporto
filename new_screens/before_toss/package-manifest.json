@@ -1,0 +1,81 @@
+{
+  "schema": "dev-export-multiscreen-package",
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-10-26T12:54:20.174Z",
+  "source": {
+    "editorType": "figma",
+    "fileName": "🏏 SPOTO (Copy)",
+    "page": {
+      "id": "133:342",
+      "name": "Referee App"
+    }
+  },
+  "ordering": "Screens are ordered top-to-bottom, then left-to-right by their position on the Figma page.",
+  "nestedSelectionBehavior": "If both a selected screen and one of its descendants are selected, only the outermost selected node is packaged.",
+  "screenCount": 2,
+  "totals": {
+    "serializedNodes": 185,
+    "assets": 57,
+    "individualSvg": 39,
+    "composedSvg": 18,
+    "raster": 0,
+    "pngAssetPreviews": 57,
+    "assetBytes": 124669,
+    "previewBytes": 813689
+  },
+  "recommendedReadOrder": [
+    "package-manifest.json",
+    "screens/<screen>/<screen>.json -> developerSummary",
+    "screens/<screen>/<screen>.json -> assetIndex",
+    "screens/<screen>/<screen>.json -> nodes",
+    "screens/<screen>/<screen>@2x.png",
+    "screens/<screen>/assets/ASSET_CATALOG.html",
+    "screens/<screen>/assets/"
+  ],
+  "screens": [
+    {
+      "index": 1,
+      "nodeId": "2985:4571",
+      "name": "Incoming Requests Details",
+      "nodeType": "FRAME",
+      "width": 390,
+      "height": 844,
+      "folder": "screens/01_Incoming_Requests_Details",
+      "json": "screens/01_Incoming_Requests_Details/Incoming_Requests_Details.json",
+      "preview": "screens/01_Incoming_Requests_Details/Incoming_Requests_Details@2x.png",
+      "assetsFolder": "screens/01_Incoming_Requests_Details/assets",
+      "assetsManifest": "screens/01_Incoming_Requests_Details/assets/manifest.json",
+      "serializedNodeCount": 96,
+      "assetCount": 28,
+      "individualSvgCount": 20,
+      "composedSvgCount": 8,
+      "rasterCount": 0,
+      "pngAssetPreviewCount": 28,
+      "assetCatalog": "screens/01_Incoming_Requests_Details/assets/ASSET_CATALOG.html",
+      "assetBytes": 63874,
+      "previewBytes": 394089
+    },
+    {
+      "index": 2,
+      "nodeId": "3057:4020",
+      "name": "Incoming Requests Details",
+      "nodeType": "FRAME",
+      "width": 390,
+      "height": 844,
+      "folder": "screens/02_Incoming_Requests_Details",
+      "json": "screens/02_Incoming_Requests_Details/Incoming_Requests_Details.json",
+      "preview": "screens/02_Incoming_Requests_Details/Incoming_Requests_Details@2x.png",
+      "assetsFolder": "screens/02_Incoming_Requests_Details/assets",
+      "assetsManifest": "screens/02_Incoming_Requests_Details/assets/manifest.json",
+      "serializedNodeCount": 89,
+      "assetCount": 29,
+      "individualSvgCount": 19,
+      "composedSvgCount": 10,
+      "rasterCount": 0,
+      "pngAssetPreviewCount": 29,
+      "assetCatalog": "screens/02_Incoming_Requests_Details/assets/ASSET_CATALOG.html",
+      "assetBytes": 60795,
+      "previewBytes": 419600
+    }
+  ]
+}

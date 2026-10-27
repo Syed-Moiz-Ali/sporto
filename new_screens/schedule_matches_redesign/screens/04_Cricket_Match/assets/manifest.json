@@ -1,0 +1,861 @@
+{
+  "schema": "dev-export-assets",
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-10-26T13:33:53.704Z",
+  "screen": {
+    "id": "3075:7455",
+    "name": "Cricket Match"
+  },
+  "assets": [
+    {
+      "ref": "svg-3075_7478",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "fileName": "assets/svg/Path_15-3075_7478.svg",
+      "pngFileName": "assets/png/Path_15-3075_7478@2x.png",
+      "formats": {
+        "svg": "assets/svg/Path_15-3075_7478.svg",
+        "png": "assets/png/Path_15-3075_7478@2x.png"
+      },
+      "nodeId": "3075:7478",
+      "nodeName": "Path 15",
+      "nodeType": "VECTOR",
+      "width": 9,
+      "height": 12,
+      "byteLength": 506,
+      "pngByteLength": 688,
+      "pngScale": 2
+    },
+    {
+      "ref": "svg-3075_7482",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "fileName": "assets/svg/Vector-3075_7482.svg",
+      "pngFileName": "assets/png/Vector-3075_7482@2x.png",
+      "formats": {
+        "svg": "assets/svg/Vector-3075_7482.svg",
+        "png": "assets/png/Vector-3075_7482@2x.png"
+      },
+      "nodeId": "3075:7482",
+      "nodeName": "Vector",
+      "nodeType": "VECTOR",
+      "width": 9,
+      "height": 12,
+      "byteLength": 905,
+      "pngByteLength": 863,
+      "pngScale": 2
+    },
+    {
+      "ref": "svg-3075_7487",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "fileName": "assets/svg/Vector-3075_7487.svg",
+      "pngFileName": "assets/png/Vector-3075_7487@2x.png",
+      "formats": {
+        "svg": "assets/svg/Vector-3075_7487.svg",
+        "png": "assets/png/Vector-3075_7487@2x.png"
+      },
+      "nodeId": "3075:7487",
+      "nodeName": "Vector",
+      "nodeType": "VECTOR",
+      "width": 4.923761367797852,
+      "height": 2.9831275939941406,
+      "byteLength": 461,
+      "pngByteLength": 343,
+      "pngScale": 2
+    },
+    {
+      "ref": "svg-3075_7488",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "fileName": "assets/svg/Vector-3075_7488.svg",
+      "pngFileName": "assets/png/Vector-3075_7488@2x.png",
+      "formats": {
+        "svg": "assets/svg/Vector-3075_7488.svg",
+        "png": "assets/png/Vector-3075_7488@2x.png"
+      },
+      "nodeId": "3075:7488",
+      "nodeName": "Vector",
+      "nodeType": "VECTOR",
+      "width": 5.187932968139648,
+      "height": 3.065610885620117,
+      "byteLength": 461,
+      "pngByteLength": 354,
+      "pngScale": 2
+    },
+    {
+      "ref": "svg-3075_7489",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "fileName": "assets/svg/Vector-3075_7489.svg",
+      "pngFileName": "assets/png/Vector-3075_7489@2x.png",
+      "formats": {
+        "svg": "assets/svg/Vector-3075_7489.svg",
+        "png": "assets/png/Vector-3075_7489@2x.png"
+      },
+      "nodeId": "3075:7489",
+      "nodeName": "Vector",
+      "nodeType": "VECTOR",
+      "width": 3.8888888359069824,
+      "height": 3.8888888359069824,
+      "byteLength": 599,
+      "pngByteLength": 416,
+      "pngScale": 2
+    },
+    {
+      "ref": "svg-3075_7490",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "fileName": "assets/svg/Vector-3075_7490.svg",
+      "pngFileName": "assets/png/Vector-3075_7490@2x.png",
+      "formats": {
+        "svg": "assets/svg/Vector-3075_7490.svg",
+        "png": "assets/png/Vector-3075_7490@2x.png"
+      },
+      "nodeId": "3075:7490",
+      "nodeName": "Vector",
+      "nodeType": "VECTOR",
+      "width": 3.8888888359069824,
+      "height": 3.8888888359069824,
+      "byteLength": 599,
+      "pngByteLength": 416,
+      "pngScale": 2
+    },
+    {
+      "ref": "svg-3075_7491",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "fileName": "assets/svg/Vector-3075_7491.svg",
+      "pngFileName": "assets/png/Vector-3075_7491@2x.png",
+      "formats": {
+        "svg": "assets/svg/Vector-3075_7491.svg",
+        "png": "assets/png/Vector-3075_7491@2x.png"
+      },
+      "nodeId": "3075:7491",
+      "nodeName": "Vector",
+      "nodeType": "VECTOR",
+      "width": 3.8888888359069824,
+      "height": 3.8888888359069824,
+      "byteLength": 595,
+      "pngByteLength": 416,
+      "pngScale": 2
+    },
+    {
+      "ref": "composed-3075_7486",
+      "kind": "composed-svg",
+      "semanticRole": "graphic",
+      "fileName": "assets/composed/svg/Group_1000007025-3075_7486.svg",
+      "pngFileName": "assets/composed/png/Group_1000007025-3075_7486@2x.png",
+      "formats": {
+        "svg": "assets/composed/svg/Group_1000007025-3075_7486.svg",
+        "png": "assets/composed/png/Group_1000007025-3075_7486@2x.png"
+      },
+      "nodeId": "3075:7486",
+      "nodeName": "Group 1000007025",
+      "nodeType": "GROUP",
+      "width": 12.44443130493164,
+      "height": 14.00021743774414,
+      "byteLength": 2379,
+      "childVectorRefs": [
+        "svg-3075_7487",
+        "svg-3075_7488",
+        "svg-3075_7489",
+        "svg-3075_7490",
+        "svg-3075_7491"
+      ],
+      "compositionStats": {
+        "total": 5,
+        "vectors": 5,
+        "shapes": 5,
+        "text": 0,
+        "images": 0,
+        "otherLeaves": 0
+      },
+      "pngByteLength": 1145,
+      "pngScale": 2
+    },
+    {
+      "ref": "composed-3075_7485",
+      "kind": "composed-svg",
+      "semanticRole": "graphic",
+      "fileName": "assets/composed/svg/Frame_1000007026-3075_7485.svg",
+      "pngFileName": "assets/composed/png/Frame_1000007026-3075_7485@2x.png",
+      "formats": {
+        "svg": "assets/composed/svg/Frame_1000007026-3075_7485.svg",
+        "png": "assets/composed/png/Frame_1000007026-3075_7485@2x.png"
+      },
+      "nodeId": "3075:7485",
+      "nodeName": "Frame 1000007026",
+      "nodeType": "FRAME",
+      "width": 12.44455337524414,
+      "height": 16,
+      "byteLength": 2402,
+      "childVectorRefs": [
+        "svg-3075_7487",
+        "svg-3075_7488",
+        "svg-3075_7489",
+        "svg-3075_7490",
+        "svg-3075_7491"
+      ],
+      "compositionStats": {
+        "total": 6,
+        "vectors": 5,
+        "shapes": 5,
+        "text": 0,
+        "images": 0,
+        "otherLeaves": 0
+      },
+      "pngByteLength": 1147,
+      "pngScale": 2
+    },
+    {
+      "ref": "composed-3075_7484",
+      "kind": "composed-svg",
+      "semanticRole": "graphic",
+      "fileName": "assets/composed/svg/Frame_1261154307-3075_7484.svg",
+      "pngFileName": "assets/composed/png/Frame_1261154307-3075_7484@2x.png",
+      "formats": {
+        "svg": "assets/composed/svg/Frame_1261154307-3075_7484.svg",
+        "png": "assets/composed/png/Frame_1261154307-3075_7484@2x.png"
+      },
+      "nodeId": "3075:7484",
+      "nodeName": "Frame 1261154307",
+      "nodeType": "FRAME",
+      "width": 106,
+      "height": 36,
+      "byteLength": 2603,
+      "childVectorRefs": [
+        "svg-3075_7487",
+        "svg-3075_7488",
+        "svg-3075_7489",
+        "svg-3075_7490",
+        "svg-3075_7491"
+      ],
+      "compositionStats": {
+        "total": 7,
+        "vectors": 5,
+        "shapes": 5,
+        "text": 0,
+        "images": 0,
+        "otherLeaves": 0
+      },
+      "pngByteLength": 2376,
+      "pngScale": 2
+    },
+    {
+      "ref": "svg-3075_7499",
+      "kind": "svg",
+      "semanticRole": "vector",
+      "fileName": "assets/svg/Line_7-3075_7499.svg",
+      "pngFileName": "assets/png/Line_7-3075_7499@2x.png",
+      "formats": {
+        "svg": "assets/svg/Line_7-3075_7499.svg",
+        "png": "assets/png/Line_7-3075_7499@2x.png"
+      },
+      "nodeId": "3075:7499",
+      "nodeName": "Line 7",
+      "nodeType": "LINE",
+      "width": 330,
+      "height": 0,
+      "byteLength": 549,
+      "pngByteLength": 565,
+      "pngScale": 2
+    },
+    {
+      "ref": "svg-3075_7511",
+      "kind": "svg",
+      "semanticRole": "vector",
+      "fileName": "assets/svg/Line_7-3075_7511.svg",
+      "pngFileName": "assets/png/Line_7-3075_7511@2x.png",
+      "formats": {
+        "svg": "assets/svg/Line_7-3075_7511.svg",
+        "png": "assets/png/Line_7-3075_7511@2x.png"
+      },
+      "nodeId": "3075:7511",
+      "nodeName": "Line 7",
+      "nodeType": "LINE",
+      "width": 330,
+      "height": 0,
+      "byteLength": 229,
+      "pngByteLength": 191,
+      "pngScale": 2
+    },
+    {
+      "ref": "svg-3075_7515",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "fileName": "assets/svg/Vector-3075_7515.svg",
+      "pngFileName": "assets/png/Vector-3075_7515@2x.png",
+      "formats": {
+        "svg": "assets/svg/Vector-3075_7515.svg",
+        "png": "assets/png/Vector-3075_7515@2x.png"
+      },
+      "nodeId": "3075:7515",
+      "nodeName": "Vector",
+      "nodeType": "VECTOR",
+      "width": 4.199999809265137,
+      "height": 8.399999618530273,
+      "byteLength": 1297,
+      "pngByteLength": 704,
+      "pngScale": 2
+    },
+    {
+      "ref": "svg-3075_7521",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "fileName": "assets/svg/Vector-3075_7521.svg",
+      "pngFileName": "assets/png/Vector-3075_7521@2x.png",
+      "formats": {
+        "svg": "assets/svg/Vector-3075_7521.svg",
+        "png": "assets/png/Vector-3075_7521@2x.png"
+      },
+      "nodeId": "3075:7521",
+      "nodeName": "Vector",
+      "nodeType": "VECTOR",
+      "width": 8.584847450256348,
+      "height": 11.999999046325684,
+      "byteLength": 1859,
+      "pngByteLength": 460,
+      "pngScale": 2
+    },
+    {
+      "ref": "svg-3075_7522",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "fileName": "assets/svg/Vector-3075_7522.svg",
+      "pngFileName": "assets/png/Vector-3075_7522@2x.png",
+      "formats": {
+        "svg": "assets/svg/Vector-3075_7522.svg",
+        "png": "assets/png/Vector-3075_7522@2x.png"
+      },
+      "nodeId": "3075:7522",
+      "nodeName": "Vector",
+      "nodeType": "VECTOR",
+      "width": 8.807513236999512,
+      "height": 11.999999046325684,
+      "byteLength": 1271,
+      "pngByteLength": 445,
+      "pngScale": 2
+    },
+    {
+      "ref": "composed-3075_7520",
+      "kind": "composed-svg",
+      "semanticRole": "graphic",
+      "fileName": "assets/composed/svg/Group_1000003335-3075_7520.svg",
+      "pngFileName": "assets/composed/png/Group_1000003335-3075_7520@2x.png",
+      "formats": {
+        "svg": "assets/composed/svg/Group_1000003335-3075_7520.svg",
+        "png": "assets/composed/png/Group_1000003335-3075_7520@2x.png"
+      },
+      "nodeId": "3075:7520",
+      "nodeName": "Group 1000003335",
+      "nodeType": "GROUP",
+      "width": 19.25159454345703,
+      "height": 11.999999046325684,
+      "byteLength": 3047,
+      "childVectorRefs": [
+        "svg-3075_7521",
+        "svg-3075_7522"
+      ],
+      "compositionStats": {
+        "total": 2,
+        "vectors": 2,
+        "shapes": 2,
+        "text": 0,
+        "images": 0,
+        "otherLeaves": 0
+      },
+      "pngByteLength": 725,
+      "pngScale": 2
+    },
+    {
+      "ref": "svg-3075_7523",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "fileName": "assets/svg/Vector-3075_7523.svg",
+      "pngFileName": "assets/png/Vector-3075_7523@2x.png",
+      "formats": {
+        "svg": "assets/svg/Vector-3075_7523.svg",
+        "png": "assets/png/Vector-3075_7523@2x.png"
+      },
+      "nodeId": "3075:7523",
+      "nodeName": "Vector",
+      "nodeType": "VECTOR",
+      "width": 2.2266180515289307,
+      "height": 7.961975574493408,
+      "byteLength": 1087,
+      "pngByteLength": 246,
+      "pngScale": 2
+    },
+    {
+      "ref": "svg-3075_7524",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "fileName": "assets/svg/Vector-3075_7524.svg",
+      "pngFileName": "assets/png/Vector-3075_7524@2x.png",
+      "formats": {
+        "svg": "assets/svg/Vector-3075_7524.svg",
+        "png": "assets/png/Vector-3075_7524@2x.png"
+      },
+      "nodeId": "3075:7524",
+      "nodeName": "Vector",
+      "nodeType": "VECTOR",
+      "width": 8.807513236999512,
+      "height": 11.999999046325684,
+      "byteLength": 1271,
+      "pngByteLength": 445,
+      "pngScale": 2
+    },
+    {
+      "ref": "svg-3075_7525",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "fileName": "assets/svg/Vector-3075_7525.svg",
+      "pngFileName": "assets/png/Vector-3075_7525@2x.png",
+      "formats": {
+        "svg": "assets/svg/Vector-3075_7525.svg",
+        "png": "assets/png/Vector-3075_7525@2x.png"
+      },
+      "nodeId": "3075:7525",
+      "nodeName": "Vector",
+      "nodeType": "VECTOR",
+      "width": 7.991086483001709,
+      "height": 11.840301513671875,
+      "byteLength": 1137,
+      "pngByteLength": 355,
+      "pngScale": 2
+    },
+    {
+      "ref": "composed-3075_7519",
+      "kind": "composed-svg",
+      "semanticRole": "graphic",
+      "fileName": "assets/composed/svg/20-23-3075_7519.svg",
+      "pngFileName": "assets/composed/png/20-23-3075_7519@2x.png",
+      "formats": {
+        "svg": "assets/composed/svg/20-23-3075_7519.svg",
+        "png": "assets/composed/png/20-23-3075_7519@2x.png"
+      },
+      "nodeId": "3075:7519",
+      "nodeName": "20:23",
+      "nodeType": "GROUP",
+      "width": 47.25159454345703,
+      "height": 11.999999046325684,
+      "byteLength": 6224,
+      "childVectorRefs": [
+        "svg-3075_7521",
+        "svg-3075_7522",
+        "svg-3075_7523",
+        "svg-3075_7524",
+        "svg-3075_7525"
+      ],
+      "compositionStats": {
+        "total": 6,
+        "vectors": 5,
+        "shapes": 5,
+        "text": 0,
+        "images": 0,
+        "otherLeaves": 0
+      },
+      "pngByteLength": 1060,
+      "pngScale": 2
+    },
+    {
+      "ref": "composed-3075_7518",
+      "kind": "composed-svg",
+      "semanticRole": "graphic",
+      "fileName": "assets/composed/svg/Group_2-3075_7518.svg",
+      "pngFileName": "assets/composed/png/Group_2-3075_7518@2x.png",
+      "formats": {
+        "svg": "assets/composed/svg/Group_2-3075_7518.svg",
+        "png": "assets/composed/png/Group_2-3075_7518@2x.png"
+      },
+      "nodeId": "3075:7518",
+      "nodeName": "Group 2",
+      "nodeType": "GROUP",
+      "width": 47.25159454345703,
+      "height": 11.999999046325684,
+      "byteLength": 6246,
+      "childVectorRefs": [
+        "svg-3075_7521",
+        "svg-3075_7522",
+        "svg-3075_7523",
+        "svg-3075_7524",
+        "svg-3075_7525"
+      ],
+      "compositionStats": {
+        "total": 7,
+        "vectors": 5,
+        "shapes": 5,
+        "text": 0,
+        "images": 0,
+        "otherLeaves": 0
+      },
+      "pngByteLength": 1060,
+      "pngScale": 2
+    },
+    {
+      "ref": "svg-3075_7528",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "fileName": "assets/svg/Line_5_(Stroke)-3075_7528.svg",
+      "pngFileName": "assets/png/Line_5_(Stroke)-3075_7528@2x.png",
+      "formats": {
+        "svg": "assets/svg/Line_5_(Stroke)-3075_7528.svg",
+        "png": "assets/png/Line_5_(Stroke)-3075_7528@2x.png"
+      },
+      "nodeId": "3075:7528",
+      "nodeName": "Line 5 (Stroke)",
+      "nodeType": "VECTOR",
+      "width": 3.5999999046325684,
+      "height": 3,
+      "byteLength": 245,
+      "pngByteLength": 169,
+      "pngScale": 2
+    },
+    {
+      "ref": "svg-3075_7529",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "fileName": "assets/svg/Line_4_(Stroke)-3075_7529.svg",
+      "pngFileName": "assets/png/Line_4_(Stroke)-3075_7529@2x.png",
+      "formats": {
+        "svg": "assets/svg/Line_4_(Stroke)-3075_7529.svg",
+        "png": "assets/png/Line_4_(Stroke)-3075_7529@2x.png"
+      },
+      "nodeId": "3075:7529",
+      "nodeName": "Line 4 (Stroke)",
+      "nodeType": "VECTOR",
+      "width": 7.199999809265137,
+      "height": 3,
+      "byteLength": 247,
+      "pngByteLength": 172,
+      "pngScale": 2
+    },
+    {
+      "ref": "svg-3075_7530",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "fileName": "assets/svg/Line_3_(Stroke)-3075_7530.svg",
+      "pngFileName": "assets/png/Line_3_(Stroke)-3075_7530@2x.png",
+      "formats": {
+        "svg": "assets/svg/Line_3_(Stroke)-3075_7530.svg",
+        "png": "assets/png/Line_3_(Stroke)-3075_7530@2x.png"
+      },
+      "nodeId": "3075:7530",
+      "nodeName": "Line 3 (Stroke)",
+      "nodeType": "VECTOR",
+      "width": 10.799999237060547,
+      "height": 3,
+      "byteLength": 227,
+      "pngByteLength": 172,
+      "pngScale": 2
+    },
+    {
+      "ref": "svg-3075_7531",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "fileName": "assets/svg/Line_2_(Stroke)-3075_7531.svg",
+      "pngFileName": "assets/png/Line_2_(Stroke)-3075_7531@2x.png",
+      "formats": {
+        "svg": "assets/svg/Line_2_(Stroke)-3075_7531.svg",
+        "png": "assets/png/Line_2_(Stroke)-3075_7531@2x.png"
+      },
+      "nodeId": "3075:7531",
+      "nodeName": "Line 2 (Stroke)",
+      "nodeType": "VECTOR",
+      "width": 12,
+      "height": 3,
+      "byteLength": 207,
+      "pngByteLength": 165,
+      "pngScale": 2
+    },
+    {
+      "ref": "composed-3075_7527",
+      "kind": "composed-svg",
+      "semanticRole": "graphic",
+      "fileName": "assets/composed/svg/Frame_1000003339-3075_7527.svg",
+      "pngFileName": "assets/composed/png/Frame_1000003339-3075_7527@2x.png",
+      "formats": {
+        "svg": "assets/composed/svg/Frame_1000003339-3075_7527.svg",
+        "png": "assets/composed/png/Frame_1000003339-3075_7527@2x.png"
+      },
+      "nodeId": "3075:7527",
+      "nodeName": "Frame 1000003339",
+      "nodeType": "FRAME",
+      "width": 17.99999237060547,
+      "height": 12,
+      "byteLength": 578,
+      "childVectorRefs": [
+        "svg-3075_7528",
+        "svg-3075_7529",
+        "svg-3075_7530",
+        "svg-3075_7531"
+      ],
+      "compositionStats": {
+        "total": 4,
+        "vectors": 4,
+        "shapes": 4,
+        "text": 0,
+        "images": 0,
+        "otherLeaves": 0
+      },
+      "pngByteLength": 246,
+      "pngScale": 2
+    },
+    {
+      "ref": "svg-3075_7534",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "fileName": "assets/svg/Vector-3075_7534.svg",
+      "pngFileName": "assets/png/Vector-3075_7534@2x.png",
+      "formats": {
+        "svg": "assets/svg/Vector-3075_7534.svg",
+        "png": "assets/png/Vector-3075_7534@2x.png"
+      },
+      "nodeId": "3075:7534",
+      "nodeName": "Vector",
+      "nodeType": "VECTOR",
+      "width": 6,
+      "height": 12,
+      "byteLength": 448,
+      "pngByteLength": 286,
+      "pngScale": 2
+    },
+    {
+      "ref": "svg-3075_7535",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "fileName": "assets/svg/Line_1_(Stroke)-3075_7535.svg",
+      "pngFileName": "assets/png/Line_1_(Stroke)-3075_7535@2x.png",
+      "formats": {
+        "svg": "assets/svg/Line_1_(Stroke)-3075_7535.svg",
+        "png": "assets/png/Line_1_(Stroke)-3075_7535@2x.png"
+      },
+      "nodeId": "3075:7535",
+      "nodeName": "Line 1 (Stroke)",
+      "nodeType": "VECTOR",
+      "width": 6,
+      "height": 2,
+      "byteLength": 262,
+      "pngByteLength": 183,
+      "pngScale": 2
+    },
+    {
+      "ref": "composed-3075_7532",
+      "kind": "composed-svg",
+      "semanticRole": "graphic",
+      "fileName": "assets/composed/svg/Group_3-3075_7532.svg",
+      "pngFileName": "assets/composed/png/Group_3-3075_7532@2x.png",
+      "formats": {
+        "svg": "assets/composed/svg/Group_3-3075_7532.svg",
+        "png": "assets/composed/png/Group_3-3075_7532@2x.png"
+      },
+      "nodeId": "3075:7532",
+      "nodeName": "Group 3",
+      "nodeType": "GROUP",
+      "width": 26,
+      "height": 12,
+      "byteLength": 1016,
+      "childVectorRefs": [
+        "svg-3075_7534",
+        "svg-3075_7535"
+      ],
+      "compositionStats": {
+        "total": 4,
+        "vectors": 2,
+        "shapes": 4,
+        "text": 0,
+        "images": 0,
+        "otherLeaves": 0
+      },
+      "pngByteLength": 813,
+      "pngScale": 2
+    },
+    {
+      "ref": "svg-3075_7538",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "fileName": "assets/svg/Vector-3075_7538.svg",
+      "pngFileName": "assets/png/Vector-3075_7538@2x.png",
+      "formats": {
+        "svg": "assets/svg/Vector-3075_7538.svg",
+        "png": "assets/png/Vector-3075_7538@2x.png"
+      },
+      "nodeId": "3075:7538",
+      "nodeName": "Vector",
+      "nodeType": "VECTOR",
+      "width": 15,
+      "height": 12,
+      "byteLength": 1024,
+      "pngByteLength": 577,
+      "pngScale": 2
+    },
+    {
+      "ref": "svg-3075_7539",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "fileName": "assets/svg/Vector-3075_7539.svg",
+      "pngFileName": "assets/png/Vector-3075_7539@2x.png",
+      "formats": {
+        "svg": "assets/svg/Vector-3075_7539.svg",
+        "png": "assets/png/Vector-3075_7539@2x.png"
+      },
+      "nodeId": "3075:7539",
+      "nodeName": "Vector",
+      "nodeType": "VECTOR",
+      "width": 1.714691162109375,
+      "height": 1.7142724990844727,
+      "byteLength": 317,
+      "pngByteLength": 189,
+      "pngScale": 2
+    },
+    {
+      "ref": "composed-3075_7537",
+      "kind": "composed-svg",
+      "semanticRole": "graphic",
+      "fileName": "assets/composed/svg/Group_1000003336-3075_7537.svg",
+      "pngFileName": "assets/composed/png/Group_1000003336-3075_7537@2x.png",
+      "formats": {
+        "svg": "assets/composed/svg/Group_1000003336-3075_7537.svg",
+        "png": "assets/composed/png/Group_1000003336-3075_7537@2x.png"
+      },
+      "nodeId": "3075:7537",
+      "nodeName": "Group 1000003336",
+      "nodeType": "GROUP",
+      "width": 15,
+      "height": 12.000008583068848,
+      "byteLength": 1304,
+      "childVectorRefs": [
+        "svg-3075_7538",
+        "svg-3075_7539"
+      ],
+      "compositionStats": {
+        "total": 2,
+        "vectors": 2,
+        "shapes": 2,
+        "text": 0,
+        "images": 0,
+        "otherLeaves": 0
+      },
+      "pngByteLength": 572,
+      "pngScale": 2
+    },
+    {
+      "ref": "composed-3075_7526",
+      "kind": "composed-svg",
+      "semanticRole": "graphic",
+      "fileName": "assets/composed/svg/Group_1000003334-3075_7526.svg",
+      "pngFileName": "assets/composed/png/Group_1000003334-3075_7526@2x.png",
+      "formats": {
+        "svg": "assets/composed/svg/Group_1000003334-3075_7526.svg",
+        "png": "assets/composed/png/Group_1000003334-3075_7526@2x.png"
+      },
+      "nodeId": "3075:7526",
+      "nodeName": "Group 1000003334",
+      "nodeType": "GROUP",
+      "width": 79,
+      "height": 12.000008583068848,
+      "byteLength": 2685,
+      "childVectorRefs": [
+        "svg-3075_7528",
+        "svg-3075_7529",
+        "svg-3075_7530",
+        "svg-3075_7531",
+        "svg-3075_7534",
+        "svg-3075_7535",
+        "svg-3075_7538",
+        "svg-3075_7539"
+      ],
+      "compositionStats": {
+        "total": 13,
+        "vectors": 8,
+        "shapes": 10,
+        "text": 0,
+        "images": 0,
+        "otherLeaves": 0
+      },
+      "pngByteLength": 1565,
+      "pngScale": 2
+    },
+    {
+      "ref": "composed-3075_7517",
+      "kind": "composed-svg",
+      "semanticRole": "graphic",
+      "fileName": "assets/composed/svg/Frame_1000003335-3075_7517.svg",
+      "pngFileName": "assets/composed/png/Frame_1000003335-3075_7517@2x.png",
+      "formats": {
+        "svg": "assets/composed/svg/Frame_1000003335-3075_7517.svg",
+        "png": "assets/composed/png/Frame_1000003335-3075_7517@2x.png"
+      },
+      "nodeId": "3075:7517",
+      "nodeName": "Frame 1000003335",
+      "nodeType": "FRAME",
+      "width": 390,
+      "height": 40.00000762939453,
+      "byteLength": 8502,
+      "childVectorRefs": [
+        "svg-3075_7521",
+        "svg-3075_7522",
+        "svg-3075_7523",
+        "svg-3075_7524",
+        "svg-3075_7525",
+        "svg-3075_7528",
+        "svg-3075_7529",
+        "svg-3075_7530",
+        "svg-3075_7531",
+        "svg-3075_7534",
+        "svg-3075_7535",
+        "svg-3075_7538",
+        "svg-3075_7539"
+      ],
+      "compositionStats": {
+        "total": 22,
+        "vectors": 13,
+        "shapes": 15,
+        "text": 0,
+        "images": 0,
+        "otherLeaves": 0
+      },
+      "pngByteLength": 3185,
+      "pngScale": 2
+    },
+    {
+      "ref": "svg-3075_7542",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "fileName": "assets/svg/Vector-3075_7542.svg",
+      "pngFileName": "assets/png/Vector-3075_7542@2x.png",
+      "formats": {
+        "svg": "assets/svg/Vector-3075_7542.svg",
+        "png": "assets/png/Vector-3075_7542@2x.png"
+      },
+      "nodeId": "3075:7542",
+      "nodeName": "Vector",
+      "nodeType": "VECTOR",
+      "width": 6,
+      "height": 12,
+      "byteLength": 990,
+      "pngByteLength": 694,
+      "pngScale": 2
+    },
+    {
+      "ref": "svg-3075_7547",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "fileName": "assets/svg/Vector-3075_7547.svg",
+      "pngFileName": "assets/png/Vector-3075_7547@2x.png",
+      "formats": {
+        "svg": "assets/svg/Vector-3075_7547.svg",
+        "png": "assets/png/Vector-3075_7547@2x.png"
+      },
+      "nodeId": "3075:7547",
+      "nodeName": "Vector",
+      "nodeType": "VECTOR",
+      "width": 7.411764621734619,
+      "height": 8.399999618530273,
+      "byteLength": 1721,
+      "pngByteLength": 562,
+      "pngScale": 2
+    }
+  ]
+}

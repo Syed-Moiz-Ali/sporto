@@ -2,7 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:referee_app/features/matches/presentation/screens/matches_list_screen.dart';
+import 'package:referee_app/features/matches/presentation/screens/schedule_matches_screen.dart';
 import 'package:referee_app/features/matches/presentation/screens/profile_screen.dart';
 import 'package:referee_app/features/matches/presentation/screens/referee_home_screen.dart';
 import 'package:referee_app/features/matches/presentation/screens/referee_scoring_tab_screen.dart';
@@ -23,15 +23,20 @@ void main() {
   }
 
   group('RefereeShellScreen - Exact Figma Scoring.json Navbar Tests', () {
-    testWidgets('Renders all 4 navigation tabs: Home, Matches, Scoring, Profile',
+    testWidgets(
+        'Renders all 4 navigation tabs: Home, Matches, Scoring, Profile',
         (tester) async {
       await tester.pumpWidget(createTestWidget());
       await pumpScreen(tester);
 
-      expect(find.byKey(const ValueKey('referee_nav_tab_Home')), findsOneWidget);
-      expect(find.byKey(const ValueKey('referee_nav_tab_Matches')), findsOneWidget);
-      expect(find.byKey(const ValueKey('referee_nav_tab_Scoring')), findsOneWidget);
-      expect(find.byKey(const ValueKey('referee_nav_tab_Profile')), findsOneWidget);
+      expect(
+          find.byKey(const ValueKey('referee_nav_tab_Home')), findsOneWidget);
+      expect(find.byKey(const ValueKey('referee_nav_tab_Matches')),
+          findsOneWidget);
+      expect(find.byKey(const ValueKey('referee_nav_tab_Scoring')),
+          findsOneWidget);
+      expect(find.byKey(const ValueKey('referee_nav_tab_Profile')),
+          findsOneWidget);
     });
 
     testWidgets('Initial tab is Home (index 0)', (tester) async {
@@ -45,7 +50,7 @@ void main() {
       expect(homeSemantics.hasFlag(SemanticsFlag.isSelected), isTrue);
     });
 
-    testWidgets('Tapping Matches tab switches to MatchesListScreen',
+    testWidgets('Tapping Matches tab switches to ScheduleMatchesScreen',
         (tester) async {
       await tester.pumpWidget(createTestWidget());
       await pumpScreen(tester);
@@ -53,7 +58,7 @@ void main() {
       await tester.tap(find.byKey(const ValueKey('referee_nav_tab_Matches')));
       await pumpScreen(tester);
 
-      expect(find.byType(MatchesListScreen), findsOneWidget);
+      expect(find.byType(ScheduleMatchesScreen), findsOneWidget);
       final matchesSemantics = tester.getSemantics(
         find.byKey(const ValueKey('referee_nav_tab_Matches')),
       );

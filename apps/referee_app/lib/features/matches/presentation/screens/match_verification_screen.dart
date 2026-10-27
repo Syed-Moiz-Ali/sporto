@@ -1,26 +1,16 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:referee_data/referee_data.dart';
 import 'package:shared_domain/shared_domain.dart';
 import 'package:ui_kit/ui_kit.dart';
 
 import '../../../../app/router/app_router.dart';
 import '../../../../core/di/dependency_injector.dart';
-import '../../../../core/match_action/match_action_resolver.dart';
+import '../widgets/before_toss_widgets.dart';
 
-/// Exact Figma copy of the Match Verification Screen based on Match_Verification.json.
+/// Figma `before_toss/01_Incoming_Requests_Details` — "Match Details".
 ///
-/// Implements:
-/// - Obsidian #0E0C08 canvas with dual 200px blurred glow ellipses and top gradient
-/// - Glassmorphic 36x36 back button with Quicksand typography header
-/// - Section 0: Exact Figma Match Summary Card (Stage badge, upcoming gradient badge, divider, countdown)
-/// - Section 1: Exact Split Team Verification Cards (Asymmetric 14-14-4-4 and 4-4-14-14 corners, roster, actions)
-/// - Section 2: Exact Figma Final Checklist Card (17x17 custom checkboxes)
-/// - Section 3: Exact Absent / Grace Period Expired Card with red gradient title
-/// - Section 4: Exact 270x48 Centered Action Buttons (Dual drop shadows, amber gradient secondary)
-/// - Skeleton Shimmer state during loading
+/// Shown for an accepted upcoming match before the toss. Team 1/Team 2 are
+/// verified and START MATCH opens the OTP gate that starts the session.
 class MatchVerificationScreen extends StatefulWidget {
   final String? matchId;
   final CricketMatchEntity? match;
@@ -37,1690 +27,228 @@ class MatchVerificationScreen extends StatefulWidget {
 }
 
 class _MatchVerificationScreenState extends State<MatchVerificationScreen> {
-  Future<CricketMatchEntity>? _matchFuture;
-
-  // Check-in states for teams
-  bool _team1Present = true;
-  bool _team2Present = true;
-  final bool _tossDone = false;
-  String? _roundLabel;
+  Future<BeforeTossMatch>? _future;
 
   @override
   void initState() {
     super.initState();
-    if (widget.match == null && widget.matchId?.trim().isNotEmpty == true) {
-      _matchFuture = _loadMatchFromApi();
-    }
+    _future = _load();
   }
 
-  Future<CricketMatchEntity> _loadMatchFromApi() async {
-    final id = widget.matchId!.trim();
-    final remote = DependencyInjector.instance.refereeRemoteDataSource;
-    final match = await remote.showMyMatchData(id);
-
-    RefereeTossResponse? toss;
-    try {
-      // The toss payload is also the backend source for both team rosters.
-      toss = await remote.getMatchTossData(id);
-    } catch (_) {
-      // Match details are still useful when a tournament has no toss endpoint.
+  Future<BeforeTossMatch> _load() async {
+    if (widget.match != null) {
+      return BeforeTossMatch.fromEntity(widget.match!);
     }
-
-    RefereeTossTeamResponse? rosterFor(RefereeMatchTeam? team, int index) {
-      if (toss == null) return null;
-      final teamId = team?.id;
-      for (final candidate in toss.teams) {
-        if (teamId != null && candidate.id == teamId) return candidate;
-      }
-      return index < toss.teams.length ? toss.teams[index] : null;
+    final id = widget.matchId?.trim();
+    if (id == null || id.isEmpty) {
+      throw const FormatException('Match id is missing.');
     }
+    final response = await DependencyInjector.instance.refereeRemoteDataSource
+        .showMyMatchData(id);
+    return BeforeTossMatch.fromResponse(response);
+  }
 
-    _roundLabel = match.roundName?.trim().isNotEmpty == true
-        ? match.roundName!.trim()
-        : null;
-
-    TeamEntity mapTeam(RefereeMatchTeam? summary, int index) {
-      final roster = rosterFor(summary, index);
-      final players = roster?.members
-              .map(
-                (member) => PlayerEntity(
-                  id: member.userId.toString(),
-                  name: member.name,
-                  role: member.isCaptain ? 'captain' : 'player',
-                  jerseyNumber: 0,
-                ),
-              )
-              .toList() ??
-          const <PlayerEntity>[];
-      return TeamEntity(
-        id: (summary?.id ?? roster?.id ?? index).toString(),
-        name: summary?.name ?? roster?.name ?? 'Team ${index + 1}',
-        logoEmoji: '',
-        players: players,
-      );
-    }
-
-    final scheduled = DateTime.tryParse(
-          match.scheduledAt ??
-              [match.matchDate, match.startTime].whereType<String>().join('T'),
-        ) ??
-        DateTime.now();
-    final statusText = match.displayStatus.toLowerCase();
-    final status =
-        statusText.contains('live') || statusText.contains('progress')
-            ? MatchStatus.live
-            : statusText.contains('complete') || statusText.contains('finish')
-                ? MatchStatus.completed
-                : toss?.toss.runtime.isCompleted == true
-                    ? MatchStatus.toss
-                    : MatchStatus.verification;
-
-    return CricketMatchEntity(
-      id: match.id.toString(),
-      tournamentName: match.tournamentName ?? 'Tournament not provided',
-      teamA: mapTeam(match.teamA, 0),
-      teamB: mapTeam(match.teamB, 1),
-      venue: match.venueName ?? match.location ?? 'Venue not provided',
-      scheduledTime: scheduled,
-      status: status,
-      refereeName: '',
+  Future<void> _startMatch(BeforeTossMatch match) async {
+    final id = match.matchId ?? widget.matchId ?? '';
+    final verified = await context.push<bool>(
+      '${AppRouter.startMatchRoute}?matchId=$id',
+      extra: match,
     );
-  }
-
-  // ==========================================================
-  // DERIVED STATE & ACTIONS
-  // ==========================================================
-
-  bool get _bothTeamsReady => _team1Present && _team2Present;
-  bool get _hasAbsentTeam => !_team1Present || !_team2Present;
-
-  void _awardWalkover(String winner) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          content: Text(
-            'Walkover awarded to $winner',
-            style: const TextStyle(
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          backgroundColor: const Color(0xFF2BB673),
-        ),
-      );
-  }
-
-  void _confirmAbsent(String absentTeam) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          content: Text(
-            '$absentTeam marked absent',
-            style: const TextStyle(
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          backgroundColor: const Color(0xFFFE464B),
-        ),
-      );
+    if (!mounted || verified != true) return;
+    context.pushReplacement('${AppRouter.conductTossRoute}?matchId=$id');
   }
 
   @override
   Widget build(BuildContext context) {
     final scale = context.sportoScale;
-
-    if (widget.match != null) {
-      return _buildScaffold(context, scale, widget.match, false);
-    }
-
-    return FutureBuilder<CricketMatchEntity>(
-      future: _matchFuture,
-      builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          return _MatchLoadError(
-            message: snapshot.error.toString(),
-            onRetry: () => setState(() {
-              _matchFuture = _loadMatchFromApi();
-            }),
-          );
-        }
-        return _buildScaffold(
-          context,
-          scale,
-          snapshot.data,
-          snapshot.connectionState != ConnectionState.done,
-        );
-      },
-    );
-  }
-
-  Widget _buildScaffold(
-    BuildContext context,
-    double scale,
-    CricketMatchEntity? currentMatch,
-    bool isLoading,
-  ) {
-    final matchCode = currentMatch != null
-        ? 'SPT-${currentMatch.id}'
-        : (widget.matchId != null ? 'SPT-${widget.matchId}' : '');
-
-    final tournamentName =
-        currentMatch?.tournamentName ?? 'Tournament not provided';
-    final venueName = currentMatch?.venue ?? 'Venue not provided';
-
-    final team1Name = currentMatch?.teamA.name ?? 'Team 1';
-    final team2Name = currentMatch?.teamB.name ?? 'Team 2';
-
-    final List<String> team1Players = currentMatch == null
-        ? const []
-        : currentMatch.teamA.players.map((p) {
-            final isCap = p.role.toLowerCase() == 'captain';
-            return isCap ? '${p.name} (Captain)' : p.name;
-          }).toList();
-
-    final List<String> team2Players = currentMatch == null
-        ? const []
-        : currentMatch.teamB.players.map((p) {
-            final isCap = p.role.toLowerCase() == 'captain';
-            return isCap ? '${p.name} (Captain)' : p.name;
-          }).toList();
-
-    final absentTeamLabel = !_team1Present ? 'Team 1' : 'Team 2';
-    final absentTeamName = !_team1Present ? team1Name : team2Name;
-    final walkoverWinner = !_team1Present ? team2Name : team1Name;
-
     return Scaffold(
-      backgroundColor: const Color(0xFF0E0C08),
-      body: Stack(
-        children: [
-          // ====================================================
-          // FIGMA ATMOSPHERE & BACKGROUND
-          // ====================================================
-
-          // Ambient Top Header Gradient (Rectangle 6011: 390x129)
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            height: 129 * scale,
-            child: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Color(0xFF090C10),
-                    Color(0xFF1B2335),
-                    Color(0xFF090C10),
-                  ],
-                  stops: [0.0, 0.5, 1.0],
-                ),
-              ),
+      backgroundColor: const Color(0xFF090C10),
+      body: SafeArea(
+        bottom: false,
+        child: Column(
+          children: [
+            BeforeTossHeader(
+              scale: scale,
+              title: 'Match Details',
+              onBack: () {
+                if (context.canPop()) context.pop();
+              },
             ),
-          ),
-
-          // Ambient Glow Ellipse 17 (Top)
-          Positioned(
-            top: -80 * scale,
-            left: 6.5 * scale,
-            width: 376.9 * scale,
-            height: 280 * scale,
-            child: ImageFiltered(
-              imageFilter: ImageFilter.blur(
-                sigmaX: 70 * scale,
-                sigmaY: 70 * scale,
-              ),
-              child: Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: const Color(0xFF373E52).withValues(alpha: 0.30),
-                ),
-              ),
-            ),
-          ),
-
-          // Ambient Glow Ellipse 18 (Lower body)
-          Positioned(
-            top: 450 * scale,
-            right: -50 * scale,
-            width: 376.9 * scale,
-            height: 280 * scale,
-            child: ImageFiltered(
-              imageFilter: ImageFilter.blur(
-                sigmaX: 80 * scale,
-                sigmaY: 80 * scale,
-              ),
-              child: Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: const Color(0xFF373E52).withValues(alpha: 0.30),
-                ),
-              ),
-            ),
-          ),
-
-          // ====================================================
-          // FOREGROUND CONTENT
-          // ====================================================
-          SafeArea(
-            bottom: false,
-            child: Column(
-              children: [
-                // Figma AppBar Header (Frame 1000003336: 390x46)
-                _FigmaAppBar(
-                  scale: scale,
-                  matchCode: matchCode,
-                  onBack: () {
-                    if (context.canPop()) {
-                      context.pop();
-                    }
-                  },
-                ),
-
-                // Scrollable Body (Frame 1261154190: padding 20, gap 20)
-                Expanded(
-                  child: isLoading
-                      ? _FigmaSkeletonShimmer(scale: scale)
-                      : SingleChildScrollView(
-                          physics: const ClampingScrollPhysics(),
-                          padding: EdgeInsets.fromLTRB(
-                            20 * scale,
-                            16 * scale,
-                            20 * scale,
-                            40 * scale,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // SECTION 0: Match Summary Card
-                              _FigmaMatchSummaryCard(
-                                scale: scale,
-                                tournamentName: tournamentName,
-                                venueName: venueName,
-                                team1: team1Name,
-                                team2: team2Name,
-                                stageLabel: _roundLabel ?? 'Match',
-                                scheduledStart: currentMatch?.scheduledTime,
-                              ),
-
-                              SizedBox(height: 20 * scale),
-
-                              // SECTION 1: Team Verification Title
-                              Text(
-                                'Team Verification',
-                                style: TextStyle(
-                                  fontSize: 16 * scale,
-                                  fontWeight: FontWeight.w600,
-                                  color: const Color(0xFFA0A0A0),
-                                ),
-                              ),
-
-                              SizedBox(height: 10 * scale),
-
-                              // Team 1 Split Card
-                              _FigmaSplitTeamCard(
-                                scale: scale,
-                                teamLabel: 'Team 1',
-                                teamName: team1Name,
-                                players: team1Players,
-                                isPresent: _team1Present,
-                                onMarkPresent: () {
-                                  setState(() {
-                                    _team1Present = true;
-                                  });
-                                },
-                                onMarkAbsent: () {
-                                  setState(() {
-                                    _team1Present = false;
-                                  });
-                                },
-                              ),
-
-                              SizedBox(height: 10 * scale),
-
-                              // Team 2 Split Card
-                              _FigmaSplitTeamCard(
-                                scale: scale,
-                                teamLabel: 'Team 2',
-                                teamName: team2Name,
-                                players: team2Players,
-                                isPresent: _team2Present,
-                                onMarkPresent: () {
-                                  setState(() {
-                                    _team2Present = true;
-                                  });
-                                },
-                                onMarkAbsent: () {
-                                  setState(() {
-                                    _team2Present = false;
-                                  });
-                                },
-                              ),
-
-                              SizedBox(height: 20 * scale),
-
-                              // SECTION 2: Final Checklist Title
-                              Text(
-                                'Final Checklist',
-                                style: TextStyle(
-                                  fontSize: 16 * scale,
-                                  fontWeight: FontWeight.w600,
-                                  color: const Color(0xFFA0A0A0),
-                                ),
-                              ),
-
-                              SizedBox(height: 10 * scale),
-
-                              // Final Checklist Card
-                              _FigmaFinalChecklistCard(
-                                scale: scale,
-                                team1Checked: _team1Present,
-                                team2Checked: _team2Present,
-                                tossChecked: _tossDone,
-                              ),
-
-                              // SECTION 3: Absent Decision Card (If any team absent)
-                              if (_hasAbsentTeam) ...[
-                                SizedBox(height: 20 * scale),
-                                _FigmaAbsentDecisionCard(
-                                  scale: scale,
-                                  absentTeamLabel: absentTeamLabel,
-                                  absentTeamName: absentTeamName,
-                                  team1Checked: _team1Present,
-                                  team2Checked: _team2Present,
-                                ),
-                              ],
-
-                              SizedBox(height: 24 * scale),
-
-                              // SECTION 4: Bottom Action Buttons
-                              _FigmaBottomActionButtons(
-                                scale: scale,
-                                bothTeamsReady: _bothTeamsReady,
-                                hasAbsentTeam: _hasAbsentTeam,
-                                walkoverWinner: walkoverWinner,
-                                absentTeamName: absentTeamName,
-                                onReadyToToss: () {
-                                  // Replace verification so that returning from
-                                  // the toss/scoring flow goes straight back to
-                                  // the previous list instead of re-showing
-                                  // this screen.
-                                  context.pushReplacement(
-                                    '${AppRouter.conductTossRoute}?matchId=${widget.matchId ?? ''}',
-                                  );
-                                },
-                                onAwardWalkover: () {
-                                  _awardWalkover(walkoverWinner);
-                                },
-                                onMarkAbsent: () {
-                                  _confirmAbsent(absentTeamName);
-                                },
-                              ),
-                            ],
+            Expanded(
+              child: FutureBuilder<BeforeTossMatch>(
+                future: _future,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return _BeforeTossSkeleton(scale: scale);
+                  }
+                  if (snapshot.hasError || !snapshot.hasData) {
+                    return _BeforeTossError(
+                      scale: scale,
+                      message: snapshot.error?.toString() ??
+                          'Unable to load match details.',
+                      onRetry: () => setState(() => _future = _load()),
+                    );
+                  }
+                  final match = snapshot.data!;
+                  return SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    padding: EdgeInsets.fromLTRB(
+                      20 * scale,
+                      10 * scale,
+                      20 * scale,
+                      40 * scale,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        BeforeTossSportCard(scale: scale, match: match),
+                        SizedBox(height: 20 * scale),
+                        BeforeTossMatchTicket(
+                          scale: scale,
+                          match: match,
+                          includeLocation: true,
+                        ),
+                        SizedBox(height: 20 * scale),
+                        BeforeTossBookingDetails(scale: scale, match: match),
+                        SizedBox(height: 20 * scale),
+                        BeforeTossChecklist(
+                          scale: scale,
+                          team1Checked: match.teamA.isNotEmpty,
+                          team2Checked: match.teamB.isNotEmpty,
+                          tossChecked: false,
+                        ),
+                        SizedBox(height: 20 * scale),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 10 * scale),
+                          child: BeforeTossPrimaryButton(
+                            scale: scale,
+                            label: 'START MATCH',
+                            onTap: () => _startMatch(match),
                           ),
                         ),
-                ),
-              ],
+                      ],
+                    ),
+                  );
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 }
 
-class _MatchLoadError extends StatelessWidget {
-  const _MatchLoadError({required this.message, required this.onRetry});
-
+class _BeforeTossError extends StatelessWidget {
+  final double scale;
   final String message;
   final VoidCallback onRetry;
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFF0E0C08),
-      body: SafeArea(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.error_outline, color: Color(0xFFFE464B)),
-                const SizedBox(height: 12),
-                const Text(
-                  'Unable to load match details',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  message,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(color: Color(0xFFA0A0A0)),
-                ),
-                const SizedBox(height: 18),
-                FilledButton(onPressed: onRetry, child: const Text('Retry')),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// =============================================================================
-// FIGMA APP BAR (Frame 1000003336: 390x46)
-// =============================================================================
-class _FigmaAppBar extends StatelessWidget {
-  final double scale;
-  final String matchCode;
-  final VoidCallback onBack;
-
-  const _FigmaAppBar({
+  const _BeforeTossError({
     required this.scale,
-    required this.matchCode,
-    required this.onBack,
+    required this.message,
+    required this.onRetry,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      constraints: BoxConstraints(minHeight: 46 * scale),
-      padding: EdgeInsets.symmetric(
-        horizontal: 20 * scale,
-        vertical: 4 * scale,
-      ),
-      child: Row(
-        children: [
-          // Glassmorphic Back Button (36x36, cornerRadius: 10)
-          Container(
-            width: 36 * scale,
-            height: 36 * scale,
-            decoration: BoxDecoration(
-              color: const Color(0x1AFFFFFF),
-              borderRadius: BorderRadius.circular(10 * scale),
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0x1F000000),
-                  blurRadius: 4 * scale,
-                  offset: Offset(0, 2 * scale),
-                ),
-              ],
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: BackdropFilter(
-              filter: ImageFilter.blur(
-                sigmaX: 10 * scale,
-                sigmaY: 10 * scale,
-              ),
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  onTap: onBack,
-                  child: Center(
-                    child: Icon(
-                      Icons.chevron_left_rounded,
-                      size: 24 * scale,
-                      color: const Color(0xFFFFFFFF),
-                      shadows: [
-                        Shadow(
-                          color: const Color(0x33000000),
-                          blurRadius: 2 * scale,
-                          offset: Offset(0, 1 * scale),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-
-          SizedBox(width: 10 * scale),
-
-          // Header Title & Subtitle Column (Frame 1000003337)
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'Match Verification',
-                  style: TextStyle(
-                    fontSize: 18 * scale,
-                    fontWeight: FontWeight.w700,
-                    color: const Color(0xFFFFFFFF),
-                    height: 1.2,
-                  ),
-                ),
-                Text(
-                  'Match #$matchCode',
-                  style: TextStyle(
-                    fontSize: 12 * scale,
-                    fontWeight: FontWeight.w500,
-                    color: const Color(0xFFFFFFFF),
-                    height: 1.2,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Manual date/time formatting (no intl dependency).
-abstract final class _VerificationScheduleText {
-  static const _months = [
-    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-  ];
-
-  static String timeOf(DateTime dt) {
-    final h12 = dt.hour % 12 == 0 ? 12 : dt.hour % 12;
-    final mm = dt.minute.toString().padLeft(2, '0');
-    final suffix = dt.hour < 12 ? 'AM' : 'PM';
-    return '$h12:$mm $suffix';
-  }
-
-  static String dateLine(DateTime? start) {
-    if (start == null) return 'Schedule not set';
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final day = DateTime(start.year, start.month, start.day);
-    final diff = day.difference(today).inDays;
-    if (diff == 0) return 'Today, ${timeOf(start)}';
-    if (diff == 1) return 'Tomorrow, ${timeOf(start)}';
-    return '${start.day} ${_months[start.month - 1]}, ${timeOf(start)}';
-  }
-}
-
-/// Real countdown row driven by [scheduledStart].
-class _VerificationCountdown extends StatelessWidget {
-  final double scale;
-  final DateTime? scheduledStart;
-
-  const _VerificationCountdown({required this.scale, this.scheduledStart});
-
-  @override
-  Widget build(BuildContext context) {
-    final countdown = countdownText(scheduledStart);
-    if (countdown == null) {
-      return Text(
-        scheduledStart == null ? 'Schedule not set' : 'Starting soon',
-        style: TextStyle(
-          fontSize: 14 * scale,
-          fontWeight: FontWeight.w500,
-          color: const Color(0xFFFFFFFF),
-        ),
-      );
-    }
-    if (!countdown.contains(' in ')) {
-      return Text(
-        countdown,
-        style: TextStyle(
-          fontSize: 14 * scale,
-          fontWeight: FontWeight.w600,
-          color: const Color(0xFF2BB673),
-        ),
-      );
-    }
-    final prefix = countdown.substring(0, countdown.indexOf(' in ') + 4);
-    final value = countdown.substring(countdown.indexOf(' in ') + 4);
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        RichText(
-          text: TextSpan(
-            style: TextStyle(
-              fontSize: 14 * scale,
-              fontWeight: FontWeight.w500,
-              color: const Color(0xFFA0A0A0),
-            ),
-            children: [
-              TextSpan(text: prefix),
-              TextSpan(
-                text: value,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF2BB673),
-                ),
-              ),
-            ],
-          ),
-        ),
-        SizedBox(width: 6 * scale),
-        Container(
-          width: 2.5 * scale,
-          height: 2.5 * scale,
-          decoration: const BoxDecoration(
-            shape: BoxShape.circle,
-            color: Color(0xFFA0A0A0),
-          ),
-        ),
-        SizedBox(width: 6 * scale),
-        Text(
-          'at ${_VerificationScheduleText.timeOf(scheduledStart!)}',
-          style: TextStyle(
-            fontSize: 14 * scale,
-            fontWeight: FontWeight.w500,
-            color: const Color(0xFFFFFFFF),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-// =============================================================================
-// SECTION 0: FIGMA MATCH SUMMARY CARD (Section: 350x141)
-// =============================================================================
-class _FigmaMatchSummaryCard extends StatelessWidget {
-  final double scale;
-  final String tournamentName;
-  final String venueName;
-  final String team1;
-  final String team2;
-  final String stageLabel;
-  final DateTime? scheduledStart;
-
-  const _FigmaMatchSummaryCard({
-    required this.scale,
-    required this.tournamentName,
-    required this.venueName,
-    required this.team1,
-    required this.team2,
-    this.stageLabel = 'Match',
-    this.scheduledStart,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(10 * scale),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1C2026),
-        borderRadius: BorderRadius.circular(14 * scale),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Row 1: Stage Badge + Date/Time + Upcoming Badge
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              // Quarter Final Pill (Frame 2: 88x19, radius 10)
-              Container(
-                height: 19 * scale,
-                padding: EdgeInsets.symmetric(
-                  horizontal: 6 * scale,
-                  vertical: 2 * scale,
-                ),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF01A34D).withValues(alpha: 0.20),
-                  borderRadius: BorderRadius.circular(10 * scale),
-                  border: Border.all(
-                    color: const Color(0xFF2BB673),
-                    width: 1,
-                  ),
-                ),
-                child: Center(
-                  child: Text(
-                    stageLabel,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 12 * scale,
-                      fontWeight: FontWeight.w600,
-                      color: const Color(0xFFFFFFFF),
-                      height: 1.0,
-                    ),
-                  ),
-                ),
-              ),
-
-              // Date & Time (real schedule)
-              Flexible(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 4 * scale),
-                  child: Text(
-                    _VerificationScheduleText.dateLine(scheduledStart),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 12 * scale,
-                      fontWeight: FontWeight.w600,
-                      color: const Color(0xFFAAAAAA),
-                    ),
-                  ),
-                ),
-              ),
-
-              // Upcoming Gradient Pill (Frame 3: 70x19, radius 10)
-              Container(
-                height: 19 * scale,
-                padding: EdgeInsets.symmetric(
-                  horizontal: 6 * scale,
-                  vertical: 2 * scale,
-                ),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10 * scale),
-                  gradient: LinearGradient(
-                    colors: [
-                      const Color(0xFFFF9364).withValues(alpha: 0.10),
-                      const Color(0xFFF25F33).withValues(alpha: 0.10),
-                    ],
-                  ),
-                ),
-                child: Center(
-                  child: _GradientText(
-                    'Upcoming',
-                    gradient: const LinearGradient(
-                      colors: [
-                        Color(0xFFFF9364),
-                        Color(0xFFF25F33),
-                      ],
-                    ),
-                    style: TextStyle(
-                      fontSize: 12 * scale,
-                      fontWeight: FontWeight.w500,
-                      height: 1.0,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-
-          SizedBox(height: 8 * scale),
-
-          // Row 2: Tournament Name + Venue
-          Text(
-            tournamentName,
-            style: TextStyle(
-              fontSize: 16 * scale,
-              fontWeight: FontWeight.w600,
-              color: const Color(0xFFFFFFFF),
-            ),
-          ),
-
-          SizedBox(height: 2 * scale),
-
-          // Location Row (Frame 1261154297)
-          Row(
-            children: [
-              SportoAssetIcon(
-                SportoAssets.locationPin,
-                size: 13 * scale,
-                color: const Color(0xFFA0A0A0),
-              ),
-              SizedBox(width: 4 * scale),
-              Text(
-                venueName,
-                style: TextStyle(
-                  fontSize: 12 * scale,
-                  fontWeight: FontWeight.w500,
-                  color: const Color(0xFFA0A0A0),
-                ),
-              ),
-            ],
-          ),
-
-          SizedBox(height: 6 * scale),
-
-          // Teams Row (Frame 1000006156)
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  team1,
-                  style: TextStyle(
-                    fontSize: 14 * scale,
-                    fontWeight: FontWeight.w600,
-                    color: const Color(0xFFFFFFFF),
-                  ),
-                ),
-              ),
-              Text(
-                'Vs',
-                style: TextStyle(
-                  fontSize: 12 * scale,
-                  fontWeight: FontWeight.w500,
-                  color: const Color(0xFFA0A0A0),
-                ),
-              ),
-              Expanded(
-                child: Text(
-                  team2,
-                  textAlign: TextAlign.right,
-                  style: TextStyle(
-                    fontSize: 14 * scale,
-                    fontWeight: FontWeight.w600,
-                    color: const Color(0xFFFFFFFF),
-                  ),
-                ),
-              ),
-            ],
-          ),
-
-          SizedBox(height: 8 * scale),
-
-          // Divider Line 8 (0.8px, #283040)
-          Container(
-            height: 0.8 * scale,
-            color: const Color(0xFF283040),
-          ),
-
-          SizedBox(height: 8 * scale),
-
-          // Countdown Row (real schedule; "Schedule not set" fallback)
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            child: _VerificationCountdown(
-              scale: scale,
-              scheduledStart: scheduledStart,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// =============================================================================
-// SECTION 1: FIGMA SPLIT TEAM CARD (Asymmetric 14-14-4-4 & 4-4-14-14)
-// =============================================================================
-class _FigmaSplitTeamCard extends StatelessWidget {
-  final double scale;
-  final String teamLabel;
-  final String teamName;
-  final List<String> players;
-  final bool isPresent;
-  final VoidCallback onMarkPresent;
-  final VoidCallback onMarkAbsent;
-
-  const _FigmaSplitTeamCard({
-    required this.scale,
-    required this.teamLabel,
-    required this.teamName,
-    required this.players,
-    required this.isPresent,
-    required this.onMarkPresent,
-    required this.onMarkAbsent,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        // PART 1: Top Header Card (350x64, radius 14-14-4-4)
-        Container(
-          width: double.infinity,
-          padding: EdgeInsets.all(10 * scale),
-          decoration: BoxDecoration(
-            color: const Color(0xFF1C2026),
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(14 * scale),
-              topRight: Radius.circular(14 * scale),
-              bottomLeft: Radius.circular(4 * scale),
-              bottomRight: Radius.circular(4 * scale),
-            ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Row: Team Label + Team Ready/Not Ready Badge
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    teamLabel,
-                    style: TextStyle(
-                      fontSize: 14 * scale,
-                      fontWeight: FontWeight.w500,
-                      color: const Color(0xFF5C93FF),
-                    ),
-                  ),
-                  Row(
-                    children: [
-                      // 17x17 status icon indicator
-                      Container(
-                        width: 17 * scale,
-                        height: 17 * scale,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: isPresent
-                              ? const Color(0xFF2BB673)
-                              : const Color(0xFFFE464B),
-                        ),
-                        child: Icon(
-                          isPresent
-                              ? Icons.check_rounded
-                              : Icons.priority_high_rounded,
-                          size: 11 * scale,
-                          color: const Color(0xFFFFFFFF),
-                        ),
-                      ),
-                      SizedBox(width: 6 * scale),
-                      Text(
-                        isPresent ? 'Team Ready' : 'Team Not Ready',
-                        style: TextStyle(
-                          fontSize: 12 * scale,
-                          fontWeight: FontWeight.w500,
-                          color: isPresent
-                              ? const Color(0xFF2BB673)
-                              : const Color(0xFFFE464B),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-
-              SizedBox(height: 4 * scale),
-
-              // Team Name
-              Text(
-                teamName,
-                style: TextStyle(
-                  fontSize: 16 * scale,
-                  fontWeight: FontWeight.w600,
-                  color: const Color(0xFFFFFFFF),
-                ),
-              ),
-            ],
-          ),
-        ),
-
-        // 2px Gap matching Figma layout
-        SizedBox(height: 2 * scale),
-
-        // PART 2: Bottom Squad & Actions Card (350x160, radius 4-4-14-14)
-        Container(
-          width: double.infinity,
-          padding: EdgeInsets.all(10 * scale),
-          decoration: BoxDecoration(
-            color: const Color(0xFF1C2026),
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(4 * scale),
-              topRight: Radius.circular(4 * scale),
-              bottomLeft: Radius.circular(14 * scale),
-              bottomRight: Radius.circular(14 * scale),
-            ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Squad List (Frame 1261154353)
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (players.isEmpty)
-                    Text(
-                      'No roster players received from the server',
-                      style: TextStyle(
-                        fontSize: 12 * scale,
-                        fontWeight: FontWeight.w500,
-                        color: const Color(0xFFA0A0A0),
-                      ),
-                    ),
-                  for (int i = 0; i < players.take(5).length; i++) ...[
-                    if (i > 0) SizedBox(height: 5 * scale),
-                    _buildPlayerRow(players[i]),
-                  ],
-                ],
-              ),
-
-              SizedBox(height: 6 * scale),
-
-              // Divider Line 8 (0.8px, #283040)
-              Container(
-                height: 0.8 * scale,
-                color: const Color(0xFF283040),
-              ),
-
-              SizedBox(height: 8 * scale),
-
-              // Action Buttons Row (Frame 1261154321: height 38, gap 12)
-              Row(
-                children: [
-                  // Present Button (159x38)
-                  Expanded(
-                    child: SizedBox(
-                      height: 38 * scale,
-                      child: Material(
-                        color: isPresent
-                            ? const Color(0xFF2BB673)
-                            : Colors.transparent,
-                        borderRadius: BorderRadius.circular(16 * scale),
-                        child: InkWell(
-                          onTap: isPresent ? null : onMarkPresent,
-                          borderRadius: BorderRadius.circular(16 * scale),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(16 * scale),
-                              border: isPresent
-                                  ? null
-                                  : Border.all(
-                                      color: const Color(0xFF283040),
-                                      width: 1,
-                                    ),
-                            ),
-                            child: Center(
-                              child: Text(
-                                isPresent ? '✓  Present' : 'Mark As Present',
-                                style: TextStyle(
-                                  fontSize: 14 * scale,
-                                  fontWeight: FontWeight.w700,
-                                  color: isPresent
-                                      ? const Color(0xFFFFFFFF)
-                                      : const Color(0xFFA0A0A0),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  SizedBox(width: 12 * scale),
-
-                  // Absent Button (159x38)
-                  Expanded(
-                    child: SizedBox(
-                      height: 38 * scale,
-                      child: Material(
-                        color: isPresent
-                            ? Colors.transparent
-                            : const Color(0x26FE464B),
-                        borderRadius: BorderRadius.circular(16 * scale),
-                        child: InkWell(
-                          onTap: isPresent ? onMarkAbsent : null,
-                          borderRadius: BorderRadius.circular(16 * scale),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(16 * scale),
-                              border: Border.all(
-                                color: isPresent
-                                    ? const Color(0xFF283040)
-                                    : const Color(0xFFFE464B),
-                                width: 1,
-                              ),
-                            ),
-                            child: Center(
-                              child: Text(
-                                isPresent ? 'Mark As Absent' : '✓  Absent',
-                                style: TextStyle(
-                                  fontSize: 14 * scale,
-                                  fontWeight: FontWeight.w700,
-                                  color: isPresent
-                                      ? const Color(0xFFA0A0A0)
-                                      : const Color(0xFFFE464B),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildPlayerRow(String player) {
-    final hasCaptain = player.contains('(Captain)');
-    final cleanName = player.replaceAll('(Captain)', '').trim();
-
-    return Text.rich(
-      TextSpan(
-        style: TextStyle(
-          fontSize: 12 * scale,
-          fontWeight: FontWeight.w500,
-          color: const Color(0xFFFFFFFF),
-        ),
-        children: [
-          TextSpan(text: cleanName),
-          if (hasCaptain) ...[
-            const TextSpan(text: ' '),
-            const TextSpan(
-              text: '(Captain)',
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.all(24 * scale),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.error_outline, color: Color(0xFFFE464B)),
+            SizedBox(height: 12 * scale),
+            Text(
+              'Unable to load match details',
+              textAlign: TextAlign.center,
               style: TextStyle(
-                color: Color(0xFF5C93FF),
+                color: const Color(0xFFFFFFFF),
+                fontSize: 16 * scale,
                 fontWeight: FontWeight.w600,
               ),
             ),
+            SizedBox(height: 6 * scale),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: const Color(0xFFA0A0A0),
+                fontSize: 12 * scale,
+              ),
+            ),
+            SizedBox(height: 18 * scale),
+            FilledButton(onPressed: onRetry, child: const Text('Retry')),
           ],
-        ],
-      ),
-    );
-  }
-}
-
-// =============================================================================
-// SECTION 2: FIGMA FINAL CHECKLIST CARD (350x106, radius 14, gap 16)
-// =============================================================================
-class _FigmaFinalChecklistCard extends StatelessWidget {
-  final double scale;
-  final bool team1Checked;
-  final bool team2Checked;
-  final bool tossChecked;
-
-  const _FigmaFinalChecklistCard({
-    required this.scale,
-    required this.team1Checked,
-    required this.team2Checked,
-    required this.tossChecked,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(10 * scale),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1C2026),
-        borderRadius: BorderRadius.circular(14 * scale),
-      ),
-      child: Column(
-        children: [
-          _buildChecklistItem('Team 1', team1Checked),
-          SizedBox(height: 16 * scale),
-          _buildChecklistItem('Team 2', team2Checked),
-          SizedBox(height: 16 * scale),
-          _buildChecklistItem('Toss', tossChecked),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildChecklistItem(String label, bool checked) {
-    return SizedBox(
-      height: 18 * scale,
-      child: Row(
-        children: [
-          // 17x17 Figma Checkbox
-          Container(
-            width: 17 * scale,
-            height: 17 * scale,
-            decoration: BoxDecoration(
-              color: checked ? const Color(0xFF2BB673) : Colors.transparent,
-              borderRadius: BorderRadius.circular(4 * scale),
-              border: checked
-                  ? null
-                  : Border.all(
-                      color: const Color(0xFF283040),
-                      width: 1.5,
-                    ),
-            ),
-            child: checked
-                ? Icon(
-                    Icons.check_rounded,
-                    size: 12 * scale,
-                    color: const Color(0xFFFFFFFF),
-                  )
-                : null,
-          ),
-          SizedBox(width: 8 * scale),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 14 * scale,
-              fontWeight: FontWeight.w500,
-              color:
-                  checked ? const Color(0xFFFFFFFF) : const Color(0xFFA0A0A0),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// =============================================================================
-// SECTION 3: FIGMA ABSENT DECISION CARD (350x162, gradient title)
-// =============================================================================
-class _FigmaAbsentDecisionCard extends StatelessWidget {
-  final double scale;
-  final String absentTeamLabel;
-  final String absentTeamName;
-  final bool team1Checked;
-  final bool team2Checked;
-
-  const _FigmaAbsentDecisionCard({
-    required this.scale,
-    required this.absentTeamLabel,
-    required this.absentTeamName,
-    required this.team1Checked,
-    required this.team2Checked,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(10 * scale),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1C2026),
-        borderRadius: BorderRadius.circular(14 * scale),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          // Red Gradient Title (Frame 1261154343)
-          _GradientText(
-            '$absentTeamLabel - $absentTeamName\nhasn\'t checked in.',
-            textAlign: TextAlign.center,
-            gradient: const LinearGradient(
-              colors: [
-                Color(0xFFFE6C6C),
-                Color(0xFFFE464B),
-              ],
-            ),
-            style: TextStyle(
-              fontSize: 16 * scale,
-              fontWeight: FontWeight.w600,
-              height: 1.25,
-            ),
-          ),
-
-          SizedBox(height: 8 * scale),
-
-          // Subtitle
-          Text(
-            'Grace period expired. Choose how to handle\nthis match.',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 14 * scale,
-              fontWeight: FontWeight.w500,
-              color: const Color(0xFFA0A0A0),
-              height: 1.25,
-            ),
-          ),
-
-          SizedBox(height: 14 * scale),
-
-          // Absent Card Checklist
-          _buildCheckRow('Team 1', team1Checked),
-          SizedBox(height: 10 * scale),
-          _buildCheckRow('Team 2', team2Checked),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCheckRow(String label, bool checked) {
-    return Row(
-      children: [
-        Container(
-          width: 17 * scale,
-          height: 17 * scale,
-          decoration: BoxDecoration(
-            color: checked ? const Color(0xFF2BB673) : Colors.transparent,
-            borderRadius: BorderRadius.circular(4 * scale),
-            border: checked
-                ? null
-                : Border.all(
-                    color: const Color(0xFF283040),
-                    width: 1.5,
-                  ),
-          ),
-          child: checked
-              ? Icon(
-                  Icons.check_rounded,
-                  size: 12 * scale,
-                  color: const Color(0xFFFFFFFF),
-                )
-              : null,
         ),
-        SizedBox(width: 8 * scale),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 14 * scale,
-            fontWeight: FontWeight.w500,
-            color: checked ? const Color(0xFFFFFFFF) : const Color(0xFFA0A0A0),
-          ),
-        ),
-      ],
+      ),
     );
   }
 }
 
-// =============================================================================
-// SECTION 4: FIGMA BOTTOM ACTION BUTTONS (270x48, dual drop shadows)
-// =============================================================================
-class _FigmaBottomActionButtons extends StatelessWidget {
+class _BeforeTossSkeleton extends StatefulWidget {
   final double scale;
-  final bool bothTeamsReady;
-  final bool hasAbsentTeam;
-  final String walkoverWinner;
-  final String absentTeamName;
-  final VoidCallback onReadyToToss;
-  final VoidCallback onAwardWalkover;
-  final VoidCallback onMarkAbsent;
 
-  const _FigmaBottomActionButtons({
-    required this.scale,
-    required this.bothTeamsReady,
-    required this.hasAbsentTeam,
-    required this.walkoverWinner,
-    required this.absentTeamName,
-    required this.onReadyToToss,
-    required this.onAwardWalkover,
-    required this.onMarkAbsent,
-  });
+  const _BeforeTossSkeleton({required this.scale});
+
+  @override
+  State<_BeforeTossSkeleton> createState() => _BeforeTossSkeletonState();
+}
+
+class _BeforeTossSkeletonState extends State<_BeforeTossSkeleton>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1400),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    if (bothTeamsReady) {
-      // Both Teams Ready -> Single Centered 270x48 Green Button
-      return Center(
-        child: Container(
-          width: 270 * scale,
-          height: 48 * scale,
-          decoration: BoxDecoration(
-            color: const Color(0xFF2BB673),
-            borderRadius: BorderRadius.circular(16 * scale),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFF01A34D).withValues(alpha: 0.20),
-                blurRadius: 3 * scale,
-                offset: Offset(1 * scale, 1 * scale),
+    final s = widget.scale;
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, _) {
+        final color = const Color(0xFF283040)
+            .withValues(alpha: 0.25 + 0.3 * _controller.value);
+        Widget box(double height, {double radius = 16}) => Container(
+              width: double.infinity,
+              height: height * s,
+              decoration: BoxDecoration(
+                color: color,
+                borderRadius: BorderRadius.circular(radius * s),
               ),
-              BoxShadow(
-                color: const Color(0x1A000000),
-                blurRadius: 8 * scale,
-                offset: Offset(0, 2 * scale),
-              ),
+            );
+        return SingleChildScrollView(
+          physics: const NeverScrollableScrollPhysics(),
+          padding: EdgeInsets.fromLTRB(20 * s, 10 * s, 20 * s, 40 * s),
+          child: Column(
+            children: [
+              box(47),
+              SizedBox(height: 20 * s),
+              box(168),
+              SizedBox(height: 20 * s),
+              box(82),
+              SizedBox(height: 20 * s),
+              box(136),
+              SizedBox(height: 20 * s),
+              box(48),
             ],
           ),
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: onReadyToToss,
-              borderRadius: BorderRadius.circular(16 * scale),
-              child: Center(
-                child: Text(
-                  'Ready To Toss',
-                  style: TextStyle(
-                    fontSize: 16 * scale,
-                    fontWeight: FontWeight.w700,
-                    color: const Color(0xFFFFFFFF),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      );
-    }
-
-    if (hasAbsentTeam) {
-      // Team Absent -> Walkover & Mark As Absent Buttons (270x48, gap 14)
-      return Center(
-        child: Column(
-          children: [
-            // Button 1: Award Walkover
-            Container(
-              width: 270 * scale,
-              height: 48 * scale,
-              decoration: BoxDecoration(
-                color: const Color(0xFF2BB673),
-                borderRadius: BorderRadius.circular(16 * scale),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFF01A34D).withValues(alpha: 0.20),
-                    blurRadius: 3 * scale,
-                    offset: Offset(1 * scale, 1 * scale),
-                  ),
-                  BoxShadow(
-                    color: const Color(0x1A000000),
-                    blurRadius: 8 * scale,
-                    offset: Offset(0, 2 * scale),
-                  ),
-                ],
-              ),
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  onTap: onAwardWalkover,
-                  borderRadius: BorderRadius.circular(16 * scale),
-                  child: Center(
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 10 * scale),
-                      child: Text(
-                        'Award Walkover to $walkoverWinner',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 15 * scale,
-                          fontWeight: FontWeight.w700,
-                          color: const Color(0xFFFFFFFF),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-
-            SizedBox(height: 14 * scale),
-
-            // Button 2: Mark As Absent (Gradient 10% fill + 1px gradient border + gradient text)
-            Container(
-              width: 270 * scale,
-              height: 48 * scale,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16 * scale),
-                gradient: const LinearGradient(
-                  colors: [
-                    Color(0xFFFFD572),
-                    Color(0xFFFEBD38),
-                  ],
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFF1B2335).withValues(alpha: 0.20),
-                    blurRadius: 3 * scale,
-                    offset: Offset(1 * scale, 1 * scale),
-                  ),
-                  BoxShadow(
-                    color: const Color(0x1A000000),
-                    blurRadius: 8 * scale,
-                    offset: Offset(0, 2 * scale),
-                  ),
-                ],
-              ),
-              padding: const EdgeInsets.all(1), // 1px gradient border
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(15 * scale),
-                  gradient: LinearGradient(
-                    colors: [
-                      const Color(0xFFFFD572).withValues(alpha: 0.10),
-                      const Color(0xFFFEBD38).withValues(alpha: 0.10),
-                    ],
-                  ),
-                ),
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    onTap: onMarkAbsent,
-                    borderRadius: BorderRadius.circular(15 * scale),
-                    child: Center(
-                      child: _GradientText(
-                        'Mark As Absent',
-                        gradient: const LinearGradient(
-                          colors: [
-                            Color(0xFFFFD572),
-                            Color(0xFFFEBD38),
-                          ],
-                        ),
-                        style: TextStyle(
-                          fontSize: 16 * scale,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    return const SizedBox.shrink();
-  }
-}
-
-// =============================================================================
-// SKELETON SHIMMER (During API Loading)
-// =============================================================================
-class _FigmaSkeletonShimmer extends StatelessWidget {
-  final double scale;
-
-  const _FigmaSkeletonShimmer({required this.scale});
-
-  @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      physics: const NeverScrollableScrollPhysics(),
-      padding: EdgeInsets.fromLTRB(
-        20 * scale,
-        16 * scale,
-        20 * scale,
-        40 * scale,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Match Card Shimmer
-          SportoShimmer(
-            width: double.infinity,
-            height: 141 * scale,
-            borderRadius: 14 * scale,
-          ),
-
-          SizedBox(height: 20 * scale),
-
-          // Title Shimmer
-          SportoShimmer(
-            width: 150 * scale,
-            height: 18 * scale,
-            borderRadius: 6 * scale,
-          ),
-
-          SizedBox(height: 10 * scale),
-
-          // Team 1 Split Card Shimmer
-          SportoShimmer(
-            width: double.infinity,
-            height: 64 * scale,
-            borderRadius: 14 * scale,
-          ),
-          SizedBox(height: 2 * scale),
-          SportoShimmer(
-            width: double.infinity,
-            height: 160 * scale,
-            borderRadius: 14 * scale,
-          ),
-
-          SizedBox(height: 10 * scale),
-
-          // Team 2 Split Card Shimmer
-          SportoShimmer(
-            width: double.infinity,
-            height: 64 * scale,
-            borderRadius: 14 * scale,
-          ),
-          SizedBox(height: 2 * scale),
-          SportoShimmer(
-            width: double.infinity,
-            height: 160 * scale,
-            borderRadius: 14 * scale,
-          ),
-
-          SizedBox(height: 20 * scale),
-
-          // Final Checklist Shimmer
-          SportoShimmer(
-            width: 130 * scale,
-            height: 18 * scale,
-            borderRadius: 6 * scale,
-          ),
-          SizedBox(height: 10 * scale),
-          SportoShimmer(
-            width: double.infinity,
-            height: 106 * scale,
-            borderRadius: 14 * scale,
-          ),
-
-          SizedBox(height: 24 * scale),
-
-          // Bottom Button Shimmer
-          Center(
-            child: SportoShimmer(
-              width: 270 * scale,
-              height: 48 * scale,
-              borderRadius: 16 * scale,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// =============================================================================
-// HELPER: GRADIENT TEXT
-// =============================================================================
-class _GradientText extends StatelessWidget {
-  final String text;
-  final TextStyle? style;
-  final Gradient gradient;
-  final TextAlign? textAlign;
-
-  const _GradientText(
-    this.text, {
-    required this.gradient,
-    this.style,
-    this.textAlign,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ShaderMask(
-      blendMode: BlendMode.srcIn,
-      shaderCallback: (bounds) => gradient.createShader(
-        Rect.fromLTWH(0, 0, bounds.width, bounds.height),
-      ),
-      child: Text(
-        text,
-        style: style,
-        textAlign: textAlign,
-      ),
+        );
+      },
     );
   }
 }

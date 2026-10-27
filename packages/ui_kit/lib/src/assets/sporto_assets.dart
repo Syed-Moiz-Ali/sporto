@@ -109,6 +109,40 @@ abstract final class SportoRefereeBookingIcons {
       'assets/referee_booking/images/avatar_referee.png';
 }
 
+/// Icons exported from the "Referee App Home Redesign" Figma package.
+abstract final class SportoHomeRedesignIcons {
+  static const _dir = 'assets/home_redesign/icons';
+
+  static const bell = '$_dir/bell.svg';
+  static const search = '$_dir/search.svg';
+  static const mic = '$_dir/mic.svg';
+  static const rupee = '$_dir/rupee.svg';
+  static const plus = '$_dir/plus.svg';
+  static const arrowRight = '$_dir/arrow_right.svg';
+  static const danger = '$_dir/danger.svg';
+  static const navigation = '$_dir/navigation.svg';
+
+  static const navHome = '$_dir/nav_home.svg';
+  static const navSchedule = '$_dir/nav_schedule.svg';
+  static const navScoring = '$_dir/nav_scoring.svg';
+  static const navProfile = '$_dir/nav_profile.svg';
+
+  static const List<String> all = [
+    bell,
+    search,
+    mic,
+    rupee,
+    plus,
+    arrowRight,
+    danger,
+    navigation,
+    navHome,
+    navSchedule,
+    navScoring,
+    navProfile,
+  ];
+}
+
 class SportoAssetIcon extends StatelessWidget {
   final String asset;
   final double? size;
@@ -169,9 +203,8 @@ class SportoSvgIcon extends StatelessWidget {
       width: w,
       height: h,
       fit: fit,
-      colorFilter: color == null
-          ? null
-          : ColorFilter.mode(color!, BlendMode.srcIn),
+      colorFilter:
+          color == null ? null : ColorFilter.mode(color!, BlendMode.srcIn),
     );
   }
 }

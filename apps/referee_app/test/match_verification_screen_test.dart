@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:referee_app/features/matches/presentation/screens/match_verification_screen.dart';
+import 'package:referee_app/features/matches/presentation/screens/start_match_screen.dart';
+import 'package:referee_app/features/matches/presentation/widgets/before_toss_widgets.dart';
 import 'package:shared_domain/shared_domain.dart';
 import 'package:ui_kit/ui_kit.dart';
 
@@ -8,260 +11,214 @@ void main() {
   final dummyMatch = CricketMatchEntity(
     id: '20481',
     tournamentName: 'Asia Cup 2026',
-    teamA: TeamEntity(
+    teamA: const TeamEntity(
       id: '1',
       name: 'Delhi Warriors',
-      logoEmoji: '🏏',
-      players: [
-        PlayerEntity(
-          id: 'p1',
-          name: 'Shrvn Prajapati',
-          role: 'Captain',
-          jerseyNumber: 7,
-        ),
-        PlayerEntity(
-          id: 'p2',
-          name: 'Amit Kumar',
-          role: 'Batsman',
-          jerseyNumber: 10,
-        ),
-        PlayerEntity(
-          id: 'p3',
-          name: 'Manish K',
-          role: 'Bowler',
-          jerseyNumber: 18,
-        ),
-        PlayerEntity(
-          id: 'p4',
-          name: 'Sumit Nai',
-          role: 'AllRounder',
-          jerseyNumber: 24,
-        ),
-        PlayerEntity(
-          id: 'p5',
-          name: 'Mayank S',
-          role: 'WicketKeeper',
-          jerseyNumber: 99,
-        ),
-      ],
+      logoEmoji: '',
+      players: [],
     ),
-    teamB: TeamEntity(
+    teamB: const TeamEntity(
       id: '2',
       name: 'Hyd Highlanders',
-      logoEmoji: '🦅',
-      players: [
-        PlayerEntity(
-          id: 'p6',
-          name: 'Vikram Reddy',
-          role: 'Captain',
-          jerseyNumber: 1,
-        ),
-        PlayerEntity(
-          id: 'p7',
-          name: 'Dev Kumar',
-          role: 'Batsman',
-          jerseyNumber: 8,
-        ),
-        PlayerEntity(
-          id: 'p8',
-          name: 'Pankaj S',
-          role: 'Bowler',
-          jerseyNumber: 11,
-        ),
-        PlayerEntity(
-          id: 'p9',
-          name: 'Rohan A',
-          role: 'AllRounder',
-          jerseyNumber: 14,
-        ),
-        PlayerEntity(
-          id: 'p10',
-          name: 'Vinayak L',
-          role: 'WicketKeeper',
-          jerseyNumber: 22,
-        ),
-      ],
+      logoEmoji: '',
+      players: [],
     ),
     venue: 'Hyderabad',
-    scheduledTime:
-        DateTime.now().add(const Duration(hours: 2, minutes: 15)),
+    scheduledTime: DateTime.now().add(const Duration(hours: 2, minutes: 15)),
     status: MatchStatus.upcoming,
     refereeName: 'Official Umpire',
   );
 
-  Widget createWidget({CricketMatchEntity? match, String? matchId}) {
+  Widget createDetailsWidget() {
     return MaterialApp(
       theme: SportoTheme.darkTheme,
       home: MatchVerificationScreen(
-        match: match ?? dummyMatch,
-        matchId: matchId ?? '20481',
+        match: dummyMatch,
+        matchId: dummyMatch.id,
       ),
     );
   }
 
-  group('MatchVerificationScreen - Figma Exact UI & Interaction Tests', () {
-    testWidgets('Renders exact Figma Header and Match Summary Card',
-        (tester) async {
-      tester.view.physicalSize = const Size(1080, 2400);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(() => tester.view.resetPhysicalSize());
+  Widget createStartWidget({String? expectedOtp}) {
+    final data = BeforeTossMatch.fromEntity(dummyMatch);
+    return MaterialApp(
+      theme: SportoTheme.darkTheme,
+      home: StartMatchScreen(
+        match: BeforeTossMatch(
+          tournament: data.tournament,
+          venue: data.venue,
+          location: data.location,
+          teamA: data.teamA,
+          teamB: data.teamB,
+          sport: data.sport,
+          code: data.code,
+          sourceLabel: data.sourceLabel,
+          dateText: data.dateText,
+          startTimeText: data.startTimeText,
+          durationText: data.durationText,
+          expectedOtp: expectedOtp,
+          matchId: data.matchId,
+        ),
+      ),
+    );
+  }
 
-      await tester.pumpWidget(createWidget());
+  group('Before Toss — Match Details (Figma 01)', () {
+    testWidgets('renders header, match card and final checklist',
+        (tester) async {
+      await tester.pumpWidget(createDetailsWidget());
       await tester.pumpAndSettle();
 
-      // Header elements
-      expect(find.text('Match Verification'), findsOneWidget);
-      expect(find.text('Match #SPT-20481'), findsOneWidget);
-
-      // Match Summary Card elements (real round + schedule, no hardcode)
-      expect(find.text('Match'), findsOneWidget);
-      expect(
-        find.textContaining(RegExp('(Today|Tomorrow), ')),
-        findsOneWidget,
-      );
+      expect(find.text('Match Details'), findsOneWidget);
+      expect(find.text('Cricket'), findsOneWidget);
+      expect(find.text('SP-20481'), findsOneWidget);
+      expect(find.text('by Partner'), findsOneWidget);
       expect(find.text('Upcoming'), findsOneWidget);
       expect(find.text('Asia Cup 2026'), findsOneWidget);
-      expect(find.text('Hyderabad'), findsOneWidget);
+      expect(find.text('Delhi Warriors'), findsOneWidget);
+      expect(find.text('Hyd Highlanders'), findsOneWidget);
       expect(find.text('Vs'), findsOneWidget);
-      // Countdown lives inside RichText.
-      expect(
-        find.textContaining('Starts in', findRichText: true),
-        findsOneWidget,
-      );
-      expect(find.textContaining('at '), findsWidgets);
-    });
-
-    testWidgets('Renders Team Verification split cards with players & actions',
-        (tester) async {
-      tester.view.physicalSize = const Size(1080, 2400);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(() => tester.view.resetPhysicalSize());
-
-      await tester.pumpWidget(createWidget());
-      await tester.pumpAndSettle();
-
-      // Section title
-      expect(find.text('Team Verification'), findsOneWidget);
-
-      // Team labels and status
-      expect(find.text('Team 1'), findsNWidgets(2)); // Card header & checklist
-      expect(find.text('Team 2'), findsNWidgets(2));
-      expect(find.text('Team Ready'), findsNWidgets(2));
-
-      // Team names
-      expect(find.text('Delhi Warriors'), findsNWidgets(2)); // Card & match card
-      expect(find.text('Hyd Highlanders'), findsNWidgets(2));
-
-      // Player names
-      expect(find.textContaining('Shrvn Prajapati'), findsOneWidget);
-      expect(find.textContaining('Amit Kumar'), findsOneWidget);
-      expect(find.textContaining('Vikram Reddy'), findsOneWidget);
-      expect(find.textContaining('Dev Kumar'), findsOneWidget);
-
-      // Initial Button States: both teams present
-      expect(find.text('✓  Present'), findsNWidgets(2));
-      expect(find.text('Mark As Absent'), findsNWidgets(2));
-
-      // Final Checklist
+      expect(find.text('Booking Location'), findsOneWidget);
+      expect(find.text('Booking Details'), findsOneWidget);
       expect(find.text('Final Checklist'), findsOneWidget);
+      expect(find.text('Team 1'), findsOneWidget);
+      expect(find.text('Team 2'), findsOneWidget);
       expect(find.text('Toss'), findsOneWidget);
-
-      // Bottom Action Button: Ready To Toss
-      expect(find.text('Ready To Toss'), findsOneWidget);
+      expect(find.text('START MATCH'), findsOneWidget);
     });
 
-    testWidgets(
-        'Marking Team 2 Absent displays Absent Decision Card & Walkover actions',
+    testWidgets('renders without overflow on 390x844 and 360x800',
         (tester) async {
-      tester.view.physicalSize = const Size(1080, 2400);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(() => tester.view.resetPhysicalSize());
+      for (final size in const [Size(390, 844), Size(360, 800)]) {
+        tester.view.physicalSize = size;
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(tester.view.resetPhysicalSize);
 
-      await tester.pumpWidget(createWidget());
+        await tester.pumpWidget(createDetailsWidget());
+        await tester.pumpAndSettle();
+
+        expect(tester.takeException(), isNull);
+      }
+    });
+  });
+
+  testWidgets('START MATCH opens OTP and verification continues to toss',
+      (tester) async {
+    final router = GoRouter(
+      initialLocation: '/',
+      routes: [
+        GoRoute(
+          path: '/',
+          builder: (context, state) => MatchVerificationScreen(
+            match: dummyMatch,
+            matchId: dummyMatch.id,
+          ),
+        ),
+        GoRoute(
+          path: '/start-match',
+          builder: (context, state) => StartMatchScreen(
+            match: state.extra is BeforeTossMatch
+                ? state.extra as BeforeTossMatch
+                : null,
+          ),
+        ),
+        GoRoute(
+          path: '/conduct-toss',
+          builder: (context, state) =>
+              const Scaffold(body: Text('CONDUCT TOSS')),
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        theme: SportoTheme.darkTheme,
+        routerConfig: router,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('START MATCH'));
+    await tester.pumpAndSettle();
+    expect(find.text('Start Session?'), findsOneWidget);
+
+    await tester.enterText(find.byType(TextField), '123456');
+    await tester.tap(find.text('Verify OTP & Start Match'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('CONDUCT TOSS'), findsOneWidget);
+  });
+
+  group('Before Toss — Start Match OTP (Figma 02)', () {
+    testWidgets('renders Start Session card and OTP boxes', (tester) async {
+      await tester.pumpWidget(createStartWidget());
       await tester.pumpAndSettle();
 
-      // Initially "Ready To Toss" is visible
-      expect(find.text('Ready To Toss'), findsOneWidget);
-
-      // Tap "Mark As Absent" for Team 2 (the second "Mark As Absent" button)
-      final markAbsentButtons = find.text('Mark As Absent');
-      expect(markAbsentButtons, findsNWidgets(2));
-      await tester.tap(markAbsentButtons.last);
-      await tester.pumpAndSettle();
-
-      // Team 2 status should now be "Team Not Ready"
-      expect(find.text('Team Not Ready'), findsOneWidget);
-      expect(find.text('✓  Absent'), findsOneWidget);
-
-      // Absent Decision Card appears
+      expect(find.text('Start Match'), findsOneWidget);
+      expect(find.text('Match verification'), findsOneWidget);
+      expect(find.text('Start Session?'), findsOneWidget);
       expect(
-        find.text("Team 2 - Hyd Highlanders\nhasn't checked in."),
+        find.text('Share this OTP with your referee to start the session.'),
         findsOneWidget,
       );
-      expect(
-        find.text('Grace period expired. Choose how to handle\nthis match.'),
-        findsOneWidget,
-      );
-
-      // Walkover action button appears
-      expect(
-        find.text('Award Walkover to Delhi Warriors'),
-        findsOneWidget,
-      );
-
-      // Bottom "Mark As Absent" action appears
-      expect(find.text('Mark As Absent'), findsNWidgets(2));
-
-      // "Ready To Toss" should no longer be visible
-      expect(find.text('Ready To Toss'), findsNothing);
-
-      // Tapping "Mark As Present" restores Team 2
-      final markPresentButton = find.text('Mark As Present');
-      expect(markPresentButton, findsOneWidget);
-      await tester.tap(markPresentButton);
-      await tester.pumpAndSettle();
-
-      // "Ready To Toss" is restored
-      expect(find.text('Ready To Toss'), findsOneWidget);
-      expect(find.text("Team 2 - Hyd Highlanders\nhasn't checked in."),
-          findsNothing);
+      expect(find.text('Enter 6-digit match OTP'), findsOneWidget);
+      expect(find.text('|'), findsNWidgets(6));
+      expect(find.text("Haven't received the OTP?"), findsOneWidget);
+      expect(find.text('Verify OTP & Start Match'), findsOneWidget);
+      expect(find.text('Having trouble?'), findsOneWidget);
     });
 
-    testWidgets('Award walkover triggers feedback snackbar', (tester) async {
-      tester.view.physicalSize = const Size(1080, 2400);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(() => tester.view.resetPhysicalSize());
-
-      await tester.pumpWidget(createWidget());
+    testWidgets('accepts 6-digit input in the OTP boxes', (tester) async {
+      await tester.pumpWidget(createStartWidget());
       await tester.pumpAndSettle();
 
-      // Mark Team 1 absent
-      await tester.tap(find.text('Mark As Absent').first);
+      await tester.enterText(find.byType(TextField), '123456');
+      await tester.pump();
+
+      for (final digit in ['1', '2', '3', '4', '5', '6']) {
+        expect(find.text(digit), findsOneWidget);
+      }
+    });
+
+    testWidgets('short OTP shows validation message', (tester) async {
+      await tester.pumpWidget(createStartWidget());
       await tester.pumpAndSettle();
 
-      // Award Walkover to Team 2
-      final walkoverBtn = find.text('Award Walkover to Hyd Highlanders');
-      expect(walkoverBtn, findsOneWidget);
-      await tester.tap(walkoverBtn);
+      await tester.enterText(find.byType(TextField), '12');
+      await tester.tap(find.text('Verify OTP & Start Match'));
+      await tester.pump();
+
+      expect(find.text('Enter the 6-digit match OTP.'), findsOneWidget);
+    });
+
+    testWidgets('wrong OTP shows invalid message when expected OTP is known',
+        (tester) async {
+      await tester.pumpWidget(createStartWidget(expectedOtp: '654321'));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byType(TextField), '123456');
+      await tester.tap(find.text('Verify OTP & Start Match'));
       await tester.pump();
 
       expect(
-        find.text('Walkover awarded to Hyd Highlanders'),
+        find.text('Incorrect OTP. Please check with the booking user.'),
         findsOneWidget,
       );
     });
 
-    testWidgets('Renders properly without overflow on standard 390x844 viewport',
+    testWidgets('renders without overflow on 390x844 and 360x800',
         (tester) async {
-      tester.view.physicalSize = const Size(390, 844);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(() => tester.view.resetPhysicalSize());
+      for (final size in const [Size(390, 844), Size(360, 800)]) {
+        tester.view.physicalSize = size;
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(tester.view.resetPhysicalSize);
 
-      await tester.pumpWidget(createWidget());
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(createStartWidget());
+        await tester.pumpAndSettle();
 
-      expect(tester.takeException(), isNull);
-      expect(find.text('Match Verification'), findsOneWidget);
+        expect(tester.takeException(), isNull);
+      }
     });
   });
 }

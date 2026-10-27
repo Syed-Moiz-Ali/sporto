@@ -3,7 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:ui_kit/ui_kit.dart';
 
-import 'matches_list_screen.dart';
+import 'schedule_matches_screen.dart';
 import 'profile_screen.dart';
 import 'referee_home_screen.dart';
 import 'referee_scoring_tab_screen.dart';
@@ -64,8 +64,9 @@ class RefereeShellScreenState extends State<RefereeShellScreen> {
               children: [
                 RefereeHomeScreen(
                   onViewAll: () => setIndex(1),
+                  onAvailability: () => setIndex(3),
                 ),
-                const MatchesListScreen(),
+                const ScheduleMatchesScreen(),
                 const RefereeScoringTabScreen(),
                 const RefereeProfileScreen(),
               ],
@@ -107,19 +108,23 @@ class _FigmaRefereeNavBar extends StatelessWidget {
   static const _items = [
     _NavBarItemData(
       label: 'Home',
-      asset: SportoAssets.home,
+      asset: SportoHomeRedesignIcons.navHome,
+      iconSize: 30,
     ),
     _NavBarItemData(
       label: 'Matches',
-      asset: SportoAssets.matches,
+      asset: SportoHomeRedesignIcons.navSchedule,
+      iconSize: 20,
     ),
     _NavBarItemData(
       label: 'Scoring',
-      asset: SportoAssets.tournaments,
+      asset: SportoHomeRedesignIcons.navScoring,
+      iconSize: 30,
     ),
     _NavBarItemData(
       label: 'Profile',
-      asset: SportoAssets.profile,
+      asset: SportoHomeRedesignIcons.navProfile,
+      iconSize: 30,
     ),
   ];
 
@@ -175,9 +180,30 @@ class _FigmaRefereeNavBar extends StatelessWidget {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          _buildIcon(item.asset, isActive),
-                          SizedBox(height: 3 * scale),
+                          SizedBox(
+                            width: 30 * scale,
+                            height: 30 * scale,
+                            child: Center(
+                              child: _buildIcon(
+                                item.asset,
+                                isActive,
+                                item.iconSize,
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 1 * scale),
                           _buildLabel(item.label, isActive),
+                          if (isActive) ...[
+                            SizedBox(height: 1 * scale),
+                            Container(
+                              width: 6 * scale,
+                              height: 6 * scale,
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Color(0xFFF4B41A),
+                              ),
+                            ),
+                          ],
                         ],
                       ),
                     ),
@@ -191,68 +217,29 @@ class _FigmaRefereeNavBar extends StatelessWidget {
     );
   }
 
-  Widget _buildIcon(String asset, bool isActive) {
-    final size = 20 * scale;
-
-    if (!isActive) {
-      return SportoAssetIcon(
-        asset,
-        size: size,
-        color: const Color(0xFFAAAAAA),
-      );
-    }
-
-    return ShaderMask(
-      blendMode: BlendMode.srcIn,
-      shaderCallback: (bounds) => const LinearGradient(
-        colors: [
-          Color(0xFFED7B00),
-          Color(0xFFCF9E24),
-        ],
-      ).createShader(
-        Rect.fromLTWH(0, 0, bounds.width, bounds.height),
-      ),
-      child: SportoAssetIcon(
-        asset,
-        size: size,
-        color: Colors.white,
-      ),
+  Widget _buildIcon(String asset, bool isActive, double iconSize) {
+    // The Home asset already contains the gold body + white door accent.
+    final tint = !isActive
+        ? const Color(0xFFA0A0A0)
+        : asset == SportoHomeRedesignIcons.navHome
+            ? null
+            : const Color(0xFFF4B41A);
+    return SportoSvgIcon(
+      asset,
+      size: iconSize * scale,
+      color: tint,
     );
   }
 
   Widget _buildLabel(String label, bool isActive) {
-    if (!isActive) {
-      return Text(
-        label,
-        maxLines: 1,
-        style: TextStyle(
-          fontSize: 11 * scale,
-          fontWeight: FontWeight.w500,
-          color: const Color(0xFFAAAAAA),
-          height: 1.1,
-        ),
-      );
-    }
-
-    return ShaderMask(
-      blendMode: BlendMode.srcIn,
-      shaderCallback: (bounds) => const LinearGradient(
-        colors: [
-          Color(0xFFED7B00),
-          Color(0xFFCF9E24),
-        ],
-      ).createShader(
-        Rect.fromLTWH(0, 0, bounds.width, bounds.height),
-      ),
-      child: Text(
-        label,
-        maxLines: 1,
-        style: TextStyle(
-          fontSize: 11 * scale,
-          fontWeight: FontWeight.w700,
-          color: Colors.white,
-          height: 1.1,
-        ),
+    return Text(
+      label,
+      maxLines: 1,
+      style: TextStyle(
+        fontSize: 12 * scale,
+        fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
+        color: isActive ? const Color(0xFFF4B41A) : const Color(0xFFA0A0A0),
+        height: 1.1,
       ),
     );
   }
@@ -261,9 +248,11 @@ class _FigmaRefereeNavBar extends StatelessWidget {
 class _NavBarItemData {
   final String label;
   final String asset;
+  final double iconSize;
 
   const _NavBarItemData({
     required this.label,
     required this.asset,
+    required this.iconSize,
   });
 }

@@ -1,0 +1,14 @@
+<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="vuesax/twotone/search-normal">
+<g id="search-normal">
+<path id="Vector" d="M17.4993 9.58268C17.4993 13.9549 13.9549 17.4993 9.58268 17.4993C5.21043 17.4993 1.66602 13.9549 1.66602 9.58268C1.66602 5.21043 5.21043 1.66602 9.58268 1.66602C13.9549 1.66602 17.4993 5.21043 17.4993 9.58268Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="#A0A0A0"/>
+<path id="Vector_2" d="M18.3327 18.3327L16.666 16.666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="url(#paint0_linear_3080_8526)"/>
+</g>
+</g>
+<defs>
+<linearGradient id="paint0_linear_3080_8526" x1="16.666" y1="17.4993" x2="18.3327" y2="17.4993" gradientUnits="userSpaceOnUse">
+<stop stop-color="#ED7B00"/>
+<stop offset="1" stop-color="#CF9E24"/>
+</linearGradient>
+</defs>
+</svg>

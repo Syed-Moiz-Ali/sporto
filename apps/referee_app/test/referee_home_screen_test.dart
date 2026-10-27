@@ -58,36 +58,46 @@ void main() {
     );
   }
 
-  RefereeMatchResponse createAssignedMatch({int id = 103}) {
-    return RefereeMatchResponse(
-      id: id,
-      tournamentName: 'Asia Cup 2026',
-      roundName: 'Semi Final',
-      scheduledAt: 'Tomorrow, 06:30 PM',
-      venueName: 'Uppal Stadium, Hyderabad',
-      status: 0,
+  RefereeMatchRequestResponse createRequest() {
+    return RefereeMatchRequestResponse(
+      id: 55,
+      assignmentId: 550,
+      tournamentName: 'Hyderabad Corporate Cricket Tournament',
+      matchNumber: 'SP-10245',
+      matchDate: '2026-10-12',
+      startTime: '17:00:00',
+      venueName: 'KPHB Indoor Stadium',
+      location: 'ABC Sports Arena, Madhapur, Hyderabad',
       statusLabel: 'Scheduled',
-      teamA: const RefereeMatchTeam(id: 5, name: 'Delhi Warriors'),
-      teamB: const RefereeMatchTeam(id: 6, name: 'Hyd Highlanders'),
-      canOfficiate: true,
+      teamA: const RefereeMatchTeam(id: 7, name: 'Rahul Kumar'),
+      teamB: const RefereeMatchTeam(id: 8, name: 'Royal Strikers'),
+      raw: const {
+        'booked_by': 'Rahul Kumar',
+        'booked_by_type': 'user',
+        'fee': 1500,
+        'distance_km': 8.4,
+        'duration_hours': 2,
+      },
     );
   }
 
   Widget createTestWidget({
     Future<List<RefereeMatchResponse>>? matchesFuture,
+    Future<RefereeHomePayload>? payloadFuture,
     VoidCallback? onViewAll,
   }) {
     return MaterialApp(
       theme: SportoTheme.darkTheme,
       home: RefereeHomeScreen(
         matchesFuture: matchesFuture,
+        payloadFuture: payloadFuture,
         onViewAll: onViewAll,
       ),
     );
   }
 
-  group('RefereeHomeScreen - Exact Figma Home.json UI Tests', () {
-    testWidgets('Renders exact Figma Header and Search Bar', (tester) async {
+  group('RefereeHomeScreen - Redesigned Figma UI Tests', () {
+    testWidgets('Renders header, wallet and search bar', (tester) async {
       await tester.pumpWidget(
         createTestWidget(
           matchesFuture: Future.value([createLiveMatch()]),
@@ -95,45 +105,34 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      // Header Elements (name from profile API, ''Referee'' offline)
       expect(
         find.textContaining(RegExp('Good (Morning|Afternoon|Evening)')),
         findsOneWidget,
       );
       expect(find.text('Referee'), findsOneWidget);
-      expect(find.text('₹ 500'), findsOneWidget);
-      expect(find.byIcon(Icons.add_rounded), findsOneWidget);
-      expect(find.byIcon(Icons.notifications_none_rounded), findsOneWidget);
-
-      // Search Bar Elements
+      expect(find.text('500'), findsOneWidget);
       expect(find.text('Search cricket, football..'), findsOneWidget);
+      expect(find.text('Referee Status'), findsOneWidget);
     });
 
-    testWidgets('Renders Overview Stats with dynamic counts from matches',
-        (tester) async {
+    testWidgets('Renders overview stats with dynamic counts', (tester) async {
       final matches = [
         createLiveMatch(),
         createUpcomingMatch(id: 102),
-        createUpcomingMatch(id: 103),
-        createAssignedMatch(id: 104),
       ];
 
       await tester.pumpWidget(
-        createTestWidget(
-          matchesFuture: Future.value(matches),
-        ),
+        createTestWidget(matchesFuture: Future.value(matches)),
       );
       await tester.pumpAndSettle();
 
       expect(find.text('Live Now'), findsWidgets);
       expect(find.text('Upcoming'), findsWidgets);
-      expect(find.text('Assigned'), findsWidgets);
-      expect(find.textContaining('Completed'), findsWidgets);
-      expect(find.textContaining('Cancelled'), findsWidgets);
+      expect(find.text('Completed'), findsOneWidget);
+      expect(find.text('Earnings'), findsOneWidget);
     });
 
-    testWidgets(
-        'Renders Live Match Card with scores, batter/bowler & Continue Scoring action',
+    testWidgets('Renders live match card with score and scoring action',
         (tester) async {
       await tester.pumpWidget(
         createTestWidget(
@@ -146,15 +145,11 @@ void main() {
       expect(find.text('Thunder Titans'), findsOneWidget);
       expect(find.text('28/1'), findsOneWidget);
       expect(find.text('Royal Strikers'), findsOneWidget);
-      expect(find.text('Yet to Bat'), findsOneWidget);
-      expect(find.textContaining('Rahul'), findsOneWidget);
-      expect(find.textContaining('Amit'), findsOneWidget);
-      expect(find.text('Over - 2.1/6'), findsOneWidget);
+      expect(find.text('Waiting to Bat'), findsOneWidget);
       expect(find.text('Continue Scoring'), findsOneWidget);
     });
 
-    testWidgets(
-        'Renders Next Match Card with countdown and Verify Teams action',
+    testWidgets("Renders Today's Match card with countdown and start session",
         (tester) async {
       await tester.pumpWidget(
         createTestWidget(
@@ -163,46 +158,34 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('Next Match'), findsOneWidget);
+      expect(find.text("Today's Match"), findsOneWidget);
       expect(find.text('Asia Cup 2026'), findsOneWidget);
-      expect(find.text('Royal Smashers'), findsOneWidget);
       expect(find.textContaining('Starts in'), findsOneWidget);
-      expect(find.text('Verify Teams'), findsOneWidget);
+      expect(find.text('START SESSION'), findsOneWidget);
     });
 
-    testWidgets(
-        'Renders Assigned Matches section with View All callback and Ads Banner',
+    testWidgets('Renders incoming requests section with actions',
         (tester) async {
-      bool viewAllTapped = false;
-      final matches = [
-        createUpcomingMatch(id: 102),
-        createAssignedMatch(id: 103),
-      ];
-
       await tester.pumpWidget(
         createTestWidget(
-          matchesFuture: Future.value(matches),
-          onViewAll: () => viewAllTapped = true,
+          payloadFuture: Future.value(
+            RefereeHomePayload(requests: [createRequest()]),
+          ),
         ),
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('Assigned Matches (2)'), findsOneWidget);
-      final viewAll = find.text('View All');
-      expect(viewAll, findsOneWidget);
-      await tester.tap(viewAll);
-      expect(viewAllTapped, isTrue);
-
-      // Ads Banner
-      expect(find.text('Ads Banner'), findsOneWidget);
+      expect(find.text('Incoming Requests'), findsOneWidget);
+      expect(find.text('View All'), findsOneWidget);
+      expect(find.text('Rahul Kumar'), findsOneWidget);
+      expect(find.text('Accept'), findsOneWidget);
+      expect(find.text('Decline'), findsOneWidget);
+      expect(find.text('₹1500'), findsOneWidget);
     });
 
-    testWidgets('Renders Clean Empty State Card when no matches exist',
-        (tester) async {
+    testWidgets('Renders empty assigned state and ads banner', (tester) async {
       await tester.pumpWidget(
-        createTestWidget(
-          matchesFuture: Future.value(const []),
-        ),
+        createTestWidget(matchesFuture: Future.value(const [])),
       );
       await tester.pumpAndSettle();
 
@@ -211,20 +194,16 @@ void main() {
       expect(find.text('Ads Banner'), findsOneWidget);
     });
 
-    testWidgets('Renders Skeleton Shimmer while loading', (tester) async {
+    testWidgets('Renders skeleton while loading', (tester) async {
       final completer = Completer<List<RefereeMatchResponse>>();
 
       await tester.pumpWidget(
-        createTestWidget(
-          matchesFuture: completer.future,
-        ),
+        createTestWidget(matchesFuture: completer.future),
       );
       await tester.pump();
 
-      // Shimmer elements are rendered
       expect(find.byType(AnimatedBuilder), findsWidgets);
 
-      // Completing the future transitions to loaded content
       completer.complete([createLiveMatch()]);
       await tester.pumpAndSettle();
 
@@ -237,15 +216,34 @@ void main() {
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() => tester.view.resetPhysicalSize());
 
-      final matches = [
-        createLiveMatch(),
-        createUpcomingMatch(id: 102),
-        createAssignedMatch(id: 103),
-      ];
+      await tester.pumpWidget(
+        createTestWidget(
+          matchesFuture: Future.value([
+            createLiveMatch(),
+            createUpcomingMatch(id: 102),
+          ]),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(tester.takeException(), isNull);
+      expect(find.text('Referee'), findsOneWidget);
+    });
+
+    testWidgets('Renders without overflow on narrow 360x800 viewport',
+        (tester) async {
+      tester.view.physicalSize = const Size(360, 800);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
 
       await tester.pumpWidget(
         createTestWidget(
-          matchesFuture: Future.value(matches),
+          payloadFuture: Future.value(
+            RefereeHomePayload(
+              matches: [createLiveMatch(), createUpcomingMatch(id: 102)],
+              requests: [createRequest()],
+            ),
+          ),
         ),
       );
       await tester.pumpAndSettle();
@@ -255,5 +253,3 @@ void main() {
     });
   });
 }
-
-
