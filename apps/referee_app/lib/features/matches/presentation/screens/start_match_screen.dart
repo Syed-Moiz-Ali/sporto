@@ -170,8 +170,9 @@ class _StartMatchScreenState extends State<StartMatchScreen> {
                             ),
                             SizedBox(height: 18 * scale),
                             FilledButton(
-                              onPressed: () =>
-                                  setState(() => _future = _load()),
+                              onPressed: () => setState(() {
+                                _future = _load();
+                              }),
                               child: const Text('Retry'),
                             ),
                           ],

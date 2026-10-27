@@ -9,6 +9,7 @@ import 'package:ui_kit/ui_kit.dart';
 import '../../../../app/router/app_router.dart';
 import '../../../../core/di/dependency_injector.dart';
 import '../../../../core/match_action/match_action_resolver.dart';
+import '../../../../core/match_request/match_request_refresh.dart';
 import '../widgets/match_live_score.dart';
 import '../widgets/referee_request_widgets.dart';
 
@@ -30,7 +31,7 @@ class RefereeHomeScreen extends StatefulWidget {
   });
 
   @override
-  State<RefereeHomeScreen> createState() => _RefereeHomeScreenState();
+  State<RefereeHomeScreen> createState() => RefereeHomeScreenState();
 }
 
 class RefereeHomePayload {
@@ -43,10 +44,12 @@ class RefereeHomePayload {
   final List<RefereeMatchRequestResponse> requests;
 }
 
-class _RefereeHomeScreenState extends State<RefereeHomeScreen> {
+class RefereeHomeScreenState extends State<RefereeHomeScreen>
+    with WidgetsBindingObserver {
   late Future<RefereeHomePayload> _future;
   bool _statusEnabled = false;
   bool _statusInitialised = false;
+  bool _refreshing = false;
   int _selectedMatchTab = 0;
 
   RefereeRemoteDataSource get _remote =>
@@ -55,11 +58,32 @@ class _RefereeHomeScreenState extends State<RefereeHomeScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    MatchRequestRefresh.revision.addListener(_onRequestsChanged);
     _future = widget.payloadFuture ??
         (widget.matchesFuture != null
             ? _loadFromMatches(widget.matchesFuture!)
             : _load());
   }
+
+  @override
+  void dispose() {
+    MatchRequestRefresh.revision.removeListener(_onRequestsChanged);
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  void _onRequestsChanged() {
+    if (mounted) refresh();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) refresh();
+  }
+
+  /// Public so the shell can refresh Home whenever it becomes visible.
+  Future<void> refresh() => _refresh();
 
   Future<RefereeHomePayload> _loadFromMatches(
     Future<List<RefereeMatchResponse>> source,
@@ -91,8 +115,17 @@ class _RefereeHomeScreenState extends State<RefereeHomeScreen> {
   }
 
   Future<void> _refresh() async {
-    setState(() => _future = _load());
-    await _future;
+    if (_refreshing || !mounted) return;
+    _refreshing = true;
+    try {
+      final next = _load();
+      setState(() {
+        _future = next;
+      });
+      await next;
+    } finally {
+      _refreshing = false;
+    }
   }
 
   Future<void> _accept(RefereeMatchRequestResponse request) async {
@@ -106,6 +139,7 @@ class _RefereeHomeScreenState extends State<RefereeHomeScreen> {
   Future<void> _decline(RefereeMatchRequestResponse request) async {
     try {
       await _remote.rejectMatchRequest(request.assignmentId ?? request.id);
+      MatchRequestRefresh.bump();
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Request declined.')),
@@ -129,8 +163,9 @@ class _RefereeHomeScreenState extends State<RefereeHomeScreen> {
     if (mounted) await _refresh();
   }
 
-  void _openIncomingRequests() {
-    context.push(AppRouter.incomingRequestsRoute);
+  Future<void> _openIncomingRequests() async {
+    await context.push(AppRouter.incomingRequestsRoute);
+    if (mounted) await _refresh();
   }
 
   @override
@@ -1903,7 +1938,7 @@ class _IncomingRequestsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final request = requests.first;
+    final preview = requests.take(3).toList();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1913,7 +1948,7 @@ class _IncomingRequestsSection extends StatelessWidget {
             children: [
               Expanded(
                 child: RefereeGradientText(
-                  'Incoming Requests',
+                  'Incoming Requests (${requests.length})',
                   gradient: const LinearGradient(
                     colors: [Color(0xFF99FFA3), Color(0xFF68EE76)],
                   ),
@@ -1951,14 +1986,31 @@ class _IncomingRequestsSection extends StatelessWidget {
             ],
           ),
         ),
-        SizedBox(height: 10 * scale),
-        RefereeRequestCard(
-          scale: scale,
-          request: request,
-          onTap: () => onTap(request),
-          onAccept: () => onAccept(request),
-          onDecline: () => onDecline(request),
-        ),
+        for (var i = 0; i < preview.length; i++) ...[
+          if (i > 0) SizedBox(height: 10 * scale),
+          RefereeRequestCard(
+            scale: scale,
+            request: preview[i],
+            onTap: () => onTap(preview[i]),
+            onAccept: () => onAccept(preview[i]),
+            onDecline: () => onDecline(preview[i]),
+          ),
+        ],
+        if (requests.length > preview.length) ...[
+          SizedBox(height: 8 * scale),
+          GestureDetector(
+            onTap: onViewAll,
+            behavior: HitTestBehavior.opaque,
+            child: Text(
+              'View all ${requests.length} requests',
+              style: TextStyle(
+                fontSize: 12 * scale,
+                fontWeight: FontWeight.w600,
+                color: const Color(0xFF7AD3FF),
+              ),
+            ),
+          ),
+        ],
       ],
     );
   }
@@ -2107,14 +2159,15 @@ class _AdsBanner extends StatelessWidget {
           Container(
             width: 36 * scale,
             height: 36 * scale,
-            decoration: BoxDecoration(
-              color: const Color(0x1AFFFFFF),
-              borderRadius: BorderRadius.circular(10 * scale),
-            ),
+            padding: EdgeInsets.all(8 * scale),
+            // decoration: BoxDecoration(
+            //   color: const Color(0x1AFFFFFF),
+            //   borderRadius: BorderRadius.circular(10 * scale),
+            // ),
             child: SportoSvgIcon(
               SportoRefereeBookingIcons.chevronRight,
               width: 6 * scale,
-              height: 12 * scale,
+              height: 6 * scale,
               color: const Color(0xFFFFFFFF),
             ),
           ),
@@ -2265,14 +2318,17 @@ class _HomeSkeletonState extends State<_HomeSkeleton>
     super.dispose();
   }
 
-  Widget _box(
-      {required double width, required double height, double radius = 8}) {
+  Widget _box({
+    double? width,
+    required double height,
+    double radius = 8,
+  }) {
     final s = widget.scale;
     return AnimatedBuilder(
       animation: _animation,
       builder: (context, _) {
         return Container(
-          width: width * s,
+          width: width == null ? double.infinity : width * s,
           height: height * s,
           decoration: BoxDecoration(
             color: const Color(0xFF283040).withValues(alpha: _animation.value),
@@ -2307,9 +2363,9 @@ class _HomeSkeletonState extends State<_HomeSkeleton>
             ],
           ),
           SizedBox(height: 14 * s),
-          _box(width: 358, height: 50, radius: 16),
+          _box(height: 50, radius: 16),
           SizedBox(height: 22 * s),
-          _box(width: 350, height: 81, radius: 16),
+          _box(height: 81, radius: 16),
           SizedBox(height: 22 * s),
           Row(
             children: [
@@ -2323,11 +2379,11 @@ class _HomeSkeletonState extends State<_HomeSkeleton>
             ],
           ),
           SizedBox(height: 22 * s),
-          _box(width: 340, height: 193, radius: 14),
+          _box(height: 193, radius: 14),
           SizedBox(height: 22 * s),
-          _box(width: 350, height: 170, radius: 16),
+          _box(height: 170, radius: 16),
           SizedBox(height: 22 * s),
-          _box(width: 350, height: 60, radius: 20),
+          _box(height: 60, radius: 20),
         ],
       ),
     );

@@ -409,6 +409,56 @@ void main() {
     expect(totals.extras['wide'], 1);
   });
 
+  test('parses weekly availability weekdays, slots and clear result', () {
+    final weekdays = [
+      RefereeWeekday.fromJson({'code': 'MONDAY', 'label': 'Monday'}),
+      RefereeWeekday.fromJson({'code': 'SUNDAY', 'label': 'Sunday'}),
+    ];
+    expect(weekdays.first.code, 'MONDAY');
+    expect(weekdays.last.label, 'Sunday');
+
+    final weekly = RefereeWeeklyAvailability.fromJson({
+      'timezone': 'Asia/Kolkata',
+      'slots': [
+        {
+          'id': 7,
+          'day': 'MONDAY',
+          'start_time': '06:30',
+          'end_time': '11:30',
+          'timezone': 'Asia/Kolkata',
+        },
+      ],
+    });
+
+    expect(weekly.timezone, 'Asia/Kolkata');
+    expect(weekly.isEmpty, isFalse);
+    expect(weekly.slots.single.id, 7);
+    expect(weekly.slots.single.day, 'MONDAY');
+    expect(weekly.slots.single.startTime, '06:30');
+    expect(weekly.slots.single.endTime, '11:30');
+
+    final cleared = RefereeAvailabilityClearResult.fromJson({
+      'day': 'MONDAY',
+      'deleted_slots': 2,
+    });
+    expect(cleared.day, 'MONDAY');
+    expect(cleared.deletedSlots, 2);
+  });
+
+  test('serializes weekly availability slot request body', () {
+    const request = RefereeAvailabilitySlotRequest(
+      day: 'MONDAY',
+      startTime: '06:00',
+      endTime: '11:00',
+    );
+
+    expect(request.toJson(), {
+      'day': 'MONDAY',
+      'start_time': '06:00',
+      'end_time': '11:00',
+    });
+  });
+
   test('serializes START_SUPER_OVER and wicket_type payloads', () {
     expect(
       RefereeScoreUpdateRequest.startSuperOver().toJson(),

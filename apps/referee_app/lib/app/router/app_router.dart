@@ -1,10 +1,14 @@
 import 'package:flutter/widgets.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:referee_data/referee_data.dart';
 import 'package:shared_domain/shared_domain.dart';
 import 'package:ui_kit/ui_kit.dart';
 
+import '../../../core/di/dependency_injector.dart';
 import '../../../features/auth/presentation/views/auth_flow_view.dart';
+import '../../../features/availability/application/weekly_availability_cubit.dart';
+import '../../../features/availability/presentation/screens/weekly_availability_screen.dart';
 import '../../../features/matches/presentation/screens/accept_booking_screen.dart';
 import '../../../features/matches/presentation/screens/booking_confirmed_screen.dart';
 import '../../../features/matches/presentation/screens/conduct_toss_wizard.dart';
@@ -30,6 +34,7 @@ abstract final class AppRouter {
   static const String acceptBookingPath = '/accept-booking';
   static const String bookingConfirmedPath = '/booking-confirmed';
   static const String startMatchPath = '/start-match';
+  static const String availabilityPath = '/availability';
 
   static const String matchesRoute = matchesPath;
   static const String matchVerificationRoute = matchVerificationPath;
@@ -134,6 +139,16 @@ abstract final class AppRouter {
               ? state.extra as BeforeTossMatch
               : null,
           matchId: state.uri.queryParameters['matchId'],
+        ),
+      ),
+      GoRoute(
+        path: availabilityPath,
+        name: 'availability',
+        builder: (context, state) => BlocProvider<WeeklyAvailabilityCubit>(
+          create: (_) =>
+              DependencyInjector.instance.createWeeklyAvailabilityCubit()
+                ..load(),
+          child: const WeeklyAvailabilityScreen(),
         ),
       ),
     ],

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:core/core.dart';
 import 'package:referee_data/referee_data.dart';
+import '../../../../app/router/app_router.dart';
 import '../../../../core/di/dependency_injector.dart';
 import 'package:ui_kit/ui_kit.dart';
 
@@ -62,14 +64,10 @@ class _RefereeProfileScreenState extends State<RefereeProfileScreen> {
           );
         }
         final profile = snapshot.data!;
-        final name =
-            profile.name.trim().isEmpty ? 'Referee' : profile.name;
-        final phone = (profile.mobile ?? '').trim().isEmpty
-            ? '—'
-            : profile.mobile!;
-        final sport = profile.sports.isNotEmpty
-            ? profile.sports.first
-            : '—';
+        final name = profile.name.trim().isEmpty ? 'Referee' : profile.name;
+        final phone =
+            (profile.mobile ?? '').trim().isEmpty ? '—' : profile.mobile!;
+        final sport = profile.sports.isNotEmpty ? profile.sports.first : '—';
         final matches = '${profile.experienceYears ?? '—'}';
 
         return Container(
@@ -120,13 +118,21 @@ class _RefereeProfileScreenState extends State<RefereeProfileScreen> {
                   // ============================================
                   _buildMenuCard(
                     scale: scale,
-                    items: const [
-                      _MenuItem(icon: Icons.bar_chart_rounded, label: 'Statistic'),
-                      _MenuItem(icon: Icons.emoji_events_outlined, label: 'My Tournaments'),
+                    items: [
                       _MenuItem(
+                        icon: Icons.schedule_rounded,
+                        label: 'Weekly Availability',
+                        onTap: () => context.push(AppRouter.availabilityPath),
+                      ),
+                      const _MenuItem(
+                          icon: Icons.bar_chart_rounded, label: 'Statistic'),
+                      const _MenuItem(
+                          icon: Icons.emoji_events_outlined,
+                          label: 'My Tournaments'),
+                      const _MenuItem(
                           icon: Icons.account_balance_wallet_outlined,
                           label: 'Wallet Transaction'),
-                      _MenuItem(
+                      const _MenuItem(
                           icon: Icons.account_balance_outlined,
                           label: 'Bank Account'),
                     ],
@@ -161,7 +167,8 @@ class _RefereeProfileScreenState extends State<RefereeProfileScreen> {
                   _buildMenuCard(
                     scale: scale,
                     items: const [
-                      _MenuItem(icon: Icons.info_outline_rounded, label: 'About Us'),
+                      _MenuItem(
+                          icon: Icons.info_outline_rounded, label: 'About Us'),
                       _MenuItem(
                           icon: Icons.description_outlined,
                           label: 'Terms & Condition'),
@@ -469,7 +476,8 @@ class _RefereeProfileScreenState extends State<RefereeProfileScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           for (int i = 0; i < items.length; i++) ...[
-            _buildMenuItem(scale: scale, item: items[i], labelColor: labelColor),
+            _buildMenuItem(
+                scale: scale, item: items[i], labelColor: labelColor),
             if (i < items.length - 1) SizedBox(height: 20 * scale),
           ],
         ],
@@ -482,27 +490,42 @@ class _RefereeProfileScreenState extends State<RefereeProfileScreen> {
     required _MenuItem item,
     required Color labelColor,
   }) {
-    return Row(
-      children: [
-        SizedBox(
-          width: 24 * scale,
-          height: 24 * scale,
-          child: Icon(
-            item.icon,
-            color: labelColor,
-            size: 18 * scale,
-          ),
+    return InkWell(
+      onTap: item.onTap,
+      borderRadius: BorderRadius.circular(10 * scale),
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: 2 * scale),
+        child: Row(
+          children: [
+            SizedBox(
+              width: 24 * scale,
+              height: 24 * scale,
+              child: Icon(
+                item.icon,
+                color: labelColor,
+                size: 18 * scale,
+              ),
+            ),
+            SizedBox(width: 14 * scale),
+            Expanded(
+              child: Text(
+                item.label,
+                style: TextStyle(
+                  color: labelColor,
+                  fontSize: 14 * scale,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            if (item.onTap != null)
+              Icon(
+                Icons.chevron_right_rounded,
+                color: labelColor.withValues(alpha: 0.7),
+                size: 18 * scale,
+              ),
+          ],
         ),
-        SizedBox(width: 14 * scale),
-        Text(
-          item.label,
-          style: TextStyle(
-            color: labelColor,
-            fontSize: 14 * scale,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ],
+      ),
     );
   }
 
@@ -612,5 +635,10 @@ class _RefereeProfileScreenState extends State<RefereeProfileScreen> {
 class _MenuItem {
   final IconData icon;
   final String label;
-  const _MenuItem({required this.icon, required this.label});
+  final VoidCallback? onTap;
+  const _MenuItem({
+    required this.icon,
+    required this.label,
+    this.onTap,
+  });
 }

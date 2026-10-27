@@ -35,6 +35,8 @@ class SportoApiEndpoints {
       RefereeProfileApiEndpoints._();
   static final RefereeMatchApiEndpoints refereeMatches =
       RefereeMatchApiEndpoints._();
+  static final RefereeAvailabilityApiEndpoints refereeAvailability =
+      RefereeAvailabilityApiEndpoints._();
 }
 
 class RefereeApplicationApiEndpoints {
@@ -70,6 +72,15 @@ class RefereeMatchApiEndpoints {
   String matchById(Object matchId) => '/v1/referee/matches/$matchId';
   String toss(Object matchId) => '/v1/referee/matches/$matchId/toss';
   String score(Object matchId) => '/v1/referee/matches/$matchId/score';
+}
+
+class RefereeAvailabilityApiEndpoints {
+  RefereeAvailabilityApiEndpoints._();
+
+  String get days => '/v1/referee/availability/days';
+  String get slots => '/v1/referee/availability';
+  String slot(Object slotId) => '/v1/referee/availability/$slotId';
+  String day(Object day) => '/v1/referee/availability/days/$day';
 }
 
 class CommonApiEndpoints {

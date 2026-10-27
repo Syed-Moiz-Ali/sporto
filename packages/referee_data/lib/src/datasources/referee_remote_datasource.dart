@@ -51,6 +51,74 @@ class RefereeRemoteDataSource {
     );
   }
 
+  Future<List<RefereeWeekday>> listAvailabilityDays() async {
+    final response = await _get(
+      SportoApiEndpoints.refereeAvailability.days,
+    );
+    return _listOrPaginatedData(response.data)
+        .map(RefereeWeekday.fromJson)
+        .toList();
+  }
+
+  Future<RefereeWeeklyAvailability> getWeeklyAvailability() async {
+    final response = await _get(
+      SportoApiEndpoints.refereeAvailability.slots,
+    );
+    final data = response.data;
+    if (data is! Map) {
+      throw const SportoApiException(
+        'Weekly availability response data is invalid.',
+      );
+    }
+    return RefereeWeeklyAvailability.fromJson(
+      Map<String, dynamic>.from(data),
+    );
+  }
+
+  Future<RefereeAvailabilitySlot> createAvailabilitySlot(
+    RefereeAvailabilitySlotRequest request,
+  ) async {
+    final response = await _post(
+      SportoApiEndpoints.refereeAvailability.slots,
+      request.toJson(),
+    );
+    return _slotFromData(response.data);
+  }
+
+  Future<RefereeAvailabilitySlot> updateAvailabilitySlot(
+    Object slotId,
+    RefereeAvailabilitySlotRequest request,
+  ) async {
+    final response = await _put(
+      SportoApiEndpoints.refereeAvailability.slot(slotId),
+      request.toJson(),
+    );
+    return _slotFromData(response.data);
+  }
+
+  Future<void> deleteAvailabilitySlot(Object slotId) async {
+    await _delete(
+      SportoApiEndpoints.refereeAvailability.slot(slotId),
+    );
+  }
+
+  Future<RefereeAvailabilityClearResult> clearAvailabilityDay(
+    Object day,
+  ) async {
+    final response = await _delete(
+      SportoApiEndpoints.refereeAvailability.day(day),
+    );
+    final data = response.data;
+    if (data is! Map) {
+      throw const SportoApiException(
+        'Cleared availability response data is invalid.',
+      );
+    }
+    return RefereeAvailabilityClearResult.fromJson(
+      Map<String, dynamic>.from(data),
+    );
+  }
+
   Future<RefereeDocument> addDocument(RefereeDocumentRequest request) async {
     final response = await _post(
       SportoApiEndpoints.refereeApplication.documents,
@@ -245,6 +313,17 @@ class RefereeRemoteDataSource {
     if (response.data is! Map) return null;
     return RefereeScoreResponse.fromJson(
       Map<String, dynamic>.from(response.data as Map),
+    );
+  }
+
+  RefereeAvailabilitySlot _slotFromData(Object? data) {
+    if (data is! Map) {
+      throw const SportoApiException(
+        'Availability slot response data is invalid.',
+      );
+    }
+    return RefereeAvailabilitySlot.fromJson(
+      Map<String, dynamic>.from(data),
     );
   }
 

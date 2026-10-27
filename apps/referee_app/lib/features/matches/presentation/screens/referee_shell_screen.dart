@@ -1,8 +1,10 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:ui_kit/ui_kit.dart';
 
+import '../../../../app/router/app_router.dart';
 import 'schedule_matches_screen.dart';
 import 'profile_screen.dart';
 import 'referee_home_screen.dart';
@@ -33,6 +35,8 @@ class RefereeShellScreen extends StatefulWidget {
 }
 
 class RefereeShellScreenState extends State<RefereeShellScreen> {
+  final GlobalKey<RefereeHomeScreenState> _homeKey =
+      GlobalKey<RefereeHomeScreenState>();
   late int _currentIndex;
 
   @override
@@ -43,8 +47,14 @@ class RefereeShellScreenState extends State<RefereeShellScreen> {
 
   void setIndex(int index) {
     final clamped = index.clamp(0, 3);
-    if (_currentIndex == clamped) return;
-    setState(() => _currentIndex = clamped);
+    if (_currentIndex != clamped) {
+      setState(() => _currentIndex = clamped);
+    }
+    // Refetch pending requests / matches whenever Home is opened so newly
+    // assigned matches are not hidden behind a stale first load.
+    if (clamped == 0) {
+      _homeKey.currentState?.refresh();
+    }
   }
 
   @override
@@ -63,8 +73,10 @@ class RefereeShellScreenState extends State<RefereeShellScreen> {
               index: _currentIndex,
               children: [
                 RefereeHomeScreen(
+                  key: _homeKey,
                   onViewAll: () => setIndex(1),
-                  onAvailability: () => setIndex(3),
+                  onAvailability: () =>
+                      context.push(AppRouter.availabilityPath),
                 ),
                 const ScheduleMatchesScreen(),
                 const RefereeScoringTabScreen(),

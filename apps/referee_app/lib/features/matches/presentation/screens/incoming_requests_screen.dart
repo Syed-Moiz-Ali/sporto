@@ -5,6 +5,7 @@ import 'package:ui_kit/ui_kit.dart';
 
 import '../../../../app/router/app_router.dart';
 import '../../../../core/di/dependency_injector.dart';
+import '../../../../core/match_request/match_request_refresh.dart';
 import '../widgets/referee_request_widgets.dart';
 
 /// Figma `04_Incoming_Requests` — full list of booking requests.
@@ -27,14 +28,27 @@ class _IncomingRequestsScreenState extends State<IncomingRequestsScreen> {
   @override
   void initState() {
     super.initState();
+    MatchRequestRefresh.revision.addListener(_onRequestsChanged);
     _future = widget.requestsFuture ?? _load();
+  }
+
+  @override
+  void dispose() {
+    MatchRequestRefresh.revision.removeListener(_onRequestsChanged);
+    super.dispose();
+  }
+
+  void _onRequestsChanged() {
+    if (mounted) _refresh();
   }
 
   Future<List<RefereeMatchRequestResponse>> _load() =>
       _remote.listMatchRequestsData();
 
   Future<void> _refresh() async {
-    setState(() => _future = _load());
+    setState(() {
+      _future = _load();
+    });
     await _future;
   }
 
@@ -43,6 +57,7 @@ class _IncomingRequestsScreenState extends State<IncomingRequestsScreen> {
     setState(() => _processingId = id);
     try {
       await _remote.rejectMatchRequest(id);
+      MatchRequestRefresh.bump();
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Request declined.')),

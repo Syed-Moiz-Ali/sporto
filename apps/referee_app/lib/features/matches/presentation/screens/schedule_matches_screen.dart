@@ -8,6 +8,7 @@ import 'package:ui_kit/ui_kit.dart';
 import '../../../../app/router/app_router.dart';
 import '../../../../core/di/dependency_injector.dart';
 import '../../../../core/match_action/match_action_resolver.dart';
+import '../../../../core/match_request/match_request_refresh.dart';
 import '../widgets/match_live_score.dart';
 import '../widgets/referee_request_widgets.dart';
 
@@ -34,7 +35,18 @@ class _ScheduleMatchesScreenState extends State<ScheduleMatchesScreen> {
   @override
   void initState() {
     super.initState();
+    MatchRequestRefresh.revision.addListener(_onRequestsChanged);
     _future = _prepare(widget.matchesFuture ?? _load());
+  }
+
+  @override
+  void dispose() {
+    MatchRequestRefresh.revision.removeListener(_onRequestsChanged);
+    super.dispose();
+  }
+
+  void _onRequestsChanged() {
+    if (mounted) _refresh();
   }
 
   Future<List<RefereeMatchResponse>> _load() =>
@@ -58,7 +70,9 @@ class _ScheduleMatchesScreenState extends State<ScheduleMatchesScreen> {
   }
 
   Future<void> _refresh() async {
-    setState(() => _future = _prepare(_load()));
+    setState(() {
+      _future = _prepare(_load());
+    });
     await _future;
   }
 

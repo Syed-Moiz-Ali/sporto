@@ -5,6 +5,7 @@ import 'package:ui_kit/ui_kit.dart';
 
 import '../../../../app/router/app_router.dart';
 import '../../../../core/di/dependency_injector.dart';
+import '../../../../core/match_request/match_request_refresh.dart';
 import '../widgets/referee_request_widgets.dart';
 
 /// Figma `06_Incoming_Requests_Details` — accept booking confirmation step.
@@ -52,6 +53,8 @@ class _AcceptBookingScreenState extends State<AcceptBookingScreen> {
     setState(() => _submitting = true);
     try {
       await _remote.acceptMatchRequest(request.assignmentId ?? request.id);
+      // Re-hit match-requests on every screen showing requests/assigned matches.
+      MatchRequestRefresh.bump();
       if (!mounted) return;
       context.pushReplacement(
         '${AppRouter.bookingConfirmedRoute}?requestId=${request.assignmentId ?? request.id}',

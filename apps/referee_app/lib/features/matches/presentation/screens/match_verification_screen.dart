@@ -86,7 +86,9 @@ class _MatchVerificationScreenState extends State<MatchVerificationScreen> {
                       scale: scale,
                       message: snapshot.error?.toString() ??
                           'Unable to load match details.',
-                      onRetry: () => setState(() => _future = _load()),
+                      onRetry: () => setState(() {
+                        _future = _load();
+                      }),
                     );
                   }
                   final match = snapshot.data!;

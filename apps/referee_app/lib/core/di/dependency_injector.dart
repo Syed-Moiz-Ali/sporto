@@ -2,6 +2,7 @@ import 'package:core/core.dart';
 import 'package:referee_data/referee_data.dart';
 import 'package:shared_domain/shared_domain.dart';
 
+import '../../features/availability/application/weekly_availability_cubit.dart';
 import '../../features/matches/application/conduct_toss_bloc.dart';
 import '../../features/matches/application/match_scoring_bloc.dart';
 import '../../features/application/application/referee_application_cubit.dart';
@@ -42,6 +43,16 @@ class DependencyInjector {
   );
   late final RefereeApplicationCubit refereeApplicationCubit =
       RefereeApplicationCubit(remoteDataSource: refereeRemoteDataSource);
+
+  // ==========================================================
+  // WEEKLY AVAILABILITY
+  //
+  // Feature-scoped: the screen owns the instance so a fresh
+  // fetch happens every time it is opened.
+  // ==========================================================
+
+  WeeklyAvailabilityCubit createWeeklyAvailabilityCubit() =>
+      WeeklyAvailabilityCubit(remoteDataSource: refereeRemoteDataSource);
 
   // ==========================================================
   // MATCHES

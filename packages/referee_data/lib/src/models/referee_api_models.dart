@@ -227,6 +227,109 @@ class RefereeAvailability {
       );
 }
 
+/// A supported weekly weekday returned by
+/// `GET /v1/referee/availability/days`.
+class RefereeWeekday {
+  const RefereeWeekday({
+    required this.code,
+    required this.label,
+  });
+
+  final String code;
+  final String label;
+
+  factory RefereeWeekday.fromJson(Map<String, dynamic> json) => RefereeWeekday(
+        code: _stringValue(json['code']) ?? '',
+        label: _stringValue(json['label']) ?? '',
+      );
+}
+
+/// A recurring weekly working-hours slot returned by the availability APIs.
+class RefereeAvailabilitySlot {
+  const RefereeAvailabilitySlot({
+    required this.id,
+    required this.day,
+    required this.startTime,
+    required this.endTime,
+    required this.timezone,
+  });
+
+  final int id;
+  final String day;
+  final String startTime;
+  final String endTime;
+  final String timezone;
+
+  factory RefereeAvailabilitySlot.fromJson(Map<String, dynamic> json) =>
+      RefereeAvailabilitySlot(
+        id: _intValue(json['id']),
+        day: _stringValue(json['day']) ?? '',
+        startTime: _stringValue(json['start_time']) ?? '',
+        endTime: _stringValue(json['end_time']) ?? '',
+        timezone: _stringValue(json['timezone']) ?? 'Asia/Kolkata',
+      );
+}
+
+/// `GET /v1/referee/availability` payload.
+class RefereeWeeklyAvailability {
+  const RefereeWeeklyAvailability({
+    this.timezone = 'Asia/Kolkata',
+    this.slots = const [],
+  });
+
+  final String timezone;
+  final List<RefereeAvailabilitySlot> slots;
+
+  bool get isEmpty => slots.isEmpty;
+
+  factory RefereeWeeklyAvailability.fromJson(Map<String, dynamic> json) =>
+      RefereeWeeklyAvailability(
+        timezone: _stringValue(json['timezone']) ?? 'Asia/Kolkata',
+        slots: _listValue(json['slots'])
+            .whereType<Map>()
+            .map((item) => RefereeAvailabilitySlot.fromJson(
+                  Map<String, dynamic>.from(item),
+                ))
+            .toList(),
+      );
+}
+
+/// Create/update body for a weekly availability slot.
+class RefereeAvailabilitySlotRequest {
+  const RefereeAvailabilitySlotRequest({
+    required this.day,
+    required this.startTime,
+    required this.endTime,
+  });
+
+  final String day;
+  final String startTime;
+  final String endTime;
+
+  Map<String, dynamic> toJson() => {
+        'day': day,
+        'start_time': startTime,
+        'end_time': endTime,
+      };
+}
+
+/// `DELETE /v1/referee/availability/days/{day}` payload.
+class RefereeAvailabilityClearResult {
+  const RefereeAvailabilityClearResult({
+    required this.day,
+    required this.deletedSlots,
+  });
+
+  final String day;
+  final int deletedSlots;
+
+  factory RefereeAvailabilityClearResult.fromJson(Map<String, dynamic> json) =>
+      RefereeAvailabilityClearResult(
+        day: _stringValue(json['day']) ?? '',
+        deletedSlots: _intValue(json['deleted_slots']),
+      );
+}
+
 class RefereeDocument {
   const RefereeDocument({
     required this.id,
@@ -918,12 +1021,12 @@ class RefereeTossStateResponse {
                 Map<String, dynamic>.from(item),
               ))
           .toList(),
-      isStarted: json['is_started'] == true ||
-          runtimeJson['is_started'] == true,
+      isStarted:
+          json['is_started'] == true || runtimeJson['is_started'] == true,
       isResultDecided: json['is_result_decided'] == true ||
           runtimeJson['is_result_decided'] == true,
-      isCompletedState: json['is_completed'] == true ||
-          runtimeJson['is_completed'] == true,
+      isCompletedState:
+          json['is_completed'] == true || runtimeJson['is_completed'] == true,
       nextActionValue: _stringValue(json['next_action']),
       allowedActionsValue: _listValue(json['allowed_actions'])
           .map((value) => value.toString())

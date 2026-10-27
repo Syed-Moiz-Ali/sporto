@@ -5,6 +5,7 @@ import 'package:ui_kit/ui_kit.dart';
 
 import '../../../../app/router/app_router.dart';
 import '../../../../core/di/dependency_injector.dart';
+import '../../../../core/match_request/match_request_refresh.dart';
 import '../widgets/referee_request_widgets.dart';
 
 /// Figma `05_Incoming_Requests_Details` — request detail page.
@@ -58,6 +59,7 @@ class _RequestDetailsScreenState extends State<RequestDetailsScreen> {
     setState(() => _declining = true);
     try {
       await _remote.rejectMatchRequest(request.assignmentId ?? request.id);
+      MatchRequestRefresh.bump();
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Request declined.')),
