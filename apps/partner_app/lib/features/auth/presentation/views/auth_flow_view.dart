@@ -579,7 +579,8 @@ class _AuthFlowViewState extends State<AuthFlowView> {
   Future<void> _saveGovernmentIdDocument(
     OnboardingSubmission submission,
   ) async {
-    if (!submission.hasGovernmentId || submission.governmentIdPath?.isNotEmpty != true) {
+    if (!submission.hasGovernmentId ||
+        submission.governmentIdPath?.isNotEmpty != true) {
       throw const SportoApiException('Government ID document is required.');
     }
     final documents = {
@@ -590,9 +591,10 @@ class _AuthFlowViewState extends State<AuthFlowView> {
     };
     for (final entry in documents.entries) {
       final path = entry.value;
-      if (path == null || path.isEmpty || _savedDocuments[entry.key] == path) continue;
+      if (path == null || path.isEmpty || _savedDocuments[entry.key] == path)
+        continue;
       await _partnerRemoteDataSource.addDocumentData(
-        PartnerDocumentRequest(documentType: entry.key, documentPath: path));
+          PartnerDocumentRequest(documentType: entry.key, documentPath: path));
       _savedDocuments[entry.key] = path;
     }
   }
@@ -600,17 +602,15 @@ class _AuthFlowViewState extends State<AuthFlowView> {
   Future<String?> _pickOnboardingFile(
     OnboardingUploadType type,
   ) async {
-    final picked = await FilePicker.platform.pickFiles(
+    final picked = await FilePicker.pickFiles(
       type: type == OnboardingUploadType.resume
           ? FileType.custom
           : FileType.image,
       allowedExtensions: type == OnboardingUploadType.resume
           ? const ['pdf', 'doc', 'docx']
           : null,
-      allowMultiple: false,
-      withData: false,
     );
-    return picked?.files.single.path;
+    return picked.single.path;
   }
 
   Future<String?> _uploadOnboardingFile(
