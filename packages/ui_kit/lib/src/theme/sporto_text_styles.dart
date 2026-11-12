@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 /// 600/700 across sizes 10–28 plus 40/64.
 abstract final class SportoTextStyles {
   static const fontFamily = 'packages/ui_kit/Quicksand';
+  static const fontFamilyMulish = 'packages/ui_kit/Mulish';
 
   // Sizes observed in Figma.
   static const double size10 = 10;
@@ -17,15 +18,19 @@ abstract final class SportoTextStyles {
   static const double size15 = 15;
   static const double size16 = 16;
   static const double size18 = 18;
+  static const double size20 = 20;
   static const double size24 = 24;
   static const double size28 = 28;
+  static const double size30 = 30;
   static const double size40 = 40;
+  static const double size60 = 60;
   static const double size64 = 64;
 
   static const FontWeight regular = FontWeight.w400;
   static const FontWeight medium = FontWeight.w500;
   static const FontWeight semiBold = FontWeight.w600;
   static const FontWeight bold = FontWeight.w700;
+  static const FontWeight extraBold = FontWeight.w800;
 
   static const double defaultHeight = 1.25;
 
@@ -40,6 +45,24 @@ abstract final class SportoTextStyles {
   }) =>
       TextStyle(
         fontFamily: fontFamily,
+        fontSize: size,
+        fontWeight: weight,
+        color: color,
+        height: height,
+        letterSpacing: letterSpacing,
+      );
+
+  /// Builds a Mulish [TextStyle] for the tournament redesign numeric/display
+  /// labels that use Mulish in Figma.
+  static TextStyle mulish({
+    required double size,
+    FontWeight weight = medium,
+    Color? color,
+    double height = 1.14,
+    double? letterSpacing,
+  }) =>
+      TextStyle(
+        fontFamily: fontFamilyMulish,
         fontSize: size,
         fontWeight: weight,
         color: color,

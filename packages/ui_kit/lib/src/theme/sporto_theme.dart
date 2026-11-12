@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'sporto_cricket_scoring_theme.dart';
 import 'sporto_design_tokens.dart';
+import 'sporto_tournament_tokens.dart';
 
 class SportoTheme {
   SportoTheme._();
@@ -68,6 +69,7 @@ class SportoTheme {
         SportoDesignTokens.dark,
         SportoLayoutTokens.figma,
         SportoCricketScoringTheme.dark,
+        SportoTournamentTokens.dark,
       ],
       appBarTheme: AppBarTheme(
         backgroundColor: Colors.transparent,
