@@ -37,6 +37,10 @@ class SportoApiEndpoints {
       RefereeMatchApiEndpoints._();
   static final RefereeAvailabilityApiEndpoints refereeAvailability =
       RefereeAvailabilityApiEndpoints._();
+  static final RefereeBookingApiEndpoints refereeBookings =
+      RefereeBookingApiEndpoints._();
+  static final PartnerRefereeBookingApiEndpoints partnerRefereeBookings =
+      PartnerRefereeBookingApiEndpoints._();
 }
 
 class RefereeApplicationApiEndpoints {
@@ -72,6 +76,19 @@ class RefereeMatchApiEndpoints {
   String matchById(Object matchId) => '/v1/referee/matches/$matchId';
   String toss(Object matchId) => '/v1/referee/matches/$matchId/toss';
   String score(Object matchId) => '/v1/referee/matches/$matchId/score';
+  String scoreEvents(Object matchId) =>
+      '/v1/referee/matches/$matchId/score/events';
+  String scorecard(Object matchId) => '/v1/referee/matches/$matchId/scorecard';
+  String session(Object matchId) => '/v1/referee/matches/$matchId/session';
+  String verify(Object matchId) => '/v1/referee/matches/$matchId/verify';
+  String sessionStart(Object matchId) =>
+      '/v1/referee/matches/$matchId/session/start';
+  String sessionEnd(Object matchId) =>
+      '/v1/referee/matches/$matchId/session/end';
+  String sessionWithdraw(Object matchId) =>
+      '/v1/referee/matches/$matchId/session/withdraw';
+  String status(Object matchId) => '/v1/referee/matches/$matchId/status';
+  String result(Object matchId) => '/v1/referee/matches/$matchId/result';
 }
 
 class RefereeAvailabilityApiEndpoints {
@@ -79,8 +96,54 @@ class RefereeAvailabilityApiEndpoints {
 
   String get days => '/v1/referee/availability/days';
   String get slots => '/v1/referee/availability';
+  String get status => '/v1/referee/availability/status';
   String slot(Object slotId) => '/v1/referee/availability/$slotId';
   String day(Object day) => '/v1/referee/availability/days/$day';
+}
+
+class RefereeBookingApiEndpoints {
+  RefereeBookingApiEndpoints._();
+
+  String get requests => '/v1/referee/bookings/requests';
+  String request(Object assignmentId) =>
+      '/v1/referee/bookings/requests/$assignmentId';
+  String accept(Object assignmentId) =>
+      '/v1/referee/bookings/requests/$assignmentId/accept';
+  String reject(Object assignmentId) =>
+      '/v1/referee/bookings/requests/$assignmentId/reject';
+  String get bookings => '/v1/referee/bookings';
+  String booking(Object bookingId) => '/v1/referee/bookings/$bookingId';
+  String session(Object bookingId) => '/v1/referee/bookings/$bookingId/session';
+  String verifyToss(Object bookingId) =>
+      '/v1/referee/bookings/$bookingId/session/toss/verify';
+  String verifyStart(Object bookingId) =>
+      '/v1/referee/bookings/$bookingId/session/start/verify';
+  String verifyEnd(Object bookingId) =>
+      '/v1/referee/bookings/$bookingId/session/end/verify';
+}
+
+class PartnerRefereeBookingApiEndpoints {
+  PartnerRefereeBookingApiEndpoints._();
+
+  String get bookings => '/v1/partner/referee-bookings';
+  String get quote => '/v1/partner/referee-bookings/quote';
+  String get discoverReferees => '/v1/partner/referee-bookings/referees';
+  String referee(Object refereeId) =>
+      '/v1/partner/referee-bookings/referees/$refereeId';
+  String get lastAssigned => '/v1/partner/referee-bookings/last-assigned';
+  String booking(Object bookingId) => '/v1/partner/referee-bookings/$bookingId';
+  String cancel(Object bookingId) =>
+      '/v1/partner/referee-bookings/$bookingId/cancel';
+  String initiatePayment(Object bookingId) =>
+      '/v1/partner/referee-bookings/$bookingId/payment/initiate';
+  String verifyPayment(Object bookingId) =>
+      '/v1/partner/referee-bookings/$bookingId/payment/verify';
+  String payments(Object bookingId) =>
+      '/v1/partner/referee-bookings/$bookingId/payments';
+  String sessionOtp(Object bookingId) =>
+      '/v1/partner/referee-bookings/$bookingId/session/otp';
+  String assignMatch(Object bookingId) =>
+      '/v1/partner/referee-bookings/$bookingId/assign-match';
 }
 
 class CommonApiEndpoints {
@@ -174,4 +237,6 @@ class PartnerTournamentApiEndpoints {
     Object assignmentId,
   ) =>
       '/v1/partner/tournaments/$tournamentId/matches/$matchId/referees/$assignmentId';
+  String matchSessionOtp(Object tournamentId, Object matchId) =>
+      '/v1/partner/tournaments/$tournamentId/matches/$matchId/session/otp';
 }

@@ -1,9 +1,10 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ui_kit/ui_kit.dart';
 
 import '../../application/booking_bloc.dart';
+import '../../application/booking_models.dart';
 import '../widgets/booking_primary_button.dart';
 import '../widgets/booking_venue_card.dart';
 
@@ -17,6 +18,37 @@ class PaymentScreen extends StatefulWidget {
 
 class _PaymentScreenState extends State<PaymentScreen> {
   int _method = 1; // 0 = Credit Card, 1 = Wallet
+  bool _paying = false;
+
+  Future<void> _pay(String total) async {
+    final bloc = context.read<BookingBloc>();
+    final bookingId = bloc.state.bookingDetails?.id ??
+        (bloc.state.bookings.isNotEmpty ? bloc.state.bookings.first.id : null);
+    if (bookingId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Create the booking first.')),
+      );
+      return;
+    }
+    setState(() => _paying = true);
+    try {
+      await bloc.repository.payBooking(
+        bookingId,
+        Payment(
+          id: _method == 0 ? 'card' : 'wallet',
+          label: _method == 0 ? 'Credit Card' : 'Wallet',
+        ),
+      );
+      if (!mounted) return;
+      context.go('/book-referee/success');
+    } catch (error) {
+      if (!mounted) return;
+      setState(() => _paying = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Payment failed: $error')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +81,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
               SizedBox(height: gap.space20),
               SportoPriceSummaryCard(
                 rows: [
-                  SportoPriceRow('Referee', isReferee ? 'Vijay Mohan' : 'To Be Assigned'),
+                  SportoPriceRow(
+                      'Referee', isReferee ? 'Vijay Mohan' : 'To Be Assigned'),
                 ],
                 totalLabel: 'Total Amount',
                 totalValue: total,
@@ -97,19 +130,19 @@ class _PaymentScreenState extends State<PaymentScreen> {
               SizedBox(height: gap.space16),
               const _MethodRow(
                 label: 'Add UPI',
-                trailing:
-                    SportoSvgIcon(SportoRefereeBookingIcons.addSquare, size: 24),
+                trailing: SportoSvgIcon(SportoRefereeBookingIcons.addSquare,
+                    size: 24),
               ),
               SizedBox(height: gap.space16),
               const _MethodRow(
                 label: 'Add New Wallet',
-                trailing:
-                    SportoSvgIcon(SportoRefereeBookingIcons.addSquare, size: 24),
+                trailing: SportoSvgIcon(SportoRefereeBookingIcons.addSquare,
+                    size: 24),
               ),
               SizedBox(height: gap.space30),
               BookingPrimaryButton(
-                label: 'Pay $total',
-                onTap: () => context.go('/book-referee/success'),
+                label: _paying ? 'Processing…' : 'Pay $total',
+                onTap: _paying ? () {} : () => _pay(total),
               ),
             ],
           ),
@@ -128,8 +161,9 @@ class _RefereeSummaryHeaderCard extends StatelessWidget {
     final layout = context.sportoLayout;
     final onSurface = Theme.of(context).colorScheme.onSurface;
     final pink = LinearGradient(
-      colors:
-          tokens.gradientPink.colors.map((c) => c.withValues(alpha: 0.2)).toList(),
+      colors: tokens.gradientPink.colors
+          .map((c) => c.withValues(alpha: 0.2))
+          .toList(),
     );
     return SportoGlassSurface(
       radius: layout.radius20,
@@ -291,4 +325,3 @@ class _SavedCheck extends StatelessWidget {
     );
   }
 }
-

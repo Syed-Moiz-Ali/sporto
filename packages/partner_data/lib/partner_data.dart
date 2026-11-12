@@ -1,6 +1,8 @@
 library partner_data;
+
 export 'src/models/tournament_workflow_models.dart';
 export 'src/models/tournament_planning_models.dart';
+export 'src/models/partner_referee_booking_models.dart';
 
 export 'src/datasources/tournament_local_datasource.dart';
 export 'src/datasources/partner_remote_datasource.dart';

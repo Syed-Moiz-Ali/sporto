@@ -180,7 +180,7 @@ class BookingState extends Equatable {
     this.locationStep = LocationStep.search,
     this.bookingMode,
     this.scheduleMode = ScheduleMode.hourly,
-    this.selectedDate = '12 Oct 2026',
+    this.selectedDate = '16 Nov 2026',
     this.selectedTime = '3:00 PM',
     this.selectedDuration = '1 Hour',
     this.detailsStatus = BookingDetailsStatus.upcoming,
@@ -267,10 +267,10 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
           confirmedLocation: state.selectedLocation,
           locationStep: LocationStep.venue,
         )));
-    on<BookingSelectBookingType>(
-        (event, emit) => emit(state.copyWith(locationStep: LocationStep.bookingType)));
-    on<BookingResetLocation>(
-        (event, emit) => emit(state.copyWith(locationStep: LocationStep.search)));
+    on<BookingSelectBookingType>((event, emit) =>
+        emit(state.copyWith(locationStep: LocationStep.bookingType)));
+    on<BookingResetLocation>((event, emit) =>
+        emit(state.copyWith(locationStep: LocationStep.search)));
     on<BookingChooseMode>(
         (event, emit) => emit(state.copyWith(bookingMode: event.mode)));
     on<BookingSelectScheduleMode>(
@@ -279,16 +279,13 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
         (event, emit) => emit(state.copyWith(selectedDate: event.date)));
     on<BookingSelectTime>(
         (event, emit) => emit(state.copyWith(selectedTime: event.time)));
-    on<BookingSelectDuration>(
-        (event, emit) => emit(state.copyWith(selectedDuration: event.duration)));
-    on<BookingSelectDetailsStatus>((event, emit) =>
-        emit(state.copyWith(detailsStatus: event.status)));
-    on<BookingSelectReferee>((event, emit) =>
-        emit(state.copyWith(selectedReferee: event.referee)));
-    on<BookingConfirm>((event, emit) =>
-        emit(state.copyWith(bookingDetails: state.bookings.isNotEmpty
-            ? state.bookings.first
-            : null)));
+    on<BookingSelectDuration>((event, emit) =>
+        emit(state.copyWith(selectedDuration: event.duration)));
+    on<BookingSelectDetailsStatus>(
+        (event, emit) => emit(state.copyWith(detailsStatus: event.status)));
+    on<BookingSelectReferee>(
+        (event, emit) => emit(state.copyWith(selectedReferee: event.referee)));
+    on<BookingConfirm>(_onConfirm);
     on<BookingPay>((event, emit) async {
       await repository.payBooking(event.bookingId, event.method);
     });
@@ -296,6 +293,90 @@ class BookingBloc extends Bloc<BookingEvent, BookingState> {
       await repository.submitReview(event.bookingId, event.rating);
       emit(state.copyWith(ratings: event.rating));
     });
+  }
+
+  Future<void> _onConfirm(
+    BookingConfirm event,
+    Emitter<BookingState> emit,
+  ) async {
+    emit(state.copyWith(isLoading: true, hasError: false, clearError: true));
+    try {
+      final refereeId = int.tryParse(state.selectedReferee?.id ?? '');
+      final booking = await repository.createBooking(
+        sportId: int.tryParse(state.selectedSport?.id ?? '1') ?? 1,
+        bookingMethod:
+            state.bookingMode == BookingMode.choose && refereeId != null
+                ? 'DIRECT'
+                : 'QUICK',
+        bookingType:
+            state.scheduleMode == ScheduleMode.daily ? 'DAILY' : 'HOURLY',
+        bookingDate: _apiDate(state.selectedDate),
+        startTime: _apiTime(state.selectedTime),
+        durationMinutes:
+            _apiDuration(state.selectedDuration, state.scheduleMode),
+        venueName: state.confirmedLocation?.venue ?? 'KPHB Indoor Stadium',
+        city: _city(state.confirmedLocation?.area),
+        refereeId: refereeId,
+      );
+      emit(state.copyWith(
+        isLoading: false,
+        bookingDetails: booking,
+        bookings: [booking, ...state.bookings],
+      ));
+    } catch (error) {
+      emit(state.copyWith(
+        isLoading: false,
+        hasError: true,
+        error: Failure(error.toString()),
+      ));
+    }
+  }
+
+  static String _apiDate(String value) {
+    const months = {
+      'Jan': '01',
+      'Feb': '02',
+      'Mar': '03',
+      'Apr': '04',
+      'May': '05',
+      'Jun': '06',
+      'Jul': '07',
+      'Aug': '08',
+      'Sep': '09',
+      'Oct': '10',
+      'Nov': '11',
+      'Dec': '12',
+    };
+    final parts = value.trim().split(' ');
+    if (parts.length == 3 && months.containsKey(parts[1])) {
+      return '${parts[2]}-${months[parts[1]]}-${parts[0].padLeft(2, '0')}';
+    }
+    return value.trim();
+  }
+
+  static String _apiTime(String value) {
+    final match = RegExp(r'^(\d{1,2}):(\d{2})\s*(AM|PM)$', caseSensitive: false)
+        .firstMatch(value.trim());
+    if (match == null) return value.trim();
+    var hour = int.tryParse(match.group(1)!) ?? 0;
+    final minute = match.group(2)!;
+    final pm = match.group(3)!.toUpperCase() == 'PM';
+    if (pm && hour < 12) hour += 12;
+    if (!pm && hour == 12) hour = 0;
+    return '${hour.toString().padLeft(2, '0')}:$minute';
+  }
+
+  static int _apiDuration(String value, ScheduleMode mode) {
+    if (mode == ScheduleMode.daily) return 480;
+    final match = RegExp(r'(\d+)').firstMatch(value);
+    final hours = int.tryParse(match?.group(1) ?? '') ?? 1;
+    return hours * 60;
+  }
+
+  static String _city(String? area) {
+    final text = area?.trim() ?? '';
+    if (text.isEmpty) return 'Hyderabad';
+    return text.split(',').first.trim();
   }
 
   Future<void> _onLoad(BookingEvent event, Emitter<BookingState> emit) async {

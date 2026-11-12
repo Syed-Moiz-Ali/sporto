@@ -1,0 +1,1469 @@
+{
+  "info": {
+    "name": "Sporto | Referee - Weekly Availability",
+    "_postman_id": "ba2d77a5-32ac-49ae-bcf4-5acffb98eb64",
+    "description": "Daily and Weekly availability: seven-day overview, persistent day and slot toggles, partial updates, destructive deletes, and separate global online status. Uses Asia/Kolkata local recurring hours. has_configured_hours describes enabled saved hours; has_available_hours also requires approved/active/online status. Specific-date discovery and calendar check conflicts separately. Write examples mutate the selected environment; run only against authorized fixtures. Existing variables and authentication follow the canonical Referee collection.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{referee_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "01 - Read-only / Reference",
+      "description": "Run these first; no database mutations.",
+      "item": [
+        {
+          "name": "Get available weekdays",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{referee_base_url}}/api/v1/referee/availability/days",
+              "host": [
+                "{{referee_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "availability",
+                "days"
+              ]
+            },
+            "description": "GET all seven uppercase constant codes MONDAY ... SUNDAY."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "const data = pm.response.json();",
+                  "pm.test(\"Sporto envelope\", () => { pm.expect(data.success).to.eql(true); pm.expect(data).to.have.property(\"data\"); });",
+                  "pm.test(\"Seven weekday constants, Monday first\", () => { pm.expect(data.data).to.have.length(7); pm.expect(data.data[0].code).to.eql(\"MONDAY\"); pm.expect(data.data[6].code).to.eql(\"SUNDAY\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List my weekly availability",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{referee_base_url}}/api/v1/referee/availability",
+              "host": [
+                "{{referee_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "availability"
+              ]
+            },
+            "description": "Lists only the authenticated referee's weekly slots (Monday-first). A referee profile must exist."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "const data = pm.response.json();",
+                  "pm.test(\"Sporto envelope\", () => { pm.expect(data.success).to.eql(true); pm.expect(data).to.have.property(\"data\"); });",
+                  "pm.test(\"Time zone and slots array\", () => { pm.expect(data.data.timezone).to.eql(\"Asia/Kolkata\"); pm.expect(data.data.slots).to.be.an(\"array\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List selected day",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{referee_base_url}}/api/v1/referee/availability?day=MONDAY",
+              "host": [
+                "{{referee_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "availability"
+              ],
+              "query": [
+                {
+                  "key": "day",
+                  "value": "MONDAY"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Seven day overview\", () => pm.expect(pm.response.json().data.days).to.have.lengthOf(7));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Read global online status",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{referee_base_url}}/api/v1/referee/availability/status",
+              "host": [
+                "{{referee_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "availability",
+                "status"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "02 - Create / Update / Delete",
+      "description": "Run in order. These operations change the authenticated referee's stored availability. Create stores the returned ID in {{availability_slot_id}}.",
+      "item": [
+        {
+          "name": "Enable Monday",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{referee_base_url}}/api/v1/referee/availability/days/MONDAY",
+              "host": [
+                "{{referee_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "availability",
+                "days",
+                "MONDAY"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"is_enabled\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Disable Monday without deleting slots",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{referee_base_url}}/api/v1/referee/availability/days/MONDAY",
+              "host": [
+                "{{referee_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "availability",
+                "days",
+                "MONDAY"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"is_enabled\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create MONDAY 06:00-11:00",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{referee_base_url}}/api/v1/referee/availability",
+              "host": [
+                "{{referee_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "availability"
+              ]
+            },
+            "description": "Creates an early morning slot, and stores data.id as availability_slot_id for subsequent requests. 24-hour local time.\n\nstart_time supports HH:mm[:ss]; nonzero seconds round-trip unchanged. Local booking clock is validated in timezone before deriving UTC scheduled instants.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"day\": \"MONDAY\",\n  \"start_time\": \"06:00\",\n  \"end_time\": \"11:00\",\n  \"is_enabled\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+                  "const data = pm.response.json();",
+                  "pm.test(\"Sporto envelope\", () => { pm.expect(data.success).to.eql(true); pm.expect(data).to.have.property(\"data\"); });",
+                  "pm.test(\"Returned time interval\", () => { pm.expect(data.data.day).to.eql(\"MONDAY\"); pm.expect(data.data.start_time).to.eql(\"06:00\"); pm.expect(data.data.end_time).to.eql(\"11:00\"); pm.expect(data.data.timezone).to.eql(\"Asia/Kolkata\"); });",
+                  "if (data?.data?.id) pm.collectionVariables.set(\"availability_slot_id\",String(data.data.id));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update created slot to MONDAY 06:30-11:30",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{referee_base_url}}/api/v1/referee/availability/{{availability_slot_id}}",
+              "host": [
+                "{{referee_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "availability",
+                "{{availability_slot_id}}"
+              ]
+            },
+            "description": "Full replace, all three fields required. Requires an ID saved by the preceding POST.\n\nstart_time supports HH:mm[:ss]; nonzero seconds round-trip unchanged. Local booking clock is validated in timezone before deriving UTC scheduled instants.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"day\": \"MONDAY\",\n  \"start_time\": \"06:30\",\n  \"end_time\": \"11:30\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const id=pm.collectionVariables.get(\"availability_slot_id\");",
+                  "if(!id) { console.warn(\"Create a slot first to populate availability_slot_id.\"); pm.execution.skipRequest(); }"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "const data = pm.response.json();",
+                  "pm.test(\"Sporto envelope\", () => { pm.expect(data.success).to.eql(true); pm.expect(data).to.have.property(\"data\"); });",
+                  "pm.test(\"Updated time\", () => { pm.expect(data.data.start_time).to.eql(\"06:30\"); pm.expect(data.data.end_time).to.eql(\"11:30\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete created slot",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{referee_base_url}}/api/v1/referee/availability/{{availability_slot_id}}",
+              "host": [
+                "{{referee_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "availability",
+                "{{availability_slot_id}}"
+              ]
+            },
+            "description": "Permanently deletes the saved slot. Clear availability_slot_id in Postman after a successful response."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const id=pm.collectionVariables.get(\"availability_slot_id\");",
+                  "if(!id) { console.warn(\"Create a slot first to populate availability_slot_id.\"); pm.execution.skipRequest(); }"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "const data = pm.response.json();",
+                  "pm.test(\"Sporto envelope\", () => { pm.expect(data.success).to.eql(true); pm.expect(data).to.have.property(\"data\"); });",
+                  "pm.collectionVariables.unset(\"availability_slot_id\");"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create disabled Friday slot",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{referee_base_url}}/api/v1/referee/availability",
+              "host": [
+                "{{referee_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "availability"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"day\": \"FRIDAY\",\n  \"start_time\": \"18:00\",\n  \"end_time\": \"20:00\",\n  \"is_enabled\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+                  "if(pm.response.code===201) pm.environment.set(\"availability_slot_id\", pm.response.json().data.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Toggle slot ON",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{referee_base_url}}/api/v1/referee/availability/{{availability_slot_id}}",
+              "host": [
+                "{{referee_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "availability",
+                "{{availability_slot_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"is_enabled\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Toggle slot OFF",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{referee_base_url}}/api/v1/referee/availability/{{availability_slot_id}}",
+              "host": [
+                "{{referee_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "availability",
+                "{{availability_slot_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"is_enabled\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Partial update end time",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{referee_base_url}}/api/v1/referee/availability/{{availability_slot_id}}",
+              "host": [
+                "{{referee_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "availability",
+                "{{availability_slot_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"end_time\": \"21:00\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Go globally offline",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{referee_base_url}}/api/v1/referee/availability/status",
+              "host": [
+                "{{referee_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "availability",
+                "status"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"is_available\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Go globally online",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{referee_base_url}}/api/v1/referee/availability/status",
+              "host": [
+                "{{referee_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "availability",
+                "status"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"is_available\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "03 - Additional non-overlapping slot",
+      "description": "Illustrates multiple intervals on one weekday; run after the main CRUD folder, or adjust times if Monday has other slots.",
+      "item": [
+        {
+          "name": "Create MONDAY 14:00-17:00",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{referee_base_url}}/api/v1/referee/availability",
+              "host": [
+                "{{referee_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "availability"
+              ]
+            },
+            "description": "Creates a separate afternoon slot. Saves to availability_afternoon_slot_id; this will not overwrite the first ID.\n\nstart_time supports HH:mm[:ss]; nonzero seconds round-trip unchanged. Local booking clock is validated in timezone before deriving UTC scheduled instants.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"day\": \"MONDAY\",\n  \"start_time\": \"14:00\",\n  \"end_time\": \"17:00\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+                  "const data = pm.response.json();",
+                  "pm.test(\"Sporto envelope\", () => { pm.expect(data.success).to.eql(true); pm.expect(data).to.have.property(\"data\"); });",
+                  "pm.test(\"Second interval\", () => { pm.expect(data.data.day).to.eql(\"MONDAY\"); pm.expect(data.data.start_time).to.eql(\"14:00\"); });",
+                  "if (data?.data?.id) pm.collectionVariables.set(\"availability_afternoon_slot_id\",String(data.data.id));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete afternoon slot",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{referee_base_url}}/api/v1/referee/availability/{{availability_afternoon_slot_id}}",
+              "host": [
+                "{{referee_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "availability",
+                "{{availability_afternoon_slot_id}}"
+              ]
+            },
+            "description": "Cleans up the afternoon example."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.collectionVariables.get(\"availability_afternoon_slot_id\")) { console.warn(\"Create the afternoon example first.\"); pm.execution.skipRequest(); }"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "const data = pm.response.json();",
+                  "pm.test(\"Sporto envelope\", () => { pm.expect(data.success).to.eql(true); pm.expect(data).to.have.property(\"data\"); });",
+                  "pm.collectionVariables.unset(\"availability_afternoon_slot_id\");"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "04 - Negative validation tests",
+      "description": "These requests should return 422 and NOT insert/update rows. No pre-existing slots required.",
+      "item": [
+        {
+          "name": "Reject invalid weekday FUNDAY",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{referee_base_url}}/api/v1/referee/availability",
+              "host": [
+                "{{referee_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "availability"
+              ]
+            },
+            "description": "Negative validation case: API must return HTTP 422 with errors.day. Does not create a slot.\n\nstart_time supports HH:mm[:ss]; nonzero seconds round-trip unchanged. Local booking clock is validated in timezone before deriving UTC scheduled instants.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"day\": \"FUNDAY\",\n  \"start_time\": \"06:00\",\n  \"end_time\": \"11:00\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 422\", () => pm.response.to.have.status(422));",
+                  "const data = pm.response.json();",
+                  "pm.test(\"Field validation error: day\", () => { pm.expect(data.errors).to.have.property(\"day\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reject lowercase weekday monday",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{referee_base_url}}/api/v1/referee/availability",
+              "host": [
+                "{{referee_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "availability"
+              ]
+            },
+            "description": "Negative validation case: API must return HTTP 422 with errors.day. Does not create a slot.\n\nstart_time supports HH:mm[:ss]; nonzero seconds round-trip unchanged. Local booking clock is validated in timezone before deriving UTC scheduled instants.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"day\": \"monday\",\n  \"start_time\": \"06:00\",\n  \"end_time\": \"11:00\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 422\", () => pm.response.to.have.status(422));",
+                  "const data = pm.response.json();",
+                  "pm.test(\"Field validation error: day\", () => { pm.expect(data.errors).to.have.property(\"day\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reject end before start",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{referee_base_url}}/api/v1/referee/availability",
+              "host": [
+                "{{referee_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "availability"
+              ]
+            },
+            "description": "Negative validation case: API must return HTTP 422 with errors.end_time. Does not create a slot.\n\nstart_time supports HH:mm[:ss]; nonzero seconds round-trip unchanged. Local booking clock is validated in timezone before deriving UTC scheduled instants.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"day\": \"TUESDAY\",\n  \"start_time\": \"11:00\",\n  \"end_time\": \"06:00\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 422\", () => pm.response.to.have.status(422));",
+                  "const data = pm.response.json();",
+                  "pm.test(\"Field validation error: end_time\", () => { pm.expect(data.errors).to.have.property(\"end_time\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reject zero-length slot",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{referee_base_url}}/api/v1/referee/availability",
+              "host": [
+                "{{referee_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "availability"
+              ]
+            },
+            "description": "Negative validation case: API must return HTTP 422 with errors.end_time. Does not create a slot.\n\nstart_time supports HH:mm[:ss]; nonzero seconds round-trip unchanged. Local booking clock is validated in timezone before deriving UTC scheduled instants.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"day\": \"TUESDAY\",\n  \"start_time\": \"06:00\",\n  \"end_time\": \"06:00\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 422\", () => pm.response.to.have.status(422));",
+                  "const data = pm.response.json();",
+                  "pm.test(\"Field validation error: end_time\", () => { pm.expect(data.errors).to.have.property(\"end_time\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reject malformed time",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{referee_base_url}}/api/v1/referee/availability",
+              "host": [
+                "{{referee_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "availability"
+              ]
+            },
+            "description": "Negative validation case: API must return HTTP 422 with errors.start_time. Does not create a slot.\n\nstart_time supports HH:mm[:ss]; nonzero seconds round-trip unchanged. Local booking clock is validated in timezone before deriving UTC scheduled instants.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"day\": \"TUESDAY\",\n  \"start_time\": \"25:00\",\n  \"end_time\": \"26:00\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 422\", () => pm.response.to.have.status(422));",
+                  "const data = pm.response.json();",
+                  "pm.test(\"Field validation error: start_time\", () => { pm.expect(data.errors).to.have.property(\"start_time\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reject invalid day toggle",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{referee_base_url}}/api/v1/referee/availability/days/FUNDAY",
+              "host": [
+                "{{referee_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "availability",
+                "days",
+                "FUNDAY"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"is_enabled\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 422\", () => pm.response.to.have.status(422));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reject non-boolean slot toggle",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{referee_base_url}}/api/v1/referee/availability/{{availability_slot_id}}",
+              "host": [
+                "{{referee_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "availability",
+                "{{availability_slot_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"is_enabled\": \"yes\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 422\", () => pm.response.to.have.status(422));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reject empty partial update",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{referee_base_url}}/api/v1/referee/availability/{{availability_slot_id}}",
+              "host": [
+                "{{referee_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "availability",
+                "{{availability_slot_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 422\", () => pm.response.to.have.status(422));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reject slot owned by another referee",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{referee_base_url}}/api/v1/referee/availability/{{availability_other_referee_slot_id}}",
+              "host": [
+                "{{referee_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "availability",
+                "{{availability_other_referee_slot_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"is_enabled\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 404\", () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "05 - Destructive / Run Manually",
+      "description": "CAUTION: This endpoint deletes ALL your availability intervals for the selected day. Set availability_delete_day explicitly to MONDAY ... SUNDAY before running; blank value skips.",
+      "item": [
+        {
+          "name": "Clear all slots for selected weekday",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{referee_base_url}}/api/v1/referee/availability/days/{{availability_delete_day}}",
+              "host": [
+                "{{referee_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "availability",
+                "days",
+                "{{availability_delete_day}}"
+              ]
+            },
+            "description": "Danger: clears all slots for the selected weekday for the signed-in referee. Set {{availability_delete_day}} deliberately before sending; leave empty to prevent accidental deletion in runner."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const day=pm.variables.get(\"availability_delete_day\");",
+                  "if(![\"MONDAY\",\"TUESDAY\",\"WEDNESDAY\",\"THURSDAY\",\"FRIDAY\",\"SATURDAY\",\"SUNDAY\"].includes(day)) { console.warn(\"Explicitly set availability_delete_day to an uppercase weekday before deleting all slots.\"); pm.execution.skipRequest(); }"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "const data = pm.response.json();",
+                  "pm.test(\"Sporto envelope\", () => { pm.expect(data.success).to.eql(true); pm.expect(data).to.have.property(\"data\"); });",
+                  "pm.test(\"Deleted slot count available\", () => pm.expect(data.data.deleted_slots).to.be.a(\"number\"));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "06 - Authentication negative test",
+      "description": "Checks authentication enforcement and does not change data.",
+      "item": [
+        {
+          "name": "GET availability without token - 401",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{referee_base_url}}/api/v1/referee/availability",
+              "host": [
+                "{{referee_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "availability"
+              ]
+            },
+            "description": "Explicitly overrides inherited collection authentication and expects HTTP 401.",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Unauthenticated access denied\", () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "referee_base_url",
+      "value": "http://localhost:8000",
+      "type": "string",
+      "description": "Server origin only; no /api suffix. Change to your actual Sporto test/UAT URL."
+    },
+    {
+      "key": "referee_token",
+      "value": "",
+      "type": "string",
+      "description": "Paste the referee access token obtained from the existing referee verify-otp Postman flow. Do not commit real tokens."
+    },
+    {
+      "key": "availability_slot_id",
+      "value": "",
+      "type": "string",
+      "description": "Automatically populated after successful example slot POST."
+    },
+    {
+      "key": "availability_afternoon_slot_id",
+      "value": "",
+      "type": "string",
+      "description": "Automatically populated by afternoon slot POST."
+    },
+    {
+      "key": "availability_delete_day",
+      "value": "",
+      "type": "string",
+      "description": "MUST set explicitly before destructive weekday delete."
+    },
+    {
+      "key": "availability_other_referee_slot_id",
+      "value": "",
+      "type": "string",
+      "description": "Fixture slot ID owned by a different referee. Set explicitly before the ownership test."
+    }
+  ]
+}

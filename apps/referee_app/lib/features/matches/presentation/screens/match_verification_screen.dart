@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:referee_data/referee_data.dart';
 import 'package:shared_domain/shared_domain.dart';
 import 'package:ui_kit/ui_kit.dart';
 
@@ -27,7 +28,8 @@ class MatchVerificationScreen extends StatefulWidget {
 }
 
 class _MatchVerificationScreenState extends State<MatchVerificationScreen> {
-  Future<BeforeTossMatch>? _future;
+  Future<({BeforeTossMatch match, RefereeMatchSessionResponse? session})>?
+      _future;
 
   @override
   void initState() {
@@ -35,27 +37,46 @@ class _MatchVerificationScreenState extends State<MatchVerificationScreen> {
     _future = _load();
   }
 
-  Future<BeforeTossMatch> _load() async {
+  Future<({BeforeTossMatch match, RefereeMatchSessionResponse? session})>
+      _load() async {
     if (widget.match != null) {
-      return BeforeTossMatch.fromEntity(widget.match!);
+      return (
+        match: BeforeTossMatch.fromEntity(widget.match!),
+        session: null,
+      );
     }
     final id = widget.matchId?.trim();
     if (id == null || id.isEmpty) {
       throw const FormatException('Match id is missing.');
     }
-    final response = await DependencyInjector.instance.refereeRemoteDataSource
-        .showMyMatchData(id);
-    return BeforeTossMatch.fromResponse(response);
+    final remote = DependencyInjector.instance.refereeRemoteDataSource;
+    final response = await remote.showMyMatchData(id);
+    RefereeMatchSessionResponse? session;
+    try {
+      session = await remote.getMatchReadiness(id);
+    } catch (_) {}
+    return (match: BeforeTossMatch.fromResponse(response), session: session);
   }
 
   Future<void> _startMatch(BeforeTossMatch match) async {
     final id = match.matchId ?? widget.matchId ?? '';
-    final verified = await context.push<bool>(
-      '${AppRouter.startMatchRoute}?matchId=$id',
-      extra: match,
-    );
-    if (!mounted || verified != true) return;
-    context.pushReplacement('${AppRouter.conductTossRoute}?matchId=$id');
+    if (id.isEmpty) return;
+    // Offline/entity-backed flows (tests, cached screens) skip the network
+    // verification; live screens always arrive with a match id only.
+    if (widget.match == null) {
+      try {
+        await DependencyInjector.instance.refereeRemoteDataSource
+            .verifyMatchTeams(id);
+      } catch (error) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Unable to verify match: $error')),
+        );
+        return;
+      }
+    }
+    if (!mounted) return;
+    context.push('${AppRouter.conductTossRoute}?matchId=$id', extra: match);
   }
 
   @override
@@ -75,7 +96,11 @@ class _MatchVerificationScreenState extends State<MatchVerificationScreen> {
               },
             ),
             Expanded(
-              child: FutureBuilder<BeforeTossMatch>(
+              child: FutureBuilder<
+                  ({
+                    BeforeTossMatch match,
+                    RefereeMatchSessionResponse? session
+                  })>(
                 future: _future,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
@@ -91,7 +116,11 @@ class _MatchVerificationScreenState extends State<MatchVerificationScreen> {
                       }),
                     );
                   }
-                  final match = snapshot.data!;
+                  final payload = snapshot.data!;
+                  final match = payload.match;
+                  final session = payload.session;
+                  final verified = session?.teamsVerified == true &&
+                      session?.groundReady == true;
                   return SingleChildScrollView(
                     physics: const BouncingScrollPhysics(),
                     padding: EdgeInsets.fromLTRB(
@@ -115,9 +144,9 @@ class _MatchVerificationScreenState extends State<MatchVerificationScreen> {
                         SizedBox(height: 20 * scale),
                         BeforeTossChecklist(
                           scale: scale,
-                          team1Checked: match.teamA.isNotEmpty,
-                          team2Checked: match.teamB.isNotEmpty,
-                          tossChecked: false,
+                          team1Checked: verified || match.teamA.isNotEmpty,
+                          team2Checked: verified || match.teamB.isNotEmpty,
+                          tossChecked: session?.tossOtpVerified == true,
                         ),
                         SizedBox(height: 20 * scale),
                         Padding(

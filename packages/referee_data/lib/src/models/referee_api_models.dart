@@ -1,4 +1,17 @@
+import 'dart:math';
+
 import 'referee_api_constants.dart';
+
+/// Generates a UUID v4 for `ADD_EVENT` idempotency (`event_uuid`).
+String newScoreEventUuid() {
+  final random = Random.secure();
+  final bytes = List<int>.generate(16, (_) => random.nextInt(256));
+  bytes[6] = (bytes[6] & 0x0f) | 0x40;
+  bytes[8] = (bytes[8] & 0x3f) | 0x80;
+  final hex = bytes.map((b) => b.toRadixString(16).padLeft(2, '0')).join();
+  return '${hex.substring(0, 8)}-${hex.substring(8, 12)}-'
+      '${hex.substring(12, 16)}-${hex.substring(16, 20)}-${hex.substring(20)}';
+}
 
 int _intValue(Object? value) {
   if (value is int) return value;
@@ -252,6 +265,7 @@ class RefereeAvailabilitySlot {
     required this.startTime,
     required this.endTime,
     required this.timezone,
+    this.isEnabled = true,
   });
 
   final int id;
@@ -259,6 +273,7 @@ class RefereeAvailabilitySlot {
   final String startTime;
   final String endTime;
   final String timezone;
+  final bool isEnabled;
 
   factory RefereeAvailabilitySlot.fromJson(Map<String, dynamic> json) =>
       RefereeAvailabilitySlot(
@@ -267,7 +282,55 @@ class RefereeAvailabilitySlot {
         startTime: _stringValue(json['start_time']) ?? '',
         endTime: _stringValue(json['end_time']) ?? '',
         timezone: _stringValue(json['timezone']) ?? 'Asia/Kolkata',
+        isEnabled: json['is_enabled'] == null
+            ? true
+            : json['is_enabled'] == true ||
+                json['is_enabled']?.toString() == '1',
       );
+}
+
+/// One weekday row from the seven-day availability overview.
+class RefereeAvailabilityDay {
+  const RefereeAvailabilityDay({
+    required this.day,
+    required this.label,
+    this.isEnabled = true,
+    this.hasEnabledSlots = false,
+    this.hasConfiguredHours = false,
+    this.hasAvailableHours = false,
+    this.statusLabel,
+    this.slots = const [],
+  });
+
+  final String day;
+  final String label;
+  final bool isEnabled;
+  final bool hasEnabledSlots;
+  final bool hasConfiguredHours;
+  final bool hasAvailableHours;
+  final String? statusLabel;
+  final List<RefereeAvailabilitySlot> slots;
+
+  factory RefereeAvailabilityDay.fromJson(Map<String, dynamic> json) {
+    final day = _stringValue(json['day']) ?? '';
+    return RefereeAvailabilityDay(
+      day: day,
+      label: _stringValue(json['label']) ?? day,
+      isEnabled: json['is_enabled'] == null
+          ? true
+          : json['is_enabled'] == true || json['is_enabled']?.toString() == '1',
+      hasEnabledSlots: json['has_enabled_slots'] == true,
+      hasConfiguredHours: json['has_configured_hours'] == true,
+      hasAvailableHours: json['has_available_hours'] == true,
+      statusLabel: _stringValue(json['status_label']),
+      slots: _listValue(json['slots'])
+          .whereType<Map>()
+          .map((item) => RefereeAvailabilitySlot.fromJson(
+                Map<String, dynamic>.from(item),
+              ))
+          .toList(),
+    );
+  }
 }
 
 /// `GET /v1/referee/availability` payload.
@@ -275,10 +338,12 @@ class RefereeWeeklyAvailability {
   const RefereeWeeklyAvailability({
     this.timezone = 'Asia/Kolkata',
     this.slots = const [],
+    this.days = const [],
   });
 
   final String timezone;
   final List<RefereeAvailabilitySlot> slots;
+  final List<RefereeAvailabilityDay> days;
 
   bool get isEmpty => slots.isEmpty;
 
@@ -291,6 +356,12 @@ class RefereeWeeklyAvailability {
                   Map<String, dynamic>.from(item),
                 ))
             .toList(),
+        days: _listValue(json['days'])
+            .whereType<Map>()
+            .map((item) => RefereeAvailabilityDay.fromJson(
+                  Map<String, dynamic>.from(item),
+                ))
+            .toList(),
       );
 }
 
@@ -300,17 +371,88 @@ class RefereeAvailabilitySlotRequest {
     required this.day,
     required this.startTime,
     required this.endTime,
+    this.isEnabled,
   });
 
   final String day;
   final String startTime;
   final String endTime;
+  final bool? isEnabled;
 
   Map<String, dynamic> toJson() => {
         'day': day,
         'start_time': startTime,
         'end_time': endTime,
+        if (isEnabled != null) 'is_enabled': isEnabled,
       };
+}
+
+/// Partial update body for a weekly availability slot.
+class RefereeAvailabilitySlotPatch {
+  const RefereeAvailabilitySlotPatch({
+    this.day,
+    this.startTime,
+    this.endTime,
+    this.isEnabled,
+  });
+
+  final String? day;
+  final String? startTime;
+  final String? endTime;
+  final bool? isEnabled;
+
+  bool get isEmpty =>
+      day == null && startTime == null && endTime == null && isEnabled == null;
+
+  Map<String, dynamic> toJson() => {
+        if (day != null) 'day': day,
+        if (startTime != null) 'start_time': startTime,
+        if (endTime != null) 'end_time': endTime,
+        if (isEnabled != null) 'is_enabled': isEnabled,
+      };
+}
+
+class RefereeAvailabilityDayRequest {
+  const RefereeAvailabilityDayRequest({required this.isEnabled});
+
+  final bool isEnabled;
+
+  Map<String, dynamic> toJson() => {'is_enabled': isEnabled};
+}
+
+class RefereeAvailabilityStatusRequest {
+  const RefereeAvailabilityStatusRequest({required this.isAvailable});
+
+  final bool isAvailable;
+
+  Map<String, dynamic> toJson() => {'is_available': isAvailable};
+}
+
+/// `GET/PUT /v1/referee/availability/status` payload.
+class RefereeAvailabilityStatusResponse {
+  const RefereeAvailabilityStatusResponse({
+    required this.isAvailable,
+    this.acceptingMatches = false,
+    this.statusLabel,
+    this.message,
+  });
+
+  final bool isAvailable;
+  final bool acceptingMatches;
+  final String? statusLabel;
+  final String? message;
+
+  factory RefereeAvailabilityStatusResponse.fromJson(
+    Map<String, dynamic> json,
+  ) =>
+      RefereeAvailabilityStatusResponse(
+        isAvailable: json['is_available'] == true ||
+            json['is_available']?.toString() == '1',
+        acceptingMatches: json['accepting_matches'] == true ||
+            json['accepting_matches']?.toString() == '1',
+        statusLabel: _stringValue(json['status_label']),
+        message: _stringValue(json['message']),
+      );
 }
 
 /// `DELETE /v1/referee/availability/days/{day}` payload.
@@ -596,6 +738,106 @@ class RefereeMatchResponse {
 
   bool get isUpcoming => !isLive && !isCompleted;
 
+  bool get isBooking =>
+      raw['request_type'] == 'REFEREE_BOOKING' ||
+      raw['booking'] is Map ||
+      raw['booking_id'] != null ||
+      raw['booking_source'] != null;
+
+  /// For independent bookings, the generated scoring match id (set by the
+  /// partner's `assign-match` call). Null until the partner configures it.
+  String? get bookingMatchId {
+    final value = raw['match_id'];
+    final text = value?.toString().trim() ?? '';
+    return text.isEmpty || text == 'null' ? null : text;
+  }
+
+  String? get bookingSessionStatus {
+    final value = raw['session_status'];
+    final text = value?.toString().trim() ?? '';
+    return text.isEmpty ? null : text;
+  }
+
+  /// Maps an independent-booking request wrapper
+  /// (`assignment + booking + booked_by`) into the match-shaped card model.
+  factory RefereeMatchResponse.fromBookingRequestJson(
+    Map<String, dynamic> json,
+  ) {
+    final booking = _mapValue(json['booking']);
+    final bookedBy = _mapValue(json['booked_by']);
+    final label = _stringValue(
+      booking['display_status'] ?? booking['booking_status'],
+    );
+    final lower = (label ?? '').toLowerCase();
+    final status = lower.contains('complete')
+        ? 3
+        : lower.contains('ongoing') || lower.contains('progress')
+            ? 2
+            : 1;
+    final raw = <String, dynamic>{
+      ...json,
+      ...booking,
+      'request_type': 'REFEREE_BOOKING',
+      'booking': booking,
+      'booking_id': booking['id'] ?? json['booking_id'],
+      'booking_status': booking['booking_status'],
+      'booking_source': booking['booking_source'] ?? json['booking_source'],
+      'sport_name': booking['sport_name'],
+      'booked_by': _firstText([
+        bookedBy['display_name'],
+        bookedBy['name'],
+        bookedBy['full_name'],
+        booking['booked_by_user_id'],
+      ]),
+      'customer_name': _firstText([
+        bookedBy['display_name'],
+        bookedBy['name'],
+        bookedBy['full_name'],
+      ]),
+      'fee': booking['referee_fee'] ?? booking['total_amount'],
+      'duration_hours': _intValue(booking['duration_minutes']) / 60.0,
+    };
+    return RefereeMatchResponse(
+      id: _intValue(
+        booking['id'] ?? booking['booking_id'] ?? json['booking_id'],
+      ),
+      assignmentId: _nullableInt(json['assignment_id'] ?? booking['id']),
+      tournamentId: null,
+      tournamentName: null,
+      matchNumber: _stringValue(booking['booking_number']),
+      roundName: null,
+      scheduledAt: _stringValue(booking['scheduled_start_at']),
+      matchDate: _stringValue(booking['booking_date']),
+      startTime: _stringValue(booking['start_time']),
+      venueName: _stringValue(booking['venue_name']),
+      location: _stringValue(booking['city']),
+      status: status,
+      statusLabel: label,
+      role: 'Referee',
+      assignmentStatus: _nullableInt(json['assignment_status']),
+      notes: null,
+      teamA: RefereeMatchTeam(
+        name: _firstText([
+              bookedBy['display_name'],
+              bookedBy['name'],
+              bookedBy['full_name'],
+            ]) ??
+            'Booking',
+      ),
+      teamB: null,
+      canOfficiate: _nullableInt(json['assignment_status']) == 2,
+      blockingCode: null,
+      raw: raw,
+    );
+  }
+
+  factory RefereeMatchResponse.fromBookingJson(Map<String, dynamic> json) =>
+      RefereeMatchResponse.fromBookingRequestJson({
+        'assignment_id': json['id'],
+        'assignment_status': 2,
+        'booking': json,
+      });
+
   factory RefereeMatchResponse.fromJson(Map<String, dynamic> json) {
     final assignment = _mapValue(json['assignment']);
     final match = _mapValue(json['match']).isNotEmpty
@@ -745,6 +987,26 @@ class RefereeMatchRequestResponse extends RefereeMatchResponse {
 
   factory RefereeMatchRequestResponse.fromJson(Map<String, dynamic> json) {
     final match = RefereeMatchResponse.fromJson(json);
+    return RefereeMatchRequestResponse._fromMatch(match);
+  }
+
+  factory RefereeMatchRequestResponse.fromBookingRequestJson(
+    Map<String, dynamic> json,
+  ) =>
+      RefereeMatchRequestResponse._fromMatch(
+        RefereeMatchResponse.fromBookingRequestJson(json),
+      );
+
+  factory RefereeMatchRequestResponse.fromBookingJson(
+    Map<String, dynamic> json,
+  ) =>
+      RefereeMatchRequestResponse._fromMatch(
+        RefereeMatchResponse.fromBookingJson(json),
+      );
+
+  factory RefereeMatchRequestResponse._fromMatch(
+    RefereeMatchResponse match,
+  ) {
     return RefereeMatchRequestResponse(
       id: match.id,
       assignmentId: match.assignmentId,
@@ -1136,31 +1398,42 @@ class RefereeTossUpdateRequest {
   factory RefereeTossUpdateRequest.call({
     required String calledSide,
     required int callingTeamId,
+    String? otp,
   }) {
     return RefereeTossUpdateRequest._({
       'action': RefereeTossActions.call,
       'called_side': calledSide,
       'calling_team_id': callingTeamId,
+      if (otp != null && otp.trim().isNotEmpty) 'otp': otp.trim(),
     });
   }
 
-  factory RefereeTossUpdateRequest.flip() {
-    return const RefereeTossUpdateRequest._(
-      {'action': RefereeTossActions.flip},
-    );
+  factory RefereeTossUpdateRequest.flip({String? otp}) {
+    return RefereeTossUpdateRequest._({
+      'action': RefereeTossActions.flip,
+      if (otp != null && otp.trim().isNotEmpty) 'otp': otp.trim(),
+    });
   }
 
-  factory RefereeTossUpdateRequest.enterResult({required int winnerTeamId}) {
+  factory RefereeTossUpdateRequest.enterResult({
+    required int winnerTeamId,
+    String? otp,
+  }) {
     return RefereeTossUpdateRequest._({
       'action': RefereeTossActions.enterResult,
       'winner_team_id': winnerTeamId,
+      if (otp != null && otp.trim().isNotEmpty) 'otp': otp.trim(),
     });
   }
 
-  factory RefereeTossUpdateRequest.setDecision({required String decision}) {
+  factory RefereeTossUpdateRequest.setDecision({
+    required String decision,
+    String? otp,
+  }) {
     return RefereeTossUpdateRequest._({
       'action': RefereeTossActions.setDecision,
       'decision': decision,
+      if (otp != null && otp.trim().isNotEmpty) 'otp': otp.trim(),
     });
   }
 
@@ -1168,12 +1441,14 @@ class RefereeTossUpdateRequest {
     required int strikerUserId,
     required int nonStrikerUserId,
     required int openingBowlerUserId,
+    String? otp,
   }) {
     return RefereeTossUpdateRequest._({
       'action': RefereeTossActions.setStartingPlayers,
       'striker_user_id': strikerUserId,
       'non_striker_user_id': nonStrikerUserId,
       'opening_bowler_user_id': openingBowlerUserId,
+      if (otp != null && otp.trim().isNotEmpty) 'otp': otp.trim(),
     });
   }
 
@@ -1588,6 +1863,11 @@ class RefereeScoreResponse {
     this.teams = const [],
     required this.scoring,
     this.toss,
+    this.finalSubmissionStatus,
+    this.finalSubmissionNextAction,
+    this.progressionStatus,
+    this.recordedEvent = const {},
+    this.reversedEvent = const {},
     this.raw = const {},
   });
 
@@ -1609,7 +1889,16 @@ class RefereeScoreResponse {
   final List<RefereeScoreTeamResponse> teams;
   final RefereeScoreStateResponse scoring;
   final RefereeTossStateResponse? toss;
+  final String? finalSubmissionStatus;
+  final String? finalSubmissionNextAction;
+  final String? progressionStatus;
+  final Map<String, dynamic> recordedEvent;
+  final Map<String, dynamic> reversedEvent;
   final Map<String, dynamic> raw;
+
+  bool get isAwaitingEndOtp => finalSubmissionStatus == 'AWAITING_END_OTP';
+  bool get isPendingEndOtp =>
+      progressionStatus == 'PENDING_END_OTP' || isAwaitingEndOtp;
 
   String? get statusText {
     final rawStatus = _mapValue(raw['match'])['status'];
@@ -1635,6 +1924,12 @@ class RefereeScoreResponse {
     final tournament = _mapValue(json['tournament']);
     final schedule = _mapValue(json['schedule']);
     final venue = _mapValue(schedule['venue'] ?? json['venue']);
+    final scoringJson = _mapValue(json['scoring']);
+    final runtimeJson = _mapValue(scoringJson['runtime']);
+    final finalSubmission = _mapValue(
+      scoringJson['final_submission'] ?? runtimeJson['final_submission'],
+    );
+    final progression = _mapValue(json['progression']);
     return RefereeScoreResponse(
       matchId: _intValue(match['id'] ?? json['match_id'] ?? json['id']),
       matchStatus: _nullableInt(match['status'] ?? json['status']),
@@ -1663,6 +1958,11 @@ class RefereeScoreResponse {
       toss: _mapValue(json['toss']).isEmpty
           ? null
           : RefereeTossStateResponse.fromJson(_mapValue(json['toss'])),
+      finalSubmissionStatus: _stringValue(finalSubmission['status']),
+      finalSubmissionNextAction: _stringValue(finalSubmission['next_action']),
+      progressionStatus: _stringValue(progression['status']),
+      recordedEvent: _mapValue(json['recorded_event']),
+      reversedEvent: _mapValue(json['reversed_event']),
       raw: Map<String, dynamic>.from(json),
     );
   }
@@ -1679,10 +1979,11 @@ class RefereeScoreUpdateRequest {
     );
   }
 
-  factory RefereeScoreUpdateRequest.undoLast() {
-    return const RefereeScoreUpdateRequest._(
-      {'action': RefereeScoreActions.undoLast},
-    );
+  factory RefereeScoreUpdateRequest.undoLast({String? reason}) {
+    return RefereeScoreUpdateRequest._({
+      'action': RefereeScoreActions.undoLast,
+      if (reason != null && reason.trim().isNotEmpty) 'reason': reason.trim(),
+    });
   }
 
   factory RefereeScoreUpdateRequest.endPeriod() {
@@ -1736,6 +2037,10 @@ class RefereeScoreUpdateRequest {
     int? playerId,
     int? value,
     String? wicketType,
+    String? eventUuid,
+    String? runsSource,
+    int? fielderUserId,
+    int? dismissedUserId,
   }) {
     return RefereeScoreUpdateRequest._({
       'action': RefereeScoreActions.addEvent,
@@ -1745,8 +2050,727 @@ class RefereeScoreUpdateRequest {
       if (value != null) 'value': value,
       if (wicketType != null && wicketType.isNotEmpty)
         'wicket_type': wicketType,
+      if (eventUuid != null && eventUuid.trim().isNotEmpty)
+        'event_uuid': eventUuid.trim(),
+      if (runsSource != null && runsSource.trim().isNotEmpty)
+        'runs_source': runsSource.trim(),
+      if (fielderUserId != null) 'fielder_user_id': fielderUserId,
+      if (dismissedUserId != null) 'dismissed_user_id': dismissedUserId,
     });
   }
 
   Map<String, dynamic> toJson() => body;
+}
+
+/// `GET/POST /v1/referee/matches/{id}/session` payload.
+class RefereeMatchSessionResponse {
+  const RefereeMatchSessionResponse({
+    required this.matchId,
+    this.matchCode,
+    this.sessionStatus = 'NOT_STARTED',
+    this.startedAt,
+    this.endedAt,
+    this.startedVia,
+    this.otpVerified = false,
+    this.teamsVerified = false,
+    this.groundReady = false,
+    this.verifiedAt,
+    this.status = 'normal',
+    this.statusLabel,
+    this.delayReason,
+    this.weather,
+    this.resumeAt,
+    this.tossOtpVerified = false,
+    this.tossVerifiedAt,
+    this.tossOtpIssued = false,
+    this.startOtpIssued = false,
+    this.endOtpIssued = false,
+    this.finalSubmissionStatus,
+    this.canCorrectScore,
+  });
+
+  final int matchId;
+  final String? matchCode;
+  final String sessionStatus;
+  final String? startedAt;
+  final String? endedAt;
+  final String? startedVia;
+  final bool otpVerified;
+  final bool teamsVerified;
+  final bool groundReady;
+  final String? verifiedAt;
+  final String status;
+  final String? statusLabel;
+  final String? delayReason;
+  final String? weather;
+  final String? resumeAt;
+  final bool tossOtpVerified;
+  final String? tossVerifiedAt;
+  final bool tossOtpIssued;
+  final bool startOtpIssued;
+  final bool endOtpIssued;
+  final String? finalSubmissionStatus;
+  final bool? canCorrectScore;
+
+  bool get isStarted => sessionStatus == 'STARTED';
+  bool get isEnded => sessionStatus == 'ENDED';
+  bool get isDelayed => status == 'delayed';
+  bool get isVerified => teamsVerified && groundReady;
+
+  factory RefereeMatchSessionResponse.fromJson(Map<String, dynamic> json) {
+    final finalSubmission = _mapValue(json['final_submission']);
+    return RefereeMatchSessionResponse(
+      matchId: _intValue(json['match_id']),
+      matchCode: _stringValue(json['match_code']),
+      sessionStatus: _stringValue(json['session_status']) ?? 'NOT_STARTED',
+      startedAt: _stringValue(json['started_at']),
+      endedAt: _stringValue(json['ended_at']),
+      startedVia: _stringValue(json['started_via']),
+      otpVerified: json['otp_verified'] == true,
+      teamsVerified: json['teams_verified'] == true,
+      groundReady: json['ground_ready'] == true,
+      verifiedAt: _stringValue(json['verified_at']),
+      status: _stringValue(json['status']) ?? 'normal',
+      statusLabel: _stringValue(json['status_label']),
+      delayReason: _stringValue(json['delay_reason']),
+      weather: _stringValue(json['weather']),
+      resumeAt: _stringValue(json['resume_at']),
+      tossOtpVerified: json['toss_otp_verified'] == true,
+      tossVerifiedAt: _stringValue(json['toss_verified_at']),
+      tossOtpIssued: json['toss_otp_issued'] == true,
+      startOtpIssued: json['start_otp_issued'] == true,
+      endOtpIssued: json['end_otp_issued'] == true,
+      finalSubmissionStatus: _stringValue(finalSubmission['status']),
+      canCorrectScore: json['can_correct_score'] == null
+          ? null
+          : json['can_correct_score'] == true,
+    );
+  }
+}
+
+/// `GET /v1/referee/bookings/{id}/session` and booking OTP verification.
+class RefereeBookingSessionResponse {
+  const RefereeBookingSessionResponse({
+    required this.bookingId,
+    this.bookingSource,
+    this.bookedByUserId,
+    this.refereeId,
+    this.matchId,
+    this.bookingStatus,
+    this.paymentStatus,
+    this.refereeFee,
+    this.platformFee,
+    this.totalAmount,
+    this.currency,
+    this.sessionStatus = 'NOT_STARTED',
+    this.tossVerifiedAt,
+    this.startedAt,
+    this.endedAt,
+    this.earningStatus,
+    this.earningWalletTransactionId,
+  });
+
+  final int bookingId;
+  final String? bookingSource;
+  final int? bookedByUserId;
+  final int? refereeId;
+  final int? matchId;
+  final String? bookingStatus;
+  final String? paymentStatus;
+  final String? refereeFee;
+  final String? platformFee;
+  final String? totalAmount;
+  final String? currency;
+  final String sessionStatus;
+  final String? tossVerifiedAt;
+  final String? startedAt;
+  final String? endedAt;
+  final String? earningStatus;
+  final String? earningWalletTransactionId;
+
+  bool get isStarted => sessionStatus == 'STARTED';
+  bool get isEnded => sessionStatus == 'ENDED';
+  bool get isCompleted => bookingStatus == 'COMPLETED';
+
+  factory RefereeBookingSessionResponse.fromJson(Map<String, dynamic> json) =>
+      RefereeBookingSessionResponse(
+        bookingId: _intValue(json['booking_id']),
+        bookingSource: _stringValue(json['booking_source']),
+        bookedByUserId: _nullableInt(json['booked_by_user_id']),
+        refereeId: _nullableInt(json['referee_id']),
+        matchId: _nullableInt(json['match_id']),
+        bookingStatus: _stringValue(json['booking_status']),
+        paymentStatus: _stringValue(json['payment_status']),
+        refereeFee: _stringValue(json['referee_fee']),
+        platformFee: _stringValue(json['platform_fee']),
+        totalAmount: _stringValue(json['total_amount']),
+        currency: _stringValue(json['currency']),
+        sessionStatus: _stringValue(json['session_status']) ?? 'NOT_STARTED',
+        tossVerifiedAt: _stringValue(json['toss_verified_at']),
+        startedAt: _stringValue(json['started_at']),
+        endedAt: _stringValue(json['ended_at']),
+        earningStatus: _stringValue(json['earning_status']),
+        earningWalletTransactionId:
+            _stringValue(json['earning_wallet_transaction_id']),
+      );
+}
+
+/// `PUT /v1/referee/matches/{id}/status`.
+class RefereeMatchStatusRequest {
+  const RefereeMatchStatusRequest.delayed({
+    required this.delayReason,
+    this.weather,
+    this.resumeAt,
+  }) : status = 'delayed';
+
+  const RefereeMatchStatusRequest.resume()
+      : status = 'resumed',
+        delayReason = null,
+        weather = null,
+        resumeAt = null;
+
+  final String status;
+  final String? delayReason;
+  final String? weather;
+  final String? resumeAt;
+
+  Map<String, dynamic> toJson() => {
+        'status': status,
+        if (delayReason != null && delayReason!.trim().isNotEmpty)
+          'delay_reason': delayReason!.trim(),
+        if (weather != null && weather!.trim().isNotEmpty)
+          'weather': weather!.trim(),
+        if (resumeAt != null && resumeAt!.trim().isNotEmpty)
+          'resume_at': resumeAt!.trim(),
+      };
+}
+
+/// `GET /v1/referee/matches/{id}/result` payload.
+class RefereeMatchResultResponse {
+  const RefereeMatchResultResponse({
+    required this.matchId,
+    this.matchCode,
+    this.matchStatus,
+    this.status = 'PENDING',
+    this.winnerTeamId,
+    this.winnerTeamName,
+    this.message,
+    this.margin,
+    this.isWalkover = false,
+  });
+
+  final int matchId;
+  final String? matchCode;
+  final int? matchStatus;
+  final String status;
+  final int? winnerTeamId;
+  final String? winnerTeamName;
+  final String? message;
+  final String? margin;
+  final bool isWalkover;
+
+  bool get isPending => status == 'PENDING';
+  bool get hasWinner => winnerTeamId != null || status == 'WIN';
+
+  factory RefereeMatchResultResponse.fromJson(Map<String, dynamic> json) =>
+      RefereeMatchResultResponse(
+        matchId: _intValue(json['match_id']),
+        matchCode: _stringValue(json['match_code']),
+        matchStatus: _nullableInt(json['match_status']),
+        status: _stringValue(json['status']) ?? 'PENDING',
+        winnerTeamId: _nullableInt(json['winner_team_id']),
+        winnerTeamName: _stringValue(json['winner_team_name']),
+        message: _stringValue(json['message']),
+        margin: _stringValue(json['margin']),
+        isWalkover: json['is_walkover'] == true,
+      );
+}
+
+class RefereeScorecardTeam {
+  const RefereeScorecardTeam({required this.id, required this.name});
+
+  final int id;
+  final String name;
+
+  factory RefereeScorecardTeam.fromJson(Map<String, dynamic> json) =>
+      RefereeScorecardTeam(
+        id: _intValue(json['id']),
+        name: _stringValue(json['name']) ?? 'Team',
+      );
+}
+
+class RefereeScorecardMatch {
+  const RefereeScorecardMatch({
+    required this.id,
+    this.tournamentId,
+    this.status,
+    this.winnerTeamId,
+    this.teams = const [],
+  });
+
+  final int id;
+  final int? tournamentId;
+  final int? status;
+  final int? winnerTeamId;
+  final List<RefereeScorecardTeam> teams;
+
+  factory RefereeScorecardMatch.fromJson(Map<String, dynamic> json) =>
+      RefereeScorecardMatch(
+        id: _intValue(json['id']),
+        tournamentId: _nullableInt(json['tournament_id']),
+        status: _nullableInt(json['status']),
+        winnerTeamId: _nullableInt(json['winner_team_id']),
+        teams: _listValue(json['teams'])
+            .whereType<Map>()
+            .map((item) => RefereeScorecardTeam.fromJson(
+                  Map<String, dynamic>.from(item),
+                ))
+            .toList(),
+      );
+}
+
+class RefereeScorecardAvailability {
+  const RefereeScorecardAvailability({
+    this.eventCount = 0,
+    this.activeEventCount = 0,
+    this.reversedEventCount = 0,
+    this.status = 'UNAVAILABLE',
+    this.reason,
+    this.message,
+  });
+
+  final int eventCount;
+  final int activeEventCount;
+  final int reversedEventCount;
+  final String status;
+  final String? reason;
+  final String? message;
+
+  bool get isComplete => status == 'COMPLETE';
+
+  factory RefereeScorecardAvailability.fromJson(Map<String, dynamic> json) =>
+      RefereeScorecardAvailability(
+        eventCount: _intValue(json['event_count']),
+        activeEventCount: _intValue(json['active_event_count']),
+        reversedEventCount: _intValue(json['reversed_event_count']),
+        status: _stringValue(json['status']) ?? 'UNAVAILABLE',
+        reason: _stringValue(json['reason']),
+        message: _stringValue(json['message']),
+      );
+}
+
+class RefereeScorecardTotals {
+  const RefereeScorecardTotals({
+    this.runs = 0,
+    this.wickets = 0,
+    this.legalBalls = 0,
+    this.overs,
+    this.extras = const {},
+  });
+
+  final int runs;
+  final int wickets;
+  final int legalBalls;
+  final String? overs;
+  final Map<String, dynamic> extras;
+
+  String get scoreText => '$runs/$wickets';
+
+  factory RefereeScorecardTotals.fromJson(Map<String, dynamic> json) =>
+      RefereeScorecardTotals(
+        runs: _intValue(json['runs'] ?? json['score']),
+        wickets: _intValue(json['wickets']),
+        legalBalls: _intValue(json['legal_balls']),
+        overs: _stringValue(json['overs']),
+        extras: _mapValue(json['extras']),
+      );
+}
+
+class RefereeScorecardBatting {
+  const RefereeScorecardBatting({
+    required this.playerId,
+    required this.name,
+    this.runs = 0,
+    this.ballsFaced = 0,
+    this.fours = 0,
+    this.sixes = 0,
+    this.strikeRate,
+    this.status,
+    this.dismissal,
+  });
+
+  final int playerId;
+  final String name;
+  final int runs;
+  final int ballsFaced;
+  final int fours;
+  final int sixes;
+  final String? strikeRate;
+  final String? status;
+  final String? dismissal;
+
+  factory RefereeScorecardBatting.fromJson(Map<String, dynamic> json) =>
+      RefereeScorecardBatting(
+        playerId: _intValue(json['player_id'] ?? json['user_id']),
+        name: _stringValue(json['name']) ?? 'Player',
+        runs: _intValue(json['runs']),
+        ballsFaced: _intValue(json['balls_faced']),
+        fours: _intValue(json['fours']),
+        sixes: _intValue(json['sixes']),
+        strikeRate: _stringValue(json['strike_rate']),
+        status: _stringValue(json['status']),
+        dismissal: _stringValue(json['dismissal']),
+      );
+}
+
+class RefereeScorecardBowling {
+  const RefereeScorecardBowling({
+    required this.playerId,
+    required this.name,
+    this.legalBalls = 0,
+    this.overs,
+    this.runsConceded = 0,
+    this.wickets = 0,
+    this.maidens = 0,
+    this.dotBalls = 0,
+    this.wides = 0,
+    this.noBalls = 0,
+    this.economyRate,
+  });
+
+  final int playerId;
+  final String name;
+  final int legalBalls;
+  final String? overs;
+  final int runsConceded;
+  final int wickets;
+  final int maidens;
+  final int dotBalls;
+  final int wides;
+  final int noBalls;
+  final String? economyRate;
+
+  factory RefereeScorecardBowling.fromJson(Map<String, dynamic> json) =>
+      RefereeScorecardBowling(
+        playerId: _intValue(json['player_id'] ?? json['user_id']),
+        name: _stringValue(json['name']) ?? 'Player',
+        legalBalls: _intValue(json['legal_balls']),
+        overs: _stringValue(json['overs']),
+        runsConceded: _intValue(json['runs_conceded']),
+        wickets: _intValue(json['wickets']),
+        maidens: _intValue(json['maidens']),
+        dotBalls: _intValue(json['dot_balls']),
+        wides: _intValue(json['wides']),
+        noBalls: _intValue(json['no_balls']),
+        economyRate: _stringValue(json['economy_rate']),
+      );
+}
+
+class RefereeScorecardFallOfWicket {
+  const RefereeScorecardFallOfWicket({
+    required this.wicketNumber,
+    this.score,
+    this.playerId,
+    this.playerName,
+    this.overNumber,
+    this.ballNumber,
+    this.eventSequence,
+  });
+
+  final int wicketNumber;
+  final String? score;
+  final int? playerId;
+  final String? playerName;
+  final String? overNumber;
+  final String? ballNumber;
+  final int? eventSequence;
+
+  factory RefereeScorecardFallOfWicket.fromJson(Map<String, dynamic> json) =>
+      RefereeScorecardFallOfWicket(
+        wicketNumber: _intValue(json['wicket_number']),
+        score: _stringValue(json['score']),
+        playerId: _nullableInt(json['player_id']),
+        playerName: _stringValue(json['player_name']),
+        overNumber: _stringValue(json['over_number']),
+        ballNumber: _stringValue(json['ball_number']),
+        eventSequence: _nullableInt(json['event_sequence']),
+      );
+}
+
+class RefereeScorecardInnings {
+  const RefereeScorecardInnings({
+    required this.inningsNumber,
+    this.inningsType,
+    this.superOverRound,
+    this.battingTeamId,
+    this.battingTeamName,
+    this.bowlingTeamId,
+    this.bowlingTeamName,
+    this.totals = const RefereeScorecardTotals(),
+    this.batting = const [],
+    this.bowling = const [],
+    this.fallOfWickets = const [],
+  });
+
+  final int inningsNumber;
+  final String? inningsType;
+  final int? superOverRound;
+  final int? battingTeamId;
+  final String? battingTeamName;
+  final int? bowlingTeamId;
+  final String? bowlingTeamName;
+  final RefereeScorecardTotals totals;
+  final List<RefereeScorecardBatting> batting;
+  final List<RefereeScorecardBowling> bowling;
+  final List<RefereeScorecardFallOfWicket> fallOfWickets;
+
+  factory RefereeScorecardInnings.fromJson(Map<String, dynamic> json) =>
+      RefereeScorecardInnings(
+        inningsNumber: _intValue(
+          json['innings_number'] ?? json['inning'] ?? json['number'],
+        ),
+        inningsType: _stringValue(json['innings_type']),
+        superOverRound: _nullableInt(json['super_over_round']),
+        battingTeamId: _nullableInt(json['batting_team_id']),
+        battingTeamName: _stringValue(json['batting_team_name']),
+        bowlingTeamId: _nullableInt(json['bowling_team_id']),
+        bowlingTeamName: _stringValue(json['bowling_team_name']),
+        totals: RefereeScorecardTotals.fromJson(
+          _mapValue(json['totals'] ?? json['score']),
+        ),
+        batting: _listValue(json['batting'])
+            .whereType<Map>()
+            .map((item) => RefereeScorecardBatting.fromJson(
+                  Map<String, dynamic>.from(item),
+                ))
+            .toList(),
+        bowling: _listValue(json['bowling'])
+            .whereType<Map>()
+            .map((item) => RefereeScorecardBowling.fromJson(
+                  Map<String, dynamic>.from(item),
+                ))
+            .toList(),
+        fallOfWickets: _listValue(json['fall_of_wickets'])
+            .whereType<Map>()
+            .map((item) => RefereeScorecardFallOfWicket.fromJson(
+                  Map<String, dynamic>.from(item),
+                ))
+            .toList(),
+      );
+}
+
+/// `GET /v1/referee/matches/{id}/scorecard` payload.
+class RefereeScorecardResponse {
+  const RefereeScorecardResponse({
+    required this.match,
+    this.dataAvailability = const RefereeScorecardAvailability(),
+    this.teamTotals = const {},
+    this.matchCode,
+    this.winnerTeamName,
+    this.playerOfMatch,
+    this.result = const {},
+    this.superOverTotals,
+    this.innings = const [],
+    this.superOvers = const [],
+    this.raw = const {},
+  });
+
+  final RefereeScorecardMatch match;
+  final RefereeScorecardAvailability dataAvailability;
+  final Map<String, RefereeScorecardTotals> teamTotals;
+  final String? matchCode;
+  final String? winnerTeamName;
+  final String? playerOfMatch;
+  final Map<String, dynamic> result;
+  final Map<String, dynamic>? superOverTotals;
+  final List<RefereeScorecardInnings> innings;
+  final List<RefereeScorecardInnings> superOvers;
+  final Map<String, dynamic> raw;
+
+  factory RefereeScorecardResponse.fromJson(Map<String, dynamic> json) {
+    final totals = <String, RefereeScorecardTotals>{};
+    final rawTotals = json['team_totals'];
+    if (rawTotals is Map) {
+      rawTotals.forEach((key, value) {
+        totals['$key'] = RefereeScorecardTotals.fromJson(_mapValue(value));
+      });
+    }
+    final result = _mapValue(json['result']);
+    final playerOfMatch = json['player_of_match'];
+    return RefereeScorecardResponse(
+      match: RefereeScorecardMatch.fromJson(_mapValue(json['match'])),
+      dataAvailability: RefereeScorecardAvailability.fromJson(
+        _mapValue(json['data_availability']),
+      ),
+      teamTotals: totals,
+      matchCode: _stringValue(json['match_code']),
+      winnerTeamName: _stringValue(
+        json['winner_team_name'] ?? result['winner_team_name'],
+      ),
+      playerOfMatch: playerOfMatch is Map
+          ? _firstText([playerOfMatch['name'], playerOfMatch['display_name']])
+          : _firstText([playerOfMatch]),
+      result: result,
+      superOverTotals: json['super_over_totals'] == null
+          ? null
+          : _mapValue(json['super_over_totals']),
+      innings: _listValue(json['innings'])
+          .whereType<Map>()
+          .map((item) => RefereeScorecardInnings.fromJson(
+                Map<String, dynamic>.from(item),
+              ))
+          .toList(),
+      superOvers: _listValue(json['super_overs'])
+          .whereType<Map>()
+          .map((item) => RefereeScorecardInnings.fromJson(
+                Map<String, dynamic>.from(item),
+              ))
+          .toList(),
+      raw: Map<String, dynamic>.from(json),
+    );
+  }
+}
+
+/// One item from `GET /v1/referee/matches/{id}/score/events`.
+class RefereeScoreEventLedgerItem {
+  const RefereeScoreEventLedgerItem({
+    required this.id,
+    this.eventUuid,
+    this.eventSequence,
+    this.eventType,
+    this.eventCategory,
+    this.tournamentId,
+    this.sportId,
+    this.matchId,
+    this.teamId,
+    this.opponentTeamId,
+    this.playerId,
+    this.relatedPlayerId,
+    this.creditedWicketPlayerId,
+    this.dismissedPlayerId,
+    this.scoreValue = 0,
+    this.playerScoreValue = 0,
+    this.extrasValue = 0,
+    this.bowlerRunsConceded = 0,
+    this.wicketValue = 0,
+    this.inningsNumber,
+    this.inningsType,
+    this.superOverRound,
+    this.overNumber,
+    this.ballNumber,
+    this.isLegalDelivery = false,
+    this.countsBallFaced = false,
+    this.eventData = const {},
+    this.isReversed = false,
+    this.reversedAt,
+    this.reversalReason,
+    this.createdAt,
+  });
+
+  final int id;
+  final String? eventUuid;
+  final int? eventSequence;
+  final String? eventType;
+  final String? eventCategory;
+  final int? tournamentId;
+  final int? sportId;
+  final int? matchId;
+  final int? teamId;
+  final int? opponentTeamId;
+  final int? playerId;
+  final int? relatedPlayerId;
+  final int? creditedWicketPlayerId;
+  final int? dismissedPlayerId;
+  final int scoreValue;
+  final int playerScoreValue;
+  final int extrasValue;
+  final int bowlerRunsConceded;
+  final int wicketValue;
+  final int? inningsNumber;
+  final String? inningsType;
+  final int? superOverRound;
+  final int? overNumber;
+  final int? ballNumber;
+  final bool isLegalDelivery;
+  final bool countsBallFaced;
+  final Map<String, dynamic> eventData;
+  final bool isReversed;
+  final String? reversedAt;
+  final String? reversalReason;
+  final String? createdAt;
+
+  bool get isWicket => eventType == 'WICKET';
+  bool get isDelivery => eventCategory == 'DELIVERY';
+  String? get runsSource => _stringValue(eventData['runs_source']);
+  int? get fielderUserId => _nullableInt(eventData['fielder_user_id']);
+  int? get eventDismissedUserId => _nullableInt(eventData['dismissed_user_id']);
+  int? get eventStrikerUserId => _nullableInt(eventData['striker_user_id']);
+  int? get eventBowlerUserId => _nullableInt(eventData['bowler_user_id']);
+
+  factory RefereeScoreEventLedgerItem.fromJson(Map<String, dynamic> json) =>
+      RefereeScoreEventLedgerItem(
+        id: _intValue(json['id']),
+        eventUuid: _stringValue(json['event_uuid']),
+        eventSequence: _nullableInt(json['event_sequence']),
+        eventType: _stringValue(json['event_type']),
+        eventCategory: _stringValue(json['event_category']),
+        tournamentId: _nullableInt(json['tournament_id']),
+        sportId: _nullableInt(json['sport_id']),
+        matchId: _nullableInt(
+          json['tournament_match_id'] ?? json['match_id'],
+        ),
+        teamId: _nullableInt(json['team_id']),
+        opponentTeamId: _nullableInt(json['opponent_team_id']),
+        playerId: _nullableInt(json['player_id']),
+        relatedPlayerId: _nullableInt(json['related_player_id']),
+        creditedWicketPlayerId: _nullableInt(json['credited_wicket_player_id']),
+        dismissedPlayerId: _nullableInt(json['dismissed_player_id']),
+        scoreValue: _intValue(json['score_value']),
+        playerScoreValue: _intValue(json['player_score_value']),
+        extrasValue: _intValue(json['extras_value']),
+        bowlerRunsConceded: _intValue(json['bowler_runs_conceded']),
+        wicketValue: _intValue(json['wicket_value']),
+        inningsNumber: _nullableInt(json['innings_number']),
+        inningsType: _stringValue(json['innings_type']),
+        superOverRound: _nullableInt(json['super_over_round']),
+        overNumber: _nullableInt(json['over_number']),
+        ballNumber: _nullableInt(json['ball_number']),
+        isLegalDelivery: json['is_legal_delivery'] == true,
+        countsBallFaced: json['counts_ball_faced'] == true,
+        eventData: _mapValue(json['event_data']),
+        isReversed: json['is_reversed'] == true,
+        reversedAt: _stringValue(json['reversed_at']),
+        reversalReason: _stringValue(json['reversal_reason']),
+        createdAt: _stringValue(json['created_at']),
+      );
+}
+
+class RefereeScoreEventsPage {
+  const RefereeScoreEventsPage({
+    this.currentPage = 1,
+    this.perPage = 20,
+    this.lastPage = 1,
+    this.total = 0,
+    this.items = const [],
+  });
+
+  final int currentPage;
+  final int perPage;
+  final int lastPage;
+  final int total;
+  final List<RefereeScoreEventLedgerItem> items;
+
+  factory RefereeScoreEventsPage.fromJson(Map<String, dynamic> json) =>
+      RefereeScoreEventsPage(
+        currentPage: _intValue(json['current_page']),
+        perPage: _intValue(json['per_page']),
+        lastPage: _intValue(json['last_page']),
+        total: _intValue(json['total']),
+        items: _listValue(json['items'])
+            .whereType<Map>()
+            .map((item) => RefereeScoreEventLedgerItem.fromJson(
+                  Map<String, dynamic>.from(item),
+                ))
+            .toList(),
+      );
 }

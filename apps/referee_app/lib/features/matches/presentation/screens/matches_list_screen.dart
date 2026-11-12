@@ -122,12 +122,40 @@ class _MatchesListScreenState extends State<MatchesListScreen> {
     }
   }
 
+  void _openResult(RefereeMatchResponse match) {
+    context.push('${AppRouter.matchResultRoute}?matchId=${match.id}');
+  }
+
+  void _openBookingSession(RefereeMatchResponse match) {
+    final matchId = match.bookingMatchId;
+    context.push(
+      '${AppRouter.bookingSessionRoute}?bookingId=${match.id}'
+      '${matchId == null ? '' : '&matchId=$matchId'}',
+    );
+  }
+
+  Future<void> _resumeMatch(RefereeMatchResponse match) async {
+    try {
+      await _remote.updateMatchStatus(
+        match.id,
+        const RefereeMatchStatusRequest.resume(),
+      );
+      if (!mounted) return;
+      _showSnack('Match resumed.');
+      await _refresh();
+    } catch (error) {
+      if (mounted) _showSnack('Unable to resume match: $error');
+    }
+  }
+
   Future<void> _showMatchDetails(RefereeMatchResponse match) async {
     // Guard against double-tap opening stacked sheets.
     if (_openingDetails) return;
     _openingDetails = true;
     try {
-      final detail = await _remote.showMyMatchData(match.id);
+      final detail = match.isBooking
+          ? await _remote.getBookingDetails(match.id)
+          : await _remote.showMyMatchData(match.id);
       if (!mounted) return;
       await showModalBottomSheet<void>(
         context: context,
@@ -382,6 +410,27 @@ class _MatchesListScreenState extends State<MatchesListScreen> {
                               itemBuilder: (context, index) {
                                 final match = visibleMatches[index];
 
+                                if (match.isBooking) {
+                                  if (match.isCompleted) {
+                                    return _FigmaCompletedMatchCard(
+                                      scale: scale,
+                                      match: match,
+                                      onViewReport: () => _openResult(match),
+                                      onTap: () => _openBookingSession(match),
+                                    );
+                                  }
+                                  return _FigmaUpcomingMatchCard(
+                                    scale: scale,
+                                    match: match,
+                                    onVerifyTeams: () =>
+                                        _openBookingSession(match),
+                                    onConductToss: () =>
+                                        _openBookingSession(match),
+                                    onStartScoring: () =>
+                                        _openBookingSession(match),
+                                  );
+                                }
+
                                 // Determine card variation based on status
                                 if (match.isLive) {
                                   return _FigmaLiveMatchCard(
@@ -407,18 +456,14 @@ class _MatchesListScreenState extends State<MatchesListScreen> {
                                   return _FigmaCompletedMatchCard(
                                     scale: scale,
                                     match: match,
-                                    onViewReport: () =>
-                                        _showMatchDetails(match),
+                                    onViewReport: () => _openResult(match),
+                                    onTap: () => _showMatchDetails(match),
                                   );
                                 } else if (match.isDelayed) {
                                   return _FigmaDelayedMatchCard(
                                     scale: scale,
                                     match: match,
-                                    onUpdateStatus: () {
-                                      context.push(
-                                        '${AppRouter.matchVerificationRoute}?matchId=${match.id}',
-                                      );
-                                    },
+                                    onUpdateStatus: () => _resumeMatch(match),
                                   );
                                 } else {
                                   // Default: Upcoming / Pre-match card with status-driven actions
@@ -1481,302 +1526,312 @@ class _FigmaCompletedMatchCard extends StatelessWidget {
   final double scale;
   final RefereeMatchResponse match;
   final VoidCallback onViewReport;
+  final VoidCallback? onTap;
 
   const _FigmaCompletedMatchCard({
     required this.scale,
     required this.match,
     required this.onViewReport,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     // Final scores + winner from the read-only GET /score — never static.
-    return MatchLiveScore(
-      matchId: match.id,
-      builder: (context, score, isLoading) {
-        final teamAId = match.teamA?.id;
-        final teamBId = match.teamB?.id;
-        final teamAScore = isLoading
-            ? '…'
-            : (teamAId == null ? '—' : (liveTeamScore(score, teamAId) ?? '—'));
-        final teamBScore = isLoading
-            ? '…'
-            : (teamBId == null ? '—' : (liveTeamScore(score, teamBId) ?? '—'));
-        final winnerSummary = isLoading ? '…' : _winnerSummary(score, match);
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: MatchLiveScore(
+        matchId: match.id,
+        builder: (context, score, isLoading) {
+          final teamAId = match.teamA?.id;
+          final teamBId = match.teamB?.id;
+          final teamAScore = isLoading
+              ? '…'
+              : (teamAId == null
+                  ? '—'
+                  : (liveTeamScore(score, teamAId) ?? '—'));
+          final teamBScore = isLoading
+              ? '…'
+              : (teamBId == null
+                  ? '—'
+                  : (liveTeamScore(score, teamBId) ?? '—'));
+          final winnerSummary = isLoading ? '…' : _winnerSummary(score, match);
 
-        return Container(
-          decoration: BoxDecoration(
-            color: const Color(0xFF1C2026),
-            borderRadius: BorderRadius.circular(14 * scale),
-            border: Border.all(
-              color: const Color(0x1AFFFFFF),
-              width: 0.8,
+          return Container(
+            decoration: BoxDecoration(
+              color: const Color(0xFF1C2026),
+              borderRadius: BorderRadius.circular(14 * scale),
+              border: Border.all(
+                color: const Color(0x1AFFFFFF),
+                width: 0.8,
+              ),
             ),
-          ),
-          padding: EdgeInsets.all(10 * scale),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header: Stage badge, Schedule, Completed gradient badge
-              Row(
-                children: [
-                  Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 6 * scale,
-                      vertical: 2 * scale,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF2BB673),
-                      borderRadius: BorderRadius.circular(10 * scale),
-                      border: Border.all(
+            padding: EdgeInsets.all(10 * scale),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header: Stage badge, Schedule, Completed gradient badge
+                Row(
+                  children: [
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 6 * scale,
+                        vertical: 2 * scale,
+                      ),
+                      decoration: BoxDecoration(
                         color: const Color(0xFF2BB673),
-                        width: 0.8,
+                        borderRadius: BorderRadius.circular(10 * scale),
+                        border: Border.all(
+                          color: const Color(0xFF2BB673),
+                          width: 0.8,
+                        ),
                       ),
-                    ),
-                    child: Text(
-                      match.displayRound.isNotEmpty
-                          ? match.displayRound
-                          : 'Final',
-                      style: TextStyle(
-                        fontSize: 11 * scale,
-                        fontWeight: FontWeight.w600,
-                        color: const Color(0xFFFFFFFF),
-                        height: 1.0,
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 6 * scale),
                       child: Text(
-                        match.displaySchedule,
+                        match.displayRound.isNotEmpty
+                            ? match.displayRound
+                            : 'Final',
+                        style: TextStyle(
+                          fontSize: 11 * scale,
+                          fontWeight: FontWeight.w600,
+                          color: const Color(0xFFFFFFFF),
+                          height: 1.0,
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 6 * scale),
+                        child: Text(
+                          match.displaySchedule,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 12 * scale,
+                            fontWeight: FontWeight.w600,
+                            color: const Color(0xFFAAAAAA),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 6 * scale,
+                        vertical: 2 * scale,
+                      ),
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [
+                            Color(0x267AD3FF),
+                            Color(0x264FBAF0),
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(10 * scale),
+                        border: Border.all(
+                          color: const Color(0x4D7AD3FF),
+                          width: 0.8,
+                        ),
+                      ),
+                      child: Text(
+                        'Completed',
+                        style: TextStyle(
+                          fontSize: 11 * scale,
+                          fontWeight: FontWeight.w700,
+                          color: const Color(0xFF7AD3FF),
+                          height: 1.0,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                SizedBox(height: 8 * scale),
+
+                // Tournament Name (Crisp White Quicksand - never yellow)
+                Text(
+                  match.displayTournament,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 16 * scale,
+                    fontWeight: FontWeight.w600,
+                    color: const Color(0xFFFFFFFF),
+                    height: 1.2,
+                  ),
+                ),
+
+                SizedBox(height: 2 * scale),
+
+                // Venue
+                Row(
+                  children: [
+                    SportoAssetIcon(
+                      SportoAssets.locationPin,
+                      size: 13 * scale,
+                      color: const Color(0xFFAAAAAA),
+                    ),
+                    SizedBox(width: 4 * scale),
+                    Expanded(
+                      child: Text(
+                        match.displayVenue,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 12 * scale,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w500,
                           color: const Color(0xFFAAAAAA),
                         ),
                       ),
                     ),
-                  ),
-                  Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 6 * scale,
-                      vertical: 2 * scale,
-                    ),
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [
-                          Color(0x267AD3FF),
-                          Color(0x264FBAF0),
+                  ],
+                ),
+
+                SizedBox(height: 8 * scale),
+
+                // Teams & Final Scores
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            match.displayTeamA,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 14 * scale,
+                              fontWeight: FontWeight.w600,
+                              color: const Color(0xFFFFFFFF),
+                            ),
+                          ),
+                          SizedBox(height: 2 * scale),
+                          Text(
+                            teamAScore,
+                            style: TextStyle(
+                              fontSize: 13 * scale,
+                              fontWeight: FontWeight.w600,
+                              color: const Color(0xFFFFFFFF),
+                            ),
+                          ),
                         ],
                       ),
-                      borderRadius: BorderRadius.circular(10 * scale),
-                      border: Border.all(
-                        color: const Color(0x4D7AD3FF),
-                        width: 0.8,
+                    ),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 8 * scale),
+                      child: Text(
+                        'Vs',
+                        style: TextStyle(
+                          fontSize: 12 * scale,
+                          fontWeight: FontWeight.w700,
+                          color: const Color(0xFFAAAAAA),
+                        ),
                       ),
                     ),
-                    child: Text(
-                      'Completed',
-                      style: TextStyle(
-                        fontSize: 11 * scale,
-                        fontWeight: FontWeight.w700,
-                        color: const Color(0xFF7AD3FF),
-                        height: 1.0,
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            match.displayTeamB,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.right,
+                            style: TextStyle(
+                              fontSize: 14 * scale,
+                              fontWeight: FontWeight.w600,
+                              color: const Color(0xFFFFFFFF),
+                            ),
+                          ),
+                          SizedBox(height: 2 * scale),
+                          Text(
+                            teamBScore,
+                            textAlign: TextAlign.right,
+                            style: TextStyle(
+                              fontSize: 13 * scale,
+                              fontWeight: FontWeight.w600,
+                              color: const Color(0xFFFFFFFF),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ),
-                ],
-              ),
-
-              SizedBox(height: 8 * scale),
-
-              // Tournament Name (Crisp White Quicksand - never yellow)
-              Text(
-                match.displayTournament,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 16 * scale,
-                  fontWeight: FontWeight.w600,
-                  color: const Color(0xFFFFFFFF),
-                  height: 1.2,
+                  ],
                 ),
-              ),
 
-              SizedBox(height: 2 * scale),
+                SizedBox(height: 8 * scale),
 
-              // Venue
-              Row(
-                children: [
-                  SportoAssetIcon(
-                    SportoAssets.locationPin,
-                    size: 13 * scale,
-                    color: const Color(0xFFAAAAAA),
-                  ),
-                  SizedBox(width: 4 * scale),
-                  Expanded(
-                    child: Text(
-                      match.displayVenue,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 12 * scale,
-                        fontWeight: FontWeight.w500,
-                        color: const Color(0xFFAAAAAA),
+                // Divider Line (Line 7: 0.8px, #283040)
+                Container(
+                  height: 0.8 * scale,
+                  color: const Color(0xFF283040),
+                ),
+
+                SizedBox(height: 8 * scale),
+
+                // Winner Summary & View Report Action
+                Row(
+                  children: [
+                    Icon(
+                      Icons.emoji_events_rounded,
+                      size: 15 * scale,
+                      color: const Color(0xFF2BB673),
+                    ),
+                    SizedBox(width: 4 * scale),
+                    Expanded(
+                      child: Text(
+                        winnerSummary,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 13 * scale,
+                          fontWeight: FontWeight.w600,
+                          color: const Color(0xFF2BB673),
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-
-              SizedBox(height: 8 * scale),
-
-              // Teams & Final Scores
-              Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          match.displayTeamA,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 14 * scale,
-                            fontWeight: FontWeight.w600,
-                            color: const Color(0xFFFFFFFF),
-                          ),
-                        ),
-                        SizedBox(height: 2 * scale),
-                        Text(
-                          teamAScore,
-                          style: TextStyle(
-                            fontSize: 13 * scale,
-                            fontWeight: FontWeight.w600,
-                            color: const Color(0xFFFFFFFF),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8 * scale),
-                    child: Text(
-                      'Vs',
-                      style: TextStyle(
-                        fontSize: 12 * scale,
-                        fontWeight: FontWeight.w700,
-                        color: const Color(0xFFAAAAAA),
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          match.displayTeamB,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          textAlign: TextAlign.right,
-                          style: TextStyle(
-                            fontSize: 14 * scale,
-                            fontWeight: FontWeight.w600,
-                            color: const Color(0xFFFFFFFF),
-                          ),
-                        ),
-                        SizedBox(height: 2 * scale),
-                        Text(
-                          teamBScore,
-                          textAlign: TextAlign.right,
-                          style: TextStyle(
-                            fontSize: 13 * scale,
-                            fontWeight: FontWeight.w600,
-                            color: const Color(0xFFFFFFFF),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-
-              SizedBox(height: 8 * scale),
-
-              // Divider Line (Line 7: 0.8px, #283040)
-              Container(
-                height: 0.8 * scale,
-                color: const Color(0xFF283040),
-              ),
-
-              SizedBox(height: 8 * scale),
-
-              // Winner Summary & View Report Action
-              Row(
-                children: [
-                  Icon(
-                    Icons.emoji_events_rounded,
-                    size: 15 * scale,
-                    color: const Color(0xFF2BB673),
-                  ),
-                  SizedBox(width: 4 * scale),
-                  Expanded(
-                    child: Text(
-                      winnerSummary,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 13 * scale,
-                        fontWeight: FontWeight.w600,
-                        color: const Color(0xFF2BB673),
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 8 * scale),
-                  Container(
-                    height: 30 * scale,
-                    decoration: BoxDecoration(
-                      color: const Color(0x66283040),
-                      borderRadius: BorderRadius.circular(10 * scale),
-                      border: Border.all(
-                        color: const Color(0xFF283040),
-                        width: 1,
-                      ),
-                    ),
-                    child: Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        onTap: onViewReport,
+                    SizedBox(width: 8 * scale),
+                    Container(
+                      height: 30 * scale,
+                      decoration: BoxDecoration(
+                        color: const Color(0x66283040),
                         borderRadius: BorderRadius.circular(10 * scale),
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 14 * scale,
-                          ),
-                          child: Center(
-                            child: Text(
-                              'View Report',
-                              style: TextStyle(
-                                fontSize: 12 * scale,
-                                fontWeight: FontWeight.w600,
-                                color: const Color(0xFFFFFFFF),
+                        border: Border.all(
+                          color: const Color(0xFF283040),
+                          width: 1,
+                        ),
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: onViewReport,
+                          borderRadius: BorderRadius.circular(10 * scale),
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 14 * scale,
+                            ),
+                            child: Center(
+                              child: Text(
+                                'View Report',
+                                style: TextStyle(
+                                  fontSize: 12 * scale,
+                                  fontWeight: FontWeight.w600,
+                                  color: const Color(0xFFFFFFFF),
+                                ),
                               ),
                             ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        );
-      },
+                  ],
+                ),
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 }

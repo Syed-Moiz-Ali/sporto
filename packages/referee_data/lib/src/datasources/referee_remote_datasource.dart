@@ -1,4 +1,4 @@
-import 'package:core/core.dart';
+﻿import 'package:core/core.dart';
 
 import '../models/referee_api_models.dart';
 
@@ -60,9 +60,12 @@ class RefereeRemoteDataSource {
         .toList();
   }
 
-  Future<RefereeWeeklyAvailability> getWeeklyAvailability() async {
+  Future<RefereeWeeklyAvailability> getWeeklyAvailability({String? day}) async {
     final response = await _get(
       SportoApiEndpoints.refereeAvailability.slots,
+      queryParameters: {
+        if (day != null && day.trim().isNotEmpty) 'day': day.trim(),
+      },
     );
     final data = response.data;
     if (data is! Map) {
@@ -117,6 +120,49 @@ class RefereeRemoteDataSource {
     return RefereeAvailabilityClearResult.fromJson(
       Map<String, dynamic>.from(data),
     );
+  }
+
+  Future<RefereeAvailabilityStatusResponse> getAvailabilityStatus() async {
+    final response = await _get(SportoApiEndpoints.refereeAvailability.status);
+    return _availabilityStatusFromData(response.data);
+  }
+
+  Future<RefereeAvailabilityStatusResponse> updateAvailabilityStatus(
+    bool isAvailable,
+  ) async {
+    final response = await _put(
+      SportoApiEndpoints.refereeAvailability.status,
+      RefereeAvailabilityStatusRequest(isAvailable: isAvailable).toJson(),
+    );
+    return _availabilityStatusFromData(response.data);
+  }
+
+  Future<RefereeAvailabilityDay> toggleAvailabilityDay(
+    Object day, {
+    required bool isEnabled,
+  }) async {
+    final response = await _put(
+      SportoApiEndpoints.refereeAvailability.day(day),
+      RefereeAvailabilityDayRequest(isEnabled: isEnabled).toJson(),
+    );
+    final data = response.data;
+    if (data is! Map) {
+      throw const SportoApiException(
+        'Weekday availability response data is invalid.',
+      );
+    }
+    return RefereeAvailabilityDay.fromJson(Map<String, dynamic>.from(data));
+  }
+
+  Future<RefereeAvailabilitySlot> patchAvailabilitySlot(
+    Object slotId,
+    RefereeAvailabilitySlotPatch patch,
+  ) async {
+    final response = await _put(
+      SportoApiEndpoints.refereeAvailability.slot(slotId),
+      patch.toJson(),
+    );
+    return _slotFromData(response.data);
   }
 
   Future<RefereeDocument> addDocument(RefereeDocumentRequest request) async {
@@ -209,6 +255,155 @@ class RefereeRemoteDataSource {
       {
         if (reason != null && reason.trim().isNotEmpty) 'reason': reason.trim(),
       },
+    );
+  }
+
+  Future<List<RefereeMatchRequestResponse>> listBookingRequestsData({
+    int page = 1,
+    int perPage = 20,
+  }) async {
+    final response = await _get(
+      SportoApiEndpoints.refereeBookings.requests,
+      queryParameters: {'page': page, 'per_page': perPage},
+    );
+    return _listOrPaginatedData(response.data)
+        .map(RefereeMatchRequestResponse.fromBookingRequestJson)
+        .toList();
+  }
+
+  Future<RefereeMatchRequestResponse> getBookingRequestData(
+    Object assignmentId,
+  ) async {
+    final response = await _get(
+      SportoApiEndpoints.refereeBookings.request(assignmentId),
+    );
+    final data = response.data;
+    if (data is! Map) {
+      throw const SportoApiException(
+        'Booking request response data is invalid.',
+      );
+    }
+    return RefereeMatchRequestResponse.fromBookingRequestJson(
+      Map<String, dynamic>.from(data),
+    );
+  }
+
+  Future<void> acceptBookingRequest(Object assignmentId) async {
+    await _post(
+      SportoApiEndpoints.refereeBookings.accept(assignmentId),
+      const {},
+    );
+  }
+
+  Future<void> rejectBookingRequest(
+    Object assignmentId, {
+    String? reason,
+  }) async {
+    await _post(
+      SportoApiEndpoints.refereeBookings.reject(assignmentId),
+      {
+        if (reason != null && reason.trim().isNotEmpty) 'reason': reason.trim(),
+      },
+    );
+  }
+
+  Future<List<RefereeMatchResponse>> listBookingsData({
+    String filter = 'upcoming',
+    int page = 1,
+    int perPage = 20,
+  }) async {
+    final response = await _get(
+      SportoApiEndpoints.refereeBookings.bookings,
+      queryParameters: {
+        'filter': filter,
+        'page': page,
+        'per_page': perPage,
+      },
+    );
+    return _listOrPaginatedData(response.data)
+        .map(RefereeMatchResponse.fromBookingJson)
+        .toList();
+  }
+
+  Future<List<RefereeMatchResponse>> listAllBookingsData({
+    int perPage = 50,
+  }) async {
+    final lists = await Future.wait([
+      listBookingsData(filter: 'upcoming', perPage: perPage),
+      listBookingsData(filter: 'ongoing', perPage: perPage),
+      listBookingsData(filter: 'completed', perPage: perPage),
+    ]);
+    final seen = <String>{};
+    return [
+      for (final list in lists)
+        for (final item in list)
+          if (seen.add('${item.id}')) item,
+    ];
+  }
+
+  Future<RefereeMatchResponse> getBookingDetails(Object bookingId) async {
+    final response = await _get(
+      SportoApiEndpoints.refereeBookings.booking(bookingId),
+    );
+    final data = response.data;
+    if (data is! Map) {
+      throw const SportoApiException('Booking response data is invalid.');
+    }
+    return RefereeMatchResponse.fromBookingJson(
+      Map<String, dynamic>.from(data),
+    );
+  }
+
+  Future<RefereeBookingSessionResponse> getBookingSession(
+    Object bookingId,
+  ) async {
+    final response = await _get(
+      SportoApiEndpoints.refereeBookings.session(bookingId),
+    );
+    return _bookingSessionFromData(response.data);
+  }
+
+  Future<RefereeBookingSessionResponse> verifyBookingTossOtp(
+    Object bookingId, {
+    required String otp,
+  }) async {
+    final response = await _post(
+      SportoApiEndpoints.refereeBookings.verifyToss(bookingId),
+      {'otp': otp.trim()},
+    );
+    return _bookingSessionFromData(response.data);
+  }
+
+  Future<RefereeBookingSessionResponse> verifyBookingStartOtp(
+    Object bookingId, {
+    required String otp,
+  }) async {
+    final response = await _post(
+      SportoApiEndpoints.refereeBookings.verifyStart(bookingId),
+      {'otp': otp.trim()},
+    );
+    return _bookingSessionFromData(response.data);
+  }
+
+  Future<RefereeBookingSessionResponse> verifyBookingEndOtp(
+    Object bookingId, {
+    required String otp,
+  }) async {
+    final response = await _post(
+      SportoApiEndpoints.refereeBookings.verifyEnd(bookingId),
+      {'otp': otp.trim()},
+    );
+    return _bookingSessionFromData(response.data);
+  }
+
+  RefereeBookingSessionResponse _bookingSessionFromData(Object? data) {
+    if (data is! Map) {
+      throw const SportoApiException(
+        'Booking session response data is invalid.',
+      );
+    }
+    return RefereeBookingSessionResponse.fromJson(
+      Map<String, dynamic>.from(data),
     );
   }
 
@@ -313,6 +508,164 @@ class RefereeRemoteDataSource {
     if (response.data is! Map) return null;
     return RefereeScoreResponse.fromJson(
       Map<String, dynamic>.from(response.data as Map),
+    );
+  }
+
+  Future<RefereeMatchSessionResponse> getMatchSession(Object matchId) async {
+    final response = await _get(
+      SportoApiEndpoints.refereeMatches.session(matchId),
+    );
+    return _sessionFromData(response.data);
+  }
+
+  Future<RefereeMatchSessionResponse> getMatchReadiness(Object matchId) async {
+    final response = await _get(
+      SportoApiEndpoints.refereeMatches.verify(matchId),
+    );
+    return _sessionFromData(response.data);
+  }
+
+  Future<RefereeMatchSessionResponse> verifyMatchTeams(
+    Object matchId, {
+    bool teamsVerified = true,
+    bool groundReady = true,
+  }) async {
+    final response = await _post(
+      SportoApiEndpoints.refereeMatches.verify(matchId),
+      {
+        'teams_verified': teamsVerified,
+        'ground_ready': groundReady,
+      },
+    );
+    return _sessionFromData(response.data);
+  }
+
+  Future<RefereeMatchSessionResponse> startMatchSession(
+    Object matchId, {
+    required String otp,
+  }) async {
+    final response = await _post(
+      SportoApiEndpoints.refereeMatches.sessionStart(matchId),
+      {'otp': otp.trim()},
+    );
+    return _sessionFromData(response.data);
+  }
+
+  Future<RefereeMatchSessionResponse> endMatchSession(
+    Object matchId, {
+    required String otp,
+  }) async {
+    final response = await _post(
+      SportoApiEndpoints.refereeMatches.sessionEnd(matchId),
+      {'otp': otp.trim()},
+    );
+    return _sessionFromData(response.data);
+  }
+
+  Future<RefereeMatchSessionResponse> withdrawMatchSession(
+    Object matchId,
+  ) async {
+    final response = await _post(
+      SportoApiEndpoints.refereeMatches.sessionWithdraw(matchId),
+      const {},
+    );
+    return _sessionFromData(response.data);
+  }
+
+  Future<RefereeMatchSessionResponse> updateMatchStatus(
+    Object matchId,
+    RefereeMatchStatusRequest request,
+  ) async {
+    final response = await _put(
+      SportoApiEndpoints.refereeMatches.status(matchId),
+      request.toJson(),
+    );
+    return _sessionFromData(response.data);
+  }
+
+  Future<RefereeMatchResultResponse> getMatchResult(Object matchId) async {
+    final response = await _get(
+      SportoApiEndpoints.refereeMatches.result(matchId),
+    );
+    final data = response.data;
+    if (data is! Map) {
+      throw const SportoApiException('Result response data is invalid.');
+    }
+    return RefereeMatchResultResponse.fromJson(
+      Map<String, dynamic>.from(data),
+    );
+  }
+
+  Future<RefereeScorecardResponse> getMatchScorecard(Object matchId) async {
+    final response = await _get(
+      SportoApiEndpoints.refereeMatches.scorecard(matchId),
+    );
+    final data = response.data;
+    if (data is! Map) {
+      throw const SportoApiException('Scorecard response data is invalid.');
+    }
+    return RefereeScorecardResponse.fromJson(
+      Map<String, dynamic>.from(data),
+    );
+  }
+
+  Future<RefereeScoreEventsPage> listMatchScoreEvents(
+    Object matchId, {
+    int? innings,
+    String? inningsType,
+    int? teamId,
+    int? playerId,
+    String? eventType,
+    bool includeReversed = true,
+    String order = 'asc',
+    int page = 1,
+    int perPage = 50,
+  }) async {
+    final response = await _get(
+      SportoApiEndpoints.refereeMatches.scoreEvents(matchId),
+      queryParameters: {
+        if (innings != null) 'innings': innings,
+        if (inningsType != null && inningsType.isNotEmpty)
+          'innings_type': inningsType,
+        if (teamId != null) 'team_id': teamId,
+        if (playerId != null) 'player_id': playerId,
+        if (eventType != null && eventType.isNotEmpty) 'event_type': eventType,
+        'include_reversed': includeReversed ? 1 : 0,
+        'order': order,
+        'page': page,
+        'per_page': perPage,
+      },
+    );
+    final data = response.data;
+    if (data is! Map) {
+      throw const SportoApiException(
+        'Score events response data is invalid.',
+      );
+    }
+    return RefereeScoreEventsPage.fromJson(Map<String, dynamic>.from(data));
+  }
+
+  RefereeMatchSessionResponse _sessionFromData(Object? data) {
+    if (data is! Map) {
+      throw const SportoApiException(
+        'Match session response data is invalid.',
+      );
+    }
+    return RefereeMatchSessionResponse.fromJson(
+      Map<String, dynamic>.from(data),
+    );
+  }
+
+  RefereeAvailabilityStatusResponse _availabilityStatusFromData(
+    Object? data,
+  ) {
+    if (data is! Map) {
+      throw const SportoApiException(
+        'Availability status response data is invalid.',
+      );
+    }
+    return RefereeAvailabilityStatusResponse.fromJson(
+      Map<String, dynamic>.from(data),
     );
   }
 

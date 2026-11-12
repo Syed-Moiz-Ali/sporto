@@ -21,6 +21,7 @@ class LiveScoringScreen extends StatefulWidget {
 
   final String? matchId;
   final String? matchCode;
+  final String? bookingId;
 
   /// Innings over limit. 0 means "not provided" — the UI then shows no over
   /// limit. The authoritative value comes from the API
@@ -31,6 +32,7 @@ class LiveScoringScreen extends StatefulWidget {
     super.key,
     this.matchId,
     this.matchCode,
+    this.bookingId,
     this.totalOvers = 0,
   });
 
@@ -216,6 +218,7 @@ class _LiveScoringScreenState extends State<LiveScoringScreen> {
           child: _LiveScoringView(
             matchId: widget.matchId!,
             matchCode: widget.matchCode ?? 'Match ${widget.matchId}',
+            bookingId: widget.bookingId,
             scoreConfig: scoreConfig,
             finalHeaderTitle: _finalHeaderTitle,
           ),
@@ -266,6 +269,7 @@ class _LiveScoringScreenState extends State<LiveScoringScreen> {
 class _LiveScoringView extends StatelessWidget {
   final String matchId;
   final String matchCode;
+  final String? bookingId;
   final RefereeScoreResponse? scoreConfig;
   final ValueNotifier<String> finalHeaderTitle;
   final ValueNotifier<bool> _scoreApiLoading = ValueNotifier<bool>(false);
@@ -273,6 +277,7 @@ class _LiveScoringView extends StatelessWidget {
   _LiveScoringView({
     required this.matchId,
     required this.matchCode,
+    this.bookingId,
     required this.scoreConfig,
     required this.finalHeaderTitle,
   });
@@ -623,6 +628,7 @@ class _LiveScoringView extends StatelessWidget {
         playerId: playerId,
         value: value,
         wicketType: wicketType,
+        eventUuid: newScoreEventUuid(),
       ),
     );
     if (!context.mounted || !synced) return;
@@ -654,8 +660,8 @@ class _LiveScoringView extends StatelessWidget {
     );
   }
 
-  Future<void> _complete(BuildContext context) async {
-    if (_scoreApiLoading.value) return;
+  Future<bool> _submitFinalScore(BuildContext context) async {
+    if (_scoreApiLoading.value) return false;
     // COMPLETE is only advertised once every period is closed. When the
     // second innings was finished locally the current period may still be
     // open, so close it first and then complete.
@@ -663,19 +669,70 @@ class _LiveScoringView extends StatelessWidget {
       context,
       RefereeScoreUpdateRequest.complete(),
     );
-    if (!context.mounted) return;
+    if (!context.mounted) return false;
     if (!synced) {
       final endSynced = await _syncScore(
         context,
         RefereeScoreUpdateRequest.endPeriod(),
       );
-      if (!context.mounted || !endSynced) return;
+      if (!context.mounted || !endSynced) return false;
       synced = await _syncScore(
         context,
         RefereeScoreUpdateRequest.complete(),
       );
-      if (!context.mounted || !synced) return;
+      if (!context.mounted || !synced) return false;
     }
+    return true;
+  }
+
+  Future<bool> _endSession(BuildContext context, String otp) async {
+    final numericMatchId = _numericMatchId;
+    if (numericMatchId == null) return false;
+    final bookingId = this.bookingId?.trim();
+    try {
+      if (bookingId != null && bookingId.isNotEmpty) {
+        await _remote.verifyBookingEndOtp(bookingId, otp: otp);
+      } else {
+        await _remote.endMatchSession(numericMatchId, otp: otp);
+      }
+      if (!context.mounted) return true;
+      context.read<LiveScoringBloc>().add(SubmitFinalResultEvent());
+      try {
+        final fresh = await _remote.getMatchScoreData(numericMatchId);
+        if (context.mounted) _applyServerScoreState(context, fresh);
+      } catch (_) {}
+      return true;
+    } catch (error) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Unable to end session: $error')),
+        );
+      }
+      return false;
+    }
+  }
+
+  Future<bool> _withdrawFinalScore(BuildContext context) async {
+    final numericMatchId = _numericMatchId;
+    if (numericMatchId == null) return false;
+    try {
+      await _remote.withdrawMatchSession(numericMatchId);
+      if (!context.mounted) return true;
+      await _reload(context);
+      return true;
+    } catch (error) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Unable to withdraw score: $error')),
+        );
+      }
+      return false;
+    }
+  }
+
+  Future<void> _complete(BuildContext context) async {
+    final ok = await _submitFinalScore(context);
+    if (!context.mounted || !ok) return;
     context.read<LiveScoringBloc>().add(SubmitFinalResultEvent());
   }
 
@@ -1323,7 +1380,10 @@ class _LiveScoringView extends StatelessWidget {
       scoreBallText: 'Ball 6/6',
       sessionStartedText: _sessionStartedText(),
       expectedOtp: _expectedEndOtp(),
-      onComplete: () => _complete(context),
+      onSubmit: () => _submitFinalScore(context),
+      onComplete: (otp) => _endSession(context, otp),
+      onWithdraw:
+          bookingId == null ? () => _withdrawFinalScore(context) : null,
       onHeaderTitle: (title) => finalHeaderTitle.value = title,
     );
   }
@@ -2002,7 +2062,7 @@ class _LiveScoringView extends StatelessWidget {
         if (state.firstInnings != null && state.secondInnings != null) ...[
           SportoLiveTieBreakerCard(
             regulationScore: '${state.firstInnings!.runs}'
-                '–${state.secondInnings!.runs}',
+                '“${state.secondInnings!.runs}',
             opponentTeam: state.currentBowlingTeam.name,
             opponentSuperOverScore: state.superOverInningsNumber == 2 &&
                     state.firstSuperOverInnings != null

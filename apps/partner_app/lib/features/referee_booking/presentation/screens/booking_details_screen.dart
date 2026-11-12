@@ -1,17 +1,23 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ui_kit/ui_kit.dart';
 
 import '../../application/booking_bloc.dart';
+import 'partner_live_booking_details.dart';
 
 /// Package 2 - Booking Details (Figma 01/02/03). ONE screen, three status
 /// variants driven by [BookingState.detailsStatus].
 class BookingDetailsScreen extends StatelessWidget {
-  const BookingDetailsScreen({super.key});
+  final String? bookingId;
+
+  const BookingDetailsScreen({super.key, this.bookingId});
 
   @override
   Widget build(BuildContext context) {
+    if (bookingId != null && bookingId!.trim().isNotEmpty) {
+      return PartnerLiveBookingDetails(bookingId: bookingId!.trim());
+    }
     final tokens = context.sporto;
     final gap = context.sportoLayout;
     final status = context.watch<BookingBloc>().state.detailsStatus;
@@ -94,44 +100,44 @@ class _DetailsData {
 
   factory _DetailsData.of(BookingDetailsStatus status) => switch (status) {
         BookingDetailsStatus.upcoming => const _DetailsData(
-              referee: 'Suresh Reddy',
-              sport: 'Cricket',
-              refId: 'REF-71910900',
-              bookingLabel: 'Booking',
-              bookingValue: 'Full Day',
-              location: 'Kondapur, Hyderabad',
-              otp: '220788',
-              refereeFee: '\u20B912500',
-              platformFee: '\u20B91250',
-              totalPaid: '\u20B913750',
-            ),
+            referee: 'Suresh Reddy',
+            sport: 'Cricket',
+            refId: 'REF-71910900',
+            bookingLabel: 'Booking',
+            bookingValue: 'Full Day',
+            location: 'Kondapur, Hyderabad',
+            otp: '220788',
+            refereeFee: '\u20B912500',
+            platformFee: '\u20B91250',
+            totalPaid: '\u20B913750',
+          ),
         BookingDetailsStatus.ongoing => const _DetailsData(
-              referee: 'Vijay Mohan',
-              sport: 'Cricket',
-              refId: 'REF-71858723',
-              bookingLabel: 'Booking',
-              bookingValue: 'Full Day',
-              location: 'Kompally, Hyderabad',
-              actualStart: 'Today, 5:00 PM',
-              otp: '889104',
-              refereeFee: '\u20B912600',
-              platformFee: '\u20B91260',
-              totalPaid: '\u20B913860',
-            ),
+            referee: 'Vijay Mohan',
+            sport: 'Cricket',
+            refId: 'REF-71858723',
+            bookingLabel: 'Booking',
+            bookingValue: 'Full Day',
+            location: 'Kompally, Hyderabad',
+            actualStart: 'Today, 5:00 PM',
+            otp: '889104',
+            refereeFee: '\u20B912600',
+            platformFee: '\u20B91260',
+            totalPaid: '\u20B913860',
+          ),
         BookingDetailsStatus.completed => const _DetailsData(
-              referee: 'Vijay Mohan',
-              sport: 'Cricket',
-              refId: 'REF-71858723',
-              bookingLabel: 'Duration',
-              bookingValue: '2 Hours',
-              location: 'Kompally, Hyderabad',
-              startedAt: 'Today, 5:00 PM',
-              endAt: 'Today, 7:00 PM',
-              otp: '000000',
-              refereeFee: '\u20B91350',
-              platformFee: '\u20B9135',
-              totalPaid: '\u20B91485',
-            ),
+            referee: 'Vijay Mohan',
+            sport: 'Cricket',
+            refId: 'REF-71858723',
+            bookingLabel: 'Duration',
+            bookingValue: '2 Hours',
+            location: 'Kompally, Hyderabad',
+            startedAt: 'Today, 5:00 PM',
+            endAt: 'Today, 7:00 PM',
+            otp: '000000',
+            refereeFee: '\u20B91350',
+            platformFee: '\u20B9135',
+            totalPaid: '\u20B91485',
+          ),
       };
 }
 
@@ -146,8 +152,9 @@ class _RefereeHeaderCard extends StatelessWidget {
     final tokens = context.sporto;
     final layout = context.sportoLayout;
     final pink = LinearGradient(
-      colors:
-          tokens.gradientPink.colors.map((c) => c.withValues(alpha: 0.2)).toList(),
+      colors: tokens.gradientPink.colors
+          .map((c) => c.withValues(alpha: 0.2))
+          .toList(),
     );
     final (pill, label) = switch (status) {
       BookingDetailsStatus.upcoming => (SportoStatusPill.orange, 'Upcoming'),
@@ -177,7 +184,8 @@ class _RefereeHeaderCard extends StatelessWidget {
               SportoStatusPill(
                 label: label,
                 gradient: pill,
-                leading: const SportoSvgIcon(SportoRefereeBookingIcons.clockGreen,
+                leading: const SportoSvgIcon(
+                    SportoRefereeBookingIcons.clockGreen,
                     size: 12),
               ),
             ],
@@ -247,8 +255,9 @@ class _ScheduleCard extends StatelessWidget {
           .toList(),
     );
     final goldBorder = LinearGradient(
-      colors:
-          tokens.gradientGold.colors.map((c) => c.withValues(alpha: 0.2)).toList(),
+      colors: tokens.gradientGold.colors
+          .map((c) => c.withValues(alpha: 0.2))
+          .toList(),
     );
     return SportoGlassSurface(
       radius: layout.radius16,
@@ -380,12 +389,14 @@ class _OtpCard extends StatelessWidget {
     final tokens = context.sporto;
     final layout = context.sportoLayout;
     final blueFill = LinearGradient(
-      colors:
-          tokens.gradientBlue.colors.map((c) => c.withValues(alpha: 0.05)).toList(),
+      colors: tokens.gradientBlue.colors
+          .map((c) => c.withValues(alpha: 0.05))
+          .toList(),
     );
     final blueBorder = LinearGradient(
-      colors:
-          tokens.gradientBlue.colors.map((c) => c.withValues(alpha: 0.5)).toList(),
+      colors: tokens.gradientBlue.colors
+          .map((c) => c.withValues(alpha: 0.5))
+          .toList(),
     );
     return SportoGlassSurface(
       radius: layout.radius20,
@@ -659,12 +670,14 @@ class _FinishSessionCard extends StatelessWidget {
     final tokens = context.sporto;
     final layout = context.sportoLayout;
     final redFill = LinearGradient(
-      colors:
-          tokens.gradientRed.colors.map((c) => c.withValues(alpha: 0.05)).toList(),
+      colors: tokens.gradientRed.colors
+          .map((c) => c.withValues(alpha: 0.05))
+          .toList(),
     );
     final redBorder = LinearGradient(
-      colors:
-          tokens.gradientRed.colors.map((c) => c.withValues(alpha: 0.5)).toList(),
+      colors: tokens.gradientRed.colors
+          .map((c) => c.withValues(alpha: 0.5))
+          .toList(),
     );
     return SportoGlassSurface(
       radius: layout.radius20,
@@ -723,4 +736,3 @@ class _FinishSessionCard extends StatelessWidget {
     );
   }
 }
-

@@ -447,13 +447,25 @@ class ManualWinnerSelected extends ConductTossAction {
   List<Object?> get props => [teamId];
 }
 
-class ConfirmManualTossResult extends ConductTossAction {}
+class ConfirmManualTossResult extends ConductTossAction {
+  final String? otp;
+  const ConfirmManualTossResult({this.otp});
+
+  @override
+  List<Object?> get props => [otp];
+}
 
 // ============================================================
 // FLIP
 // ============================================================
 
-class FlipCoinRequested extends ConductTossAction {}
+class FlipCoinRequested extends ConductTossAction {
+  final String? otp;
+  const FlipCoinRequested({this.otp});
+
+  @override
+  List<Object?> get props => [otp];
+}
 
 // ============================================================
 // CONTINUE
@@ -694,6 +706,7 @@ class ConductTossBloc extends Bloc<ConductTossAction, ConductTossState> {
         matchId,
         RefereeTossUpdateRequest.enterResult(
           winnerTeamId: parsedWinnerId,
+          otp: event.otp,
         ),
       );
       _latestToss = response ?? _latestToss;
@@ -761,6 +774,7 @@ class ConductTossBloc extends Bloc<ConductTossAction, ConductTossState> {
           RefereeTossUpdateRequest.call(
             calledSide: _coinSideToApi(state.callerChoice),
             callingTeamId: callingTeamIdInt ?? 1,
+            otp: event.otp,
           ),
         );
         _latestToss = callResponse ?? _latestToss;
@@ -899,7 +913,8 @@ class ConductTossBloc extends Bloc<ConductTossAction, ConductTossState> {
         tossResult,
       );
 
-      final decisionResponse = await refereeRemoteDataSource?.updateMatchTossData(
+      final decisionResponse =
+          await refereeRemoteDataSource?.updateMatchTossData(
         matchId,
         RefereeTossUpdateRequest.setDecision(
           decision: _decisionToApi(choice),

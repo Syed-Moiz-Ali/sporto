@@ -49,8 +49,20 @@ class _ScheduleMatchesScreenState extends State<ScheduleMatchesScreen> {
     if (mounted) _refresh();
   }
 
-  Future<List<RefereeMatchResponse>> _load() =>
-      _remote.listMyMatchesData(perPage: 50);
+  Future<List<RefereeMatchResponse>> _load() async {
+    final results = await Future.wait<List<RefereeMatchResponse>>([
+      _remote.listMyMatchesData(perPage: 50),
+      _remote
+          .listAllBookingsData(perPage: 50)
+          .catchError((_) => <RefereeMatchResponse>[]),
+    ]);
+    final seen = <String>{};
+    return [
+      for (final list in results)
+        for (final match in list)
+          if (seen.add('${match.isBooking}:${match.id}')) match,
+    ];
+  }
 
   Future<List<RefereeMatchResponse>> _prepare(
     Future<List<RefereeMatchResponse>> source,
@@ -83,11 +95,16 @@ class _ScheduleMatchesScreenState extends State<ScheduleMatchesScreen> {
   }
 
   void _performAction(RefereeMatchResponse match) {
+    if (match.isBooking) {
+      _openBookingSession(match);
+      return;
+    }
     final resolved = resolveMatchAction(match);
     switch (resolved.action) {
+      case MatchAction.viewReport:
+        context.push('${AppRouter.matchResultRoute}?matchId=${match.id}');
       case MatchAction.continueScoring:
       case MatchAction.startScoring:
-      case MatchAction.viewReport:
         context.push(
           '${AppRouter.liveScoringRoute}?matchId=${match.id}&matchCode=${Uri.encodeComponent(requestCode(match))}',
         );
@@ -100,6 +117,14 @@ class _ScheduleMatchesScreenState extends State<ScheduleMatchesScreen> {
       case MatchAction.blocked:
         _snack(resolved.blockedReason ?? 'Unavailable');
     }
+  }
+
+  void _openBookingSession(RefereeMatchResponse match) {
+    final matchId = match.bookingMatchId;
+    context.push(
+      '${AppRouter.bookingSessionRoute}?bookingId=${match.id}'
+      '${matchId == null ? '' : '&matchId=$matchId'}',
+    );
   }
 
   void _openDelayedStatus(RefereeMatchResponse match) {
@@ -157,7 +182,7 @@ class _ScheduleMatchesScreenState extends State<ScheduleMatchesScreen> {
                 ),
                 onPressed: () {
                   Navigator.of(sheetContext).pop();
-                  _performAction(match);
+                  _resumeMatch(match);
                 },
                 child: const Text(
                   'Resume Match',
@@ -169,6 +194,21 @@ class _ScheduleMatchesScreenState extends State<ScheduleMatchesScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _resumeMatch(RefereeMatchResponse match) async {
+    try {
+      await _remote.updateMatchStatus(
+        match.id,
+        const RefereeMatchStatusRequest.resume(),
+      );
+      if (!mounted) return;
+      _snack('Match resumed.');
+      await _refresh();
+    } catch (error) {
+      if (!mounted) return;
+      _snack('Unable to resume match: $error');
+    }
   }
 
   Future<void> _openSearch() async {

@@ -47,8 +47,8 @@ class RefereeApplicationCubit extends Cubit<RefereeApplicationState> {
 
   final RefereeRemoteDataSource _remoteDataSource;
 
-  Future<void> load() async {
-    emit(const RefereeApplicationLoading());
+  Future<void> load({bool silent = false}) async {
+    if (!silent) emit(const RefereeApplicationLoading());
     try {
       final application = await _remoteDataSource.getApplicationData();
       RefereeApplicationStatusResponse? status;

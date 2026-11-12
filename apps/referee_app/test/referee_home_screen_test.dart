@@ -175,7 +175,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('Incoming Requests'), findsOneWidget);
+      expect(find.textContaining('Incoming Requests'), findsOneWidget);
       expect(find.text('View All'), findsOneWidget);
       expect(find.text('Rahul Kumar'), findsOneWidget);
       expect(find.text('Accept'), findsOneWidget);

@@ -23,6 +23,7 @@ class BeforeTossMatch {
     required this.durationText,
     this.expectedOtp,
     this.matchId,
+    this.isBooking = false,
   });
 
   final String tournament;
@@ -38,6 +39,7 @@ class BeforeTossMatch {
   final String durationText;
   final String? expectedOtp;
   final String? matchId;
+  final bool isBooking;
 
   factory BeforeTossMatch.fromResponse(RefereeMatchResponse match) {
     return BeforeTossMatch(
@@ -58,6 +60,7 @@ class BeforeTossMatch {
       durationText: requestDurationText(match),
       expectedOtp: _extractOtp(match.raw),
       matchId: '${match.id}',
+      isBooking: _isBooking(match.raw),
     );
   }
 
@@ -77,7 +80,18 @@ class BeforeTossMatch {
       durationText: '2 hr 0 min',
       expectedOtp: null,
       matchId: match.id,
+      isBooking: false,
     );
+  }
+
+  static bool _isBooking(Map<String, dynamic> raw) {
+    if (raw['booking_id'] != null || raw['booking'] is Map) return true;
+    final source = raw['booking_source']?.toString().trim() ?? '';
+    if (source.isNotEmpty) return true;
+    final tournament = raw['tournament'];
+    final tournamentId =
+        raw['tournament_id'] ?? (tournament is Map ? tournament['id'] : null);
+    return tournamentId == null && raw['match_id'] != null;
   }
 
   static String? _extractOtp(Map<String, dynamic> raw) {

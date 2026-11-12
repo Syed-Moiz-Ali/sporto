@@ -52,10 +52,13 @@ class TournamentRound {
   final TournamentRoundVenueSummary venueSummary;
   int get requiredCapacity => venueSummary.requiredMatches > 0
       ? venueSummary.requiredMatches
-      : expectedMatchCount > 0 ? expectedMatchCount : matchCount;
+      : expectedMatchCount > 0
+          ? expectedMatchCount
+          : matchCount;
   int remainingCapacity({int editingCapacity = 0}) => requiredCapacity <= 0
       ? 0
-      : (requiredCapacity - venueSummary.capacity + editingCapacity).clamp(0, requiredCapacity);
+      : (requiredCapacity - venueSummary.capacity + editingCapacity)
+          .clamp(0, requiredCapacity);
   bool get capacityComplete => requiredCapacity > 0 && remainingCapacity() == 0;
 }
 
@@ -131,4 +134,30 @@ class TournamentSchedule {
   final int? versionId;
   final String status;
   final List<TournamentScheduledMatch> matches;
+}
+
+/// One-time match session code issued by the partner/organizer.
+class PartnerMatchSessionOtp {
+  const PartnerMatchSessionOtp({
+    required this.matchId,
+    required this.phase,
+    required this.otp,
+    this.expiresAt,
+    this.delivery,
+  });
+
+  final int matchId;
+  final String phase;
+  final String otp;
+  final String? expiresAt;
+  final String? delivery;
+
+  factory PartnerMatchSessionOtp.fromJson(Map<String, dynamic> json) =>
+      PartnerMatchSessionOtp(
+        matchId: _number(json['match_id']) ?? 0,
+        phase: '${json['phase'] ?? ''}',
+        otp: '${json['otp'] ?? ''}',
+        expiresAt: json['expires_at']?.toString(),
+        delivery: json['delivery']?.toString(),
+      );
 }

@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/di/dependency_injector.dart';
 import '../../features/auth/presentation/views/auth_flow_view.dart';
 import '../../features/referee_booking/application/booking_bloc.dart';
 import '../../features/referee_booking/application/booking_repository.dart';
@@ -93,8 +94,11 @@ abstract final class AppRouter {
       // (sport/location/referee) persist across the steps.
       ShellRoute(
         builder: (context, state, child) => BlocProvider<BookingBloc>(
-          create: (_) => BookingBloc(MockBookingRepository())
-            ..add(const BookingLoad()),
+          create: (_) => BookingBloc(
+            ApiBookingRepository(
+              remote: DependencyInjector.instance.partnerRemoteDataSource,
+            ),
+          )..add(const BookingLoad()),
           child: child,
         ),
         routes: [
@@ -158,7 +162,9 @@ abstract final class AppRouter {
           GoRoute(
             path: bookingDetailsPath,
             name: 'bookingDetails',
-            builder: (context, state) => const BookingDetailsScreen(),
+            builder: (context, state) => BookingDetailsScreen(
+              bookingId: state.pathParameters['id'],
+            ),
           ),
           GoRoute(
             path: rateReviewPath,

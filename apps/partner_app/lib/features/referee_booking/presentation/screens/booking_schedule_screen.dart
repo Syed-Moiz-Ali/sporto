@@ -14,12 +14,17 @@ class BookingScheduleScreen extends StatelessWidget {
   const BookingScheduleScreen({super.key});
 
   static const List<String> _dates = [
-    '12 Oct 2026',
-    '13 Oct 2026',
-    '14 Oct 2026',
-    '15 Oct 2026',
+    '16 Nov 2026',
+    '20 Nov 2026',
+    '23 Nov 2026',
+    '27 Nov 2026',
   ];
-  static const List<String> _times = ['3:00 PM', '5:00 PM', '6:30 PM', '8:00 PM'];
+  static const List<String> _times = [
+    '3:00 PM',
+    '5:00 PM',
+    '6:30 PM',
+    '8:00 PM'
+  ];
   static const List<String> _durations = ['1 Hour', '2 Hours'];
 
   @override
@@ -71,18 +76,16 @@ class BookingScheduleScreen extends StatelessWidget {
                     label: 'Date',
                     options: _dates,
                     selected: state.selectedDate,
-                    onSelect: (v) => context
-                        .read<BookingBloc>()
-                        .add(BookingSelectDate(v)),
+                    onSelect: (v) =>
+                        context.read<BookingBloc>().add(BookingSelectDate(v)),
                   ),
                   SizedBox(height: gap.space20),
                   _ChipSection(
                     label: 'Start Time',
                     options: _times,
                     selected: state.selectedTime,
-                    onSelect: (v) => context
-                        .read<BookingBloc>()
-                        .add(BookingSelectTime(v)),
+                    onSelect: (v) =>
+                        context.read<BookingBloc>().add(BookingSelectTime(v)),
                   ),
                   SizedBox(height: gap.space20),
                   _ChipSection(

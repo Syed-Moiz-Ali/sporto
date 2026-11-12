@@ -23,15 +23,27 @@ class WeeklyAvailabilityLoaded extends WeeklyAvailabilityState {
     required this.weekdays,
     required this.slots,
     required this.timezone,
+    this.days = const [],
+    this.status,
     this.isSaving = false,
   });
 
   final List<RefereeWeekday> weekdays;
   final List<RefereeAvailabilitySlot> slots;
   final String timezone;
+  final List<RefereeAvailabilityDay> days;
+  final RefereeAvailabilityStatusResponse? status;
   final bool isSaving;
 
   bool get isEmpty => slots.isEmpty;
+  bool get isGloballyAvailable => status?.isAvailable ?? false;
+
+  RefereeAvailabilityDay? dayFor(String day) {
+    for (final item in days) {
+      if (item.day == day) return item;
+    }
+    return null;
+  }
 
   List<RefereeAvailabilitySlot> slotsForDay(String day) =>
       slots.where((slot) => slot.day == day).toList();
@@ -48,18 +60,23 @@ class WeeklyAvailabilityLoaded extends WeeklyAvailabilityState {
     List<RefereeWeekday>? weekdays,
     List<RefereeAvailabilitySlot>? slots,
     String? timezone,
+    List<RefereeAvailabilityDay>? days,
+    RefereeAvailabilityStatusResponse? status,
     bool? isSaving,
   }) {
     return WeeklyAvailabilityLoaded(
       weekdays: weekdays ?? this.weekdays,
       slots: slots ?? this.slots,
       timezone: timezone ?? this.timezone,
+      days: days ?? this.days,
+      status: status ?? this.status,
       isSaving: isSaving ?? this.isSaving,
     );
   }
 
   @override
-  List<Object?> get props => [weekdays, slots, timezone, isSaving];
+  List<Object?> get props =>
+      [weekdays, slots, timezone, days, status, isSaving];
 }
 
 class WeeklyAvailabilityError extends WeeklyAvailabilityState {
@@ -96,13 +113,8 @@ class WeeklyAvailabilityCubit extends Cubit<WeeklyAvailabilityState> {
   Future<void> load() async {
     emit(const WeeklyAvailabilityLoading());
     try {
-      final weekdays = await _remoteDataSource.listAvailabilityDays();
-      final weekly = await _remoteDataSource.getWeeklyAvailability();
-      emit(WeeklyAvailabilityLoaded(
-        weekdays: weekdays,
-        slots: _sorted(weekly.slots),
-        timezone: weekly.timezone,
-      ));
+      final payload = await _fetch();
+      emit(payload);
     } catch (error) {
       emit(WeeklyAvailabilityError(_readableError(error)));
     }
@@ -112,15 +124,87 @@ class WeeklyAvailabilityCubit extends Cubit<WeeklyAvailabilityState> {
   Future<void> refresh() async {
     if (_loaded == null) return load();
     try {
-      final weekdays = await _remoteDataSource.listAvailabilityDays();
-      final weekly = await _remoteDataSource.getWeeklyAvailability();
-      emit(WeeklyAvailabilityLoaded(
-        weekdays: weekdays,
-        slots: _sorted(weekly.slots),
-        timezone: weekly.timezone,
-      ));
+      final payload = await _fetch();
+      emit(payload);
     } catch (error) {
       emit(WeeklyAvailabilityError(_readableError(error)));
+    }
+  }
+
+  Future<WeeklyAvailabilityLoaded> _fetch() async {
+    final weekdays = await _remoteDataSource.listAvailabilityDays();
+    final weekly = await _remoteDataSource.getWeeklyAvailability();
+    final status = await _remoteDataSource.getAvailabilityStatus();
+    return WeeklyAvailabilityLoaded(
+      weekdays: weekdays,
+      slots: _sorted(weekly.slots),
+      timezone: weekly.timezone,
+      days: weekly.days,
+      status: status,
+    );
+  }
+
+  Future<String?> setGlobalStatus(bool isAvailable) async {
+    final current = _loaded;
+    if (current == null) return 'Availability is still loading. Please retry.';
+    if (current.isSaving)
+      return 'Please wait for the current update to finish.';
+    emit(current.copyWith(isSaving: true));
+    try {
+      final status =
+          await _remoteDataSource.updateAvailabilityStatus(isAvailable);
+      emit(current.copyWith(status: status, isSaving: false));
+      return null;
+    } catch (error) {
+      emit(current.copyWith(isSaving: false));
+      return _readableError(error);
+    }
+  }
+
+  Future<String?> toggleDay(String day, {required bool isEnabled}) async {
+    final current = _loaded;
+    if (current == null) return 'Availability is still loading. Please retry.';
+    if (current.isSaving)
+      return 'Please wait for the current update to finish.';
+    emit(current.copyWith(isSaving: true));
+    try {
+      final updated = await _remoteDataSource.toggleAvailabilityDay(
+        day,
+        isEnabled: isEnabled,
+      );
+      final days = [
+        for (final item in current.days)
+          if (item.day == updated.day) updated else item,
+      ];
+      emit(current.copyWith(days: days, isSaving: false));
+      return null;
+    } catch (error) {
+      emit(current.copyWith(isSaving: false));
+      return _readableError(error);
+    }
+  }
+
+  Future<String?> toggleSlot(int slotId, {required bool isEnabled}) async {
+    final current = _loaded;
+    if (current == null) return 'Availability is still loading. Please retry.';
+    if (current.isSaving)
+      return 'Please wait for the current update to finish.';
+    emit(current.copyWith(isSaving: true));
+    try {
+      final updated = await _remoteDataSource.patchAvailabilitySlot(
+        slotId,
+        RefereeAvailabilitySlotPatch(isEnabled: isEnabled),
+      );
+      emit(current.copyWith(
+        slots: _sorted(
+          current.slots.map((slot) => slot.id == slotId ? updated : slot),
+        ),
+        isSaving: false,
+      ));
+      return null;
+    } catch (error) {
+      emit(current.copyWith(isSaving: false));
+      return _readableError(error);
     }
   }
 

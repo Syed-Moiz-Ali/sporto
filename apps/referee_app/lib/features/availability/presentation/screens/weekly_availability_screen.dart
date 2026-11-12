@@ -77,15 +77,62 @@ class WeeklyAvailabilityScreen extends StatelessWidget {
       color: const Color(0xFFED7B00),
       backgroundColor: const Color(0xFF1B2335),
       onRefresh: () => context.read<WeeklyAvailabilityCubit>().refresh(),
-      child: loaded.isEmpty
-          ? _EmptyAvailability(scale: scale, onAdd: () => _openEditor(context))
-          : _AvailabilityList(
-              scale: scale,
-              loaded: loaded,
-              onEdit: (slot) => _openEditor(context, slot: slot),
-              onDelete: (slot) => _deleteSlot(context, slot),
-              onClearDay: (day) => _clearDay(context, day),
-            ),
+      child: _AvailabilityList(
+        scale: scale,
+        loaded: loaded,
+        onAdd: () => _openEditor(context),
+        onEdit: (slot) => _openEditor(context, slot: slot),
+        onDelete: (slot) => _deleteSlot(context, slot),
+        onClearDay: (day) => _clearDay(context, day),
+        onToggleStatus: (value) => _toggleStatus(context, value),
+        onToggleDay: (day, value) => _toggleDay(context, day, value),
+        onToggleSlot: (slot, value) => _toggleSlot(context, slot, value),
+      ),
+    );
+  }
+
+  Future<void> _toggleStatus(BuildContext context, bool value) async {
+    final error =
+        await context.read<WeeklyAvailabilityCubit>().setGlobalStatus(value);
+    if (!context.mounted) return;
+    _showSnack(
+      context,
+      error ?? (value ? 'You are now online.' : 'You are now offline.'),
+      isError: error != null,
+    );
+  }
+
+  Future<void> _toggleDay(
+    BuildContext context,
+    String day,
+    bool value,
+  ) async {
+    final error = await context.read<WeeklyAvailabilityCubit>().toggleDay(
+          day,
+          isEnabled: value,
+        );
+    if (!context.mounted) return;
+    _showSnack(
+      context,
+      error ?? '${_dayLabel(day)} ${value ? 'enabled' : 'disabled'}.',
+      isError: error != null,
+    );
+  }
+
+  Future<void> _toggleSlot(
+    BuildContext context,
+    RefereeAvailabilitySlot slot,
+    bool value,
+  ) async {
+    final error = await context.read<WeeklyAvailabilityCubit>().toggleSlot(
+          slot.id,
+          isEnabled: value,
+        );
+    if (!context.mounted) return;
+    _showSnack(
+      context,
+      error ?? 'Slot ${value ? 'enabled' : 'disabled'}.',
+      isError: error != null,
     );
   }
 
@@ -460,16 +507,24 @@ class _EmptyAvailability extends StatelessWidget {
 class _AvailabilityList extends StatelessWidget {
   final double scale;
   final WeeklyAvailabilityLoaded loaded;
+  final VoidCallback onAdd;
   final ValueChanged<RefereeAvailabilitySlot> onEdit;
   final ValueChanged<RefereeAvailabilitySlot> onDelete;
   final ValueChanged<String> onClearDay;
+  final ValueChanged<bool> onToggleStatus;
+  final void Function(String day, bool value) onToggleDay;
+  final void Function(RefereeAvailabilitySlot slot, bool value) onToggleSlot;
 
   const _AvailabilityList({
     required this.scale,
     required this.loaded,
+    required this.onAdd,
     required this.onEdit,
     required this.onDelete,
     required this.onClearDay,
+    required this.onToggleStatus,
+    required this.onToggleDay,
+    required this.onToggleSlot,
   });
 
   @override
@@ -497,21 +552,118 @@ class _AvailabilityList extends StatelessWidget {
         28 * scale,
       ),
       children: [
+        _GlobalStatusCard(
+          scale: scale,
+          isAvailable: loaded.isGloballyAvailable,
+          statusLabel: loaded.status?.statusLabel,
+          message: loaded.status?.message,
+          enabled: !loaded.isSaving,
+          onChanged: onToggleStatus,
+        ),
+        SizedBox(height: 12 * scale),
         _SummaryCard(scale: scale, loaded: loaded),
         SizedBox(height: 16 * scale),
-        for (final day in orderedCodes)
-          if (groups[day] != null) ...[
-            _DayGroup(
-              scale: scale,
-              day: day,
-              slots: groups[day]!,
-              onEdit: onEdit,
-              onDelete: onDelete,
-              onClearDay: onClearDay,
-            ),
-            SizedBox(height: 14 * scale),
-          ],
+        if (loaded.isEmpty)
+          _EmptyAvailability(scale: scale, onAdd: onAdd)
+        else
+          for (final day in orderedCodes)
+            if (groups[day] != null) ...[
+              _DayGroup(
+                scale: scale,
+                day: day,
+                slots: groups[day]!,
+                dayEnabled: loaded.dayFor(day)?.isEnabled ?? true,
+                enabled: !loaded.isSaving,
+                onToggleDay: (value) => onToggleDay(day, value),
+                onEdit: onEdit,
+                onDelete: onDelete,
+                onClearDay: onClearDay,
+                onToggleSlot: onToggleSlot,
+              ),
+              SizedBox(height: 14 * scale),
+            ],
       ],
+    );
+  }
+}
+
+class _GlobalStatusCard extends StatelessWidget {
+  final double scale;
+  final bool isAvailable;
+  final String? statusLabel;
+  final String? message;
+  final bool enabled;
+  final ValueChanged<bool> onChanged;
+
+  const _GlobalStatusCard({
+    required this.scale,
+    required this.isAvailable,
+    required this.statusLabel,
+    required this.message,
+    required this.enabled,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final accent =
+        isAvailable ? const Color(0xFF2BB673) : const Color(0xFFA0A0A0);
+    return Container(
+      padding: EdgeInsets.fromLTRB(
+        14 * scale,
+        12 * scale,
+        8 * scale,
+        12 * scale,
+      ),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1B2335).withValues(alpha: 0.92),
+        borderRadius: BorderRadius.circular(16 * scale),
+        border: Border.all(color: accent.withValues(alpha: 0.35)),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            isAvailable
+                ? Icons.wifi_tethering_rounded
+                : Icons.wifi_tethering_off_rounded,
+            size: 20 * scale,
+            color: accent,
+          ),
+          SizedBox(width: 10 * scale),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  statusLabel ?? (isAvailable ? 'Online' : 'Offline'),
+                  style: TextStyle(
+                    fontSize: 14 * scale,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  ),
+                ),
+                SizedBox(height: 2 * scale),
+                Text(
+                  message ??
+                      (isAvailable
+                          ? 'Accepting new match requests'
+                          : 'Not accepting new matches'),
+                  style: TextStyle(
+                    fontSize: 11 * scale,
+                    fontWeight: FontWeight.w500,
+                    color: const Color(0xFFA0A0A0),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Switch.adaptive(
+            value: isAvailable,
+            onChanged: enabled ? onChanged : null,
+            activeColor: const Color(0xFF2BB673),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -612,17 +764,25 @@ class _DayGroup extends StatelessWidget {
   final double scale;
   final String day;
   final List<RefereeAvailabilitySlot> slots;
+  final bool dayEnabled;
+  final bool enabled;
+  final ValueChanged<bool> onToggleDay;
   final ValueChanged<RefereeAvailabilitySlot> onEdit;
   final ValueChanged<RefereeAvailabilitySlot> onDelete;
   final ValueChanged<String> onClearDay;
+  final void Function(RefereeAvailabilitySlot slot, bool value) onToggleSlot;
 
   const _DayGroup({
     required this.scale,
     required this.day,
     required this.slots,
+    required this.dayEnabled,
+    required this.enabled,
+    required this.onToggleDay,
     required this.onEdit,
     required this.onDelete,
     required this.onClearDay,
+    required this.onToggleSlot,
   });
 
   @override
@@ -682,6 +842,11 @@ class _DayGroup extends StatelessWidget {
                     ],
                   ),
                 ),
+                Switch.adaptive(
+                  value: dayEnabled,
+                  onChanged: enabled ? onToggleDay : null,
+                  activeColor: const Color(0xFF2BB673),
+                ),
                 IconButton(
                   tooltip: 'Clear $day',
                   onPressed: () => onClearDay(day),
@@ -703,6 +868,8 @@ class _DayGroup extends StatelessWidget {
             _SlotRow(
               scale: scale,
               slot: slots[i],
+              enabled: enabled,
+              onToggle: (value) => onToggleSlot(slots[i], value),
               onEdit: () => onEdit(slots[i]),
               onDelete: () => onDelete(slots[i]),
             ),
@@ -724,12 +891,16 @@ class _DayGroup extends StatelessWidget {
 class _SlotRow extends StatelessWidget {
   final double scale;
   final RefereeAvailabilitySlot slot;
+  final bool enabled;
+  final ValueChanged<bool> onToggle;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
 
   const _SlotRow({
     required this.scale,
     required this.slot,
+    required this.enabled,
+    required this.onToggle,
     required this.onEdit,
     required this.onDelete,
   });
@@ -775,6 +946,11 @@ class _SlotRow extends StatelessWidget {
                 ),
               ],
             ),
+          ),
+          Switch.adaptive(
+            value: slot.isEnabled,
+            onChanged: enabled ? onToggle : null,
+            activeColor: const Color(0xFF2BB673),
           ),
           IconButton(
             tooltip: 'Edit slot',

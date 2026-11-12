@@ -42,8 +42,32 @@ class _IncomingRequestsScreenState extends State<IncomingRequestsScreen> {
     if (mounted) _refresh();
   }
 
-  Future<List<RefereeMatchRequestResponse>> _load() =>
-      _remote.listMatchRequestsData();
+  Future<List<RefereeMatchRequestResponse>> _load() async {
+    final results = await Future.wait<List<RefereeMatchRequestResponse>>([
+      _remote
+          .listMatchRequestsData()
+          .catchError((_) => <RefereeMatchRequestResponse>[]),
+      _remote
+          .listBookingRequestsData()
+          .catchError((_) => <RefereeMatchRequestResponse>[]),
+    ]);
+    final seen = <String>{};
+    final merged = [
+      for (final list in results)
+        for (final item in list)
+          if (seen.add('${item.isBooking}:${item.assignmentId ?? item.id}'))
+            item,
+    ];
+    merged.sort((a, b) {
+      final aDate = requestDateTime(a);
+      final bDate = requestDateTime(b);
+      if (aDate == null && bDate == null) return 0;
+      if (aDate == null) return 1;
+      if (bDate == null) return -1;
+      return aDate.compareTo(bDate);
+    });
+    return merged;
+  }
 
   Future<void> _refresh() async {
     setState(() {
@@ -56,7 +80,14 @@ class _IncomingRequestsScreenState extends State<IncomingRequestsScreen> {
     final id = request.assignmentId ?? request.id;
     setState(() => _processingId = id);
     try {
-      await _remote.rejectMatchRequest(id);
+      if (request.isBooking) {
+        await _remote.rejectBookingRequest(
+          request.assignmentId ?? request.id,
+          reason: 'Unavailable for this request',
+        );
+      } else {
+        await _remote.rejectMatchRequest(id);
+      }
       MatchRequestRefresh.bump();
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(

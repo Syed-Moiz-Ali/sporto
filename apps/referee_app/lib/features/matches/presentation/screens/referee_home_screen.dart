@@ -89,19 +89,42 @@ class RefereeHomeScreenState extends State<RefereeHomeScreen>
     Future<List<RefereeMatchResponse>> source,
   ) async {
     final matches = await source;
-    _statusInitialised = true;
-    _statusEnabled = matches.isNotEmpty;
+    // Status loads in the background so prefetched/offline match payloads
+    // render immediately.
+    _refreshStatus();
+    if (!_statusInitialised) {
+      _statusInitialised = true;
+      _statusEnabled = matches.isNotEmpty;
+    }
     _selectedMatchTab = matches.any((m) => m.isLive) ? 0 : 1;
     return RefereeHomePayload(matches: matches);
   }
 
   Future<RefereeHomePayload> _load() async {
     final matchesFuture = _remote.listMyMatchesData(perPage: 50);
+    final bookingsFuture = _remote
+        .listAllBookingsData(perPage: 50)
+        .catchError((_) => <RefereeMatchResponse>[]);
     final requestsFuture = _remote
         .listMatchRequestsData()
         .catchError((_) => <RefereeMatchRequestResponse>[]);
-    final matches = await matchesFuture;
-    final requests = await requestsFuture;
+    final bookingRequestsFuture = _remote
+        .listBookingRequestsData()
+        .catchError((_) => <RefereeMatchRequestResponse>[]);
+    final tournamentMatches = await matchesFuture;
+    final bookings = await bookingsFuture;
+    final requests = [
+      ...await requestsFuture,
+      ...await bookingRequestsFuture,
+    ];
+    final seenMatches = <String>{};
+    final matches = [
+      for (final match in tournamentMatches)
+        if (seenMatches.add('tournament:${match.id}')) match,
+      for (final booking in bookings)
+        if (seenMatches.add('booking:${booking.id}')) booking,
+    ];
+    await _refreshStatus();
     if (!_statusInitialised) {
       _statusInitialised = true;
       _statusEnabled = matches.isNotEmpty || requests.isNotEmpty;
@@ -112,6 +135,36 @@ class RefereeHomeScreenState extends State<RefereeHomeScreen>
       _selectedMatchTab = 1;
     }
     return RefereeHomePayload(matches: matches, requests: requests);
+  }
+
+  Future<void> _refreshStatus() async {
+    try {
+      final status = await _remote.getAvailabilityStatus();
+      _statusInitialised = true;
+      _statusEnabled = status.isAvailable;
+      if (mounted) setState(() {});
+    } catch (_) {
+      // Fall back to the match/request heuristic when the status API fails.
+    }
+  }
+
+  Future<void> _setStatus(bool value) async {
+    final previous = _statusEnabled;
+    setState(() {
+      _statusEnabled = value;
+      _statusInitialised = true;
+    });
+    try {
+      final status = await _remote.updateAvailabilityStatus(value);
+      if (!mounted) return;
+      setState(() => _statusEnabled = status.isAvailable);
+    } catch (error) {
+      if (!mounted) return;
+      setState(() => _statusEnabled = previous);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Unable to update status: $error')),
+      );
+    }
   }
 
   Future<void> _refresh() async {
@@ -259,8 +312,7 @@ class RefereeHomeScreenState extends State<RefereeHomeScreen>
                           _RefereeStatusCard(
                             scale: scale,
                             enabled: _statusEnabled,
-                            onChanged: (value) =>
-                                setState(() => _statusEnabled = value),
+                            onChanged: _setStatus,
                             onAvailability: widget.onAvailability ??
                                 () {
                                   ScaffoldMessenger.of(context).showSnackBar(
@@ -2391,6 +2443,14 @@ class _HomeSkeletonState extends State<_HomeSkeleton>
 }
 
 void _onMatchAction(BuildContext context, RefereeMatchResponse match) {
+  if (match.isBooking) {
+    final matchId = match.bookingMatchId;
+    context.push(
+      '${AppRouter.bookingSessionRoute}?bookingId=${match.id}'
+      '${matchId == null ? '' : '&matchId=$matchId'}',
+    );
+    return;
+  }
   final resolved = resolveMatchAction(match);
   switch (resolved.action) {
     case MatchAction.continueScoring:

@@ -1470,7 +1470,7 @@ class ScoringRedesignEndOtpCard extends StatelessWidget {
           ),
           SizedBox(height: 10 * scale),
           Text(
-            'Share this OTP with your referee to End the Match.',
+            'Enter the End OTP issued by the organiser after final score submission.',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 12 * scale,
@@ -1493,7 +1493,7 @@ class ScoringRedesignEndOtpCard extends StatelessWidget {
           ],
           SizedBox(height: 16 * scale),
           RefereeGradientText(
-            'Enter 6-digit match OTP',
+            'Enter 6-digit End OTP',
             gradient: const LinearGradient(
               colors: [Color(0xFF7AD3FF), Color(0xFF4FBAF0)],
             ),
@@ -1642,7 +1642,7 @@ class ScoringRedesignHelpCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Haven't received the OTP?",
+                  "Haven't received the End OTP?",
                   style: TextStyle(
                     fontSize: 14 * scale,
                     fontWeight: FontWeight.w500,
@@ -1651,8 +1651,8 @@ class ScoringRedesignHelpCard extends StatelessWidget {
                 ),
                 SizedBox(height: 4 * scale),
                 Text(
-                  'Ask the user or partner who booked you to open their '
-                  'booking and show you the match OTP.',
+                  'Ask the organiser to open the match in the partner app and '
+                  'issue the End OTP after you submit the final score.',
                   style: TextStyle(
                     fontSize: 12 * scale,
                     fontWeight: FontWeight.w400,
@@ -1956,7 +1956,9 @@ class ScoringRedesignFinalFlow extends StatefulWidget {
   final String scoreBallText;
   final String sessionStartedText;
   final String? expectedOtp;
-  final Future<void> Function() onComplete;
+  final Future<bool> Function() onSubmit;
+  final Future<bool> Function(String otp) onComplete;
+  final Future<bool> Function()? onWithdraw;
   final ValueChanged<String> onHeaderTitle;
 
   const ScoringRedesignFinalFlow({
@@ -1976,7 +1978,9 @@ class ScoringRedesignFinalFlow extends StatefulWidget {
     required this.scoreBallText,
     required this.sessionStartedText,
     required this.expectedOtp,
+    required this.onSubmit,
     required this.onComplete,
+    this.onWithdraw,
     required this.onHeaderTitle,
     this.source = 'by Partner',
   });
@@ -2018,21 +2022,48 @@ class _ScoringRedesignFinalFlowState extends State<ScoringRedesignFinalFlow> {
   Future<void> _verify() async {
     final code = _otpController.text.trim();
     if (code.length != 6) {
-      _snack('Enter the 6-digit match OTP.');
-      _otpFocus.requestFocus();
-      return;
-    }
-    final expected = widget.expectedOtp;
-    if (expected != null && expected.isNotEmpty && expected != code) {
-      _snack('Incorrect OTP. Please check with the booking user.');
-      _otpController.clear();
-      setState(() {});
+      _snack('Enter the 6-digit End OTP.');
       _otpFocus.requestFocus();
       return;
     }
     setState(() => _submitting = true);
-    await widget.onComplete();
-    if (mounted) setState(() => _submitting = false);
+    final ok = await widget.onComplete(code);
+    if (!mounted) return;
+    setState(() => _submitting = false);
+    if (!ok) {
+      _otpController.clear();
+      _otpFocus.requestFocus();
+      _snack('Unable to end the session. Check the OTP and try again.');
+    }
+  }
+
+  Future<void> _submit() async {
+    if (_submitting) return;
+    setState(() => _submitting = true);
+    final ok = await widget.onSubmit();
+    if (!mounted) return;
+    setState(() => _submitting = false);
+    if (!ok) {
+      _snack('Unable to submit the final score. Please retry.');
+      return;
+    }
+    setState(() => _stage = _FinalFlowStage.otp);
+    widget.onHeaderTitle('Final Result');
+  }
+
+  Future<void> _withdraw() async {
+    final withdraw = widget.onWithdraw;
+    if (_submitting || withdraw == null) return;
+    setState(() => _submitting = true);
+    final ok = await withdraw();
+    if (!mounted) return;
+    setState(() {
+      _submitting = false;
+      if (ok) _stage = _FinalFlowStage.result;
+    });
+    if (!ok) {
+      _snack('Unable to withdraw the submitted score.');
+    }
   }
 
   void _showHelp() {
@@ -2051,8 +2082,8 @@ class _ScoringRedesignFinalFlowState extends State<ScoringRedesignFinalFlow> {
           ),
         ),
         content: const Text(
-          'Ask the user or partner who booked you to open their booking and '
-          'show you the 6-digit match OTP.',
+          'Ask the organiser to open the match in the partner app, issue the '
+          'End OTP, and share the 6 digits with you.',
           style: TextStyle(color: Color(0xFFA0A0A0), height: 1.4),
         ),
         actions: [
@@ -2127,11 +2158,8 @@ class _ScoringRedesignFinalFlowState extends State<ScoringRedesignFinalFlow> {
             SizedBox(height: 20 * scale),
             ScoringRedesignPrimaryButton(
               scale: scale,
-              label: 'Submit Final Result',
-              onTap: () {
-                setState(() => _stage = _FinalFlowStage.otp);
-                widget.onHeaderTitle('Final Result');
-              },
+              label: _submitting ? 'Submitting…' : 'Submit Final Result',
+              onTap: _submitting ? null : _submit,
             ),
           ] else ...[
             SizedBox(height: 20 * scale),
@@ -2156,6 +2184,15 @@ class _ScoringRedesignFinalFlowState extends State<ScoringRedesignFinalFlow> {
               ),
               textColor: const Color(0xFFFFFFFF),
             ),
+            if (widget.onWithdraw != null) ...[
+              SizedBox(height: 6 * scale),
+              Center(
+                child: TextButton(
+                  onPressed: _submitting ? null : _withdraw,
+                  child: const Text('Withdraw score & edit'),
+                ),
+              ),
+            ],
             SizedBox(height: 20 * scale),
             Center(
               child: GestureDetector(

@@ -155,7 +155,11 @@ void main() {
           scoreBallText: 'Ball 6/6',
           sessionStartedText: 'Session Started via OTP at 5:00 PM',
           expectedOtp: null,
-          onComplete: () async => completed = true,
+          onSubmit: () async => true,
+          onComplete: (otp) async {
+            completed = true;
+            return true;
+          },
           onHeaderTitle: (title) => header = title,
         ),
       ),
@@ -177,7 +181,7 @@ void main() {
 
     await tester.tap(find.text('Verify OTP & End Match'));
     await tester.pump();
-    expect(find.text('Enter the 6-digit match OTP.'), findsOneWidget);
+    expect(find.text('Enter the 6-digit End OTP.'), findsOneWidget);
 
     await tester.enterText(find.byType(TextField), '123456');
     await tester.tap(find.text('Verify OTP & End Match'));

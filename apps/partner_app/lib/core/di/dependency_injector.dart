@@ -24,6 +24,11 @@ class DependencyInjector {
 
   late final TournamentBloc tournamentBloc = _buildTournamentBloc();
 
+  late final PartnerRemoteDataSource partnerRemoteDataSource =
+      PartnerRemoteDataSource(
+    apiClient: SportoApiClient(tokenProvider: AuthSessionStore().getToken),
+  );
+
   AuthBloc _buildAuthBloc() {
     final authRepository = AuthRepositoryImpl();
     return AuthBloc(

@@ -2,6 +2,7 @@ import 'package:core/core.dart';
 
 import '../models/partner_api_response_models.dart';
 import '../models/partner_dashboard.dart';
+import '../models/partner_referee_booking_models.dart';
 import '../models/tournament_workflow_models.dart';
 import '../models/tournament_planning_models.dart';
 
@@ -133,6 +134,220 @@ class PartnerRemoteDataSource {
       throw StateError(response['message']?.toString() ?? 'Operation failed');
     }
     return response;
+  }
+
+  /// Issues a one-time match session code the partner shares with the referee.
+  ///
+  /// [phase] is one of `toss`, `start`, or `end`.
+  Future<PartnerMatchSessionOtp> issueMatchSessionOtp({
+    required Object tournamentId,
+    required Object matchId,
+    required String phase,
+  }) async {
+    final response = await _apiClient.postJson(
+      SportoApiEndpoints.partnerTournaments.matchSessionOtp(
+        tournamentId,
+        matchId,
+      ),
+      body: {'phase': phase},
+    );
+    if (response['success'] == false) {
+      throw StateError(
+        response['message']?.toString() ?? 'Unable to issue match OTP.',
+      );
+    }
+    return PartnerMatchSessionOtp.fromJson(_mapData(response['data']));
+  }
+
+  Future<PartnerAvailableRefereesPage> discoverAvailableReferees({
+    required int sportId,
+    required String bookingMethod,
+    required String bookingType,
+    required String bookingDate,
+    required String startTime,
+    required int durationMinutes,
+    required String city,
+    required String venueName,
+    String? addressLine,
+    String timezone = 'Asia/Kolkata',
+    int page = 1,
+    int perPage = 20,
+  }) async {
+    final response = await _get(
+      SportoApiEndpoints.partnerRefereeBookings.discoverReferees,
+      queryParameters: {
+        'sport_id': sportId,
+        'booking_method': bookingMethod,
+        'booking_type': bookingType,
+        'booking_date': bookingDate,
+        'start_time': startTime,
+        'duration_minutes': durationMinutes,
+        'city': city,
+        'timezone': timezone,
+        'venue_name': venueName,
+        if (addressLine != null && addressLine.trim().isNotEmpty)
+          'address_line': addressLine.trim(),
+        'page': page,
+        'per_page': perPage,
+      },
+    );
+    return PartnerAvailableRefereesPage.fromJson(_mapData(response.data));
+  }
+
+  Future<PartnerAvailableReferee> getAvailableReferee(
+    Object refereeId, {
+    required int sportId,
+    required String bookingMethod,
+    required String bookingType,
+    required String bookingDate,
+    required String startTime,
+    required int durationMinutes,
+    required String city,
+    required String venueName,
+    String? addressLine,
+    String timezone = 'Asia/Kolkata',
+  }) async {
+    final response = await _get(
+      SportoApiEndpoints.partnerRefereeBookings.referee(refereeId),
+      queryParameters: {
+        'sport_id': sportId,
+        'booking_method': bookingMethod,
+        'booking_type': bookingType,
+        'booking_date': bookingDate,
+        'start_time': startTime,
+        'duration_minutes': durationMinutes,
+        'city': city,
+        'timezone': timezone,
+        'venue_name': venueName,
+        if (addressLine != null && addressLine.trim().isNotEmpty)
+          'address_line': addressLine.trim(),
+        if (bookingMethod.toUpperCase() == 'DIRECT') 'referee_id': refereeId,
+      },
+    );
+    return PartnerAvailableReferee.fromJson(_mapData(response.data));
+  }
+
+  Future<PartnerBookingQuote> calculateBookingQuote(
+    PartnerBookingQuoteRequest request,
+  ) async {
+    final response = await _post(
+      SportoApiEndpoints.partnerRefereeBookings.quote,
+      body: request.toJson(),
+    );
+    return PartnerBookingQuote.fromJson(_mapData(response.data));
+  }
+
+  Future<PartnerBooking> createPartnerBooking(
+    PartnerBookingCreateRequest request,
+  ) async {
+    final response = await _post(
+      SportoApiEndpoints.partnerRefereeBookings.bookings,
+      body: request.toJson(),
+    );
+    return PartnerBooking.fromJson(_mapData(response.data));
+  }
+
+  Future<PartnerBookingPage> listPartnerBookings({
+    String filter = 'all',
+    int page = 1,
+    int perPage = 20,
+  }) async {
+    final response = await _get(
+      SportoApiEndpoints.partnerRefereeBookings.bookings,
+      queryParameters: {
+        'filter': filter,
+        'page': page,
+        'per_page': perPage,
+      },
+    );
+    return PartnerBookingPage.fromJson(_mapData(response.data));
+  }
+
+  Future<PartnerAvailableRefereesPage> listLastAssignedReferees({
+    int page = 1,
+    int perPage = 20,
+  }) async {
+    final response = await _get(
+      SportoApiEndpoints.partnerRefereeBookings.lastAssigned,
+      queryParameters: {'page': page, 'per_page': perPage},
+    );
+    return PartnerAvailableRefereesPage.fromJson(_mapData(response.data));
+  }
+
+  Future<PartnerBooking> getPartnerBooking(Object bookingId) async {
+    final response = await _get(
+      SportoApiEndpoints.partnerRefereeBookings.booking(bookingId),
+    );
+    return PartnerBooking.fromJson(_mapData(response.data));
+  }
+
+  Future<PartnerBooking> cancelPartnerBooking(
+    Object bookingId,
+    String reason,
+  ) async {
+    final response = await _post(
+      SportoApiEndpoints.partnerRefereeBookings.cancel(bookingId),
+      body: PartnerBookingCancelRequest(reason: reason).toJson(),
+    );
+    return PartnerBooking.fromJson(_mapData(response.data));
+  }
+
+  Future<PartnerBookingPaymentResult> initiatePartnerBookingPayment(
+    Object bookingId,
+    PartnerBookingPaymentInitiateRequest request,
+  ) async {
+    final response = await _post(
+      SportoApiEndpoints.partnerRefereeBookings.initiatePayment(bookingId),
+      body: request.toJson(),
+    );
+    return PartnerBookingPaymentResult.fromJson(_mapData(response.data));
+  }
+
+  Future<PartnerBookingPaymentResult> verifyPartnerBookingPayment(
+    Object bookingId,
+    PartnerBookingPaymentVerifyRequest request,
+  ) async {
+    final response = await _post(
+      SportoApiEndpoints.partnerRefereeBookings.verifyPayment(bookingId),
+      body: request.toJson(),
+    );
+    return PartnerBookingPaymentResult.fromJson(_mapData(response.data));
+  }
+
+  Future<PartnerBookingPaymentPage> listPartnerBookingPayments(
+    Object bookingId, {
+    int page = 1,
+    int perPage = 20,
+  }) async {
+    final response = await _get(
+      SportoApiEndpoints.partnerRefereeBookings.payments(bookingId),
+      queryParameters: {'page': page, 'per_page': perPage},
+    );
+    return PartnerBookingPaymentPage.fromJson(_mapData(response.data));
+  }
+
+  Future<PartnerBookingSessionOtp> issuePartnerBookingSessionOtp(
+    Object bookingId, {
+    String phase = 'start',
+  }) async {
+    final response = await _post(
+      SportoApiEndpoints.partnerRefereeBookings.sessionOtp(bookingId),
+      body: {'phase': phase},
+    );
+    return PartnerBookingSessionOtp.fromJson(_mapData(response.data));
+  }
+
+  Future<PartnerBooking> assignBookingMatch(
+    Object bookingId,
+    PartnerAssignMatchRequest request,
+  ) async {
+    final response = await _post(
+      SportoApiEndpoints.partnerRefereeBookings.assignMatch(bookingId),
+      body: request.toJson(),
+    );
+    return PartnerBooking.fromJson(
+      _mapData(_mapData(response.data)['booking']),
+    );
   }
 
   Future<PartnerDashboard> getDashboardData(

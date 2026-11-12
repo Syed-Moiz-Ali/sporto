@@ -1,0 +1,1718 @@
+{
+  "info": {
+    "name": "Sporto Referee - Booking Requests",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Independent booking details preserve ownership and match references. No session codes or automatic completion are provided."
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{referee_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:8000",
+      "type": "string"
+    },
+    {
+      "key": "user_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "referee_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "sport_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "referee_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "booking_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "assignment_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "reject_assignment_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "mock_payment_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "mock_transaction_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "booking_date",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "if(!pm.collectionVariables.get('booking_date')){const d=new Date();d.setUTCDate(d.getUTCDate()+7+((8-d.getUTCDay())%7));pm.collectionVariables.set('booking_date',d.toISOString().slice(0,10));}"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "Pending booking invitations",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "description": "Authenticated JSON endpoint. Owner or referee invitation access is required.",
+        "url": {
+          "raw": "{{base_url}}/api/v1/referee/bookings/requests",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "referee",
+            "bookings",
+            "requests"
+          ]
+        }
+      },
+      "response": [
+        {
+          "name": "Success",
+          "originalRequest": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "Authenticated JSON endpoint. Owner or referee invitation access is required.",
+            "url": {
+              "raw": "{{base_url}}/api/v1/referee/bookings/requests",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "bookings",
+                "requests"
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\n  \"success\": true,\n  \"message\": \"Success\",\n  \"data\": {\n    \"current_page\": 1,\n    \"data\": [\n      {\n        \"assignment_id\": 501,\n        \"assignment_status\": 1,\n        \"booking_source\": \"USER\",\n        \"booking_method\": \"DIRECT\",\n        \"booked_by_user_id\": 11,\n        \"booking\": {\n          \"id\": 101,\n          \"booking_id\": 101,\n          \"booking_number\": \"RB-3F3C751B-D414-454D-B076-E4960084D521\",\n          \"booking_source\": \"USER\",\n          \"booking_method\": \"DIRECT\",\n          \"booked_by_user_id\": 11,\n          \"partner_profile_id\": null,\n          \"referee_name\": null,\n          \"confirmed_referee_id\": null,\n          \"sport_id\": 1,\n          \"sport_name\": \"Configured sport\",\n          \"venue_name\": \"Community sports ground\",\n          \"city\": \"Hyderabad\",\n          \"booking_type\": \"HOURLY\",\n          \"booking_date\": \"2026-11-02\",\n          \"start_time\": \"10:00\",\n          \"scheduled_start_at\": \"2026-11-02T04:30:00+00:00\",\n          \"scheduled_end_at\": \"2026-11-02T06:30:00+00:00\",\n          \"duration_minutes\": 120,\n          \"timezone\": \"Asia/Kolkata\",\n          \"referee_fee\": \"400.00\",\n          \"platform_fee\": \"40.00\",\n          \"total_amount\": \"440.00\",\n          \"currency\": \"INR\",\n          \"payment_status\": \"SUCCESS\",\n          \"booking_status\": \"REQUESTED\",\n          \"display_status\": \"PENDING_PAYMENT\"\n        }\n      }\n    ],\n    \"last_page\": 1,\n    \"per_page\": 20,\n    \"total\": 1\n  }\n}"
+        },
+        {
+          "name": "Unauthenticated",
+          "originalRequest": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "Authenticated JSON endpoint. Owner or referee invitation access is required.",
+            "url": {
+              "raw": "{{base_url}}/api/v1/referee/bookings/requests",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "bookings",
+                "requests"
+              ]
+            }
+          },
+          "status": "Unauthorized",
+          "code": 401,
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\n  \"success\": false,\n  \"message\": \"Unauthenticated.\",\n  \"errors\": null\n}"
+        },
+        {
+          "name": "Invalid input",
+          "originalRequest": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "Authenticated JSON endpoint. Owner or referee invitation access is required.",
+            "url": {
+              "raw": "{{base_url}}/api/v1/referee/bookings/requests",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "bookings",
+                "requests"
+              ]
+            }
+          },
+          "status": "Unprocessable Entity",
+          "code": 422,
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\n  \"success\": false,\n  \"message\": \"Validation failed.\",\n  \"errors\": {\n    \"per_page\": [\n      \"The supplied value is invalid.\"\n    ]\n  }\n}"
+        }
+      ],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+              "pm.test('Standard envelope',()=>{const j=pm.response.json();pm.expect(j.success).to.eql(true);pm.expect(j.message).to.be.a('string');pm.expect(j).to.have.property('data');});",
+              "const rows=pm.response.json().data.data;const chosen=rows.find(x=>String(x.booking.id)===String(pm.collectionVariables.get('booking_id')))||rows[0];if(chosen){pm.collectionVariables.set('assignment_id',chosen.assignment_id);pm.collectionVariables.set('booking_id',chosen.booking.id);const other=rows.find(x=>x.booking.id!==chosen.booking.id);pm.collectionVariables.set('reject_assignment_id',other?other.assignment_id:'');}",
+              "pm.test('Paginated invitations',()=>pm.expect(rows).to.be.an('array'));",
+              "if(rows.length)pm.test('Booker info present',()=>{pm.expect(rows[0].booked_by).to.have.property('display_name');pm.expect(rows[0]).to.have.property('request_type','REFEREE_BOOKING');});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Booking invitation details",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "description": "Authenticated JSON endpoint. Owner or referee invitation access is required.",
+        "url": {
+          "raw": "{{base_url}}/api/v1/referee/bookings/requests/{{assignment_id}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "referee",
+            "bookings",
+            "requests",
+            "{{assignment_id}}"
+          ]
+        }
+      },
+      "response": [
+        {
+          "name": "Success",
+          "originalRequest": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "Authenticated JSON endpoint. Owner or referee invitation access is required.",
+            "url": {
+              "raw": "{{base_url}}/api/v1/referee/bookings/requests/{{assignment_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "bookings",
+                "requests",
+                "{{assignment_id}}"
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\n  \"success\": true,\n  \"message\": \"Success\",\n  \"data\": {\n    \"assignment_id\": 501,\n    \"assignment_status\": 1,\n    \"booking_source\": \"USER\",\n    \"booking_method\": \"DIRECT\",\n    \"booked_by_user_id\": 11,\n    \"booking\": {\n      \"id\": 101,\n      \"booking_id\": 101,\n      \"booking_number\": \"RB-3F3C751B-D414-454D-B076-E4960084D521\",\n      \"booking_source\": \"USER\",\n      \"booking_method\": \"DIRECT\",\n      \"booked_by_user_id\": 11,\n      \"partner_profile_id\": null,\n      \"referee_name\": null,\n      \"confirmed_referee_id\": null,\n      \"sport_id\": 1,\n      \"sport_name\": \"Configured sport\",\n      \"venue_name\": \"Community sports ground\",\n      \"city\": \"Hyderabad\",\n      \"booking_type\": \"HOURLY\",\n      \"booking_date\": \"2026-11-02\",\n      \"start_time\": \"10:00\",\n      \"scheduled_start_at\": \"2026-11-02T04:30:00+00:00\",\n      \"scheduled_end_at\": \"2026-11-02T06:30:00+00:00\",\n      \"duration_minutes\": 120,\n      \"timezone\": \"Asia/Kolkata\",\n      \"referee_fee\": \"400.00\",\n      \"platform_fee\": \"40.00\",\n      \"total_amount\": \"440.00\",\n      \"currency\": \"INR\",\n      \"payment_status\": \"SUCCESS\",\n      \"booking_status\": \"REQUESTED\",\n      \"display_status\": \"PENDING_PAYMENT\"\n    }\n  }\n}"
+        },
+        {
+          "name": "Unauthenticated",
+          "originalRequest": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "Authenticated JSON endpoint. Owner or referee invitation access is required.",
+            "url": {
+              "raw": "{{base_url}}/api/v1/referee/bookings/requests/{{assignment_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "bookings",
+                "requests",
+                "{{assignment_id}}"
+              ]
+            }
+          },
+          "status": "Unauthorized",
+          "code": 401,
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\n  \"success\": false,\n  \"message\": \"Unauthenticated.\",\n  \"errors\": null\n}"
+        },
+        {
+          "name": "Invalid input",
+          "originalRequest": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "Authenticated JSON endpoint. Owner or referee invitation access is required.",
+            "url": {
+              "raw": "{{base_url}}/api/v1/referee/bookings/requests/{{assignment_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "bookings",
+                "requests",
+                "{{assignment_id}}"
+              ]
+            }
+          },
+          "status": "Unprocessable Entity",
+          "code": 422,
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\n  \"success\": false,\n  \"message\": \"Validation failed.\",\n  \"errors\": {\n    \"per_page\": [\n      \"The supplied value is invalid.\"\n    ]\n  }\n}"
+        },
+        {
+          "name": "Not owned or not found",
+          "originalRequest": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "Authenticated JSON endpoint. Owner or referee invitation access is required.",
+            "url": {
+              "raw": "{{base_url}}/api/v1/referee/bookings/requests/{{assignment_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "bookings",
+                "requests",
+                "{{assignment_id}}"
+              ]
+            }
+          },
+          "status": "Not Found",
+          "code": 404,
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\n  \"success\": false,\n  \"message\": \"Resource not found.\",\n  \"errors\": null\n}"
+        }
+      ],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+              "pm.test('Standard envelope',()=>{const j=pm.response.json();pm.expect(j.success).to.eql(true);pm.expect(j.message).to.be.a('string');pm.expect(j).to.have.property('data');});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reject another pending invitation",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "description": "Rejects a second pending invitation for a different booking. The runner skips this request if no second invitation exists. Rejecting the last invitation refunds that booking.",
+        "url": {
+          "raw": "{{base_url}}/api/v1/referee/bookings/requests/{{reject_assignment_id}}/reject",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "referee",
+            "bookings",
+            "requests",
+            "{{reject_assignment_id}}",
+            "reject"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"reason\": \"Unavailable for this request\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [
+        {
+          "name": "Success",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "Rejects a second pending invitation for a different booking. The runner skips this request if no second invitation exists. Rejecting the last invitation refunds that booking.",
+            "url": {
+              "raw": "{{base_url}}/api/v1/referee/bookings/requests/{{reject_assignment_id}}/reject",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "bookings",
+                "requests",
+                "{{reject_assignment_id}}",
+                "reject"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Unavailable for this request\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\n  \"success\": true,\n  \"message\": \"Success\",\n  \"data\": {\n    \"assignment_id\": 501,\n    \"assignment_status\": 3,\n    \"booking_source\": \"USER\",\n    \"booking_method\": \"DIRECT\",\n    \"booked_by_user_id\": 11,\n    \"booking\": {\n      \"id\": 101,\n      \"booking_id\": 101,\n      \"booking_number\": \"RB-3F3C751B-D414-454D-B076-E4960084D521\",\n      \"booking_source\": \"USER\",\n      \"booking_method\": \"DIRECT\",\n      \"booked_by_user_id\": 11,\n      \"partner_profile_id\": null,\n      \"referee_name\": null,\n      \"confirmed_referee_id\": null,\n      \"sport_id\": 1,\n      \"sport_name\": \"Configured sport\",\n      \"venue_name\": \"Community sports ground\",\n      \"city\": \"Hyderabad\",\n      \"booking_type\": \"HOURLY\",\n      \"booking_date\": \"2026-11-02\",\n      \"start_time\": \"10:00\",\n      \"scheduled_start_at\": \"2026-11-02T04:30:00+00:00\",\n      \"scheduled_end_at\": \"2026-11-02T06:30:00+00:00\",\n      \"duration_minutes\": 120,\n      \"timezone\": \"Asia/Kolkata\",\n      \"referee_fee\": \"400.00\",\n      \"platform_fee\": \"40.00\",\n      \"total_amount\": \"440.00\",\n      \"currency\": \"INR\",\n      \"payment_status\": \"SUCCESS\",\n      \"booking_status\": \"REQUESTED\",\n      \"display_status\": \"PENDING_PAYMENT\"\n    }\n  }\n}"
+        },
+        {
+          "name": "Unauthenticated",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "Rejects a second pending invitation for a different booking. The runner skips this request if no second invitation exists. Rejecting the last invitation refunds that booking.",
+            "url": {
+              "raw": "{{base_url}}/api/v1/referee/bookings/requests/{{reject_assignment_id}}/reject",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "bookings",
+                "requests",
+                "{{reject_assignment_id}}",
+                "reject"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Unavailable for this request\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "status": "Unauthorized",
+          "code": 401,
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\n  \"success\": false,\n  \"message\": \"Unauthenticated.\",\n  \"errors\": null\n}"
+        },
+        {
+          "name": "Invalid input",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "Rejects a second pending invitation for a different booking. The runner skips this request if no second invitation exists. Rejecting the last invitation refunds that booking.",
+            "url": {
+              "raw": "{{base_url}}/api/v1/referee/bookings/requests/{{reject_assignment_id}}/reject",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "bookings",
+                "requests",
+                "{{reject_assignment_id}}",
+                "reject"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Unavailable for this request\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "status": "Unprocessable Entity",
+          "code": 422,
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\n  \"success\": false,\n  \"message\": \"Validation failed.\",\n  \"errors\": {\n    \"reason\": [\n      \"The supplied value is invalid.\"\n    ]\n  }\n}"
+        }
+      ],
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if(!pm.collectionVariables.get('reject_assignment_id'))pm.execution.skipRequest();"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+              "pm.test('Standard envelope',()=>{const j=pm.response.json();pm.expect(j.success).to.eql(true);pm.expect(j.message).to.be.a('string');pm.expect(j).to.have.property('data');});",
+              "pm.test('Rejected',()=>pm.expect(pm.response.json().data.assignment_status).to.eql(3));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Accept booking invitation",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "description": "Authenticated JSON endpoint. Owner or referee invitation access is required.",
+        "url": {
+          "raw": "{{base_url}}/api/v1/referee/bookings/requests/{{assignment_id}}/accept",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "referee",
+            "bookings",
+            "requests",
+            "{{assignment_id}}",
+            "accept"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [
+        {
+          "name": "Success",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "Authenticated JSON endpoint. Owner or referee invitation access is required.",
+            "url": {
+              "raw": "{{base_url}}/api/v1/referee/bookings/requests/{{assignment_id}}/accept",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "bookings",
+                "requests",
+                "{{assignment_id}}",
+                "accept"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\n  \"success\": true,\n  \"message\": \"Success\",\n  \"data\": {\n    \"assignment_id\": 501,\n    \"assignment_status\": 2,\n    \"booking_source\": \"USER\",\n    \"booking_method\": \"DIRECT\",\n    \"booked_by_user_id\": 11,\n    \"booking\": {\n      \"id\": 101,\n      \"booking_id\": 101,\n      \"booking_number\": \"RB-3F3C751B-D414-454D-B076-E4960084D521\",\n      \"booking_source\": \"USER\",\n      \"booking_method\": \"DIRECT\",\n      \"booked_by_user_id\": 11,\n      \"partner_profile_id\": null,\n      \"referee_name\": null,\n      \"confirmed_referee_id\": 21,\n      \"sport_id\": 1,\n      \"sport_name\": \"Configured sport\",\n      \"venue_name\": \"Community sports ground\",\n      \"city\": \"Hyderabad\",\n      \"booking_type\": \"HOURLY\",\n      \"booking_date\": \"2026-11-02\",\n      \"start_time\": \"10:00\",\n      \"scheduled_start_at\": \"2026-11-02T04:30:00+00:00\",\n      \"scheduled_end_at\": \"2026-11-02T06:30:00+00:00\",\n      \"duration_minutes\": 120,\n      \"timezone\": \"Asia/Kolkata\",\n      \"referee_fee\": \"400.00\",\n      \"platform_fee\": \"40.00\",\n      \"total_amount\": \"440.00\",\n      \"currency\": \"INR\",\n      \"payment_status\": \"SUCCESS\",\n      \"booking_status\": \"CONFIRMED\",\n      \"display_status\": \"PENDING_PAYMENT\"\n    }\n  }\n}"
+        },
+        {
+          "name": "Unauthenticated",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "Authenticated JSON endpoint. Owner or referee invitation access is required.",
+            "url": {
+              "raw": "{{base_url}}/api/v1/referee/bookings/requests/{{assignment_id}}/accept",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "bookings",
+                "requests",
+                "{{assignment_id}}",
+                "accept"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "status": "Unauthorized",
+          "code": 401,
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\n  \"success\": false,\n  \"message\": \"Unauthenticated.\",\n  \"errors\": null\n}"
+        },
+        {
+          "name": "Invalid input",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "Authenticated JSON endpoint. Owner or referee invitation access is required.",
+            "url": {
+              "raw": "{{base_url}}/api/v1/referee/bookings/requests/{{assignment_id}}/accept",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "bookings",
+                "requests",
+                "{{assignment_id}}",
+                "accept"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "status": "Unprocessable Entity",
+          "code": 422,
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\n  \"success\": false,\n  \"message\": \"Validation failed.\",\n  \"errors\": {\n    \"reason\": [\n      \"The supplied value is invalid.\"\n    ]\n  }\n}"
+        },
+        {
+          "name": "Not owned or not found",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "Authenticated JSON endpoint. Owner or referee invitation access is required.",
+            "url": {
+              "raw": "{{base_url}}/api/v1/referee/bookings/requests/{{assignment_id}}/accept",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "bookings",
+                "requests",
+                "{{assignment_id}}",
+                "accept"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "status": "Not Found",
+          "code": 404,
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\n  \"success\": false,\n  \"message\": \"Resource not found.\",\n  \"errors\": null\n}"
+        }
+      ],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+              "pm.test('Standard envelope',()=>{const j=pm.response.json();pm.expect(j.success).to.eql(true);pm.expect(j.message).to.be.a('string');pm.expect(j).to.have.property('data');});",
+              "pm.test('Confirmed winner',()=>{const d=pm.response.json().data;pm.expect(d.assignment_status).to.eql(2);pm.expect(d.booking.booking_status).to.eql('CONFIRMED');});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Confirmed referee bookings",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "description": "Authenticated JSON endpoint. Owner or referee invitation access is required.",
+        "url": {
+          "raw": "{{base_url}}/api/v1/referee/bookings?filter=upcoming&per_page=20",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "referee",
+            "bookings"
+          ],
+          "query": [
+            {
+              "key": "filter",
+              "value": "upcoming"
+            },
+            {
+              "key": "per_page",
+              "value": "20"
+            }
+          ]
+        }
+      },
+      "response": [
+        {
+          "name": "Success",
+          "originalRequest": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "Authenticated JSON endpoint. Owner or referee invitation access is required.",
+            "url": {
+              "raw": "{{base_url}}/api/v1/referee/bookings?filter=upcoming&per_page=20",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "bookings"
+              ],
+              "query": [
+                {
+                  "key": "filter",
+                  "value": "upcoming"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\n  \"success\": true,\n  \"message\": \"Success\",\n  \"data\": {\n    \"current_page\": 1,\n    \"data\": [],\n    \"last_page\": 1,\n    \"per_page\": 20,\n    \"total\": 0\n  }\n}"
+        },
+        {
+          "name": "Unauthenticated",
+          "originalRequest": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "Authenticated JSON endpoint. Owner or referee invitation access is required.",
+            "url": {
+              "raw": "{{base_url}}/api/v1/referee/bookings?filter=upcoming&per_page=20",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "bookings"
+              ],
+              "query": [
+                {
+                  "key": "filter",
+                  "value": "upcoming"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "status": "Unauthorized",
+          "code": 401,
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\n  \"success\": false,\n  \"message\": \"Unauthenticated.\",\n  \"errors\": null\n}"
+        },
+        {
+          "name": "Invalid input",
+          "originalRequest": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "Authenticated JSON endpoint. Owner or referee invitation access is required.",
+            "url": {
+              "raw": "{{base_url}}/api/v1/referee/bookings?filter=upcoming&per_page=20",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "bookings"
+              ],
+              "query": [
+                {
+                  "key": "filter",
+                  "value": "upcoming"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "status": "Unprocessable Entity",
+          "code": 422,
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\n  \"success\": false,\n  \"message\": \"Validation failed.\",\n  \"errors\": {\n    \"per_page\": [\n      \"The supplied value is invalid.\"\n    ]\n  }\n}"
+        }
+      ],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+              "pm.test('Standard envelope',()=>{const j=pm.response.json();pm.expect(j.success).to.eql(true);pm.expect(j.message).to.be.a('string');pm.expect(j).to.have.property('data');});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Referee booking details",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "description": "Authenticated JSON endpoint. Owner or referee invitation access is required.",
+        "url": {
+          "raw": "{{base_url}}/api/v1/referee/bookings/{{booking_id}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "referee",
+            "bookings",
+            "{{booking_id}}"
+          ]
+        }
+      },
+      "response": [
+        {
+          "name": "Success",
+          "originalRequest": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "Authenticated JSON endpoint. Owner or referee invitation access is required.",
+            "url": {
+              "raw": "{{base_url}}/api/v1/referee/bookings/{{booking_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "bookings",
+                "{{booking_id}}"
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\n  \"success\": true,\n  \"message\": \"Success\",\n  \"data\": {\n    \"id\": 101,\n    \"booking_id\": 101,\n    \"booking_number\": \"RB-3F3C751B-D414-454D-B076-E4960084D521\",\n    \"booking_source\": \"USER\",\n    \"booking_method\": \"QUICK\",\n    \"booked_by_user_id\": 11,\n    \"partner_profile_id\": null,\n    \"referee_name\": null,\n    \"confirmed_referee_id\": 22,\n    \"sport_id\": 1,\n    \"sport_name\": \"Configured sport\",\n    \"venue_name\": \"Community sports ground\",\n    \"city\": \"Hyderabad\",\n    \"booking_type\": \"HOURLY\",\n    \"booking_date\": \"2026-11-02\",\n    \"start_time\": \"10:00\",\n    \"scheduled_start_at\": \"2026-11-02T04:30:00+00:00\",\n    \"scheduled_end_at\": \"2026-11-02T06:30:00+00:00\",\n    \"duration_minutes\": 120,\n    \"timezone\": \"Asia/Kolkata\",\n    \"referee_fee\": \"400.00\",\n    \"platform_fee\": \"40.00\",\n    \"total_amount\": \"440.00\",\n    \"currency\": \"INR\",\n    \"payment_status\": \"SUCCESS\",\n    \"booking_status\": \"CONFIRMED\",\n    \"display_status\": \"PENDING_PAYMENT\",\n    \"match_id\": null\n  }\n}"
+        },
+        {
+          "name": "Unauthenticated",
+          "originalRequest": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "Authenticated JSON endpoint. Owner or referee invitation access is required.",
+            "url": {
+              "raw": "{{base_url}}/api/v1/referee/bookings/{{booking_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "bookings",
+                "{{booking_id}}"
+              ]
+            }
+          },
+          "status": "Unauthorized",
+          "code": 401,
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\n  \"success\": false,\n  \"message\": \"Unauthenticated.\",\n  \"errors\": null\n}"
+        },
+        {
+          "name": "Invalid input",
+          "originalRequest": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "Authenticated JSON endpoint. Owner or referee invitation access is required.",
+            "url": {
+              "raw": "{{base_url}}/api/v1/referee/bookings/{{booking_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "bookings",
+                "{{booking_id}}"
+              ]
+            }
+          },
+          "status": "Unprocessable Entity",
+          "code": 422,
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\n  \"success\": false,\n  \"message\": \"Validation failed.\",\n  \"errors\": {\n    \"per_page\": [\n      \"The supplied value is invalid.\"\n    ]\n  }\n}"
+        },
+        {
+          "name": "Not owned or not found",
+          "originalRequest": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "Authenticated JSON endpoint. Owner or referee invitation access is required.",
+            "url": {
+              "raw": "{{base_url}}/api/v1/referee/bookings/{{booking_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "bookings",
+                "{{booking_id}}"
+              ]
+            }
+          },
+          "status": "Not Found",
+          "code": 404,
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\n  \"success\": false,\n  \"message\": \"Resource not found.\",\n  \"errors\": null\n}"
+        }
+      ],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+              "pm.test('Standard envelope',()=>{const j=pm.response.json();pm.expect(j.success).to.eql(true);pm.expect(j.message).to.be.a('string');pm.expect(j).to.have.property('data');});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Active session",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "description": "Authenticated JSON endpoint. Owner or referee invitation access is required.",
+        "url": {
+          "raw": "{{base_url}}/api/v1/referee/bookings?filter=ongoing&per_page=20",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "referee",
+            "bookings"
+          ],
+          "query": [
+            {
+              "key": "filter",
+              "value": "ongoing"
+            },
+            {
+              "key": "per_page",
+              "value": "20"
+            }
+          ]
+        }
+      },
+      "response": [
+        {
+          "name": "Success",
+          "originalRequest": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "Authenticated JSON endpoint. Owner or referee invitation access is required.",
+            "url": {
+              "raw": "{{base_url}}/api/v1/referee/bookings?filter=ongoing&per_page=20",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "bookings"
+              ],
+              "query": [
+                {
+                  "key": "filter",
+                  "value": "ongoing"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\n  \"success\": true,\n  \"message\": \"Success\",\n  \"data\": {\n    \"current_page\": 1,\n    \"data\": [],\n    \"last_page\": 1,\n    \"per_page\": 20,\n    \"total\": 0\n  }\n}"
+        },
+        {
+          "name": "Unauthenticated",
+          "originalRequest": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "Authenticated JSON endpoint. Owner or referee invitation access is required.",
+            "url": {
+              "raw": "{{base_url}}/api/v1/referee/bookings?filter=ongoing&per_page=20",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "bookings"
+              ],
+              "query": [
+                {
+                  "key": "filter",
+                  "value": "ongoing"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "status": "Unauthorized",
+          "code": 401,
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\n  \"success\": false,\n  \"message\": \"Unauthenticated.\",\n  \"errors\": null\n}"
+        },
+        {
+          "name": "Invalid input",
+          "originalRequest": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "Authenticated JSON endpoint. Owner or referee invitation access is required.",
+            "url": {
+              "raw": "{{base_url}}/api/v1/referee/bookings?filter=ongoing&per_page=20",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "bookings"
+              ],
+              "query": [
+                {
+                  "key": "filter",
+                  "value": "ongoing"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "status": "Unprocessable Entity",
+          "code": 422,
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\n  \"success\": false,\n  \"message\": \"Validation failed.\",\n  \"errors\": {\n    \"per_page\": [\n      \"The supplied value is invalid.\"\n    ]\n  }\n}"
+        }
+      ],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+              "pm.test('Standard envelope',()=>{const j=pm.response.json();pm.expect(j.success).to.eql(true);pm.expect(j.message).to.be.a('string');pm.expect(j).to.have.property('data');});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Completed booking",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "description": "Authenticated JSON endpoint. Owner or referee invitation access is required.",
+        "url": {
+          "raw": "{{base_url}}/api/v1/referee/bookings?filter=completed&per_page=20",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "referee",
+            "bookings"
+          ],
+          "query": [
+            {
+              "key": "filter",
+              "value": "completed"
+            },
+            {
+              "key": "per_page",
+              "value": "20"
+            }
+          ]
+        }
+      },
+      "response": [
+        {
+          "name": "Success",
+          "originalRequest": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "Authenticated JSON endpoint. Owner or referee invitation access is required.",
+            "url": {
+              "raw": "{{base_url}}/api/v1/referee/bookings?filter=completed&per_page=20",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "bookings"
+              ],
+              "query": [
+                {
+                  "key": "filter",
+                  "value": "completed"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\n  \"success\": true,\n  \"message\": \"Success\",\n  \"data\": {\n    \"current_page\": 1,\n    \"data\": [],\n    \"last_page\": 1,\n    \"per_page\": 20,\n    \"total\": 0\n  }\n}"
+        },
+        {
+          "name": "Unauthenticated",
+          "originalRequest": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "Authenticated JSON endpoint. Owner or referee invitation access is required.",
+            "url": {
+              "raw": "{{base_url}}/api/v1/referee/bookings?filter=completed&per_page=20",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "bookings"
+              ],
+              "query": [
+                {
+                  "key": "filter",
+                  "value": "completed"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "status": "Unauthorized",
+          "code": 401,
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\n  \"success\": false,\n  \"message\": \"Unauthenticated.\",\n  \"errors\": null\n}"
+        },
+        {
+          "name": "Invalid input",
+          "originalRequest": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "Authenticated JSON endpoint. Owner or referee invitation access is required.",
+            "url": {
+              "raw": "{{base_url}}/api/v1/referee/bookings?filter=completed&per_page=20",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "bookings"
+              ],
+              "query": [
+                {
+                  "key": "filter",
+                  "value": "completed"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "status": "Unprocessable Entity",
+          "code": 422,
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\n  \"success\": false,\n  \"message\": \"Validation failed.\",\n  \"errors\": {\n    \"per_page\": [\n      \"The supplied value is invalid.\"\n    ]\n  }\n}"
+        }
+      ],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+              "pm.test('Standard envelope',()=>{const j=pm.response.json();pm.expect(j.success).to.eql(true);pm.expect(j.message).to.be.a('string');pm.expect(j).to.have.property('data');});"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

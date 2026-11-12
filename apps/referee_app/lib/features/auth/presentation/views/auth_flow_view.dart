@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:core/core.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -110,18 +112,53 @@ class _RefereeApplicationGate extends StatefulWidget {
       _RefereeApplicationGateState();
 }
 
-class _RefereeApplicationGateState extends State<_RefereeApplicationGate> {
+class _RefereeApplicationGateState extends State<_RefereeApplicationGate>
+    with WidgetsBindingObserver {
+  static const _statusPollInterval = Duration(seconds: 20);
+
   final Map<int, String> _savedDocuments = {};
   final UploadImageCompressor _imageCompressor = const UploadImageCompressor();
   late final CommonRemoteDataSource _commonRemoteDataSource =
       CommonRemoteDataSource(
     apiClient: SportoApiClient(tokenProvider: AuthSessionStore().getToken),
   );
+  Timer? _statusPollTimer;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _statusPollTimer =
+        Timer.periodic(_statusPollInterval, (_) => _refreshIfPending());
     context.read<RefereeApplicationCubit>().load();
+  }
+
+  @override
+  void dispose() {
+    _statusPollTimer?.cancel();
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) _refreshIfPending();
+  }
+
+  void _refreshIfPending() {
+    if (!mounted) return;
+    final cubit = context.read<RefereeApplicationCubit>();
+    final state = cubit.state;
+    if (state is RefereeApplicationLoading) return;
+    if (state is! RefereeApplicationLoaded) return;
+    final status = state.status?.applicationStatus ??
+        state.application?.applicationStatus ??
+        1;
+    if (status == 2 || status == 3) {
+      cubit.load(silent: true);
+    } else if (status == 4 || status == 5) {
+      _statusPollTimer?.cancel();
+    }
   }
 
   @override
@@ -149,7 +186,10 @@ class _RefereeApplicationGateState extends State<_RefereeApplicationGate> {
             application?.applicationStatus ??
             1;
 
-        if (status == 4) return const RefereeShellScreen();
+        if (status == 4) {
+          _statusPollTimer?.cancel();
+          return const RefereeShellScreen();
+        }
         if (application != null && !application.isDraft) {
           return ApplicationStatusScreen(
             applicationRef: application.applicationNumber,

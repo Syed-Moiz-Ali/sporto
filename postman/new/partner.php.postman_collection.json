@@ -1,0 +1,1585 @@
+{
+    "info": {
+        "name": "Sporto Partner - partner.php",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Partner",
+            "item": [
+                {
+                    "name": "Authentication",
+                    "item": [
+                        {
+                            "name": "send-otp",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{partner_base_url}}/api/v1/partner/send-otp",
+                                    "host": [
+                                        "{{partner_base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "partner",
+                                        "send-otp"
+                                    ],
+                                    "variable": [
+                                        {
+                                            "key": "partner_base_url",
+                                            "value": "1",
+                                            "description": "Partner base url"
+                                        }
+                                    ]
+                                },
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"mobile_number\": \"example_value\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "verify-otp",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{partner_base_url}}/api/v1/partner/verify-otp",
+                                    "host": [
+                                        "{{partner_base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "partner",
+                                        "verify-otp"
+                                    ],
+                                    "variable": [
+                                        {
+                                            "key": "partner_base_url",
+                                            "value": "1",
+                                            "description": "Partner base url"
+                                        }
+                                    ]
+                                },
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"mobile_number\": \"example_value\",\n    \"otp\": 1,\n    \"session_key\": \"example_value\",\n    \"device_id\": \"example_value\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "logout",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{partner_base_url}}/api/v1/partner/logout",
+                                    "host": [
+                                        "{{partner_base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "partner",
+                                        "logout"
+                                    ],
+                                    "variable": [
+                                        {
+                                            "key": "partner_base_url",
+                                            "value": "1",
+                                            "description": "Partner base url"
+                                        }
+                                    ]
+                                }
+                            },
+                            "response": [
+                                {
+                                    "name": "200 Success",
+                                    "originalRequest": {
+                                        "method": "POST",
+                                        "header": [
+                                            {
+                                                "key": "Accept",
+                                                "value": "application/json"
+                                            },
+                                            {
+                                                "key": "Authorization",
+                                                "value": "Bearer {{token}}"
+                                            }
+                                        ],
+                                        "url": {
+                                            "raw": "{{partner_base_url}}/api/v1/partner/logout",
+                                            "host": [
+                                                "{{partner_base_url}}"
+                                            ],
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "partner",
+                                                "logout"
+                                            ]
+                                        }
+                                    },
+                                    "status": "OK",
+                                    "code": 200,
+                                    "_postman_previewlanguage": "json",
+                                    "header": [
+                                        {
+                                            "key": "Content-Type",
+                                            "value": "application/json"
+                                        }
+                                    ],
+                                    "cookie": [],
+                                    "body": "{\n    \"success\": true,\n    \"message\": \"Logged out successfully.\",\n    \"data\": []\n}"
+                                },
+                                {
+                                    "name": "401 Unauthorized",
+                                    "originalRequest": {
+                                        "method": "POST",
+                                        "header": [
+                                            {
+                                                "key": "Accept",
+                                                "value": "application/json"
+                                            }
+                                        ],
+                                        "url": {
+                                            "raw": "{{partner_base_url}}/api/v1/partner/logout",
+                                            "host": [
+                                                "{{partner_base_url}}"
+                                            ],
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "partner",
+                                                "logout"
+                                            ]
+                                        }
+                                    },
+                                    "status": "Unauthorized",
+                                    "code": 401,
+                                    "_postman_previewlanguage": "json",
+                                    "header": [
+                                        {
+                                            "key": "Content-Type",
+                                            "value": "application/json"
+                                        }
+                                    ],
+                                    "cookie": [],
+                                    "body": "{\n    \"message\": \"Unauthenticated.\"\n}"
+                                },
+                                {
+                                    "name": "401 Already Logged Out",
+                                    "originalRequest": {
+                                        "method": "POST",
+                                        "header": [
+                                            {
+                                                "key": "Accept",
+                                                "value": "application/json"
+                                            },
+                                            {
+                                                "key": "Authorization",
+                                                "value": "Bearer revoked_token_here"
+                                            }
+                                        ],
+                                        "url": {
+                                            "raw": "{{partner_base_url}}/api/v1/partner/logout",
+                                            "host": [
+                                                "{{partner_base_url}}"
+                                            ],
+                                            "path": [
+                                                "api",
+                                                "v1",
+                                                "partner",
+                                                "logout"
+                                            ]
+                                        }
+                                    },
+                                    "status": "Unauthorized",
+                                    "code": 401,
+                                    "_postman_previewlanguage": "json",
+                                    "header": [
+                                        {
+                                            "key": "Content-Type",
+                                            "value": "application/json"
+                                        }
+                                    ],
+                                    "cookie": [],
+                                    "body": "{\n    \"message\": \"Unauthenticated.\"\n}"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "Profile",
+                    "item": [
+                        {
+                            "name": "profile",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{partner_base_url}}/api/v1/partner/profile",
+                                    "host": [
+                                        "{{partner_base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "partner",
+                                        "profile"
+                                    ],
+                                    "variable": [
+                                        {
+                                            "key": "partner_base_url",
+                                            "value": "1",
+                                            "description": "Partner base url"
+                                        }
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "profile",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{partner_base_url}}/api/v1/partner/profile",
+                                    "host": [
+                                        "{{partner_base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "partner",
+                                        "profile"
+                                    ],
+                                    "variable": [
+                                        {
+                                            "key": "partner_base_url",
+                                            "value": "1",
+                                            "description": "Partner base url"
+                                        }
+                                    ]
+                                },
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"first_name\": \"Example Name\",\n    \"last_name\": \"Example Name\",\n    \"email\": \"user@example.com\",\n    \"date_of_birth\": \"example_value\",\n    \"gender\": \"example_value\",\n    \"address_line_1\": \"example_value\",\n    \"address_line_2\": \"example_value\",\n    \"city\": \"example_value\",\n    \"state\": \"example_value\",\n    \"country\": \"example_value\",\n    \"pincode\": \"example_value\",\n    \"highest_qualification\": \"example_value\",\n    \"present_occupation\": \"example_value\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "profile",
+                            "request": {
+                                "method": "PUT",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{partner_base_url}}/api/v1/partner/profile",
+                                    "host": [
+                                        "{{partner_base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "partner",
+                                        "profile"
+                                    ],
+                                    "variable": [
+                                        {
+                                            "key": "partner_base_url",
+                                            "value": "1",
+                                            "description": "Partner base url"
+                                        }
+                                    ]
+                                },
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"first_name\": \"Example Name\",\n    \"last_name\": \"Example Name\",\n    \"email\": \"user@example.com\",\n    \"date_of_birth\": \"example_value\",\n    \"gender\": \"example_value\",\n    \"address_line_1\": \"example_value\",\n    \"address_line_2\": \"example_value\",\n    \"city\": \"example_value\",\n    \"state\": \"example_value\",\n    \"country\": \"example_value\",\n    \"pincode\": \"example_value\",\n    \"highest_qualification\": \"example_value\",\n    \"present_occupation\": \"example_value\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                }
+                            },
+                            "response": []
+                        }
+                    ]
+                },
+                {
+                    "name": "Sports",
+                    "item": [
+                        {
+                            "name": "available",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{partner_base_url}}/api/v1/partner/sports/available",
+                                    "host": [
+                                        "{{partner_base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "partner",
+                                        "sports",
+                                        "available"
+                                    ],
+                                    "variable": [
+                                        {
+                                            "key": "partner_base_url",
+                                            "value": "1",
+                                            "description": "Partner base url"
+                                        }
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "sports",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{partner_base_url}}/api/v1/partner/sports",
+                                    "host": [
+                                        "{{partner_base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "partner",
+                                        "sports"
+                                    ],
+                                    "variable": [
+                                        {
+                                            "key": "partner_base_url",
+                                            "value": "1",
+                                            "description": "Partner base url"
+                                        }
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "sports",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{partner_base_url}}/api/v1/partner/sports",
+                                    "host": [
+                                        "{{partner_base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "partner",
+                                        "sports"
+                                    ],
+                                    "variable": [
+                                        {
+                                            "key": "partner_base_url",
+                                            "value": "1",
+                                            "description": "Partner base url"
+                                        }
+                                    ]
+                                },
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"sport_ids\": {\n        \"*\": 1\n    },\n    \"experience_years\": 1\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "{id}",
+                            "request": {
+                                "method": "PUT",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{partner_base_url}}/api/v1/partner/sports/{{id}}",
+                                    "host": [
+                                        "{{partner_base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "partner",
+                                        "sports",
+                                        "{{id}}"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "{id}",
+                            "request": {
+                                "method": "DELETE",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{partner_base_url}}/api/v1/partner/sports/{{id}}",
+                                    "host": [
+                                        "{{partner_base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "partner",
+                                        "sports",
+                                        "{{id}}"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        }
+                    ]
+                },
+                {
+                    "name": "Documents",
+                    "item": [
+                        {
+                            "name": "documents",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{partner_base_url}}/api/v1/partner/documents",
+                                    "host": [
+                                        "{{partner_base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "partner",
+                                        "documents"
+                                    ],
+                                    "variable": [
+                                        {
+                                            "key": "partner_base_url",
+                                            "value": "1",
+                                            "description": "Partner base url"
+                                        }
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "documents",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{partner_base_url}}/api/v1/partner/documents",
+                                    "host": [
+                                        "{{partner_base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "partner",
+                                        "documents"
+                                    ],
+                                    "variable": [
+                                        {
+                                            "key": "partner_base_url",
+                                            "value": "1",
+                                            "description": "Partner base url"
+                                        }
+                                    ]
+                                },
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"document_type\": \"example_value\",\n    \"document_path\": \"example_value\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "{id}",
+                            "request": {
+                                "method": "DELETE",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{partner_base_url}}/api/v1/partner/documents/{{id}}",
+                                    "host": [
+                                        "{{partner_base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "partner",
+                                        "documents",
+                                        "{{id}}"
+                                    ]
+                                }
+                            },
+                            "response": []
+                        }
+                    ]
+                },
+                {
+                    "name": "Application",
+                    "item": [
+                        {
+                            "name": "submit",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{partner_base_url}}/api/v1/partner/submit",
+                                    "host": [
+                                        "{{partner_base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "partner",
+                                        "submit"
+                                    ],
+                                    "variable": [
+                                        {
+                                            "key": "partner_base_url",
+                                            "value": "1",
+                                            "description": "Partner base url"
+                                        }
+                                    ]
+                                }
+                            },
+                            "response": []
+                        },
+                        {
+                            "name": "application",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{partner_base_url}}/api/v1/partner/application",
+                                    "host": [
+                                        "{{partner_base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "partner",
+                                        "application"
+                                    ],
+                                    "variable": [
+                                        {
+                                            "key": "partner_base_url",
+                                            "value": "1",
+                                            "description": "Partner base url"
+                                        }
+                                    ]
+                                }
+                            },
+                            "response": []
+                        }
+                    ]
+                },
+                {
+                    "name": "Referee Bookings",
+                    "item": [
+                        {
+                            "name": "Discover Available Referees",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{partner_base_url}}/api/v1/partner/referee-bookings/referees?sport_id=1&booking_method=QUICK&booking_type=HOURLY&booking_date=2026-11-02&start_time=10:00&duration_minutes=120&city=Hyderabad&timezone=Asia/Kolkata",
+                                    "host": [
+                                        "{{partner_base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "partner",
+                                        "referee-bookings",
+                                        "referees"
+                                    ],
+                                    "query": [
+                                        {
+                                            "key": "sport_id",
+                                            "value": "1"
+                                        },
+                                        {
+                                            "key": "booking_method",
+                                            "value": "QUICK"
+                                        },
+                                        {
+                                            "key": "booking_type",
+                                            "value": "HOURLY"
+                                        },
+                                        {
+                                            "key": "booking_date",
+                                            "value": "2026-11-02"
+                                        },
+                                        {
+                                            "key": "start_time",
+                                            "value": "10:00"
+                                        },
+                                        {
+                                            "key": "duration_minutes",
+                                            "value": "120"
+                                        },
+                                        {
+                                            "key": "city",
+                                            "value": "Hyderabad"
+                                        },
+                                        {
+                                            "key": "timezone",
+                                            "value": "Asia/Kolkata"
+                                        }
+                                    ]
+                                }
+                            },
+                            "response": [
+                                {
+                                    "name": "200 Success",
+                                    "status": "OK",
+                                    "code": 200,
+                                    "_postman_previewlanguage": "json",
+                                    "header": [
+                                        {
+                                            "key": "Content-Type",
+                                            "value": "application/json"
+                                        }
+                                    ],
+                                    "body": "{\n    \"success\": true,\n    \"message\": \"Available referees retrieved.\",\n    \"data\": {\n        \"current_page\": 1,\n        \"data\": [\n            {\n                \"referee_id\": 10,\n                \"display_name\": \"Rahul Sharma\",\n                \"profile_photo\": null,\n                \"sports\": [\n                    {\n                        \"id\": 1,\n                        \"name\": \"Cricket\"\n                    }\n                ],\n                \"experience_years\": 5,\n                \"preferred_city\": \"Hyderabad\",\n                \"distance_km\": null,\n                \"location_basis\": \"CITY_MATCH\",\n                \"available\": true,\n                \"price\": {\n                    \"referee_fee\": \"400.00\",\n                    \"platform_fee\": \"40.00\",\n                    \"total_amount\": \"440.00\",\n                    \"currency\": \"INR\"\n                }\n            }\n        ],\n        \"total\": 1,\n        \"per_page\": 20\n    }\n}"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Single Referee Availability & Quote",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{partner_base_url}}/api/v1/partner/referee-bookings/referees/{{referee_id}}?sport_id=1&booking_method=DIRECT&booking_type=HOURLY&booking_date=2026-11-02&start_time=10:00&duration_minutes=120&city=Hyderabad&timezone=Asia/Kolkata",
+                                    "host": [
+                                        "{{partner_base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "partner",
+                                        "referee-bookings",
+                                        "referees",
+                                        "{{referee_id}}"
+                                    ],
+                                    "query": [
+                                        {
+                                            "key": "sport_id",
+                                            "value": "1"
+                                        },
+                                        {
+                                            "key": "booking_method",
+                                            "value": "DIRECT"
+                                        },
+                                        {
+                                            "key": "booking_type",
+                                            "value": "HOURLY"
+                                        },
+                                        {
+                                            "key": "booking_date",
+                                            "value": "2026-11-02"
+                                        },
+                                        {
+                                            "key": "start_time",
+                                            "value": "10:00"
+                                        },
+                                        {
+                                            "key": "duration_minutes",
+                                            "value": "120"
+                                        },
+                                        {
+                                            "key": "city",
+                                            "value": "Hyderabad"
+                                        },
+                                        {
+                                            "key": "timezone",
+                                            "value": "Asia/Kolkata"
+                                        }
+                                    ]
+                                }
+                            },
+                            "response": [
+                                {
+                                    "name": "200 Success",
+                                    "status": "OK",
+                                    "code": 200,
+                                    "_postman_previewlanguage": "json",
+                                    "header": [
+                                        {
+                                            "key": "Content-Type",
+                                            "value": "application/json"
+                                        }
+                                    ],
+                                    "body": "{\n    \"success\": true,\n    \"message\": \"Referee retrieved.\",\n    \"data\": {\n        \"referee_id\": 10,\n        \"display_name\": \"Rahul Sharma\",\n        \"experience_years\": 5,\n        \"available\": true,\n        \"price\": {\n            \"referee_fee\": \"400.00\",\n            \"platform_fee\": \"40.00\",\n            \"total_amount\": \"440.00\",\n            \"currency\": \"INR\"\n        }\n    }\n}"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Calculate Booking Quote",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{partner_base_url}}/api/v1/partner/referee-bookings/quote",
+                                    "host": [
+                                        "{{partner_base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "partner",
+                                        "referee-bookings",
+                                        "quote"
+                                    ]
+                                },
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"sport_id\": 1,\n    \"booking_method\": \"QUICK\",\n    \"booking_type\": \"HOURLY\",\n    \"booking_date\": \"2026-11-02\",\n    \"start_time\": \"10:00\",\n    \"duration_minutes\": 120,\n    \"venue_name\": \"Partner Arena\",\n    \"city\": \"Hyderabad\",\n    \"timezone\": \"Asia\\/Kolkata\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                }
+                            },
+                            "response": [
+                                {
+                                    "name": "200 Success",
+                                    "status": "OK",
+                                    "code": 200,
+                                    "_postman_previewlanguage": "json",
+                                    "header": [
+                                        {
+                                            "key": "Content-Type",
+                                            "value": "application/json"
+                                        }
+                                    ],
+                                    "body": "{\n    \"success\": true,\n    \"message\": \"Partner booking quote calculated.\",\n    \"data\": {\n        \"referee_fee\": \"400.00\",\n        \"platform_fee\": \"40.00\",\n        \"total_amount\": \"440.00\",\n        \"currency\": \"INR\",\n        \"duration_minutes\": 120,\n        \"scheduled_start_at\": \"2026-11-02T04:30:00.000000Z\",\n        \"scheduled_end_at\": \"2026-11-02T06:30:00.000000Z\",\n        \"timezone\": \"Asia\\/Kolkata\",\n        \"booking_date\": \"2026-11-02\",\n        \"booking_type\": \"HOURLY\",\n        \"eligible_referees_count\": 1\n    }\n}"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Create Partner Booking",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{partner_base_url}}/api/v1/partner/referee-bookings",
+                                    "host": [
+                                        "{{partner_base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "partner",
+                                        "referee-bookings"
+                                    ]
+                                },
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"sport_id\": 1,\n    \"booking_method\": \"QUICK\",\n    \"booking_type\": \"HOURLY\",\n    \"booking_date\": \"2026-11-02\",\n    \"start_time\": \"10:00\",\n    \"duration_minutes\": 120,\n    \"venue_name\": \"Partner Arena\",\n    \"city\": \"Hyderabad\",\n    \"timezone\": \"Asia\\/Kolkata\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                }
+                            },
+                            "response": [
+                                {
+                                    "name": "201 Created",
+                                    "status": "Created",
+                                    "code": 201,
+                                    "_postman_previewlanguage": "json",
+                                    "header": [
+                                        {
+                                            "key": "Content-Type",
+                                            "value": "application/json"
+                                        }
+                                    ],
+                                    "body": "{\n    \"success\": true,\n    \"message\": \"Partner booking created; simulated payment required.\",\n    \"data\": {\n        \"id\": 101,\n        \"uuid\": \"9a31a5eb-b31c-4b53-a55e-fa28f41334c1\",\n        \"booking_number\": \"RB-9A31A5EB-B31C-4B53-A55E-FA28F41334C1\",\n        \"booking_source\": \"PARTNER\",\n        \"booking_method\": \"QUICK\",\n        \"partner_profile_id\": 1,\n        \"total_amount\": \"440.00\",\n        \"currency\": \"INR\",\n        \"payment_status\": \"PENDING\",\n        \"booking_status\": \"PENDING_PAYMENT\",\n        \"display_status\": \"PENDING_PAYMENT\"\n    }\n}"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "List Partner Bookings",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{partner_base_url}}/api/v1/partner/referee-bookings?filter=all&page=1&per_page=20",
+                                    "host": [
+                                        "{{partner_base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "partner",
+                                        "referee-bookings"
+                                    ],
+                                    "query": [
+                                        {
+                                            "key": "filter",
+                                            "value": "all"
+                                        },
+                                        {
+                                            "key": "page",
+                                            "value": "1"
+                                        },
+                                        {
+                                            "key": "per_page",
+                                            "value": "20"
+                                        }
+                                    ]
+                                }
+                            },
+                            "response": [
+                                {
+                                    "name": "200 Success",
+                                    "status": "OK",
+                                    "code": 200,
+                                    "_postman_previewlanguage": "json",
+                                    "header": [
+                                        {
+                                            "key": "Content-Type",
+                                            "value": "application/json"
+                                        }
+                                    ],
+                                    "body": "{\n    \"success\": true,\n    \"message\": \"Partner bookings retrieved.\",\n    \"data\": {\n        \"current_page\": 1,\n        \"data\": [],\n        \"total\": 0,\n        \"counts\": {\n            \"all\": 0,\n            \"upcoming\": 0,\n            \"ongoing\": 0,\n            \"completed\": 0,\n            \"cancelled\": 0\n        }\n    }\n}"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Last-Assigned Referees",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{partner_base_url}}/api/v1/partner/referee-bookings/last-assigned?page=1&per_page=20",
+                                    "host": [
+                                        "{{partner_base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "partner",
+                                        "referee-bookings",
+                                        "last-assigned"
+                                    ],
+                                    "query": [
+                                        {
+                                            "key": "page",
+                                            "value": "1"
+                                        },
+                                        {
+                                            "key": "per_page",
+                                            "value": "20"
+                                        }
+                                    ]
+                                }
+                            },
+                            "response": [
+                                {
+                                    "name": "200 Success",
+                                    "status": "OK",
+                                    "code": 200,
+                                    "_postman_previewlanguage": "json",
+                                    "header": [
+                                        {
+                                            "key": "Content-Type",
+                                            "value": "application/json"
+                                        }
+                                    ],
+                                    "body": "{\n    \"success\": true,\n    \"message\": \"Previously assigned referees retrieved.\",\n    \"data\": {\n        \"current_page\": 1,\n        \"data\": [\n            {\n                \"referee_id\": 10,\n                \"display_name\": \"Rahul Sharma\",\n                \"profile_photo\": null,\n                \"last_assigned_at\": \"2026-11-02 04:30:00\"\n            }\n        ],\n        \"total\": 1\n    }\n}"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Show Partner Booking",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{partner_base_url}}/api/v1/partner/referee-bookings/{{booking_id}}",
+                                    "host": [
+                                        "{{partner_base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "partner",
+                                        "referee-bookings",
+                                        "{{booking_id}}"
+                                    ]
+                                }
+                            },
+                            "response": [
+                                {
+                                    "name": "200 Success",
+                                    "status": "OK",
+                                    "code": 200,
+                                    "_postman_previewlanguage": "json",
+                                    "header": [
+                                        {
+                                            "key": "Content-Type",
+                                            "value": "application/json"
+                                        }
+                                    ],
+                                    "body": "{\n    \"success\": true,\n    \"message\": \"Partner booking retrieved.\",\n    \"data\": {\n        \"id\": 101,\n        \"booking_number\": \"RB-9A31A5EB-B31C-4B53-A55E-FA28F41334C1\",\n        \"booking_source\": \"PARTNER\",\n        \"booking_method\": \"QUICK\",\n        \"booking_status\": \"PENDING_PAYMENT\",\n        \"total_amount\": \"440.00\",\n        \"currency\": \"INR\"\n    }\n}"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Cancel Partner Booking",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{partner_base_url}}/api/v1/partner/referee-bookings/{{booking_id}}/cancel",
+                                    "host": [
+                                        "{{partner_base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "partner",
+                                        "referee-bookings",
+                                        "{{booking_id}}",
+                                        "cancel"
+                                    ]
+                                },
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"reason\": \"Match postponed\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                }
+                            },
+                            "response": [
+                                {
+                                    "name": "200 Success",
+                                    "status": "OK",
+                                    "code": 200,
+                                    "_postman_previewlanguage": "json",
+                                    "header": [
+                                        {
+                                            "key": "Content-Type",
+                                            "value": "application/json"
+                                        }
+                                    ],
+                                    "body": "{\n    \"success\": true,\n    \"message\": \"Partner booking cancelled.\",\n    \"data\": {\n        \"id\": 101,\n        \"booking_status\": \"CANCELLED\",\n        \"cancellation_reason\": \"Match postponed\"\n    }\n}"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Initiate Payment (Simulated)",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{partner_base_url}}/api/v1/partner/referee-bookings/{{booking_id}}/payment/initiate",
+                                    "host": [
+                                        "{{partner_base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "partner",
+                                        "referee-bookings",
+                                        "{{booking_id}}",
+                                        "payment",
+                                        "initiate"
+                                    ]
+                                },
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"idempotency_key\": \"partner-pay-101\",\n    \"payment_method\": \"MOCK_EXTERNAL\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                }
+                            },
+                            "response": [
+                                {
+                                    "name": "200 Success",
+                                    "status": "OK",
+                                    "code": 200,
+                                    "_postman_previewlanguage": "json",
+                                    "header": [
+                                        {
+                                            "key": "Content-Type",
+                                            "value": "application/json"
+                                        }
+                                    ],
+                                    "body": "{\n    \"success\": true,\n    \"message\": \"Simulated database-only payment processed; no external funds collected.\",\n    \"data\": {\n        \"mode\": \"SIMULATED_DB_ONLY\",\n        \"payment\": {\n            \"id\": 15,\n            \"payment_status\": \"PENDING\",\n            \"gateway_payment_id\": \"mock_pay_123\",\n            \"gateway_transaction_id\": \"mock_txn_123\"\n        }\n    }\n}"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Verify Payment (Simulated)",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{partner_base_url}}/api/v1/partner/referee-bookings/{{booking_id}}/payment/verify",
+                                    "host": [
+                                        "{{partner_base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "partner",
+                                        "referee-bookings",
+                                        "{{booking_id}}",
+                                        "payment",
+                                        "verify"
+                                    ]
+                                },
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"payment_id\": \"mock_pay_123\",\n    \"transaction_id\": \"mock_txn_123\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                }
+                            },
+                            "response": [
+                                {
+                                    "name": "200 Success",
+                                    "status": "OK",
+                                    "code": 200,
+                                    "_postman_previewlanguage": "json",
+                                    "header": [
+                                        {
+                                            "key": "Content-Type",
+                                            "value": "application/json"
+                                        }
+                                    ],
+                                    "body": "{\n    \"success\": true,\n    \"message\": \"Simulated database-only payment processed; no external funds collected.\",\n    \"data\": {\n        \"mode\": \"SIMULATED_DB_ONLY\",\n        \"payment\": {\n            \"payment_status\": \"SUCCESS\"\n        },\n        \"booking\": {\n            \"booking_status\": \"SEARCHING\"\n        }\n    }\n}"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Payment History",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{partner_base_url}}/api/v1/partner/referee-bookings/{{booking_id}}/payments",
+                                    "host": [
+                                        "{{partner_base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "partner",
+                                        "referee-bookings",
+                                        "{{booking_id}}",
+                                        "payments"
+                                    ]
+                                }
+                            },
+                            "response": [
+                                {
+                                    "name": "200 Success",
+                                    "status": "OK",
+                                    "code": 200,
+                                    "_postman_previewlanguage": "json",
+                                    "header": [
+                                        {
+                                            "key": "Content-Type",
+                                            "value": "application/json"
+                                        }
+                                    ],
+                                    "body": "{\n    \"success\": true,\n    \"message\": \"Stored payment attempts retrieved.\",\n    \"data\": {\n        \"current_page\": 1,\n        \"data\": [],\n        \"total\": 1\n    }\n}"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Issue Session OTP",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{partner_base_url}}/api/v1/partner/referee-bookings/{{booking_id}}/session/otp",
+                                    "host": [
+                                        "{{partner_base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "partner",
+                                        "referee-bookings",
+                                        "{{booking_id}}",
+                                        "session",
+                                        "otp"
+                                    ]
+                                },
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"phase\": \"start\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                }
+                            },
+                            "response": [
+                                {
+                                    "name": "200 Success",
+                                    "status": "OK",
+                                    "code": 200,
+                                    "_postman_previewlanguage": "json",
+                                    "header": [
+                                        {
+                                            "key": "Content-Type",
+                                            "value": "application/json"
+                                        }
+                                    ],
+                                    "body": "{\n    \"success\": true,\n    \"message\": \"Single-use booking OTP issued.\",\n    \"data\": {\n        \"otp\": \"492817\",\n        \"expires_in_seconds\": 600\n    }\n}"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Referees",
+            "item": [
+                {
+                    "name": "List Eligible Referees",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/v1/partner/referees",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "partner",
+                                "referees"
+                            ],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "1",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "per_page",
+                                    "value": "20",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "search",
+                                    "value": "John",
+                                    "disabled": true
+                                }
+                            ]
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "Success",
+                            "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Accept",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{base_url}}/api/v1/partner/referees",
+                                    "host": [
+                                        "{{base_url}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "v1",
+                                        "partner",
+                                        "referees"
+                                    ]
+                                }
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "_postman_previewlanguage": "json",
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "cookie": [],
+                            "body": "{\n    \"success\": true,\n    \"message\": \"Eligible referees retrieved successfully.\",\n    \"data\": [\n        {\n            \"id\": 25,\n            \"name\": \"John Smith\",\n            \"profile_photo_url\": null,\n            \"status\": \"active\"\n        }\n    ],\n    \"meta\": {\n        \"current_page\": 1,\n        \"per_page\": 20,\n        \"total\": 10,\n        \"last_page\": 1\n    }\n}"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "auth": null,
+    "event": null,
+    "variable": null
+}

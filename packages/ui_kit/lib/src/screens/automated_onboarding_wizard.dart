@@ -2166,6 +2166,21 @@ class ApplicationStatusScreen extends StatelessWidget {
     MapEntry(applicationStatus == 5 ? 'Rejected' : 'Approved', applicationStatus == 4),
   ];
 
+  String get _statusMessage {
+    switch (applicationStatus) {
+      case 5:
+        return 'Your application was rejected.';
+      case 4:
+        return 'Your application has been approved.';
+      case 3:
+        return 'Your application is currently under review.';
+      case 2:
+        return 'Your application has been sent for review.';
+      default:
+        return 'Complete your application to submit it for review.';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
@@ -2315,7 +2330,7 @@ class ApplicationStatusScreen extends StatelessWidget {
                           child: Column(
                             children: [
                               Text(
-                                applicationStatus == 5 ? 'Your application was rejected.' : 'Your application has been sent for review.',
+                                _statusMessage,
                                 textAlign: TextAlign.center,
                                 style: tt.bodyLarge?.copyWith(
                                   color: cs.secondary,

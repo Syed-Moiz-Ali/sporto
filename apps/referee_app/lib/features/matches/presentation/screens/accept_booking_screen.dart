@@ -40,6 +40,9 @@ class _AcceptBookingScreenState extends State<AcceptBookingScreen> {
   }
 
   Future<RefereeMatchRequestResponse?> _load() async {
+    try {
+      return await _remote.getBookingRequestData(widget.requestId!);
+    } catch (_) {}
     final requests = await _remote.listMatchRequestsData();
     for (final request in requests) {
       if ('${request.assignmentId ?? request.id}' == '${widget.requestId}') {
@@ -52,8 +55,13 @@ class _AcceptBookingScreenState extends State<AcceptBookingScreen> {
   Future<void> _confirm(RefereeMatchRequestResponse request) async {
     setState(() => _submitting = true);
     try {
-      await _remote.acceptMatchRequest(request.assignmentId ?? request.id);
-      // Re-hit match-requests on every screen showing requests/assigned matches.
+      final id = request.assignmentId ?? request.id;
+      if (request.isBooking) {
+        await _remote.acceptBookingRequest(id);
+      } else {
+        await _remote.acceptMatchRequest(id);
+      }
+      // Re-hit requests on every screen showing requests/assigned matches.
       MatchRequestRefresh.bump();
       if (!mounted) return;
       context.pushReplacement(

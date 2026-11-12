@@ -11,9 +11,11 @@ import '../../../features/availability/application/weekly_availability_cubit.dar
 import '../../../features/availability/presentation/screens/weekly_availability_screen.dart';
 import '../../../features/matches/presentation/screens/accept_booking_screen.dart';
 import '../../../features/matches/presentation/screens/booking_confirmed_screen.dart';
+import '../../../features/matches/presentation/screens/booking_session_screen.dart';
 import '../../../features/matches/presentation/screens/conduct_toss_wizard.dart';
 import '../../../features/matches/presentation/screens/incoming_requests_screen.dart';
 import '../../../features/matches/presentation/screens/live_scoring_screen.dart';
+import '../../../features/matches/presentation/screens/match_result_screen.dart';
 import '../../../features/matches/presentation/screens/schedule_matches_screen.dart';
 import '../../../features/matches/presentation/screens/match_verification_screen.dart';
 import '../../../features/matches/presentation/screens/referee_match_history_screen.dart';
@@ -34,6 +36,8 @@ abstract final class AppRouter {
   static const String acceptBookingPath = '/accept-booking';
   static const String bookingConfirmedPath = '/booking-confirmed';
   static const String startMatchPath = '/start-match';
+  static const String matchResultPath = '/match-result';
+  static const String bookingSessionPath = '/booking-session';
   static const String availabilityPath = '/availability';
 
   static const String matchesRoute = matchesPath;
@@ -45,6 +49,8 @@ abstract final class AppRouter {
   static const String acceptBookingRoute = acceptBookingPath;
   static const String bookingConfirmedRoute = bookingConfirmedPath;
   static const String startMatchRoute = startMatchPath;
+  static const String matchResultRoute = matchResultPath;
+  static const String bookingSessionRoute = bookingSessionPath;
 
   /// Root navigator key so global flows (e.g. session expiry) can show
   /// dialogs and route back to login from anywhere.
@@ -82,6 +88,8 @@ abstract final class AppRouter {
         name: 'conductToss',
         builder: (context, state) => ConductTossWizard(
           matchId: state.uri.queryParameters['matchId'],
+          bookingId: state.uri.queryParameters['bookingId'],
+          skipTossOtp: state.uri.queryParameters['skipTossOtp'] == 'true',
         ),
       ),
       GoRoute(
@@ -89,11 +97,27 @@ abstract final class AppRouter {
         builder: (context, state) => const RefereeMatchHistoryScreen(),
       ),
       GoRoute(
+        path: matchResultPath,
+        name: 'matchResult',
+        builder: (context, state) => MatchResultScreen(
+          matchId: state.uri.queryParameters['matchId'],
+        ),
+      ),
+      GoRoute(
+        path: bookingSessionPath,
+        name: 'bookingSession',
+        builder: (context, state) => BookingSessionScreen(
+          bookingId: state.uri.queryParameters['bookingId'],
+          matchId: state.uri.queryParameters['matchId'],
+        ),
+      ),
+      GoRoute(
         path: liveScoringPath,
         name: 'liveScoring',
         builder: (context, state) => LiveScoringScreen(
           matchId: state.uri.queryParameters['matchId'],
           matchCode: state.uri.queryParameters['matchCode'],
+          bookingId: state.uri.queryParameters['bookingId'],
         ),
       ),
       GoRoute(
@@ -139,6 +163,7 @@ abstract final class AppRouter {
               ? state.extra as BeforeTossMatch
               : null,
           matchId: state.uri.queryParameters['matchId'],
+          bookingId: state.uri.queryParameters['bookingId'],
         ),
       ),
       GoRoute(

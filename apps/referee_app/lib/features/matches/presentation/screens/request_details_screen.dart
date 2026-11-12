@@ -40,6 +40,9 @@ class _RequestDetailsScreenState extends State<RequestDetailsScreen> {
   }
 
   Future<RefereeMatchRequestResponse?> _load() async {
+    try {
+      return await _remote.getBookingRequestData(widget.requestId!);
+    } catch (_) {}
     final requests = await _remote.listMatchRequestsData();
     final id = widget.requestId;
     for (final request in requests) {
@@ -58,7 +61,15 @@ class _RequestDetailsScreenState extends State<RequestDetailsScreen> {
   Future<void> _decline(RefereeMatchRequestResponse request) async {
     setState(() => _declining = true);
     try {
-      await _remote.rejectMatchRequest(request.assignmentId ?? request.id);
+      final id = request.assignmentId ?? request.id;
+      if (request.isBooking) {
+        await _remote.rejectBookingRequest(
+          id,
+          reason: 'Unavailable for this request',
+        );
+      } else {
+        await _remote.rejectMatchRequest(id);
+      }
       MatchRequestRefresh.bump();
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(

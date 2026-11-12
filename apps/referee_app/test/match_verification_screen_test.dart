@@ -102,7 +102,7 @@ void main() {
     });
   });
 
-  testWidgets('START MATCH opens OTP and verification continues to toss',
+  testWidgets('START MATCH goes straight to toss in the entity flow',
       (tester) async {
     final router = GoRouter(
       initialLocation: '/',
@@ -112,14 +112,6 @@ void main() {
           builder: (context, state) => MatchVerificationScreen(
             match: dummyMatch,
             matchId: dummyMatch.id,
-          ),
-        ),
-        GoRoute(
-          path: '/start-match',
-          builder: (context, state) => StartMatchScreen(
-            match: state.extra is BeforeTossMatch
-                ? state.extra as BeforeTossMatch
-                : null,
           ),
         ),
         GoRoute(
@@ -141,11 +133,6 @@ void main() {
 
     await tester.tap(find.text('START MATCH'));
     await tester.pumpAndSettle();
-    expect(find.text('Start Session?'), findsOneWidget);
-
-    await tester.enterText(find.byType(TextField), '123456');
-    await tester.tap(find.text('Verify OTP & Start Match'));
-    await tester.pumpAndSettle();
 
     expect(find.text('CONDUCT TOSS'), findsOneWidget);
   });
@@ -159,13 +146,15 @@ void main() {
       expect(find.text('Match verification'), findsOneWidget);
       expect(find.text('Start Session?'), findsOneWidget);
       expect(
-        find.text('Share this OTP with your referee to start the session.'),
+        find.text(
+          'Enter the Start OTP shared by the organiser to start the session.',
+        ),
         findsOneWidget,
       );
-      expect(find.text('Enter 6-digit match OTP'), findsOneWidget);
+      expect(find.text('Enter 6-digit Start OTP'), findsOneWidget);
       expect(find.text('|'), findsNWidgets(6));
-      expect(find.text("Haven't received the OTP?"), findsOneWidget);
-      expect(find.text('Verify OTP & Start Match'), findsOneWidget);
+      expect(find.text("Haven't received the Start OTP?"), findsOneWidget);
+      expect(find.text('VERIFY START OTP'), findsOneWidget);
       expect(find.text('Having trouble?'), findsOneWidget);
     });
 
@@ -186,23 +175,11 @@ void main() {
       await tester.pumpAndSettle();
 
       await tester.enterText(find.byType(TextField), '12');
-      await tester.tap(find.text('Verify OTP & Start Match'));
-      await tester.pump();
-
-      expect(find.text('Enter the 6-digit match OTP.'), findsOneWidget);
-    });
-
-    testWidgets('wrong OTP shows invalid message when expected OTP is known',
-        (tester) async {
-      await tester.pumpWidget(createStartWidget(expectedOtp: '654321'));
-      await tester.pumpAndSettle();
-
-      await tester.enterText(find.byType(TextField), '123456');
-      await tester.tap(find.text('Verify OTP & Start Match'));
+      await tester.tap(find.text('VERIFY START OTP'));
       await tester.pump();
 
       expect(
-        find.text('Incorrect OTP. Please check with the booking user.'),
+        find.text('Enter the 6-digit Start OTP shared by the organiser.'),
         findsOneWidget,
       );
     });

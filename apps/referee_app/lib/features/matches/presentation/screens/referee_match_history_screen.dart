@@ -25,8 +25,7 @@ class RefereeMatchHistoryScreen extends StatefulWidget {
       _RefereeMatchHistoryScreenState();
 }
 
-class _RefereeMatchHistoryScreenState
-    extends State<RefereeMatchHistoryScreen> {
+class _RefereeMatchHistoryScreenState extends State<RefereeMatchHistoryScreen> {
   late int selected;
   late Future<List<RefereeMatchResponse>> _future;
 
@@ -38,10 +37,20 @@ class _RefereeMatchHistoryScreenState
   }
 
   Future<List<RefereeMatchResponse>> _load() async {
-    final matches = await DependencyInjector
-        .instance.refereeRemoteDataSource
-        .listMyMatchesData(perPage: 50);
-    return matches.where((m) => m.isCompleted).toList();
+    final remote = DependencyInjector.instance.refereeRemoteDataSource;
+    final results = await Future.wait<List<RefereeMatchResponse>>([
+      remote.listMyMatchesData(perPage: 50),
+      remote
+          .listBookingsData(filter: 'completed', perPage: 50)
+          .catchError((_) => <RefereeMatchResponse>[]),
+    ]);
+    final seen = <String>{};
+    return [
+      for (final list in results)
+        for (final match in list)
+          if (match.isCompleted && seen.add('${match.isBooking}:${match.id}'))
+            match,
+    ];
   }
 
   void _reload() {
@@ -92,11 +101,11 @@ class _RefereeMatchHistoryScreenState
                   child: InkWell(
                       onTap: () => context.pop(),
                       borderRadius: BorderRadius.circular(10),
-                    child: const SizedBox(
-                        width: 36,
-                        height: 36,
-                        child: Icon(Icons.arrow_back_ios_new_rounded,
-                            size: 18)))),
+                      child: const SizedBox(
+                          width: 36,
+                          height: 36,
+                          child: Icon(Icons.arrow_back_ios_new_rounded,
+                              size: 18)))),
               const SizedBox(width: 11),
               Text('Match History',
                   style: theme.textTheme.titleLarge
@@ -123,8 +132,10 @@ class _RefereeMatchHistoryScreenState
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
                           gradient: active
-                              ? const LinearGradient(
-                                  colors: [Color(0xFFFF8500), Color(0xFFD9A81B)])
+                              ? const LinearGradient(colors: [
+                                  Color(0xFFFF8500),
+                                  Color(0xFFD9A81B)
+                                ])
                               : null,
                           borderRadius: BorderRadius.circular(10)),
                       child: Text(
@@ -173,8 +184,7 @@ class _RefereeMatchHistoryScreenState
                           Text(
                             '${snapshot.error}',
                             textAlign: TextAlign.center,
-                            style:
-                                const TextStyle(color: Color(0xFFAAAAAA)),
+                            style: const TextStyle(color: Color(0xFFAAAAAA)),
                           ),
                           const SizedBox(height: 18),
                           ElevatedButton(
@@ -225,8 +235,7 @@ class _RefereeMatchHistoryScreenState
                     padding: const EdgeInsets.fromLTRB(20, 21, 20, 30),
                     itemCount: visible.length,
                     separatorBuilder: (_, __) => const SizedBox(height: 10),
-                    itemBuilder: (_, i) =>
-                        _RealHistoryCard(match: visible[i]),
+                    itemBuilder: (_, i) => _RealHistoryCard(match: visible[i]),
                   ),
                 );
               },
@@ -403,8 +412,7 @@ class _RealHistoryCard extends StatelessWidget {
     );
   }
 
-  String _teamScore(
-      RefereeScoreResponse? score, int? teamId, bool isLoading) {
+  String _teamScore(RefereeScoreResponse? score, int? teamId, bool isLoading) {
     if (isLoading) return '…';
     if (teamId == null) return '—';
     return liveTeamScore(score, teamId) ?? '—';
@@ -432,8 +440,18 @@ class _RealHistoryCard extends StatelessWidget {
     final start = parseMatchStart(match);
     if (start == null) return 'Schedule not set';
     const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec'
     ];
     final today = DateTime.now();
     final isToday = start.year == today.year &&

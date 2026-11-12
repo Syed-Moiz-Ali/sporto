@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:referee_data/referee_data.dart';
 import 'package:ui_kit/ui_kit.dart';
 
 import '../../../../app/router/app_router.dart';
@@ -12,11 +13,13 @@ import '../widgets/referee_request_widgets.dart';
 class StartMatchScreen extends StatefulWidget {
   final BeforeTossMatch? match;
   final String? matchId;
+  final String? bookingId;
 
   const StartMatchScreen({
     super.key,
     this.match,
     this.matchId,
+    this.bookingId,
   });
 
   @override
@@ -24,9 +27,11 @@ class StartMatchScreen extends StatefulWidget {
 }
 
 class _StartMatchScreenState extends State<StartMatchScreen> {
-  late Future<BeforeTossMatch> _future;
+  late Future<({BeforeTossMatch match, RefereeMatchSessionResponse? session})>
+      _future;
   final TextEditingController _otpController = TextEditingController();
   final FocusNode _otpFocus = FocusNode();
+  bool _submitting = false;
 
   @override
   void initState() {
@@ -34,15 +39,50 @@ class _StartMatchScreenState extends State<StartMatchScreen> {
     _future = _load();
   }
 
-  Future<BeforeTossMatch> _load() async {
-    if (widget.match != null) return widget.match!;
-    final id = widget.matchId?.trim();
-    if (id == null || id.isEmpty) {
-      throw const FormatException('Match id is missing.');
+  Future<({BeforeTossMatch match, RefereeMatchSessionResponse? session})>
+      _load() async {
+    final id = (widget.match?.matchId ?? widget.matchId)?.trim();
+    BeforeTossMatch match;
+    if (widget.match != null) {
+      match = widget.match!;
+    } else {
+      if (id == null || id.isEmpty) {
+        throw const FormatException('Match id is missing.');
+      }
+      final response = await DependencyInjector.instance.refereeRemoteDataSource
+          .showMyMatchData(id);
+      match = BeforeTossMatch.fromResponse(response);
     }
-    final response = await DependencyInjector.instance.refereeRemoteDataSource
-        .showMyMatchData(id);
-    return BeforeTossMatch.fromResponse(response);
+    RefereeMatchSessionResponse? session;
+    final bookingId = widget.bookingId?.trim();
+    if (bookingId != null && bookingId.isNotEmpty) {
+      try {
+        final booking = await DependencyInjector
+            .instance.refereeRemoteDataSource
+            .getBookingSession(bookingId);
+        session = RefereeMatchSessionResponse(
+          matchId: booking.matchId ?? 0,
+          sessionStatus: booking.sessionStatus,
+          startedAt: booking.startedAt,
+          endedAt: booking.endedAt,
+          startedVia: 'otp',
+          otpVerified: booking.isStarted || booking.isEnded,
+          teamsVerified: true,
+          groundReady: true,
+          tossOtpVerified: booking.tossVerifiedAt != null,
+        );
+      } catch (_) {
+        // The OTP gate can still fall back to the API error on submit.
+      }
+    } else if (widget.match == null && id != null && id.isNotEmpty) {
+      try {
+        session = await DependencyInjector.instance.refereeRemoteDataSource
+            .getMatchSession(id);
+      } catch (_) {
+        // The OTP gate can still fall back to the API error on submit.
+      }
+    }
+    return (match: match, session: session);
   }
 
   @override
@@ -58,31 +98,59 @@ class _StartMatchScreenState extends State<StartMatchScreen> {
       ..showSnackBar(SnackBar(content: Text(message)));
   }
 
-  void _verify(BeforeTossMatch match) {
-    final code = _otpController.text.trim();
-    if (code.length != 6) {
-      _snack('Enter the 6-digit match OTP.');
-      _otpFocus.requestFocus();
-      return;
-    }
-    final expected = match.expectedOtp;
-    if (expected != null && expected.isNotEmpty && expected != code) {
-      _snack('Incorrect OTP. Please check with the booking user.');
-      _otpController.clear();
-      _otpFocus.requestFocus();
-      setState(() {});
-      return;
-    }
+  Future<void> _verify(
+    BeforeTossMatch match,
+    RefereeMatchSessionResponse? session,
+  ) async {
     final id = match.matchId ?? widget.matchId ?? '';
     if (id.isEmpty) {
       _snack('Match id is missing.');
       return;
     }
-    if (context.canPop()) {
-      context.pop(true);
-    } else {
-      context.pushReplacement('${AppRouter.conductTossRoute}?matchId=$id');
+    if (_submitting) return;
+    if (session?.sessionStatus == 'STARTED' || session?.isEnded == true) {
+      _openScoring(id);
+      return;
     }
+    final bookingId = widget.bookingId?.trim();
+    if (bookingId == null || bookingId.isEmpty) {
+      if (match.isBooking) {
+        _openScoring(id);
+        return;
+      }
+    }
+    final code = _otpController.text.trim();
+    if (code.length != 6) {
+      _snack('Enter the 6-digit Start OTP shared by the organiser.');
+      _otpFocus.requestFocus();
+      return;
+    }
+    setState(() => _submitting = true);
+    try {
+      final remote = DependencyInjector.instance.refereeRemoteDataSource;
+      if (bookingId != null && bookingId.isNotEmpty) {
+        await remote.verifyBookingStartOtp(bookingId, otp: code);
+      } else {
+        await remote.startMatchSession(id, otp: code);
+      }
+      if (!mounted) return;
+      _openScoring(id);
+    } catch (error) {
+      if (!mounted) return;
+      _snack('Unable to start session: $error');
+      _otpController.clear();
+      _otpFocus.requestFocus();
+    } finally {
+      if (mounted) setState(() => _submitting = false);
+    }
+  }
+
+  void _openScoring(String id) {
+    final bookingId = widget.bookingId?.trim();
+    context.pushReplacement(
+      '${AppRouter.liveScoringRoute}?matchId=$id'
+      '${bookingId == null || bookingId.isEmpty ? '' : '&bookingId=$bookingId'}',
+    );
   }
 
   void _showHelp() {
@@ -101,8 +169,8 @@ class _StartMatchScreenState extends State<StartMatchScreen> {
           ),
         ),
         content: const Text(
-          'Ask the user or partner who booked you to open their booking and '
-          'show you the 6-digit match OTP.',
+          'Ask the organiser to open the match in the partner app, issue the '
+          'Start OTP, and share the 6 digits with you.',
           style: TextStyle(color: Color(0xFFA0A0A0), height: 1.4),
         ),
         actions: [
@@ -133,7 +201,11 @@ class _StartMatchScreenState extends State<StartMatchScreen> {
               },
             ),
             Expanded(
-              child: FutureBuilder<BeforeTossMatch>(
+              child: FutureBuilder<
+                  ({
+                    BeforeTossMatch match,
+                    RefereeMatchSessionResponse? session
+                  })>(
                 future: _future,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
@@ -180,7 +252,15 @@ class _StartMatchScreenState extends State<StartMatchScreen> {
                       ),
                     );
                   }
-                  final match = snapshot.data!;
+                  final payload = snapshot.data!;
+                  final match = payload.match;
+                  final session = payload.session;
+                  final alreadyStarted = session?.sessionStatus == 'STARTED' ||
+                      session?.isEnded == true;
+                  final bookingSession =
+                      widget.bookingId != null && widget.bookingId!.isNotEmpty;
+                  final skipOtp =
+                      alreadyStarted || (!bookingSession && match.isBooking);
                   return SingleChildScrollView(
                     physics: const BouncingScrollPhysics(),
                     padding: EdgeInsets.fromLTRB(
@@ -195,22 +275,37 @@ class _StartMatchScreenState extends State<StartMatchScreen> {
                         SizedBox(height: 20 * scale),
                         BeforeTossMatchTicket(scale: scale, match: match),
                         SizedBox(height: 20 * scale),
-                        _StartSessionCard(
-                          scale: scale,
-                          otpController: _otpController,
-                          otpFocus: _otpFocus,
-                          onChanged: () => setState(() {}),
-                          onSubmitted: () => _verify(match),
-                        ),
-                        SizedBox(height: 20 * scale),
-                        _OtpHelpCard(scale: scale),
-                        SizedBox(height: 20 * scale),
+                        if (!skipOtp) ...[
+                          _StartSessionCard(
+                            scale: scale,
+                            otpController: _otpController,
+                            otpFocus: _otpFocus,
+                            onChanged: () => setState(() {}),
+                            onSubmitted: () => _verify(match, session),
+                          ),
+                          SizedBox(height: 20 * scale),
+                          _OtpHelpCard(scale: scale),
+                          SizedBox(height: 20 * scale),
+                        ] else ...[
+                          _StartedCard(
+                            scale: scale,
+                            isBooking: match.isBooking,
+                            isEnded: session?.isEnded == true,
+                          ),
+                          SizedBox(height: 20 * scale),
+                        ],
                         Padding(
                           padding: EdgeInsets.symmetric(horizontal: 10 * scale),
                           child: BeforeTossPrimaryButton(
                             scale: scale,
-                            label: 'Verify OTP & Start Match',
-                            onTap: () => _verify(match),
+                            label: _submitting
+                                ? 'Starting…'
+                                : skipOtp
+                                    ? 'CONTINUE TO SCORING'
+                                    : 'VERIFY START OTP',
+                            onTap: _submitting
+                                ? () {}
+                                : () => _verify(match, session),
                           ),
                         ),
                         SizedBox(height: 20 * scale),
@@ -240,6 +335,56 @@ class _StartMatchScreenState extends State<StartMatchScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _StartedCard extends StatelessWidget {
+  final double scale;
+  final bool isBooking;
+  final bool isEnded;
+
+  const _StartedCard({
+    required this.scale,
+    required this.isBooking,
+    required this.isEnded,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(16 * scale),
+      decoration: BoxDecoration(
+        color: const Color(0x0D2BB673),
+        borderRadius: BorderRadius.circular(20 * scale),
+        border: Border.all(color: const Color(0x802BB673), width: 0.8),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            isEnded ? Icons.flag_rounded : Icons.play_circle_fill_rounded,
+            color: const Color(0xFF2BB673),
+            size: 22 * scale,
+          ),
+          SizedBox(width: 10 * scale),
+          Expanded(
+            child: Text(
+              isEnded
+                  ? 'This session has ended. Open scoring for the result view.'
+                  : isBooking
+                      ? 'Standalone booking match — no session OTP required.'
+                      : 'Session already started. Continue to scoring.',
+              style: TextStyle(
+                fontSize: 13 * scale,
+                fontWeight: FontWeight.w500,
+                color: const Color(0xFFA0A0A0),
+                height: 1.4,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -296,7 +441,7 @@ class _StartSessionCard extends StatelessWidget {
           ),
           SizedBox(height: 10 * scale),
           Text(
-            'Share this OTP with your referee to start the session.',
+            'Enter the Start OTP shared by the organiser to start the session.',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 12 * scale,
@@ -307,7 +452,7 @@ class _StartSessionCard extends StatelessWidget {
           ),
           SizedBox(height: 24 * scale),
           RefereeGradientText(
-            'Enter 6-digit match OTP',
+            'Enter 6-digit Start OTP',
             gradient: const LinearGradient(
               colors: [Color(0xFF7AD3FF), Color(0xFF4FBAF0)],
             ),
@@ -458,7 +603,7 @@ class _OtpHelpCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Haven't received the OTP?",
+                  "Haven't received the Start OTP?",
                   style: TextStyle(
                     fontSize: 14 * scale,
                     fontWeight: FontWeight.w500,
@@ -467,8 +612,8 @@ class _OtpHelpCard extends StatelessWidget {
                 ),
                 SizedBox(height: 4 * scale),
                 Text(
-                  'Ask the user or partner who booked you to open their '
-                  'booking and show you the match OTP.',
+                  'Ask the organiser to issue the Start OTP from the partner '
+                  'app and share the 6 digits with you.',
                   style: TextStyle(
                     fontSize: 12 * scale,
                     fontWeight: FontWeight.w400,

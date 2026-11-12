@@ -22,6 +22,13 @@ class ConductTossWizard extends StatefulWidget {
   /// Displayed match code, e.g. SPT-20481.
   final String? matchCode;
 
+  /// Independent booking id when this toss belongs to a partner booking.
+  final String? bookingId;
+
+  /// Booking Toss OTP is verified by the booking session screen before this
+  /// wizard opens, so the wizard must not ask for another OTP.
+  final bool skipTossOtp;
+
   /// For screenshot or deterministic testing.
   final TossCoinSide? debugForcedCoinSide;
   final RefereeMatchResponse? initialMatch;
@@ -32,6 +39,8 @@ class ConductTossWizard extends StatefulWidget {
     super.key,
     this.matchId,
     this.matchCode,
+    this.bookingId,
+    this.skipTossOtp = false,
     this.debugForcedCoinSide,
     this.initialMatch,
     this.bloc,
@@ -55,8 +64,8 @@ class _ConductTossWizardState extends State<ConductTossWizard> {
   void _initFutures() {
     final di = DependencyInjector.instance;
     if (widget.bloc == null && widget.initialMatch != null) {
-      _tossFuture = di.refereeRemoteDataSource
-          .getMatchTossData(widget.initialMatch!.id);
+      _tossFuture =
+          di.refereeRemoteDataSource.getMatchTossData(widget.initialMatch!.id);
     }
     if (widget.bloc == null && widget.initialMatch == null) {
       _matchFuture = _loadMatch(di);
@@ -83,7 +92,8 @@ class _ConductTossWizardState extends State<ConductTossWizard> {
                 Text(
                   '$error',
                   textAlign: TextAlign.center,
-                  style: const TextStyle(color: Color(0xFFAAAAAA), fontSize: 12),
+                  style:
+                      const TextStyle(color: Color(0xFFAAAAAA), fontSize: 12),
                 ),
               ],
               const SizedBox(height: 18),
@@ -111,6 +121,8 @@ class _ConductTossWizardState extends State<ConductTossWizard> {
           matchCode:
               widget.matchCode ?? 'SPT-${widget.initialMatch?.id ?? 20481}',
           matchId: widget.matchId ?? widget.initialMatch?.id.toString(),
+          bookingId: widget.bookingId,
+          skipTossOtp: widget.skipTossOtp,
           onNavigateToScoring: widget.onNavigateToScoring,
         ),
       );
@@ -151,6 +163,8 @@ class _ConductTossWizardState extends State<ConductTossWizard> {
             child: _ConductTossView(
               matchCode: widget.matchCode ?? 'SPT-${match.id}',
               matchId: match.id.toString(),
+              bookingId: widget.bookingId,
+              skipTossOtp: widget.skipTossOtp,
               onNavigateToScoring: widget.onNavigateToScoring,
             ),
           );
@@ -162,8 +176,7 @@ class _ConductTossWizardState extends State<ConductTossWizard> {
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           if (snapshot.hasError) {
-            return _loadError('Unable to load match.',
-                error: snapshot.error);
+            return _loadError('Unable to load match.', error: snapshot.error);
           }
           return const SportoScreenShell(
             body: Center(
@@ -194,6 +207,8 @@ class _ConductTossWizardState extends State<ConductTossWizard> {
           child: _ConductTossView(
             matchCode: widget.matchCode ?? 'SPT-${match.id}',
             matchId: match.id.toString(),
+            bookingId: widget.bookingId,
+            skipTossOtp: widget.skipTossOtp,
             onNavigateToScoring: widget.onNavigateToScoring,
           ),
         );
@@ -260,11 +275,15 @@ class _ConductTossWizardState extends State<ConductTossWizard> {
 class _ConductTossView extends StatelessWidget {
   final String matchCode;
   final String? matchId;
+  final String? bookingId;
+  final bool skipTossOtp;
   final VoidCallback? onNavigateToScoring;
 
   const _ConductTossView({
     required this.matchCode,
     this.matchId,
+    this.bookingId,
+    this.skipTossOtp = false,
     this.onNavigateToScoring,
   });
 
@@ -286,14 +305,15 @@ class _ConductTossView extends StatelessWidget {
               ),
             );
         }
-        if (state.step == ConductTossStep.matchReady &&
-            error == null) {
+        if (state.step == ConductTossStep.matchReady && error == null) {
           if (onNavigateToScoring != null) {
             onNavigateToScoring!();
           } else {
             final router = GoRouter.maybeOf(context);
+            final booking = bookingId;
             router?.replace(
-              '${AppRouter.liveScoringRoute}?matchId=${matchId ?? ''}&matchCode=${Uri.encodeComponent(matchCode)}',
+              '${AppRouter.startMatchRoute}?matchId=${matchId ?? ''}'
+              '${booking == null || booking.isEmpty ? '' : '&bookingId=$booking'}',
             );
           }
         }
@@ -727,8 +747,14 @@ class _ConductTossView extends StatelessWidget {
             scale: scale,
             disabled: state.manualWinnerTeamId == null || state.isSavingToss,
             loading: state.isSavingToss,
-            onPressed: () {
-              context.read<ConductTossBloc>().add(ConfirmManualTossResult());
+            onPressed: () async {
+              final bloc = context.read<ConductTossBloc>();
+              String? otp;
+              if (!skipTossOtp && bloc.refereeRemoteDataSource != null) {
+                otp = await _showTossOtpDialog(context);
+                if (otp == null || !context.mounted) return;
+              }
+              bloc.add(ConfirmManualTossResult(otp: otp));
             },
           ),
         ],
@@ -843,8 +869,14 @@ class _ConductTossView extends StatelessWidget {
           scale: scale,
           loading: state.isFlipping,
           disabled: state.isFlipping,
-          onPressed: () {
-            context.read<ConductTossBloc>().add(FlipCoinRequested());
+          onPressed: () async {
+            final bloc = context.read<ConductTossBloc>();
+            String? otp;
+            if (!skipTossOtp && bloc.refereeRemoteDataSource != null) {
+              otp = await _showTossOtpDialog(context);
+              if (otp == null || !context.mounted) return;
+            }
+            bloc.add(FlipCoinRequested(otp: otp));
           },
         ),
       ],
@@ -1842,6 +1874,59 @@ class _ConductTossView extends StatelessWidget {
 // ============================================================
 // FIGMA PLAYER SELECTOR (Inline Role Accordion Card)
 // ============================================================
+
+Future<String?> _showTossOtpDialog(BuildContext context) async {
+  final controller = TextEditingController();
+  final result = await showDialog<String>(
+    context: context,
+    builder: (dialogContext) => AlertDialog(
+      backgroundColor: const Color(0xFF1C2026),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      title: const Text(
+        'Toss OTP',
+        style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Ask the organiser for the 6-digit Toss OTP.',
+            style: TextStyle(color: Color(0xFFA0A0A0), height: 1.4),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: controller,
+            keyboardType: TextInputType.number,
+            maxLength: 6,
+            autofocus: true,
+            style: const TextStyle(color: Colors.white),
+            decoration: const InputDecoration(
+              hintText: 'Enter 6-digit OTP',
+              hintStyle: TextStyle(color: Color(0xFFA0A0A0)),
+              counterText: '',
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(dialogContext).pop(),
+          child: const Text('Cancel'),
+        ),
+        TextButton(
+          onPressed: () {
+            final text = controller.text.trim();
+            if (text.length == 6) Navigator.of(dialogContext).pop(text);
+          },
+          child: const Text('Confirm'),
+        ),
+      ],
+    ),
+  );
+  controller.dispose();
+  return result;
+}
 
 class _FigmaPlayerSelector extends StatefulWidget {
   final String title;
