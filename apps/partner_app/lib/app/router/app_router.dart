@@ -20,12 +20,18 @@ import '../../features/referee_booking/presentation/screens/rate_review_screen.d
 import '../../features/referee_booking/presentation/screens/referee_profile_screen.dart';
 import '../../features/referee_booking/presentation/screens/select_sport_screen.dart';
 import '../../features/tournaments/presentation/screens/create_tournament_wizard_screen.dart';
-import '../../features/tournaments/presentation/screens/tournament_detail_screen.dart';
+import '../../features/tournaments/presentation/screens/live_tournaments_redesign_screen.dart';
+import '../../features/tournaments/presentation/screens/prize_pool_redesign_screen.dart';
+import '../../features/tournaments/presentation/screens/tournament_detail_redesign_screen.dart';
+import '../../features/tournaments/presentation/screens/venue_schedule_redesign_screen.dart';
 
 /// Central route table for the partner app.
 abstract final class AppRouter {
   static const String homePath = '/';
   static const String tournamentDetailPath = '/tournaments/:id';
+  static const String liveTournamentsPath = '/tournaments/live';
+  static const String venueSchedulePath = '/tournaments/:id/venue-schedule';
+  static const String prizePoolPath = '/tournaments/:id/prize-pool';
   static const String createTournamentPath = '/create-tournament';
   static const String matchHistoryPath = '/match-history';
   static const String schedulePath = '/schedule';
@@ -45,6 +51,14 @@ abstract final class AppRouter {
 
   static String tournamentDetailRoute(String tournamentId) =>
       '/tournaments/$tournamentId';
+
+  static const String liveTournamentsRoute = liveTournamentsPath;
+
+  static String venueScheduleRoute(String tournamentId) =>
+      '/tournaments/$tournamentId/venue-schedule';
+
+  static String prizePoolRoute(String tournamentId) =>
+      '/tournaments/$tournamentId/prize-pool';
 
   static const String createTournamentRoute = createTournamentPath;
   static const String matchHistoryRoute = matchHistoryPath;
@@ -69,10 +83,29 @@ abstract final class AppRouter {
         ),
       ),
       GoRoute(
+        path: liveTournamentsPath,
+        name: 'liveTournaments',
+        builder: (context, state) => const LiveTournamentsRedesignScreen(),
+      ),
+      GoRoute(
         path: tournamentDetailPath,
         name: 'tournamentDetail',
-        builder: (context, state) => TournamentDetailScreen(
+        builder: (context, state) => TournamentDetailRedesignScreen(
           tournamentId: state.pathParameters['id'],
+        ),
+      ),
+      GoRoute(
+        path: venueSchedulePath,
+        name: 'venueSchedule',
+        builder: (context, state) => VenueScheduleRedesignScreen(
+          tournamentId: state.pathParameters['id'] ?? '',
+        ),
+      ),
+      GoRoute(
+        path: prizePoolPath,
+        name: 'prizePool',
+        builder: (context, state) => PrizePoolRedesignScreen(
+          tournamentId: state.pathParameters['id'] ?? '',
         ),
       ),
       GoRoute(
