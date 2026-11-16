@@ -213,7 +213,7 @@ The existing API already supports the new `redesign/manage_availability` screens
 - Clear day: `DELETE /availability/days/{day}`
 - Global online: `GET/PUT /availability/status`
 
-**Backend is sufficient.** The current app has a functionally complete Weekly Availability screen (live API, daily toggles, slot CRUD, clear day, global status), but its UI is the old design — not the new Daily/Hourly Figma layout. That is a frontend redesign task, not a backend gap.
+**Backend is sufficient.** The new Figma Daily/Hourly UI is now implemented and **live-tested** (day toggle PUT 200, slot toggle PUT 200, create slot POST 201, delete slot DELETE 200). No backend change is required for this screen.
 
 ---
 

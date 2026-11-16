@@ -8,7 +8,7 @@ import 'package:ui_kit/ui_kit.dart';
 import '../../../core/di/dependency_injector.dart';
 import '../../../features/auth/presentation/views/auth_flow_view.dart';
 import '../../../features/availability/application/weekly_availability_cubit.dart';
-import '../../../features/availability/presentation/screens/weekly_availability_screen.dart';
+import '../../../features/availability/presentation/screens/manage_availability_screen.dart';
 import '../../../features/bank/presentation/screens/add_bank_account_screen.dart';
 import '../../../features/bank/presentation/screens/bank_account_details_screen.dart';
 import '../../../features/bank/presentation/screens/bank_accounts_screen.dart';
@@ -289,7 +289,7 @@ abstract final class AppRouter {
           create: (_) =>
               DependencyInjector.instance.createWeeklyAvailabilityCubit()
                 ..load(),
-          child: const WeeklyAvailabilityScreen(),
+          child: const ManageAvailabilityScreen(),
         ),
       ),
     ],
