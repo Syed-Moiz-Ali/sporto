@@ -356,14 +356,14 @@ extension SportoThemeContext on BuildContext {
   SportoLayoutTokens get sportoLayout =>
       Theme.of(this).extension<SportoLayoutTokens>()!;
 
-  /// Bounded multiplier based on the 390 px Figma mobile canvas.
-  /// Geometry stays close to the design; app-wide text is lifted separately.
+  /// Proportional multiplier based on the 390 px Figma mobile canvas.
+  ///
+  /// 360 px screens now shrink to 0.923 instead of being forced to 1.0, so
+  /// text/spacing stay inside the phone instead of overflowing or truncating.
+  /// The upper bound keeps tablet/desktop windows from becoming oversized.
   double get sportoScale {
     final width = MediaQuery.sizeOf(this).width;
-    if (width < 360) {
-      return (width / 360).clamp(0.92, 1.0);
-    }
-    return (width / 390).clamp(1.0, 1.16);
+    return (width / 390).clamp(0.85, 1.16);
   }
 
   double sportoSize(double figmaValue) => figmaValue * sportoScale;

@@ -461,6 +461,12 @@ class RefereeHomeScreenState extends State<RefereeHomeScreen>
             final displayName = _dashboardDisplayName(dashboard);
             final tabMatches =
                 _selectedMatchTab == 0 ? liveMatches : upcomingMatches;
+            // Figma canvas: card width 340 on a 390-wide frame.
+            // Width is derived from the real viewport, height keeps the
+            // Figma aspect ratio (340x148 live / 340x193 today).
+            final tabCardWidth = MediaQuery.sizeOf(context).width * (340 / 390);
+            final tabCardHeight = tabCardWidth *
+                (_selectedMatchTab == 0 ? (148 / 340) : (193 / 340));
 
             return RefreshIndicator(
               onRefresh: _refresh,
@@ -556,8 +562,7 @@ class RefereeHomeScreenState extends State<RefereeHomeScreen>
                             ),
                             SizedBox(height: 10 * scale),
                             SizedBox(
-                              height:
-                                  (_selectedMatchTab == 0 ? 148 : 203) * scale,
+                              height: tabCardHeight,
                               child: tabMatches.isEmpty
                                   ? _NoMatchesCard(
                                       scale: scale,
@@ -575,7 +580,7 @@ class RefereeHomeScreenState extends State<RefereeHomeScreen>
                                       itemBuilder: (context, index) {
                                         final match = tabMatches[index];
                                         return SizedBox(
-                                          width: 340 * scale,
+                                          width: tabCardWidth,
                                           child: _selectedMatchTab == 0
                                               ? _LiveMatchCard(
                                                   scale: scale,
@@ -1589,84 +1594,85 @@ class _HomeStatsRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       height: 54 * scale,
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final factor = constraints.maxWidth / 350;
-          final gap = 10 * factor;
-          return Row(
-            children: [
-              _statCard(
-                width: 75 * factor,
-                value: '$liveCount',
-                label: 'Live Now',
-                labelColor: const Color(0xFFFFFFFF),
-                border: const LinearGradient(
-                  colors: [
-                    Color(0x00FE595C),
-                    Color(0x4DFE595C),
-                    Color(0x00FE595C)
-                  ],
-                  stops: [0.0, 0.52, 1.0],
-                ),
-                showLiveDot: true,
+      child: Row(
+        children: [
+          Expanded(
+            flex: 75,
+            child: _statCard(
+              value: '$liveCount',
+              label: 'Live Now',
+              labelColor: const Color(0xFFFFFFFF),
+              border: const LinearGradient(
+                colors: [
+                  Color(0x00FE595C),
+                  Color(0x4DFE595C),
+                  Color(0x00FE595C)
+                ],
+                stops: [0.0, 0.52, 1.0],
               ),
-              SizedBox(width: gap),
-              _statCard(
-                width: 71 * factor,
-                value: '$upcomingCount',
-                label: 'Upcoming',
-                labelGradient: const LinearGradient(
-                  colors: [Color(0xFFFF9364), Color(0xFFF25F33)],
-                ),
-                border: const LinearGradient(
-                  colors: [
-                    Color(0x00FE595C),
-                    Color(0x4DFE595C),
-                    Color(0x00FE595C)
-                  ],
-                  stops: [0.0, 0.52, 1.0],
-                ),
+              showLiveDot: true,
+            ),
+          ),
+          SizedBox(width: 10 * scale),
+          Expanded(
+            flex: 71,
+            child: _statCard(
+              value: '$upcomingCount',
+              label: 'Upcoming',
+              labelGradient: const LinearGradient(
+                colors: [Color(0xFFFF9364), Color(0xFFF25F33)],
               ),
-              SizedBox(width: gap),
-              _statCard(
-                width: 75 * factor,
-                value: '$completedCount',
-                label: 'Completed',
-                labelColor: const Color(0xFF2BB673),
-                border: const LinearGradient(
-                  colors: [
-                    Color(0x0F2BB673),
-                    Color(0x332BB673),
-                    Color(0x0F2BB673)
-                  ],
-                  stops: [0.0, 0.52, 1.0],
-                ),
+              border: const LinearGradient(
+                colors: [
+                  Color(0x00FE595C),
+                  Color(0x4DFE595C),
+                  Color(0x00FE595C)
+                ],
+                stops: [0.0, 0.52, 1.0],
               ),
-              SizedBox(width: gap),
-              _statCard(
-                width: 99 * factor,
-                value: earnings,
-                valueColor: const Color(0xFFF4B41A),
-                label: 'Earnings',
-                labelColor: const Color(0xFFFFFFFF),
-                border: const LinearGradient(
-                  colors: [
-                    Color(0x0FF4B41A),
-                    Color(0x33F4B41A),
-                    Color(0x0FF4B41A)
-                  ],
-                  stops: [0.0, 0.52, 1.0],
-                ),
+            ),
+          ),
+          SizedBox(width: 10 * scale),
+          Expanded(
+            flex: 75,
+            child: _statCard(
+              value: '$completedCount',
+              label: 'Completed',
+              labelColor: const Color(0xFF2BB673),
+              border: const LinearGradient(
+                colors: [
+                  Color(0x0F2BB673),
+                  Color(0x332BB673),
+                  Color(0x0F2BB673)
+                ],
+                stops: [0.0, 0.52, 1.0],
               ),
-            ],
-          );
-        },
+            ),
+          ),
+          SizedBox(width: 10 * scale),
+          Expanded(
+            flex: 99,
+            child: _statCard(
+              value: earnings,
+              valueColor: const Color(0xFFF4B41A),
+              label: 'Earnings',
+              labelColor: const Color(0xFFFFFFFF),
+              border: const LinearGradient(
+                colors: [
+                  Color(0x0FF4B41A),
+                  Color(0x33F4B41A),
+                  Color(0x0FF4B41A)
+                ],
+                stops: [0.0, 0.52, 1.0],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
   Widget _statCard({
-    required double width,
     required String value,
     required String label,
     Color? valueColor,
@@ -1676,7 +1682,6 @@ class _HomeStatsRow extends StatelessWidget {
     bool showLiveDot = false,
   }) {
     return Container(
-      width: width,
       height: 54 * scale,
       padding: EdgeInsets.all(0.8 * scale),
       decoration: BoxDecoration(
