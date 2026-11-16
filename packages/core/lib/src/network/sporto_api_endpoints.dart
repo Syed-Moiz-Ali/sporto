@@ -35,6 +35,9 @@ class SportoApiEndpoints {
       RefereeProfileApiEndpoints._();
   static final RefereeMatchApiEndpoints refereeMatches =
       RefereeMatchApiEndpoints._();
+  static final RefereeDashboardApiEndpoints dashboard =
+      RefereeDashboardApiEndpoints._();
+  static final RefereeBankApiEndpoints bank = RefereeBankApiEndpoints._();
   static final RefereeAvailabilityApiEndpoints refereeAvailability =
       RefereeAvailabilityApiEndpoints._();
   static final RefereeBookingApiEndpoints refereeBookings =
@@ -89,6 +92,37 @@ class RefereeMatchApiEndpoints {
       '/v1/referee/matches/$matchId/session/withdraw';
   String status(Object matchId) => '/v1/referee/matches/$matchId/status';
   String result(Object matchId) => '/v1/referee/matches/$matchId/result';
+  String playerOfMatch(Object matchId) =>
+      '/v1/referee/matches/$matchId/player-of-match';
+  String commentary(Object matchId) =>
+      '/v1/referee/matches/$matchId/commentary';
+  String graphs(Object matchId) => '/v1/referee/matches/$matchId/graphs';
+  String leaderboard(Object matchId, Object category) =>
+      '/v1/referee/matches/$matchId/leaderboards/$category';
+}
+
+class RefereeDashboardApiEndpoints {
+  RefereeDashboardApiEndpoints._();
+
+  String get dashboard => '/v1/referee/dashboard';
+  String get wallet => '/v1/referee/wallet';
+  String get earnings => '/v1/referee/earnings';
+  String get statistics => '/v1/referee/statistics';
+  String get tournaments => '/v1/referee/tournaments';
+  String get walletTransactions => '/v1/referee/wallet/transactions';
+}
+
+class RefereeBankApiEndpoints {
+  RefereeBankApiEndpoints._();
+
+  String get list => '/v1/referee/bank/list-bank-details';
+  String get add => '/v1/referee/bank/add-bank-details';
+  String update(Object bankDetailId) =>
+      '/v1/referee/bank/update-bank-details/$bankDetailId';
+  String setDefault(Object bankDetailId) =>
+      '/v1/referee/bank/set-default-bank/$bankDetailId';
+  String delete(Object bankDetailId) =>
+      '/v1/referee/bank/delete-bank-details/$bankDetailId';
 }
 
 class RefereeAvailabilityApiEndpoints {

@@ -133,6 +133,9 @@ class _ConfirmedBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final distance = requestDistanceText(request);
+    final fee = requestFeeText(request);
+    final timeRange = requestTimeRangeText(request);
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
       padding: EdgeInsets.fromLTRB(
@@ -298,49 +301,50 @@ class _ConfirmedBody extends StatelessWidget {
           SizedBox(height: 10 * scale),
 
           // Booked by
-          Container(
-            width: double.infinity,
-            padding: EdgeInsets.all(14 * scale),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16 * scale),
-              gradient: _pinkGradient,
-            ),
-            child: Row(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(10 * scale),
-                  child: SportoAssetIcon(
-                    SportoRefereeBookingIcons.avatarReferee,
-                    size: 40 * scale,
-                    fit: BoxFit.cover,
+          if (requestCustomerName(request).isNotEmpty)
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.all(14 * scale),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16 * scale),
+                gradient: _pinkGradient,
+              ),
+              child: Row(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(10 * scale),
+                    child: SportoAssetIcon(
+                      SportoRefereeBookingIcons.avatarReferee,
+                      size: 40 * scale,
+                      fit: BoxFit.cover,
+                    ),
                   ),
-                ),
-                SizedBox(width: 10 * scale),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Booked by',
-                      style: TextStyle(
-                        fontSize: 12 * scale,
-                        fontWeight: FontWeight.w500,
-                        color: const Color(0xFF666666),
+                  SizedBox(width: 10 * scale),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Booked by',
+                        style: TextStyle(
+                          fontSize: 12 * scale,
+                          fontWeight: FontWeight.w500,
+                          color: const Color(0xFF666666),
+                        ),
                       ),
-                    ),
-                    SizedBox(height: 2 * scale),
-                    RefereeGradientText(
-                      requestCustomerName(request),
-                      gradient: _pinkText,
-                      style: TextStyle(
-                        fontSize: 16 * scale,
-                        fontWeight: FontWeight.w600,
+                      SizedBox(height: 2 * scale),
+                      RefereeGradientText(
+                        requestCustomerName(request),
+                        gradient: _pinkText,
+                        style: TextStyle(
+                          fontSize: 16 * scale,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
           SizedBox(height: 10 * scale),
 
           // Tournament / venue / location / date-time-duration
@@ -374,43 +378,44 @@ class _ConfirmedBody extends StatelessWidget {
                       ),
                     ),
                     SizedBox(width: 10 * scale),
-                    Container(
-                      height: 27 * scale,
-                      padding: EdgeInsets.fromLTRB(
-                        4 * scale,
-                        4 * scale,
-                        4 * scale,
-                        4 * scale,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color(0x1AF4B41A),
-                        borderRadius: BorderRadius.circular(10 * scale),
-                        border: Border.all(color: const Color(0x33F4B41A)),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          SportoSvgIcon(
-                            SportoRefereeBookingIcons.pinGreenSmall,
-                            size: 16 * scale,
-                          ),
-                          SizedBox(width: 1 * scale),
-                          Text(
-                            requestDistanceText(request),
-                            style: TextStyle(
-                              fontSize: 12 * scale,
-                              fontWeight: FontWeight.w500,
-                              color: const Color(0xFFFFFFFF),
+                    if (distance != null)
+                      Container(
+                        height: 27 * scale,
+                        padding: EdgeInsets.fromLTRB(
+                          4 * scale,
+                          4 * scale,
+                          4 * scale,
+                          4 * scale,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0x1AF4B41A),
+                          borderRadius: BorderRadius.circular(10 * scale),
+                          border: Border.all(color: const Color(0x33F4B41A)),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SportoSvgIcon(
+                              SportoRefereeBookingIcons.pinGreenSmall,
+                              size: 16 * scale,
                             ),
-                          ),
-                          SizedBox(width: 2 * scale),
-                          SportoSvgIcon(
-                            SportoHomeRedesignIcons.navigation,
-                            size: 17 * scale,
-                          ),
-                        ],
+                            SizedBox(width: 1 * scale),
+                            Text(
+                              distance,
+                              style: TextStyle(
+                                fontSize: 12 * scale,
+                                fontWeight: FontWeight.w500,
+                                color: const Color(0xFFFFFFFF),
+                              ),
+                            ),
+                            SizedBox(width: 2 * scale),
+                            SportoSvgIcon(
+                              SportoHomeRedesignIcons.navigation,
+                              size: 17 * scale,
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
                   ],
                 ),
                 SizedBox(height: 12 * scale),
@@ -420,15 +425,17 @@ class _ConfirmedBody extends StatelessWidget {
                       label: 'Date',
                       value: requestDateText(request),
                     ),
-                    Container(
-                      width: 0.5 * scale,
-                      height: 29 * scale,
-                      color: const Color(0x33FFFFFF),
-                    ),
-                    _dateChunk(
-                      label: 'Time',
-                      value: requestTimeRangeText(request),
-                    ),
+                    if (timeRange.isNotEmpty) ...[
+                      Container(
+                        width: 0.5 * scale,
+                        height: 29 * scale,
+                        color: const Color(0x33FFFFFF),
+                      ),
+                      _dateChunk(
+                        label: 'Time',
+                        value: timeRange,
+                      ),
+                    ],
                     Container(
                       width: 0.5 * scale,
                       height: 29 * scale,
@@ -436,9 +443,11 @@ class _ConfirmedBody extends StatelessWidget {
                     ),
                     _dateChunk(
                       label: 'Duration',
-                      value: requestDurationText(request)
-                          .replaceFirst(' hr ', ' Hours ')
-                          .replaceFirst('0 min', ''),
+                      value: requestDurationText(request).isEmpty
+                          ? '—'
+                          : requestDurationText(request)
+                              .replaceFirst(' hr ', ' Hours ')
+                              .replaceFirst('0 min', ''),
                     ),
                   ],
                 ),
@@ -448,42 +457,44 @@ class _ConfirmedBody extends StatelessWidget {
           SizedBox(height: 10 * scale),
 
           // Fee
-          Container(
-            width: double.infinity,
-            padding: EdgeInsets.symmetric(
-              horizontal: 12 * scale,
-              vertical: 12 * scale,
-            ),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(14 * scale),
-              gradient: const LinearGradient(
-                colors: [Color(0x0AFF9364), Color(0x0AF25F33)],
+          if (fee != null) ...[
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.symmetric(
+                horizontal: 12 * scale,
+                vertical: 12 * scale,
               ),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    'Fee',
-                    style: TextStyle(
-                      fontSize: 14 * scale,
-                      fontWeight: FontWeight.w500,
-                      color: const Color(0xFFFFFFFF),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(14 * scale),
+                gradient: const LinearGradient(
+                  colors: [Color(0x0AFF9364), Color(0x0AF25F33)],
+                ),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Fee',
+                      style: TextStyle(
+                        fontSize: 14 * scale,
+                        fontWeight: FontWeight.w500,
+                        color: const Color(0xFFFFFFFF),
+                      ),
                     ),
                   ),
-                ),
-                RefereeGradientText(
-                  requestFeeText(request),
-                  gradient: _orangeGradient,
-                  style: TextStyle(
-                    fontSize: 16 * scale,
-                    fontWeight: FontWeight.w600,
+                  RefereeGradientText(
+                    fee,
+                    gradient: _orangeGradient,
+                    style: TextStyle(
+                      fontSize: 16 * scale,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          SizedBox(height: 24 * scale),
+            SizedBox(height: 24 * scale),
+          ],
 
           // View Upcoming
           SizedBox(

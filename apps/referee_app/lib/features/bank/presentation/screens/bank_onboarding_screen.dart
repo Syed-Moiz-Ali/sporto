@@ -48,11 +48,18 @@ class BankOnboardingScreen extends StatelessWidget {
                           width: 14 * scale,
                           height: 14 * scale,
                         ),
-                        onPressed: () => Navigator.of(context).push(
-                          MaterialPageRoute<void>(
-                            builder: (_) => const AddBankAccountScreen(),
-                          ),
-                        ),
+                        onPressed: () async {
+                          final saved = await Navigator.of(context).push<bool>(
+                            MaterialPageRoute<bool>(
+                              builder: (_) => const AddBankAccountScreen(
+                                makeDefault: true,
+                              ),
+                            ),
+                          );
+                          if (saved == true && context.mounted) {
+                            Navigator.of(context).pop(true);
+                          }
+                        },
                       ),
                     ),
                   ],

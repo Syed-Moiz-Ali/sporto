@@ -58,10 +58,15 @@ void main() {
     );
   }
 
-  RefereeMatchRequestResponse createRequest() {
+  RefereeMatchRequestResponse createRequest({
+    int id = 55,
+    int assignmentId = 550,
+    String customer = 'Rahul Kumar',
+    bool withFee = true,
+  }) {
     return RefereeMatchRequestResponse(
-      id: 55,
-      assignmentId: 550,
+      id: id,
+      assignmentId: assignmentId,
       tournamentName: 'Hyderabad Corporate Cricket Tournament',
       matchNumber: 'SP-10245',
       matchDate: '2026-10-12',
@@ -71,12 +76,59 @@ void main() {
       statusLabel: 'Scheduled',
       teamA: const RefereeMatchTeam(id: 7, name: 'Rahul Kumar'),
       teamB: const RefereeMatchTeam(id: 8, name: 'Royal Strikers'),
-      raw: const {
-        'booked_by': 'Rahul Kumar',
+      raw: {
+        'booked_by': customer,
         'booked_by_type': 'user',
-        'fee': 1500,
-        'distance_km': 8.4,
-        'duration_hours': 2,
+        if (withFee) 'fee': 1500,
+        if (withFee) 'distance_km': 8.4,
+        if (withFee) 'duration_hours': 2,
+      },
+    );
+  }
+
+  /// Match-card shape from `/matches` / dashboard `recent_requests`: no fee,
+  /// no distance, no customer, no schedule.
+  RefereeMatchRequestResponse createTournamentRequest() {
+    return RefereeMatchRequestResponse(
+      id: 99,
+      assignmentId: 990,
+      tournamentName: 'Tournament Cup',
+      matchNumber: 'SP-99',
+      statusLabel: 'Scheduled',
+      teamA: const RefereeMatchTeam(id: 91, name: 'Team Alpha'),
+      teamB: const RefereeMatchTeam(id: 92, name: 'Team Beta'),
+      raw: const {
+        'booked_by_type': 'tournament',
+        'fee': null,
+        'distance_km': null,
+        'duration_hours': null,
+        'customer_name': null,
+        'schedule': null,
+      },
+    );
+  }
+
+  RefereeDashboardResponse createDashboard() {
+    return RefereeDashboardResponse(
+      profile: const RefereeDashboardProfile(id: 1, name: 'Moiz Ali'),
+      availability: const RefereeAvailabilityStatusResponse(
+        isAvailable: true,
+        acceptingMatches: true,
+      ),
+      statistics: const RefereeStatistics(
+        liveMatches: 2,
+        upcomingMatches: 3,
+        completedMatches: 7,
+        pendingRequests: 2,
+      ),
+      wallet: const RefereeWalletSummary(
+        balance: 3650,
+        totalEarned: 5150,
+        pendingEarnings: 1200,
+      ),
+      raw: {
+        'profile': {'name': 'Moiz Ali'},
+        'stats': {'pending_requests': 2},
       },
     );
   }
@@ -84,6 +136,8 @@ void main() {
   Widget createTestWidget({
     Future<List<RefereeMatchResponse>>? matchesFuture,
     Future<RefereeHomePayload>? payloadFuture,
+    Future<RefereeIncomingRequestsBundle> Function()? incomingRequestsLoader,
+    Duration pollInterval = const Duration(seconds: 20),
     VoidCallback? onViewAll,
   }) {
     return MaterialApp(
@@ -91,6 +145,8 @@ void main() {
       home: RefereeHomeScreen(
         matchesFuture: matchesFuture,
         payloadFuture: payloadFuture,
+        incomingRequestsLoader: incomingRequestsLoader,
+        pollInterval: pollInterval,
         onViewAll: onViewAll,
       ),
     );
@@ -110,7 +166,8 @@ void main() {
         findsOneWidget,
       );
       expect(find.text('Referee'), findsOneWidget);
-      expect(find.text('500'), findsOneWidget);
+      // Honest zero balance when the dashboard has not loaded.
+      expect(find.text('0'), findsWidgets);
       expect(find.text('Search cricket, football..'), findsOneWidget);
       expect(find.text('Referee Status'), findsOneWidget);
     });
@@ -130,6 +187,32 @@ void main() {
       expect(find.text('Upcoming'), findsWidgets);
       expect(find.text('Completed'), findsOneWidget);
       expect(find.text('Earnings'), findsOneWidget);
+    });
+
+    testWidgets('Renders dashboard wallet, stats and availability',
+        (tester) async {
+      await tester.pumpWidget(
+        createTestWidget(
+          payloadFuture: Future.value(
+            RefereeHomePayload(
+              dashboard: createDashboard(),
+              matches: [createLiveMatch()],
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Moiz Ali'), findsOneWidget);
+      expect(find.text('3,650'), findsOneWidget);
+      expect(find.text('₹3,650'), findsOneWidget);
+      expect(find.text('₹5,150 Total earned'), findsOneWidget);
+      expect(find.text('₹1,200 Pending'), findsOneWidget);
+      expect(find.text('2'), findsWidgets);
+      expect(find.text('3'), findsWidgets);
+      expect(find.text('7'), findsWidgets);
+      expect(find.text('₹5,150'), findsOneWidget);
+      expect(find.text('On'), findsOneWidget);
     });
 
     testWidgets('Renders live match card with score and scoring action',
@@ -181,6 +264,117 @@ void main() {
       expect(find.text('Accept'), findsOneWidget);
       expect(find.text('Decline'), findsOneWidget);
       expect(find.text('₹1500'), findsOneWidget);
+    });
+
+    testWidgets('Does not invent distance or fee for tournament match requests',
+        (tester) async {
+      await tester.pumpWidget(
+        createTestWidget(
+          payloadFuture: Future.value(
+            RefereeHomePayload(requests: [createTournamentRequest()]),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Accept'), findsOneWidget);
+      expect(find.text('₹1500'), findsNothing);
+      expect(find.textContaining('8.4 km'), findsNothing);
+      expect(find.textContaining('km'), findsNothing);
+      expect(find.textContaining('5:00 PM'), findsNothing);
+      expect(find.textContaining('7:00 PM'), findsNothing);
+      expect(find.text('by Tournament'), findsOneWidget);
+    });
+
+    testWidgets('Polls incoming requests without a full-page spinner',
+        (tester) async {
+      final polled = createRequest(
+        id: 77,
+        assignmentId: 770,
+        customer: 'Polled Player',
+      );
+      final pollCompleter = Completer<RefereeIncomingRequestsBundle>();
+      var calls = 0;
+
+      await tester.pumpWidget(
+        createTestWidget(
+          payloadFuture: Future.value(
+            RefereeHomePayload(requests: [createRequest()]),
+          ),
+          incomingRequestsLoader: () {
+            calls++;
+            return pollCompleter.future;
+          },
+          pollInterval: const Duration(milliseconds: 50),
+        ),
+      );
+      await tester.pump();
+      await tester.pump();
+
+      expect(find.text('Rahul Kumar'), findsOneWidget);
+
+      // Timer fires while the poll is still in flight: the previous request
+      // stays visible instead of the whole page reverting to a spinner.
+      await tester.pump(const Duration(milliseconds: 60));
+      expect(calls, greaterThanOrEqualTo(1));
+      expect(find.text('Rahul Kumar'), findsOneWidget);
+      expect(find.text('Polled Player'), findsNothing);
+
+      pollCompleter.complete(
+        RefereeIncomingRequestsBundle(matchRequests: [polled]),
+      );
+      for (var i = 0; i < 4; i++) {
+        await tester.pump();
+      }
+
+      expect(find.text('Polled Player'), findsOneWidget);
+      expect(find.text('Rahul Kumar'), findsNothing);
+
+      await tester.pumpWidget(const SizedBox.shrink());
+    });
+
+    testWidgets('Poll clears an empty list then repopulates it',
+        (tester) async {
+      final polled = createRequest(
+        id: 88,
+        assignmentId: 880,
+        customer: 'Fresh Request',
+      );
+      var calls = 0;
+
+      await tester.pumpWidget(
+        createTestWidget(
+          payloadFuture: Future.value(
+            RefereeHomePayload(requests: [createRequest()]),
+          ),
+          incomingRequestsLoader: () async {
+            calls++;
+            if (calls == 1) {
+              return const RefereeIncomingRequestsBundle();
+            }
+            return RefereeIncomingRequestsBundle(matchRequests: [polled]);
+          },
+          pollInterval: const Duration(milliseconds: 50),
+        ),
+      );
+      await tester.pump();
+      await tester.pump();
+      expect(find.text('Rahul Kumar'), findsOneWidget);
+
+      await tester.pump(const Duration(milliseconds: 60));
+      for (var i = 0; i < 4; i++) {
+        await tester.pump();
+      }
+      expect(find.text('Rahul Kumar'), findsNothing);
+      expect(find.text('Fresh Request'), findsNothing);
+
+      await tester.pump(const Duration(milliseconds: 60));
+      for (var i = 0; i < 4; i++) {
+        await tester.pump();
+      }
+      expect(find.text('Fresh Request'), findsOneWidget);
+
+      await tester.pumpWidget(const SizedBox.shrink());
     });
 
     testWidgets('Renders empty assigned state and ads banner', (tester) async {

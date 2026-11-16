@@ -1429,6 +1429,8 @@ class _CompletedMatchCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final venue = match.displayVenue.trim();
+    final hasVenue = venue.isNotEmpty && venue != 'Venue not set';
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -1519,7 +1521,9 @@ class _CompletedMatchCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8 * scale),
                     ),
                     child: Text(
-                      _initials(match.displayTournament),
+                      _initials(
+                        match.teamA?.name ?? match.displayTournament,
+                      ),
                       style: TextStyle(
                         fontSize: 13 * scale,
                         fontWeight: FontWeight.w700,
@@ -1553,36 +1557,38 @@ class _CompletedMatchCard extends StatelessWidget {
                                 color: const Color(0xFF2BB673),
                               ),
                             ),
-                            Padding(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 5 * scale,
-                              ),
-                              child: Text(
-                                '\u00B7',
-                                style: TextStyle(
-                                  fontSize: 11 * scale,
-                                  color: const Color(0xFFA0A0A0),
+                            if (hasVenue) ...[
+                              Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 5 * scale,
+                                ),
+                                child: Text(
+                                  '\u00B7',
+                                  style: TextStyle(
+                                    fontSize: 11 * scale,
+                                    color: const Color(0xFFA0A0A0),
+                                  ),
                                 ),
                               ),
-                            ),
-                            SportoAssetIcon(
-                              SportoAssets.locationPin,
-                              size: 13 * scale,
-                              color: const Color(0xFFA0A0A0),
-                            ),
-                            SizedBox(width: 2 * scale),
-                            Expanded(
-                              child: Text(
-                                match.displayVenue,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  fontSize: 11 * scale,
-                                  fontWeight: FontWeight.w500,
-                                  color: const Color(0xFFA0A0A0),
+                              SportoAssetIcon(
+                                SportoAssets.locationPin,
+                                size: 13 * scale,
+                                color: const Color(0xFFA0A0A0),
+                              ),
+                              SizedBox(width: 2 * scale),
+                              Expanded(
+                                child: Text(
+                                  venue,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: 11 * scale,
+                                    fontWeight: FontWeight.w500,
+                                    color: const Color(0xFFA0A0A0),
+                                  ),
                                 ),
                               ),
-                            ),
+                            ],
                           ],
                         ),
                       ],

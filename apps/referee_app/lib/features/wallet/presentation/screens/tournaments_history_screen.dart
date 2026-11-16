@@ -1,18 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:referee_app/core/config/referee_demo_data.dart';
+import 'package:referee_app/core/di/dependency_injector.dart';
+import 'package:referee_data/referee_data.dart';
 import 'package:ui_kit/ui_kit.dart';
 
-import '../wallet_figma_data.dart';
+import '../wallet_adapters.dart';
 import '../wallet_icons.dart';
-import '../wallet_models.dart';
 import '../widgets/wallet_shared_widgets.dart';
 
 /// Screen 01 - referee tournaments history (Figma `01_My-Tournaments`).
+///
+/// The live endpoint returns only `{id, name, code, status, currency}`. Venue,
+/// date, team counts, fees and level/approval badges are therefore not rendered
+/// instead of being faked.
 class TournamentsHistoryScreen extends StatefulWidget {
-  const TournamentsHistoryScreen({super.key, this.tournaments});
+  final Future<RefereeTournamentHistoryPage>? tournamentsFuture;
 
-  /// Test/preview override. Production uses the backend list when available.
-  final List<TournamentHistoryItem>? tournaments;
+  const TournamentsHistoryScreen({
+    super.key,
+    this.tournamentsFuture,
+  });
 
   @override
   State<TournamentsHistoryScreen> createState() =>
@@ -20,29 +26,44 @@ class TournamentsHistoryScreen extends StatefulWidget {
 }
 
 class _TournamentsHistoryScreenState extends State<TournamentsHistoryScreen> {
-  TournamentHistoryStatus _status = TournamentHistoryStatus.completed;
+  bool _showCompleted = true;
   bool _newestFirst = true;
+  late Future<RefereeTournamentHistoryPage> _future;
 
-  List<TournamentHistoryItem> get _tournaments =>
-      widget.tournaments ??
-      (kRefereeDemoData ? WalletFigmaData.tournaments : const []);
+  RefereeRemoteDataSource get _remote =>
+      DependencyInjector.instance.refereeRemoteDataSource;
 
-  List<TournamentHistoryItem> get _visibleTournaments {
-    final filtered = _tournaments
-        .where((tournament) => tournament.status == _status)
+  @override
+  void initState() {
+    super.initState();
+    _future = _load();
+  }
+
+  Future<RefereeTournamentHistoryPage> _load() {
+    return widget.tournamentsFuture ?? _remote.listTournamentsData(perPage: 50);
+  }
+
+  void _retry() {
+    setState(() => _future = _load());
+  }
+
+  List<RefereeTournamentHistoryItem> _visible(
+    List<RefereeTournamentHistoryItem> items,
+  ) {
+    final filtered = items
+        .where(
+          (item) => _showCompleted
+              ? RefereeTournamentStatus.isCompleted(item)
+              : RefereeTournamentStatus.isCancelled(item),
+        )
         .toList(growable: false);
-    if (!_newestFirst) {
-      return filtered.reversed.toList(growable: false);
-    }
-    return filtered;
+    return _newestFirst ? filtered : filtered.reversed.toList(growable: false);
   }
 
   @override
   Widget build(BuildContext context) {
     final scale = context.sportoScale;
     final tokens = context.sporto;
-    final bottomInset = MediaQuery.paddingOf(context).bottom;
-    final visible = _visibleTournaments;
 
     return Scaffold(
       backgroundColor: tokens.canvas,
@@ -64,8 +85,7 @@ class _TournamentsHistoryScreenState extends State<TournamentsHistoryScreen> {
                   size: 10 * scale,
                   color: const Color(0xFF090C10),
                 ),
-                onTap: () => _comingSoon(
-                  context,
+                onTap: () => _showComingSoon(
                   'Tournament creation is not available yet.',
                 ),
               ),
@@ -87,20 +107,14 @@ class _TournamentsHistoryScreenState extends State<TournamentsHistoryScreen> {
                         children: [
                           WalletFilterChip(
                             label: 'Completed',
-                            selected:
-                                _status == TournamentHistoryStatus.completed,
-                            onTap: () => setState(
-                              () => _status = TournamentHistoryStatus.completed,
-                            ),
+                            selected: _showCompleted,
+                            onTap: () => setState(() => _showCompleted = true),
                           ),
                           SizedBox(width: 10 * scale),
                           WalletFilterChip(
                             label: 'Cancelled',
-                            selected:
-                                _status == TournamentHistoryStatus.cancelled,
-                            onTap: () => setState(
-                              () => _status = TournamentHistoryStatus.cancelled,
-                            ),
+                            selected: !_showCompleted,
+                            onTap: () => setState(() => _showCompleted = false),
                           ),
                         ],
                       ),
@@ -114,33 +128,52 @@ class _TournamentsHistoryScreenState extends State<TournamentsHistoryScreen> {
               ),
             ),
             Expanded(
-              child: ListView(
-                padding: EdgeInsets.fromLTRB(
-                  20 * scale,
-                  10 * scale,
-                  20 * scale,
-                  24 * scale + bottomInset,
-                ),
-                children: [
-                  if (visible.isEmpty)
-                    WalletEmptyState(
-                      message: _status == TournamentHistoryStatus.completed
-                          ? 'No completed tournaments yet'
-                          : 'No cancelled tournaments yet',
-                    )
-                  else
-                    for (var i = 0; i < visible.length; i++) ...[
-                      _TournamentCard(
-                        tournament: visible[i],
-                        scale: scale,
-                        onAction: (label) => _comingSoon(
-                          context,
-                          '$label is not available yet.',
-                        ),
+              child: FutureBuilder<RefereeTournamentHistoryPage>(
+                future: _future,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting ||
+                      snapshot.connectionState == ConnectionState.none) {
+                    return const _TournamentsSkeleton();
+                  }
+                  if (snapshot.hasError) {
+                    return Center(
+                      child: SportoErrorView(
+                        headline: 'Unable to load tournaments',
+                        description: 'Check your connection and try again.',
+                        onRetry: _retry,
                       ),
-                      if (i != visible.length - 1) SizedBox(height: 20 * scale),
+                    );
+                  }
+                  final visible = _visible(snapshot.data?.items ?? const []);
+                  return ListView(
+                    padding: EdgeInsets.fromLTRB(
+                      20 * scale,
+                      10 * scale,
+                      20 * scale,
+                      24 * scale + MediaQuery.paddingOf(context).bottom,
+                    ),
+                    children: [
+                      if (visible.isEmpty)
+                        WalletEmptyState(
+                          message: _showCompleted
+                              ? 'No completed tournaments yet'
+                              : 'No cancelled tournaments yet',
+                        )
+                      else
+                        for (var i = 0; i < visible.length; i++) ...[
+                          _TournamentCard(
+                            tournament: visible[i],
+                            scale: scale,
+                            onAction: (label) => _showComingSoon(
+                              '$label is not available yet.',
+                            ),
+                          ),
+                          if (i != visible.length - 1)
+                            SizedBox(height: 20 * scale),
+                        ],
                     ],
-                ],
+                  );
+                },
               ),
             ),
           ],
@@ -149,7 +182,7 @@ class _TournamentsHistoryScreenState extends State<TournamentsHistoryScreen> {
     );
   }
 
-  void _comingSoon(BuildContext context, String message) {
+  void _showComingSoon(String message) {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
@@ -162,8 +195,37 @@ class _TournamentsHistoryScreenState extends State<TournamentsHistoryScreen> {
   }
 }
 
+class _TournamentsSkeleton extends StatelessWidget {
+  const _TournamentsSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    final scale = context.sportoScale;
+    return Semantics(
+      label: 'Loading tournaments',
+      child: ListView(
+        padding: EdgeInsets.fromLTRB(
+          20 * scale,
+          10 * scale,
+          20 * scale,
+          24 * scale + MediaQuery.paddingOf(context).bottom,
+        ),
+        children: [
+          for (var i = 0; i < 3; i++) ...[
+            SportoSkeletonCard(
+              height: 120 * scale,
+              borderRadius: 16 * scale,
+            ),
+            if (i != 2) SizedBox(height: 20 * scale),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
 class _TournamentCard extends StatelessWidget {
-  final TournamentHistoryItem tournament;
+  final RefereeTournamentHistoryItem tournament;
   final double scale;
   final ValueChanged<String> onAction;
 
@@ -176,6 +238,11 @@ class _TournamentCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tokens = context.sporto;
+    final statusLabel = RefereeTournamentStatus.labelFor(tournament);
+    final statusColor = RefereeTournamentStatus.isCancelled(tournament)
+        ? tokens.red
+        : tokens.accentGreen;
+
     return Container(
       padding: EdgeInsets.all(12 * scale),
       decoration: BoxDecoration(
@@ -187,20 +254,13 @@ class _TournamentCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              WalletBadge(
-                label: tournament.levelLabel,
-                color: tokens.accentGreen,
-              ),
+              WalletBadge(label: statusLabel, color: statusColor),
               const Spacer(),
-              WalletBadge(
-                label: tournament.approvalLabel,
-                color: tokens.accentGreen,
-              ),
             ],
           ),
           SizedBox(height: 12 * scale),
           Text(
-            tournament.name,
+            tournament.name.isEmpty ? '—' : tournament.name,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
@@ -210,97 +270,22 @@ class _TournamentCard extends StatelessWidget {
               height: 1.25,
             ),
           ),
-          SizedBox(height: 2 * scale),
-          Row(
-            children: [
-              Flexible(
-                child: Text(
-                  tournament.venue,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 12 * scale,
-                    fontWeight: FontWeight.w500,
-                    color: tokens.muted,
-                    height: 1.2,
-                  ),
-                ),
-              ),
-              SizedBox(width: 4 * scale),
-              Container(
-                width: 2 * scale,
-                height: 2 * scale,
-                decoration: BoxDecoration(
-                  color: tokens.textTertiary,
-                  shape: BoxShape.circle,
-                ),
-              ),
-              SizedBox(width: 4 * scale),
-              Text(
-                tournament.dateLabel,
-                maxLines: 1,
-                style: TextStyle(
-                  fontSize: 12 * scale,
-                  fontWeight: FontWeight.w500,
-                  color: tokens.muted,
-                  height: 1.2,
-                ),
-              ),
-            ],
-          ),
           SizedBox(height: 12 * scale),
           Container(
             height: 1 * scale,
             color: tokens.border.withValues(alpha: 0.5),
           ),
+          SizedBox(height: 8 * scale),
+          _InfoRow(
+            label: 'Code',
+            value: RefereeTournamentStatus.codeFor(tournament),
+            scale: scale,
+          ),
           SizedBox(height: 6 * scale),
-          Row(
-            children: [
-              Expanded(
-                child: Text.rich(
-                  TextSpan(
-                    children: [
-                      TextSpan(
-                        text:
-                            '${tournament.registeredTeams}/${tournament.totalTeams}',
-                        style: TextStyle(
-                          fontSize: 14 * scale,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                        ),
-                      ),
-                      TextSpan(
-                        text: ' Teams',
-                        style: TextStyle(
-                          fontSize: 12 * scale,
-                          fontWeight: FontWeight.w500,
-                          color: tokens.muted,
-                        ),
-                      ),
-                    ],
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              SizedBox(width: 8 * scale),
-              WalletMoneyText(
-                formatIndianRupees(tournament.earningsRupees),
-                maxLines: 1,
-                symbolStyle: TextStyle(
-                  fontSize: 14 * scale,
-                  fontWeight: FontWeight.w500,
-                  color: tokens.gold,
-                  height: 1.2,
-                ),
-                amountStyle: TextStyle(
-                  fontSize: 14 * scale,
-                  fontWeight: FontWeight.w600,
-                  color: tokens.gold,
-                  height: 1.2,
-                ),
-              ),
-            ],
+          _InfoRow(
+            label: 'Currency',
+            value: RefereeTournamentStatus.currencyFor(tournament),
+            scale: scale,
           ),
           SizedBox(height: 12 * scale),
           Row(
@@ -332,6 +317,55 @@ class _TournamentCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _InfoRow extends StatelessWidget {
+  final String label;
+  final String value;
+  final double scale;
+
+  const _InfoRow({
+    required this.label,
+    required this.value,
+    required this.scale,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = context.sporto;
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 12 * scale,
+              fontWeight: FontWeight.w500,
+              color: tokens.muted,
+              height: 1.2,
+            ),
+          ),
+        ),
+        SizedBox(width: 12 * scale),
+        Expanded(
+          child: Text(
+            value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.right,
+            style: TextStyle(
+              fontSize: 12 * scale,
+              fontWeight: FontWeight.w500,
+              color: Colors.white,
+              height: 1.2,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

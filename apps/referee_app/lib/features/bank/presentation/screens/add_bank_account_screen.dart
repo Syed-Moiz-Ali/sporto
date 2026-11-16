@@ -1,28 +1,42 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:referee_data/referee_data.dart';
 import 'package:ui_kit/ui_kit.dart';
 
-import '../bank_icons.dart';
+import '../../../../core/di/dependency_injector.dart';
 import '../bank_models.dart';
-import '../bank_store.dart';
 import '../widgets/bank_shared_widgets.dart';
+
+/// Injected submit hook so widget tests can verify the real request body
+/// without touching the live network.
+typedef BankDetailsSubmitter = Future<RefereeBankDetails> Function(
+  RefereeBankDetailsRequest request, {
+  RefereeBankDetails? existing,
+});
 
 /// Working "Add Bank Account" form from the Figma `02_Add-Bank-Account` frame.
 ///
-/// Submission is intentionally local for now: no referee bank endpoint exists
-/// yet. Account numbers stay in memory only and are never logged or persisted.
+/// Submits `RefereeBankDetailsRequest.bankAccount(...)` to the live referee
+/// bank endpoint. When [existing] is supplied the same form updates that row
+/// through `updateBankDetails(existing.id, request)` instead of POSTing a new
+/// account. Account numbers and IFSC values are never logged.
 class AddBankAccountScreen extends StatefulWidget {
   const AddBankAccountScreen({
     super.key,
-    this.onSaved,
-    this.submitDelay = const Duration(milliseconds: 350),
+    this.existing,
+    this.makeDefault = false,
+    this.submit,
   });
 
-  final ValueChanged<BankAccountDetails>? onSaved;
+  /// Existing bank row to edit/change. UPI rows are not editable here because
+  /// the API form only supports bank account details.
+  final RefereeBankDetails? existing;
 
-  /// Simulated network latency so the saving state is observable. Remove when
-  /// the real API call lands.
-  final Duration submitDelay;
+  /// Used when adding the first account so payouts have a default destination.
+  final bool makeDefault;
+
+  /// Test/preview override for the network call.
+  final BankDetailsSubmitter? submit;
 
   @override
   State<AddBankAccountScreen> createState() => _AddBankAccountScreenState();
@@ -44,6 +58,27 @@ class _AddBankAccountScreenState extends State<AddBankAccountScreen> {
   bool _isSaving = false;
   AutovalidateMode _autovalidateMode = AutovalidateMode.disabled;
 
+  bool get _isEditing =>
+      widget.existing != null &&
+      widget.existing!.isBank &&
+      widget.existing!.id != null;
+
+  @override
+  void initState() {
+    super.initState();
+    final existing = widget.existing;
+    if (_isEditing && existing != null) {
+      _bankNameController.text = existing.bankName?.trim() ?? '';
+      _branchNameController.text = existing.branchName?.trim() ?? '';
+      _ifscController.text = existing.ifscCode?.trim().toUpperCase() ?? '';
+      _holderNameController.text = existing.accountHolderName?.trim() ?? '';
+      final fullNumber = bankFullAccountNumber(existing);
+      if (fullNumber != null) {
+        _accountNumberController.text = fullNumber;
+      }
+    }
+  }
+
   @override
   void dispose() {
     _bankNameController.dispose();
@@ -63,6 +98,25 @@ class _AddBankAccountScreenState extends State<AddBankAccountScreen> {
     return null;
   }
 
+  Future<RefereeBankDetails> _sendRequest(
+    RefereeBankDetailsRequest request,
+  ) {
+    final injected = widget.submit;
+    if (injected != null) {
+      return injected(
+        request,
+        existing: _isEditing ? widget.existing : null,
+      );
+    }
+
+    final remote = DependencyInjector.instance.refereeRemoteDataSource;
+    final existingId = _isEditing ? widget.existing?.id : null;
+    if (existingId != null) {
+      return remote.updateBankDetails(existingId, request);
+    }
+    return remote.addBankDetails(request);
+  }
+
   Future<void> _submit() async {
     if (_isSaving) return;
     FocusScope.of(context).unfocus();
@@ -73,47 +127,48 @@ class _AddBankAccountScreenState extends State<AddBankAccountScreen> {
 
     setState(() => _isSaving = true);
 
-    final details = BankAccountDetails(
+    final accountNumber =
+        _accountNumberController.text.replaceAll(RegExp(r'\D'), '');
+    final request = RefereeBankDetailsRequest.bankAccount(
+      accountNumber: accountNumber,
+      accountHolder: _holderNameController.text.trim(),
+      ifsc: _ifscController.text.trim().toUpperCase(),
       bankName: _bankNameController.text.trim(),
       branchName: _branchNameController.text.trim(),
-      ifscCode: _ifscController.text.trim().toUpperCase(),
-      accountHolderName: _holderNameController.text.trim(),
-      accountNumber: _accountNumberController.text.trim(),
-      upiId: '',
+      isDefault: _isEditing
+          ? (widget.existing?.isDefault ?? false)
+          : widget.makeDefault,
     );
 
-    // TODO(bank-api): POST the details to `/v1/referee/bank-account` once the
-    // endpoint exists, then re-verify via penny-drop before showing success.
-    await Future<void>.delayed(widget.submitDelay);
-    if (!mounted) return;
+    try {
+      await _sendRequest(request);
+      if (!mounted) return;
 
-    final account = BankAccount(
-      id: DateTime.now().microsecondsSinceEpoch.toString(),
-      bankName: details.bankName,
-      branchName: details.branchName,
-      ifscCode: details.ifscCode,
-      accountHolderName: details.accountHolderName,
-      accountNumber: details.accountNumber,
-      upiId: details.upiId,
-      logoAsset: BankIcons.logoForBank(details.bankName),
-      isVerified: false,
-    );
-    BankAccountsStore.instance.add(account);
+      setState(() => _isSaving = false);
+      showBankSnackBar(
+        context,
+        _isEditing
+            ? 'Bank account updated.'
+            : 'Bank account added. Verification is pending.',
+      );
 
-    setState(() => _isSaving = false);
-    widget.onSaved?.call(details);
-    showBankSnackBar(
-      context,
-      'Bank account added. Verification is pending.',
-    );
-
-    final navigator = Navigator.of(context);
-    if (navigator.canPop()) navigator.pop();
+      final navigator = Navigator.of(context);
+      if (navigator.canPop()) navigator.pop(true);
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _isSaving = false);
+      showBankSnackBar(
+        context,
+        "Couldn't save bank account. Please try again.",
+        isError: true,
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final scale = context.sportoScale;
+    final savingLabel = _isEditing ? 'Updating…' : 'Saving…';
 
     return Scaffold(
       backgroundColor: context.sporto.canvas,
@@ -122,7 +177,9 @@ class _AddBankAccountScreenState extends State<AddBankAccountScreen> {
         bottom: false,
         child: Column(
           children: [
-            const BankHeader(title: 'Add Bank Account'),
+            BankHeader(
+              title: _isEditing ? 'Change Bank Account' : 'Add Bank Account',
+            ),
             Expanded(
               child: SingleChildScrollView(
                 keyboardDismissBehavior:
@@ -229,7 +286,9 @@ class _AddBankAccountScreenState extends State<AddBankAccountScreen> {
                           SizedBox(height: 20 * scale),
                           BankTextField(
                             label: 'Account Number',
-                            hint: 'Enter account number',
+                            hint: _isEditing
+                                ? 'Re-enter account number'
+                                : 'Enter account number',
                             fieldKey: const ValueKey(
                               'bank_field_account_number',
                             ),
@@ -253,7 +312,9 @@ class _AddBankAccountScreenState extends State<AddBankAccountScreen> {
                     SizedBox(height: 30 * scale),
                     Center(
                       child: BankGradientButton.sky(
-                        label: _isSaving ? 'Saving…' : 'Save Bank',
+                        label: _isSaving
+                            ? savingLabel
+                            : (_isEditing ? 'Update Bank' : 'Save Bank'),
                         width: 270 * scale,
                         isLoading: _isSaving,
                         onPressed: _isSaving ? null : _submit,

@@ -1,62 +1,98 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:referee_data/referee_data.dart';
 import 'package:ui_kit/ui_kit.dart';
 
+import '../../../../core/di/dependency_injector.dart';
 import '../bank_icons.dart';
 import '../bank_models.dart';
-import '../bank_store.dart';
 import '../widgets/bank_shared_widgets.dart';
 import 'add_bank_account_screen.dart';
 import 'bank_account_details_screen.dart';
 import 'bank_onboarding_screen.dart';
 
 /// Saved-account list from the Figma `03_Back-Account` frame.
-class BankAccountsScreen extends StatelessWidget {
+///
+/// Production loads the referee bank endpoint. Tests can inject either a
+/// [accountsFuture] or a [loadAccounts] callback so no live network is touched.
+class BankAccountsScreen extends StatefulWidget {
   const BankAccountsScreen({
     super.key,
-    this.accounts,
+    this.accountsFuture,
+    this.loadAccounts,
+    this.submit,
   });
 
-  /// Test/preview override. Production reads [BankAccountsStore].
-  final List<BankAccount>? accounts;
+  /// One-shot future override for tests/previews.
+  final Future<List<RefereeBankDetails>>? accountsFuture;
 
-  void _openAddAccount(BuildContext context) {
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (_) => const AddBankAccountScreen(),
-      ),
-    );
+  /// Reloadable override used by tests to exercise retry/reload flows.
+  final Future<List<RefereeBankDetails>> Function()? loadAccounts;
+
+  /// Test/preview override forwarded to the add/change form.
+  final BankDetailsSubmitter? submit;
+
+  @override
+  State<BankAccountsScreen> createState() => _BankAccountsScreenState();
+}
+
+class _BankAccountsScreenState extends State<BankAccountsScreen> {
+  late Future<List<RefereeBankDetails>> _accounts;
+
+  @override
+  void initState() {
+    super.initState();
+    _accounts = _resolveAccounts();
   }
 
-  void _openOnboarding(BuildContext context) {
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(
+  Future<List<RefereeBankDetails>> _resolveAccounts() {
+    final injected = widget.accountsFuture;
+    if (injected != null) return injected;
+    final loader = widget.loadAccounts;
+    if (loader != null) return loader();
+    return DependencyInjector.instance.refereeRemoteDataSource
+        .listBankDetailsData();
+  }
+
+  void _reload() {
+    setState(() {
+      _accounts = _resolveAccounts();
+    });
+  }
+
+  Future<void> _openAddAccount({required bool makeDefault}) async {
+    final saved = await Navigator.of(context).push<bool>(
+      MaterialPageRoute<bool>(
+        builder: (_) => AddBankAccountScreen(
+          makeDefault: makeDefault,
+          submit: widget.submit,
+        ),
+      ),
+    );
+    if (saved == true && mounted) _reload();
+  }
+
+  Future<void> _openOnboarding() async {
+    final saved = await Navigator.of(context).push<bool>(
+      MaterialPageRoute<bool>(
         builder: (_) => const BankOnboardingScreen(),
       ),
     );
+    if (saved == true && mounted) _reload();
   }
 
-  void _openDetails(BuildContext context, BankAccount account) {
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (_) => BankAccountDetailsScreen(details: account.details),
+  Future<void> _openDetails(RefereeBankDetails details) async {
+    final changed = await Navigator.of(context).push<bool>(
+      MaterialPageRoute<bool>(
+        builder: (_) => BankAccountDetailsScreen(details: details),
       ),
     );
+    if (changed == true && mounted) _reload();
   }
 
   @override
   Widget build(BuildContext context) {
-    return ListenableBuilder(
-      listenable: BankAccountsStore.instance,
-      builder: (context, _) {
-        final items = accounts ?? BankAccountsStore.instance.accounts;
-        return _accountsScaffold(context, items);
-      },
-    );
-  }
-
-  Widget _accountsScaffold(BuildContext context, List<BankAccount> accounts) {
     final scale = context.sportoScale;
 
     return Scaffold(
@@ -67,39 +103,147 @@ class BankAccountsScreen extends StatelessWidget {
           children: [
             const BankHeader(title: 'Back Account'),
             Expanded(
-              child: SingleChildScrollView(
-                padding: EdgeInsets.fromLTRB(
-                  20 * scale,
-                  20 * scale,
-                  20 * scale,
-                  24 * scale,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    _AccountsSummary(
-                      scale: scale,
-                      count: accounts.length,
-                      onAdd: () => _openAddAccount(context),
-                    ),
-                    SizedBox(height: 20 * scale),
-                    if (accounts.isEmpty)
-                      _EmptyAccountsCard(
-                        scale: scale,
-                        onAdd: () => _openOnboarding(context),
-                      )
-                    else
-                      for (var index = 0; index < accounts.length; index++) ...[
-                        if (index > 0) SizedBox(height: 12 * scale),
-                        _BankAccountCard(
-                          scale: scale,
-                          account: accounts[index],
-                          onTap: () => _openDetails(context, accounts[index]),
-                        ),
-                      ],
-                  ],
-                ),
+              child: FutureBuilder<List<RefereeBankDetails>>(
+                future: _accounts,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const _AccountsLoadingState();
+                  }
+                  if (snapshot.hasError) {
+                    return _AccountsErrorState(onRetry: _reload);
+                  }
+                  return _accountsContent(
+                    context,
+                    scale: scale,
+                    accounts: snapshot.data ?? const [],
+                  );
+                },
               ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _accountsContent(
+    BuildContext context, {
+    required double scale,
+    required List<RefereeBankDetails> accounts,
+  }) {
+    return SingleChildScrollView(
+      padding: EdgeInsets.fromLTRB(
+        20 * scale,
+        20 * scale,
+        20 * scale,
+        24 * scale,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _AccountsSummary(
+            scale: scale,
+            count: accounts.length,
+            onAdd: () => _openAddAccount(makeDefault: accounts.isEmpty),
+          ),
+          SizedBox(height: 20 * scale),
+          if (accounts.isEmpty)
+            _EmptyAccountsCard(
+              scale: scale,
+              onAdd: _openOnboarding,
+            )
+          else
+            for (var index = 0; index < accounts.length; index++) ...[
+              if (index > 0) SizedBox(height: 12 * scale),
+              _BankAccountCard(
+                scale: scale,
+                account: accounts[index],
+                onTap: () => _openDetails(accounts[index]),
+              ),
+            ],
+        ],
+      ),
+    );
+  }
+}
+
+class _AccountsLoadingState extends StatelessWidget {
+  const _AccountsLoadingState();
+
+  @override
+  Widget build(BuildContext context) {
+    final sporto = context.sporto;
+
+    return Semantics(
+      liveRegion: true,
+      label: 'Loading bank accounts',
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircularProgressIndicator(color: sporto.gold),
+            SizedBox(height: 16 * context.sportoScale),
+            Text(
+              'Loading bank accounts…',
+              style: SportoTextStyles.text(
+                size: 14,
+                weight: FontWeight.w400,
+                color: sporto.muted,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _AccountsErrorState extends StatelessWidget {
+  const _AccountsErrorState({required this.onRetry});
+
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    final scale = context.sportoScale;
+    final sporto = context.sporto;
+
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.all(24 * scale),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.cloud_off_rounded,
+              size: 44 * scale,
+              color: sporto.muted,
+            ),
+            SizedBox(height: 16 * scale),
+            Text(
+              "Couldn't load bank accounts.",
+              textAlign: TextAlign.center,
+              style: SportoTextStyles.text(
+                size: 16,
+                weight: FontWeight.w600,
+                color: Colors.white,
+              ),
+            ),
+            SizedBox(height: 8 * scale),
+            Text(
+              'Check your connection and try again.',
+              textAlign: TextAlign.center,
+              style: SportoTextStyles.text(
+                size: 14,
+                weight: FontWeight.w400,
+                color: sporto.muted,
+              ),
+            ),
+            SizedBox(height: 20 * scale),
+            BankGradientButton.gold(
+              label: 'Retry',
+              width: 160 * scale,
+              onPressed: onRetry,
             ),
           ],
         ),
@@ -228,12 +372,17 @@ class _BankAccountCard extends StatelessWidget {
   });
 
   final double scale;
-  final BankAccount account;
+  final RefereeBankDetails account;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final sporto = context.sporto;
+    final title = bankDetailsTitle(account);
+    final masked = bankMaskedAccountLabel(account);
+    final holder = account.accountHolderName?.trim() ?? '';
+    final verification = bankVerificationLabel(account);
+    final logoAsset = BankIcons.logoForBank(title);
 
     final card = Material(
       color: sporto.cardElevated,
@@ -253,14 +402,16 @@ class _BankAccountCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(15 * scale),
                 ),
                 child: Center(
-                  child: account.logoAsset.isEmpty
+                  child: logoAsset.isEmpty
                       ? Icon(
-                          Icons.account_balance_rounded,
+                          account.isUpi
+                              ? Icons.account_balance_wallet_rounded
+                              : Icons.account_balance_rounded,
                           size: 24 * scale,
                           color: sporto.gold,
                         )
                       : SportoSvgIcon(
-                          account.logoAsset,
+                          logoAsset,
                           size: 26 * scale,
                         ),
                 ),
@@ -271,40 +422,65 @@ class _BankAccountCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      account.bankName,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: SportoTextStyles.text(
-                        size: 14,
-                        weight: FontWeight.w700,
-                        color: Colors.white,
-                        height: 18 / 14,
-                      ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: SportoTextStyles.text(
+                              size: 14,
+                              weight: FontWeight.w700,
+                              color: Colors.white,
+                              height: 18 / 14,
+                            ),
+                          ),
+                        ),
+                        if (account.isDefault) ...[
+                          SizedBox(width: 6 * scale),
+                          const BankDefaultPill(),
+                        ],
+                      ],
                     ),
                     SizedBox(height: 6 * scale),
-                    Text(
-                      'Account Name: ${account.accountHolderName}',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: SportoTextStyles.text(
-                        size: 12,
-                        weight: FontWeight.w400,
-                        color: sporto.muted,
-                        height: 15 / 12,
+                    if (holder.isNotEmpty) ...[
+                      Text(
+                        'Account Name: $holder',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: SportoTextStyles.text(
+                          size: 12,
+                          weight: FontWeight.w400,
+                          color: sporto.muted,
+                          height: 15 / 12,
+                        ),
                       ),
-                    ),
-                    SizedBox(height: 2 * scale),
-                    Text(
-                      'A/c ${account.maskedAccountNumber}',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: SportoTextStyles.text(
-                        size: 12,
-                        weight: FontWeight.w400,
-                        color: sporto.muted,
-                        height: 15 / 12,
-                      ),
+                      SizedBox(height: 2 * scale),
+                    ],
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            account.isUpi
+                                ? (masked.isEmpty ? 'UPI ID' : masked)
+                                : 'A/c ${masked.isEmpty ? '—' : masked}',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: SportoTextStyles.text(
+                              size: 12,
+                              weight: FontWeight.w400,
+                              color: sporto.muted,
+                              height: 15 / 12,
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 6 * scale),
+                        BankStatusPill(
+                          label: verification,
+                          positive: bankIsVerified(account),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -317,9 +493,14 @@ class _BankAccountCard extends StatelessWidget {
 
     return Semantics(
       button: true,
-      label: '${account.bankName}, Account Name: '
-          '${account.accountHolderName}, account ending '
-          '${account.lastFourDigits}',
+      label: [
+        title,
+        if (holder.isNotEmpty) 'Account Name: $holder',
+        if (masked.isNotEmpty)
+          account.isUpi ? 'UPI ID: $masked' : 'Account ending $masked',
+        verification,
+        if (account.isDefault) 'Default account',
+      ].join(', '),
       onTap: onTap,
       child: ExcludeSemantics(child: card),
     );

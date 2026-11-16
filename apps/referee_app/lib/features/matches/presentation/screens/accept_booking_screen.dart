@@ -189,6 +189,11 @@ class _AcceptBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isPartner = requestSourceLabel(request) == 'by Partner';
+    final fee = requestFeeText(request);
+    final timeRange = requestTimeRangeText(request);
+    final scheduleText = timeRange.isEmpty
+        ? requestDateText(request)
+        : '${requestDateText(request)} · $timeRange';
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
       padding: EdgeInsets.fromLTRB(
@@ -351,22 +356,24 @@ class _AcceptBody extends StatelessWidget {
                 ),
                 SizedBox(height: 2 * scale),
                 RefereeGradientText(
-                  '${requestDateText(request)} · ${requestTimeRangeText(request)}',
+                  scheduleText,
                   gradient: _goldGradient,
                   style: TextStyle(
                     fontSize: 12 * scale,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                SizedBox(height: 6 * scale),
-                RefereeGradientText(
-                  requestFeeText(request),
-                  gradient: _orangeGradient,
-                  style: TextStyle(
-                    fontSize: 16 * scale,
-                    fontWeight: FontWeight.w700,
+                if (fee != null) ...[
+                  SizedBox(height: 6 * scale),
+                  RefereeGradientText(
+                    fee,
+                    gradient: _orangeGradient,
+                    style: TextStyle(
+                      fontSize: 16 * scale,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
-                ),
+                ],
               ],
             ),
           ),

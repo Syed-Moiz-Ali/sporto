@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:core/core.dart';
@@ -7,7 +8,6 @@ import 'package:referee_data/referee_data.dart';
 import 'package:ui_kit/ui_kit.dart';
 
 import '../../../../app/router/app_router.dart';
-import '../../../../core/config/referee_demo_data.dart';
 import '../../../../core/di/dependency_injector.dart';
 import '../../../../core/match_action/match_action_resolver.dart';
 import '../../../../core/match_request/match_request_refresh.dart';
@@ -22,6 +22,9 @@ class RefereeHomeScreen extends StatefulWidget {
   final VoidCallback? onAvailability;
   final Future<RefereeHomePayload>? payloadFuture;
   final Future<List<RefereeMatchResponse>>? matchesFuture;
+  final Future<RefereeIncomingRequestsBundle> Function()?
+      incomingRequestsLoader;
+  final Duration pollInterval;
 
   const RefereeHomeScreen({
     super.key,
@@ -29,6 +32,8 @@ class RefereeHomeScreen extends StatefulWidget {
     this.onAvailability,
     this.payloadFuture,
     this.matchesFuture,
+    this.incomingRequestsLoader,
+    this.pollInterval = const Duration(seconds: 20),
   });
 
   @override
@@ -39,15 +44,40 @@ class RefereeHomePayload {
   const RefereeHomePayload({
     this.matches = const [],
     this.requests = const [],
+    this.dashboard,
+    this.requestsFailed = false,
   });
 
   final List<RefereeMatchResponse> matches;
   final List<RefereeMatchRequestResponse> requests;
+  final RefereeDashboardResponse? dashboard;
+  final bool requestsFailed;
+}
+
+class _FetchResult<T> {
+  const _FetchResult({this.value, this.error});
+
+  final T? value;
+  final Object? error;
+}
+
+Future<_FetchResult<T>> _fetch<T>(Future<T> Function() task) async {
+  try {
+    return _FetchResult(value: await task());
+  } catch (error) {
+    return _FetchResult(error: error);
+  }
 }
 
 class RefereeHomeScreenState extends State<RefereeHomeScreen>
     with WidgetsBindingObserver {
   late Future<RefereeHomePayload> _future;
+  final List<RefereeMatchRequestResponse> _requests = [];
+  bool _requestsLoaded = false;
+  Object? _requestsError;
+  bool _syncNoticeShown = false;
+  Timer? _pollTimer;
+  bool _polling = false;
   bool _statusEnabled = false;
   bool _statusInitialised = false;
   bool _refreshing = false;
@@ -61,17 +91,46 @@ class RefereeHomeScreenState extends State<RefereeHomeScreen>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     MatchRequestRefresh.revision.addListener(_onRequestsChanged);
-    _future = widget.payloadFuture ??
+    final initial = widget.payloadFuture ??
         (widget.matchesFuture != null
             ? _loadFromMatches(widget.matchesFuture!)
             : _load());
+    _future = initial;
+    initial.then<void>((payload) {
+      if (!mounted) return;
+      setState(() => _applyPayload(payload));
+      _startPolling();
+    }).catchError((Object _) {
+      if (!mounted) return;
+      _startPolling();
+    });
   }
 
   @override
   void dispose() {
+    _pollTimer?.cancel();
     MatchRequestRefresh.revision.removeListener(_onRequestsChanged);
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
+  }
+
+  void _applyPayload(RefereeHomePayload payload) {
+    _requests
+      ..clear()
+      ..addAll(payload.requests);
+    _requestsLoaded = true;
+    if (payload.requestsFailed) {
+      _requestsError ??= const SportoApiException(
+        'Unable to refresh incoming requests.',
+      );
+    } else {
+      _requestsError = null;
+    }
+    final dashboard = payload.dashboard;
+    if (dashboard != null) {
+      _statusInitialised = true;
+      _statusEnabled = dashboard.availability.isAvailable;
+    }
   }
 
   void _onRequestsChanged() {
@@ -80,11 +139,86 @@ class RefereeHomeScreenState extends State<RefereeHomeScreen>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) refresh();
+    if (state == AppLifecycleState.resumed) {
+      refresh();
+      _pollRequests();
+    }
   }
 
   /// Public so the shell can refresh Home whenever it becomes visible.
   Future<void> refresh() => _refresh();
+
+  void _startPolling() {
+    final interval = widget.pollInterval;
+    if (interval <= Duration.zero) return;
+    final injected =
+        widget.payloadFuture != null || widget.matchesFuture != null;
+    if (injected && widget.incomingRequestsLoader == null) return;
+    _pollTimer?.cancel();
+    _pollTimer = Timer.periodic(interval, (_) => _pollRequests());
+  }
+
+  Future<RefereeIncomingRequestsBundle> _loadIncomingRequests() {
+    final loader = widget.incomingRequestsLoader;
+    if (loader != null) return loader();
+    return _remote.listIncomingRequestsData(
+      retryOnEmpty: widget.pollInterval > Duration.zero,
+    );
+  }
+
+  Future<void> _pollRequests() async {
+    if (_polling || !mounted) return;
+    _polling = true;
+    try {
+      final bundle = await _loadIncomingRequests();
+      if (!mounted) return;
+      final next = bundle.requests;
+      final changed = !_sameRequestIds(_requests, next);
+      if (changed || _requestsError != null) {
+        setState(() {
+          if (changed) {
+            _requests
+              ..clear()
+              ..addAll(next);
+            _requestsLoaded = true;
+          }
+          _requestsError = null;
+        });
+      }
+      _syncNoticeShown = false;
+    } catch (error) {
+      if (!mounted) return;
+      setState(() => _requestsError = error);
+      _showRequestsSyncMessage();
+    } finally {
+      _polling = false;
+    }
+  }
+
+  void _showRequestsSyncMessage() {
+    if (_syncNoticeShown || !mounted) return;
+    _syncNoticeShown = true;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Could not refresh requests. Showing the latest list.'),
+      ),
+    );
+  }
+
+  bool _sameRequestIds(
+    List<RefereeMatchRequestResponse> a,
+    List<RefereeMatchRequestResponse> b,
+  ) {
+    if (a.length != b.length) return false;
+    for (var i = 0; i < a.length; i++) {
+      if (a[i].id != b[i].id ||
+          a[i].assignmentId != b[i].assignmentId ||
+          a[i].isBooking != b[i].isBooking) {
+        return false;
+      }
+    }
+    return true;
+  }
 
   Future<RefereeHomePayload> _loadFromMatches(
     Future<List<RefereeMatchResponse>> source,
@@ -102,40 +236,56 @@ class RefereeHomeScreenState extends State<RefereeHomeScreen>
   }
 
   Future<RefereeHomePayload> _load() async {
-    final matchesFuture = _remote.listMyMatchesData(perPage: 50);
-    final bookingsFuture = _remote
-        .listAllBookingsData(perPage: 50)
-        .catchError((_) => <RefereeMatchResponse>[]);
-    final requestsFuture = _remote
-        .listMatchRequestsData()
-        .catchError((_) => <RefereeMatchRequestResponse>[]);
-    final bookingRequestsFuture = _remote
-        .listBookingRequestsData()
-        .catchError((_) => <RefereeMatchRequestResponse>[]);
-    final tournamentMatches = await matchesFuture;
-    final bookings = await bookingsFuture;
-    final requests = [
-      ...await requestsFuture,
-      ...await bookingRequestsFuture,
-    ];
-    final seenMatches = <String>{};
-    final matches = [
-      for (final match in tournamentMatches)
-        if (seenMatches.add('tournament:${match.id}')) match,
-      for (final booking in bookings)
-        if (seenMatches.add('booking:${booking.id}')) booking,
-    ];
-    await _refreshStatus();
-    if (!_statusInitialised) {
+    // Dashboard is the primary source; `/matches` powers Live/Today tabs and
+    // the incoming-requests bundle powers the request cards.
+    final dashboardFuture = _fetch(_remote.getDashboardData);
+    final matchesFuture = _fetch(() => _remote.listMyMatchesData(perPage: 50));
+    final requestsFuture = _fetch(_loadIncomingRequests);
+
+    final dashboardResult = await dashboardFuture;
+    final matchesResult = await matchesFuture;
+    final requestsResult = await requestsFuture;
+
+    final dashboard = dashboardResult.value;
+    if (dashboard == null && matchesResult.value == null) {
+      throw dashboardResult.error ??
+          matchesResult.error ??
+          const SportoApiException('Unable to load home data.');
+    }
+
+    var matches = matchesResult.value ?? const <RefereeMatchResponse>[];
+    if (matches.isEmpty && dashboard != null) {
+      final seen = <String>{};
+      matches = [
+        for (final match in [
+          ...dashboard.todayMatches.items,
+          ...dashboard.todayBookings.items,
+        ])
+          if (seen.add('${match.isBooking}:${match.id}')) match,
+      ];
+    }
+
+    final bundle = requestsResult.value;
+    final requests = bundle?.requests ?? List.of(_requests);
+    _requests
+      ..clear()
+      ..addAll(requests);
+    _requestsLoaded = true;
+    _requestsError = requestsResult.error;
+
+    if (dashboard != null) {
       _statusInitialised = true;
-      _statusEnabled = matches.isNotEmpty || requests.isNotEmpty;
-    }
-    if (matches.any((m) => m.isLive)) {
-      _selectedMatchTab = 0;
+      _statusEnabled = dashboard.availability.isAvailable;
     } else {
-      _selectedMatchTab = 1;
+      await _refreshStatus();
     }
-    return RefereeHomePayload(matches: matches, requests: requests);
+    _selectedMatchTab = matches.any((m) => m.isLive) ? 0 : 1;
+    return RefereeHomePayload(
+      matches: matches,
+      requests: requests,
+      dashboard: dashboard,
+      requestsFailed: requestsResult.error != null,
+    );
   }
 
   Future<void> _refreshStatus() async {
@@ -176,7 +326,11 @@ class RefereeHomeScreenState extends State<RefereeHomeScreen>
       setState(() {
         _future = next;
       });
-      await next;
+      try {
+        await next;
+      } catch (_) {
+        // FutureBuilder renders the error card; keep refresh non-throwing.
+      }
     } finally {
       _refreshing = false;
     }
@@ -252,7 +406,8 @@ class RefereeHomeScreenState extends State<RefereeHomeScreen>
                       ),
                       child: _HomeHeader(
                         scale: scale,
-                        wallet: kRefereeDemoData ? '500' : '0',
+                        wallet: _formatAmount(null),
+                        displayName: null,
                         onWalletTap: () => context.push(AppRouter.walletRoute),
                         onBellTap: () =>
                             context.push(AppRouter.notificationSettingsRoute),
@@ -274,15 +429,36 @@ class RefereeHomeScreenState extends State<RefereeHomeScreen>
 
             final payload = snapshot.data ??
                 const RefereeHomePayload(matches: [], requests: []);
+            final dashboard = payload.dashboard;
+            final wallet = dashboard?.wallet;
+            final stats = dashboard?.statistics;
             final matches = payload.matches;
-            final requests = payload.requests;
+            final requests = _requestsLoaded
+                ? List<RefereeMatchRequestResponse>.of(_requests)
+                : payload.requests;
 
             final liveMatches = matches.where((m) => m.isLive).toList();
             final upcomingMatches = matches.where((m) => m.isUpcoming).toList();
             final completed = matches.where((m) => m.isCompleted).toList();
 
-            final isPopulated = matches.isNotEmpty || requests.isNotEmpty;
-            final earnings = _earningsText(completed);
+            final hasDashboard = dashboard != null;
+            final liveCount =
+                hasDashboard ? (stats?.liveMatches ?? 0) : liveMatches.length;
+            final upcomingCount = hasDashboard
+                ? (stats?.upcomingMatches ?? 0)
+                : upcomingMatches.length;
+            final completedCount = hasDashboard
+                ? (stats?.completedMatches ?? 0)
+                : completed.length;
+            final earnings = hasDashboard
+                ? _formatCurrency(wallet?.totalEarned)
+                : _earningsText(completed);
+
+            final isPopulated =
+                matches.isNotEmpty || requests.isNotEmpty || hasDashboard;
+            final attentionCount =
+                _pendingRequestCount(dashboard, requests.length);
+            final displayName = _dashboardDisplayName(dashboard);
             final tabMatches =
                 _selectedMatchTab == 0 ? liveMatches : upcomingMatches;
 
@@ -305,7 +481,8 @@ class RefereeHomeScreenState extends State<RefereeHomeScreen>
                       ),
                       child: _HomeHeader(
                         scale: scale,
-                        wallet: kRefereeDemoData ? '500' : '0',
+                        wallet: _formatAmount(wallet?.balance),
+                        displayName: displayName,
                         onWalletTap: () => context.push(AppRouter.walletRoute),
                         onBellTap: () =>
                             context.push(AppRouter.notificationSettingsRoute),
@@ -335,11 +512,18 @@ class RefereeHomeScreenState extends State<RefereeHomeScreen>
                                   );
                                 },
                           ),
-                          if (requests.isNotEmpty) ...[
+                          if (_requestsError != null) ...[
+                            SizedBox(height: 8 * scale),
+                            _RequestsSyncBanner(
+                              scale: scale,
+                              onRetry: _pollRequests,
+                            ),
+                          ],
+                          if (attentionCount > 0) ...[
                             SizedBox(height: 12 * scale),
                             _NeedsAttentionBanner(
                               scale: scale,
-                              count: requests.length,
+                              count: attentionCount,
                               onTap: _openIncomingRequests,
                             ),
                           ],
@@ -347,9 +531,9 @@ class RefereeHomeScreenState extends State<RefereeHomeScreen>
                           if (isPopulated) ...[
                             _WalletBalanceCard(
                               scale: scale,
-                              balance: kRefereeDemoData ? '₹3,650' : '₹0',
-                              totalEarned: kRefereeDemoData ? '₹5,150' : '₹0',
-                              pending: '₹0',
+                              balance: _formatCurrency(wallet?.balance),
+                              totalEarned: _formatCurrency(wallet?.totalEarned),
+                              pending: _formatCurrency(wallet?.pendingEarnings),
                               onWithdraw: () =>
                                   context.push(AppRouter.walletRoute),
                             ),
@@ -357,9 +541,9 @@ class RefereeHomeScreenState extends State<RefereeHomeScreen>
                           ],
                           _HomeStatsRow(
                             scale: scale,
-                            liveCount: liveMatches.length,
-                            upcomingCount: upcomingMatches.length,
-                            completedCount: completed.length,
+                            liveCount: liveCount,
+                            upcomingCount: upcomingCount,
+                            completedCount: completedCount,
                             earnings: earnings,
                           ),
                           if (isPopulated && matches.isNotEmpty) ...[
@@ -436,8 +620,31 @@ class RefereeHomeScreenState extends State<RefereeHomeScreen>
     );
   }
 
+  int _pendingRequestCount(
+    RefereeDashboardResponse? dashboard,
+    int bundleTotal,
+  ) {
+    if (dashboard == null) return bundleTotal;
+    final raw = dashboard.raw;
+    final hasStats = raw['stats'] is Map || raw['statistics'] is Map;
+    if (!hasStats) return bundleTotal;
+    return dashboard.statistics.pendingRequests;
+  }
+
+  String? _dashboardDisplayName(RefereeDashboardResponse? dashboard) {
+    if (dashboard == null) return null;
+    final rawProfile = dashboard.raw['profile'];
+    if (rawProfile is Map) {
+      final rawName = rawProfile['name']?.toString().trim() ?? '';
+      if (rawName.isNotEmpty) return rawName;
+    }
+    final name = dashboard.profile.name.trim();
+    if (name.isEmpty || name == 'Referee') return null;
+    return name;
+  }
+
   String _earningsText(List<RefereeMatchResponse> completed) {
-    if (completed.isEmpty) return '₹0';
+    if (completed.isEmpty) return _formatCurrency(0);
     num total = 0;
     for (final match in completed) {
       final value =
@@ -446,21 +653,33 @@ class RefereeHomeScreenState extends State<RefereeHomeScreen>
           value is num ? value : num.tryParse(value?.toString() ?? '');
       total += parsed ?? 0;
     }
-    if (total <= 0) return kRefereeDemoData ? '₹8,500' : '₹0';
-    return '₹${_formatNumber(total)}';
+    return _formatCurrency(total);
   }
 
-  String _formatNumber(num value) {
-    final text = value.round().toString();
-    if (text.length <= 3) return text;
-    final buffer = StringBuffer();
-    for (var i = 0; i < text.length; i++) {
-      final remaining = text.length - i;
-      buffer.write(text[i]);
-      if (remaining > 1 && remaining % 3 == 1) buffer.write(',');
+  /// Indian-grouped amount without the currency symbol (header shows a rupee
+  /// icon separately).
+  String _formatAmount(num? value) {
+    final amount = (value ?? 0).round();
+    final negative = amount < 0;
+    final digits = amount.abs().toString();
+    String grouped;
+    if (digits.length <= 3) {
+      grouped = digits;
+    } else {
+      final lastThree = digits.substring(digits.length - 3);
+      var rest = digits.substring(0, digits.length - 3);
+      final parts = <String>[];
+      while (rest.length > 2) {
+        parts.insert(0, rest.substring(rest.length - 2));
+        rest = rest.substring(0, rest.length - 2);
+      }
+      if (rest.isNotEmpty) parts.insert(0, rest);
+      grouped = '${parts.join(',')},$lastThree';
     }
-    return buffer.toString();
+    return negative ? '-$grouped' : grouped;
   }
+
+  String _formatCurrency(num? value) => '₹${_formatAmount(value)}';
 }
 
 // =============================================================================
@@ -469,12 +688,14 @@ class RefereeHomeScreenState extends State<RefereeHomeScreen>
 class _HomeHeader extends StatelessWidget {
   final double scale;
   final String wallet;
+  final String? displayName;
   final VoidCallback? onWalletTap;
   final VoidCallback? onBellTap;
 
   const _HomeHeader({
     required this.scale,
     required this.wallet,
+    this.displayName,
     this.onWalletTap,
     this.onBellTap,
   });
@@ -504,7 +725,7 @@ class _HomeHeader extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: 1 * scale),
-                _RefereeDisplayName(scale: scale),
+                _RefereeDisplayName(scale: scale, name: displayName),
               ],
             ),
           ),
@@ -615,8 +836,9 @@ String _greetingFor(DateTime now) {
 
 class _RefereeDisplayName extends StatefulWidget {
   final double scale;
+  final String? name;
 
-  const _RefereeDisplayName({required this.scale});
+  const _RefereeDisplayName({required this.scale, this.name});
 
   @override
   State<_RefereeDisplayName> createState() => _RefereeDisplayNameState();
@@ -638,21 +860,29 @@ class _RefereeDisplayNameState extends State<_RefereeDisplayName> {
 
   @override
   Widget build(BuildContext context) {
+    final provided = widget.name?.trim() ?? '';
+    if (provided.isNotEmpty) {
+      return _nameText(provided);
+    }
     return FutureBuilder<String>(
       future: _nameFuture,
       builder: (context, snapshot) {
-        return Text(
-          snapshot.data ?? 'Referee',
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            fontSize: 18 * widget.scale,
-            fontWeight: FontWeight.w700,
-            color: const Color(0xFFFFFFFF),
-            height: 1.0,
-          ),
-        );
+        return _nameText(snapshot.data ?? 'Referee');
       },
+    );
+  }
+
+  Widget _nameText(String name) {
+    return Text(
+      name,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: TextStyle(
+        fontSize: 18 * widget.scale,
+        fontWeight: FontWeight.w700,
+        color: const Color(0xFFFFFFFF),
+        height: 1.0,
+      ),
     );
   }
 }
@@ -1115,6 +1345,73 @@ class _NeedsAttentionBanner extends StatelessWidget {
 // =============================================================================
 // Wallet balance
 // =============================================================================
+class _RequestsSyncBanner extends StatelessWidget {
+  final double scale;
+  final VoidCallback onRetry;
+
+  const _RequestsSyncBanner({
+    required this.scale,
+    required this.onRetry,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: 10 * scale,
+        vertical: 6 * scale,
+      ),
+      decoration: BoxDecoration(
+        color: const Color(0x1AFFB020),
+        borderRadius: BorderRadius.circular(12 * scale),
+        border: Border.all(color: const Color(0x33F4B41A)),
+      ),
+      child: Row(
+        children: [
+          SportoSvgIcon(
+            SportoHomeRedesignIcons.danger,
+            size: 16 * scale,
+          ),
+          SizedBox(width: 6 * scale),
+          Expanded(
+            child: Text(
+              'Requests may be out of date',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 12 * scale,
+                fontWeight: FontWeight.w500,
+                color: const Color(0xFFA0A0A0),
+              ),
+            ),
+          ),
+          Semantics(
+            button: true,
+            label: 'Retry loading incoming requests',
+            child: GestureDetector(
+              onTap: onRetry,
+              behavior: HitTestBehavior.opaque,
+              child: SizedBox(
+                height: 44 * scale,
+                child: Center(
+                  child: Text(
+                    'Retry',
+                    style: TextStyle(
+                      fontSize: 12 * scale,
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xFFF4B41A),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _WalletBalanceCard extends StatelessWidget {
   final double scale;
   final String balance;
@@ -1659,21 +1956,23 @@ class _LiveMatchCard extends StatelessWidget {
                       color: const Color(0xFF666666),
                     ),
                   ),
-                  _dot(scale),
-                  Flexible(
-                    child: RefereeGradientText(
-                      requestSourceLabel(match),
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFFFF58DD), Color(0xFFDC65AC)],
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 12 * scale,
-                        fontWeight: FontWeight.w500,
+                  if (requestSourceLabel(match).isNotEmpty) ...[
+                    _dot(scale),
+                    Flexible(
+                      child: RefereeGradientText(
+                        requestSourceLabel(match),
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFFFF58DD), Color(0xFFDC65AC)],
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 12 * scale,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                 ],
               ),
               SizedBox(height: 3 * scale),
@@ -1829,6 +2128,12 @@ class _TodayMatchCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final countdown = countdownText(parseMatchStart(match));
+    final sourceLabel = requestSourceLabel(match);
+    final scheduleText = requestScheduleText(match);
+    final location = requestLocationText(match);
+    final distance = requestDistanceText(match);
+    final timeRange = requestTimeRangeText(match);
+    final hasLocationRow = location.isNotEmpty || distance != null;
     return Container(
       padding: EdgeInsets.all(10 * scale),
       decoration: BoxDecoration(
@@ -1852,33 +2157,37 @@ class _TodayMatchCard extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(width: 8 * scale),
-              Flexible(
-                child: _Pill(
-                  scale: scale,
-                  label: requestSourceLabel(match),
-                  gradient: const LinearGradient(
-                    colors: [Color(0x1AFF58DD), Color(0x1ADC65AC)],
-                  ),
-                  textGradient: const LinearGradient(
-                    colors: [Color(0xFFFF58DD), Color(0xFFDC65AC)],
-                  ),
-                ),
-              ),
-              SizedBox(width: 8 * scale),
-              Flexible(
-                child: Text(
-                  requestScheduleText(match),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.right,
-                  style: TextStyle(
-                    fontSize: 12 * scale,
-                    fontWeight: FontWeight.w600,
-                    color: const Color(0xFFAAAAAA),
+              if (sourceLabel.isNotEmpty) ...[
+                SizedBox(width: 8 * scale),
+                Flexible(
+                  child: _Pill(
+                    scale: scale,
+                    label: sourceLabel,
+                    gradient: const LinearGradient(
+                      colors: [Color(0x1AFF58DD), Color(0x1ADC65AC)],
+                    ),
+                    textGradient: const LinearGradient(
+                      colors: [Color(0xFFFF58DD), Color(0xFFDC65AC)],
+                    ),
                   ),
                 ),
-              ),
+              ],
+              if (scheduleText.isNotEmpty) ...[
+                SizedBox(width: 8 * scale),
+                Flexible(
+                  child: Text(
+                    scheduleText,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.right,
+                    style: TextStyle(
+                      fontSize: 12 * scale,
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFFAAAAAA),
+                    ),
+                  ),
+                ),
+              ],
             ],
           ),
           SizedBox(height: 10 * scale),
@@ -1916,39 +2225,44 @@ class _TodayMatchCard extends StatelessWidget {
           ),
           SizedBox(height: 10 * scale),
           Container(height: 0.5 * scale, color: const Color(0x33FFFFFF)),
-          SizedBox(height: 6 * scale),
-          Row(
-            children: [
-              Expanded(
-                child: Row(
-                  children: [
-                    SportoSvgIcon(
-                      SportoRefereeBookingIcons.pinGreenSmall,
-                      size: 16 * scale,
-                    ),
-                    SizedBox(width: 2 * scale),
-                    Expanded(
-                      child: Text(
-                        requestLocationText(match),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 12 * scale,
-                          fontWeight: FontWeight.w500,
-                          color: const Color(0xFFA0A0A0),
+          if (hasLocationRow) ...[
+            SizedBox(height: 6 * scale),
+            Row(
+              children: [
+                Expanded(
+                  child: location.isEmpty
+                      ? const SizedBox.shrink()
+                      : Row(
+                          children: [
+                            SportoSvgIcon(
+                              SportoRefereeBookingIcons.pinGreenSmall,
+                              size: 16 * scale,
+                            ),
+                            SizedBox(width: 2 * scale),
+                            Expanded(
+                              child: Text(
+                                location,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 12 * scale,
+                                  fontWeight: FontWeight.w500,
+                                  color: const Color(0xFFA0A0A0),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                    ),
-                  ],
                 ),
-              ),
-              SizedBox(width: 4 * scale),
-              RefereeDistancePill(
-                  scale: scale, label: requestDistanceText(match)),
-            ],
-          ),
-          SizedBox(height: 6 * scale),
-          Container(height: 0.5 * scale, color: const Color(0x33FFFFFF)),
+                if (distance != null) ...[
+                  SizedBox(width: 4 * scale),
+                  RefereeDistancePill(scale: scale, label: distance),
+                ],
+              ],
+            ),
+            SizedBox(height: 6 * scale),
+            Container(height: 0.5 * scale, color: const Color(0x33FFFFFF)),
+          ],
           SizedBox(height: 6 * scale),
           Row(
             children: [
@@ -1978,16 +2292,17 @@ class _TodayMatchCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              Text(
-                'At ${requestTimeRangeText(match)}',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 12 * scale,
-                  fontWeight: FontWeight.w500,
-                  color: const Color(0xFFFFFFFF),
+              if (timeRange.isNotEmpty)
+                Text(
+                  'At $timeRange',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 12 * scale,
+                    fontWeight: FontWeight.w500,
+                    color: const Color(0xFFFFFFFF),
+                  ),
                 ),
-              ),
             ],
           ),
           SizedBox(height: 6 * scale),

@@ -372,6 +372,8 @@ class ScorecardRedesignMatchCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hasClock = clock.trim().isNotEmpty && clock.trim() != '--:--';
+    final hasVenue = venue.trim().isNotEmpty && venue.trim() != 'Venue not set';
     return Container(
       width: double.infinity,
       padding: EdgeInsets.all(12 * scale),
@@ -388,38 +390,41 @@ class ScorecardRedesignMatchCard extends StatelessWidget {
               children: [
                 Flexible(child: _RoundPill(scale: scale, label: round)),
                 const Spacer(),
-                Flexible(
-                  child: RefereeGradientText(
-                    clock,
-                    gradient: _skyGradient,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.right,
-                    style: TextStyle(
-                      fontSize: 14 * scale,
-                      fontWeight: FontWeight.w600,
+                if (hasClock)
+                  Flexible(
+                    child: RefereeGradientText(
+                      clock,
+                      gradient: _skyGradient,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.right,
+                      style: TextStyle(
+                        fontSize: 14 * scale,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
-                ),
               ],
             )
           else
             Row(
               children: [
-                Flexible(
-                  flex: 3,
-                  child: RefereeGradientText(
-                    clock,
-                    gradient: _skyGradient,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 14 * scale,
-                      fontWeight: FontWeight.w600,
+                if (hasClock) ...[
+                  Flexible(
+                    flex: 3,
+                    child: RefereeGradientText(
+                      clock,
+                      gradient: _skyGradient,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 14 * scale,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
-                ),
-                SizedBox(width: 8 * scale),
+                  SizedBox(width: 8 * scale),
+                ],
                 Flexible(
                   flex: 4,
                   child: Text(
@@ -494,28 +499,31 @@ class ScorecardRedesignMatchCard extends StatelessWidget {
                             ),
                           ),
                         ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 6 * scale),
-                          child: const _Dot(size: 3),
-                        ),
-                        SportoSvgIcon(
-                          ScorecardRedesignIcons.pin,
-                          width: 8 * scale,
-                          height: 14 * scale,
-                        ),
-                        SizedBox(width: 4 * scale),
-                        Flexible(
-                          child: RefereeGradientText(
-                            venue,
-                            gradient: _skyGradient,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: 12 * scale,
-                              fontWeight: FontWeight.w500,
+                        if (hasVenue) ...[
+                          Padding(
+                            padding:
+                                EdgeInsets.symmetric(horizontal: 6 * scale),
+                            child: const _Dot(size: 3),
+                          ),
+                          SportoSvgIcon(
+                            ScorecardRedesignIcons.pin,
+                            width: 8 * scale,
+                            height: 14 * scale,
+                          ),
+                          SizedBox(width: 4 * scale),
+                          Flexible(
+                            child: RefereeGradientText(
+                              venue,
+                              gradient: _skyGradient,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 12 * scale,
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
                           ),
-                        ),
+                        ],
                       ],
                     ),
                   ],
@@ -1378,7 +1386,7 @@ class ScorecardRedesignBattingTable extends StatelessWidget {
   Widget _battingRow(RefereeScorecardBatting bat, {required bool highlight}) {
     final secondary = (bat.dismissal?.trim().isNotEmpty == true)
         ? bat.dismissal!.trim()
-        : (bat.status?.trim() ?? '');
+        : _battingStatusLabel(bat.status);
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 4 * scale),
       child: Row(
@@ -2196,6 +2204,34 @@ String scorecardEconomy(RefereeScorecardBowling bowling) {
   return (bowling.runsConceded / overs).toStringAsFixed(2);
 }
 
+/// Initials shown in the match-card square. Prefer the participating team so
+/// tournament matches don't render the tournament's initials (e.g. "1T").
+String scorecardCardInitials(
+  RefereeMatchResponse? match, {
+  RefereeScorecardResponse? scorecard,
+}) {
+  final teamName = match?.teamA?.name.trim() ?? '';
+  if (teamName.isNotEmpty) return scorecardTeamInitials(teamName);
+  final teams = scorecard?.match.teams ?? const <RefereeScorecardTeam>[];
+  if (teams.isNotEmpty) return scorecardTeamInitials(teams.first.name);
+  return scorecardTeamInitials(
+    scorecardMatchTitle(match, scorecard: scorecard),
+  );
+}
+
+String _battingStatusLabel(String? status) {
+  final value = status?.trim() ?? '';
+  switch (value.toLowerCase()) {
+    case 'not_out':
+    case 'not out':
+      return 'not out';
+    case 'out':
+      return '';
+    default:
+      return value.replaceAll('_', ' ');
+  }
+}
+
 String scorecardTeamInitials(String name) {
   final words = name
       .trim()
@@ -2381,9 +2417,9 @@ String scorecardMatchCode(
   RefereeScorecardResponse? scorecard,
 ) {
   for (final value in [
-    match?.matchNumber,
     scorecard?.matchCode,
     match?.raw['match_code'],
+    match?.matchNumber,
     match?.raw['fixture_code'],
   ]) {
     final text = value?.toString().trim() ?? '';

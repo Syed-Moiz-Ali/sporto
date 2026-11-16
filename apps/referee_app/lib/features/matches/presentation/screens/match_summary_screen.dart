@@ -257,7 +257,7 @@ class _SummaryBody extends StatelessWidget {
           tournament: title,
           sport: scorecardSportLabel(match),
           venue: scorecardMatchVenue(match, scorecard: scorecard),
-          squareLabel: scorecardTeamInitials(title),
+          squareLabel: scorecardCardInitials(match, scorecard: scorecard),
         ),
         SizedBox(height: 20 * scale),
         Row(

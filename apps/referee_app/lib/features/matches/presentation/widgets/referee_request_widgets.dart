@@ -55,8 +55,8 @@ String requestSport(RefereeMatchResponse request) {
 
 String requestCode(RefereeMatchResponse request) {
   for (final value in [
-    request.matchNumber,
     request.raw['match_code'],
+    request.matchNumber,
     request.raw['fixture_code'],
     request.raw['code'],
   ]) {
@@ -76,7 +76,14 @@ String requestSourceLabel(RefereeMatchResponse request) {
       .whereType<Object>()
       .map((value) => value.toString().toLowerCase())
       .join(' ');
-  return raw.contains('partner') ? 'by Partner' : 'by User';
+  if (raw.contains('partner')) return 'by Partner';
+  if (raw.contains('tournament')) return 'by Tournament';
+  if (raw.contains('user') ||
+      raw.contains('customer') ||
+      raw.contains('player')) {
+    return 'by User';
+  }
+  return '';
 }
 
 String requestCustomerName(RefereeMatchResponse request) {
@@ -91,7 +98,7 @@ String requestCustomerName(RefereeMatchResponse request) {
     final text = value?.toString().trim() ?? '';
     if (text.isNotEmpty) return text;
   }
-  return 'User';
+  return '';
 }
 
 num? _numberValue(Object? value) {
@@ -99,7 +106,8 @@ num? _numberValue(Object? value) {
   return num.tryParse(value?.toString() ?? '');
 }
 
-int requestFeeValue(RefereeMatchResponse request) {
+/// Fee in rupees, or `null` when the API did not send a real amount.
+int? requestFeeValue(RefereeMatchResponse request) {
   for (final value in [
     request.raw['fee'],
     request.raw['expected_earnings'],
@@ -110,11 +118,22 @@ int requestFeeValue(RefereeMatchResponse request) {
     final number = _numberValue(value);
     if (number != null && number > 0) return number.round();
   }
-  return 1500;
+  return null;
 }
 
-String requestFeeText(RefereeMatchResponse request) =>
-    '₹${requestFeeValue(request)}';
+/// Formatted fee, or `null` when no amount is available (never fabricated).
+String? requestFeeText(RefereeMatchResponse request) {
+  final value = requestFeeValue(request);
+  return value == null ? null : '₹$value';
+}
+
+bool _hasDuration(RefereeMatchResponse request) {
+  for (final key in ['duration_hours', 'duration', 'hours']) {
+    final number = _numberValue(request.raw[key]);
+    if (number != null && number > 0) return true;
+  }
+  return false;
+}
 
 double requestDurationHours(RefereeMatchResponse request) {
   for (final key in ['duration_hours', 'duration', 'hours']) {
@@ -125,6 +144,7 @@ double requestDurationHours(RefereeMatchResponse request) {
 }
 
 String requestDurationText(RefereeMatchResponse request) {
+  if (!_hasDuration(request)) return '';
   final hours = requestDurationHours(request);
   final whole = hours.floor();
   final minutes = ((hours - whole) * 60).round();
@@ -133,11 +153,12 @@ String requestDurationText(RefereeMatchResponse request) {
   return '$whole hr $minutes min';
 }
 
-String requestDistanceText(RefereeMatchResponse request) {
+/// Distance pill label, or `null` when the API did not send a distance.
+String? requestDistanceText(RefereeMatchResponse request) {
   final number =
       _numberValue(request.raw['distance_km'] ?? request.raw['distance']);
-  final value = number == null ? 8.4 : number.toDouble();
-  return '${value.toStringAsFixed(1)} km';
+  if (number == null || number <= 0) return null;
+  return '${number.toDouble().toStringAsFixed(1)} km';
 }
 
 DateTime? requestDateTime(RefereeMatchResponse request) {
@@ -174,7 +195,10 @@ const _months = [
 
 String requestDateText(RefereeMatchResponse request) {
   final date = requestDateTime(request);
-  if (date == null) return request.matchDate?.trim() ?? 'Date not set';
+  if (date == null) {
+    final rawDate = request.matchDate?.trim() ?? '';
+    return rawDate;
+  }
   return '${_weekdays[date.weekday - 1]}, ${date.day} ${_months[date.month - 1]}';
 }
 
@@ -184,48 +208,86 @@ String _time12(DateTime date) {
   return '$hour:${date.minute.toString().padLeft(2, '0')} $period';
 }
 
+DateTime? _timeOnly(String? value) {
+  final text = value?.trim() ?? '';
+  if (text.isEmpty) return null;
+  final parts = text.split(':');
+  if (parts.length < 2) return null;
+  final hour = int.tryParse(parts[0]);
+  final minute = int.tryParse(parts[1]);
+  if (hour == null || minute == null) return null;
+  return DateTime(2000, 1, 1, hour, minute);
+}
+
+/// Clock text (24h) or `''` when the API did not send a time.
 String requestClockText(RefereeMatchResponse request) {
   final date = requestDateTime(request);
-  if (date == null) return request.startTime?.trim() ?? '14:20';
-  return '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
+  if (date != null) {
+    return '${date.hour.toString().padLeft(2, '0')}:'
+        '${date.minute.toString().padLeft(2, '0')}';
+  }
+  final time = _timeOnly(request.startTime);
+  if (time == null) return '';
+  return '${time.hour.toString().padLeft(2, '0')}:'
+      '${time.minute.toString().padLeft(2, '0')}';
 }
 
+/// Start time or `''` when the API did not send a time.
 String requestStartTimeText(RefereeMatchResponse request) {
   final date = requestDateTime(request);
-  if (date == null) return request.startTime?.trim() ?? '5:00 PM';
-  return _time12(date);
+  if (date != null) return _time12(date);
+  final time = _timeOnly(request.startTime);
+  return time == null ? '' : _time12(time);
 }
 
+/// End time or `''` when either the start time or duration is missing.
 String requestEndTimeText(RefereeMatchResponse request) {
+  if (!_hasDuration(request)) return '';
   final date = requestDateTime(request);
-  if (date == null) return request.startTime?.trim() ?? '7:00 PM';
-  return _time12(date
-      .add(Duration(minutes: (requestDurationHours(request) * 60).round())));
+  if (date != null) {
+    return _time12(
+      date.add(Duration(minutes: (requestDurationHours(request) * 60).round())),
+    );
+  }
+  final time = _timeOnly(request.startTime);
+  if (time == null) return '';
+  return _time12(
+    time.add(Duration(minutes: (requestDurationHours(request) * 60).round())),
+  );
 }
 
-String requestTimeRangeText(RefereeMatchResponse request) =>
-    '${requestStartTimeText(request)} – ${requestEndTimeText(request)}';
+String requestTimeRangeText(RefereeMatchResponse request) {
+  final start = requestStartTimeText(request);
+  final end = requestEndTimeText(request);
+  if (start.isEmpty) return '';
+  if (end.isEmpty) return start;
+  return '$start – $end';
+}
 
 String requestScheduleText(RefereeMatchResponse request) {
   final date = requestDateTime(request);
-  if (date == null) return request.displaySchedule;
-  return 'Today, ${_time12(date)}';
+  if (date != null) {
+    final now = DateTime.now();
+    final isToday =
+        date.year == now.year && date.month == now.month && date.day == now.day;
+    final time = _time12(date);
+    if (isToday) return 'Today, $time';
+    return '${_weekdays[date.weekday - 1]}, $time';
+  }
+  final schedule = request.displaySchedule.trim();
+  return schedule == 'Schedule not set' ? '' : schedule;
 }
 
 String requestVenueTitle(RefereeMatchResponse request) =>
-    request.venueName?.trim().isNotEmpty == true
-        ? request.venueName!.trim()
-        : 'KPHB Indoor Stadium';
+    request.venueName?.trim() ?? '';
 
 String requestLocationText(RefereeMatchResponse request) =>
-    request.location?.trim().isNotEmpty == true
-        ? request.location!.trim()
-        : 'ABC Sports Arena, Madhapur, Hyderabad';
+    request.location?.trim() ?? '';
 
 String requestStatusText(RefereeMatchResponse request) {
   final raw = request.raw['booking_status']?.toString();
   if (raw != null && raw.trim().isNotEmpty) return raw;
-  return 'Request Received';
+  return request.displayStatus;
 }
 
 // =============================================================================
@@ -264,7 +326,16 @@ class RefereeRequestCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isPartner = requestSourceLabel(request) == 'by Partner';
+    final sourceLabel = requestSourceLabel(request);
+    final isPartner = sourceLabel == 'by Partner';
+    final clock = requestClockText(request);
+    final customer = requestCustomerName(request);
+    final dateText = requestDateText(request);
+    final timeRange = requestTimeRangeText(request);
+    final location = requestLocationText(request);
+    final distance = requestDistanceText(request);
+    final fee = requestFeeText(request);
+    final hasLocationRow = location.isNotEmpty || distance != null;
     return ClipRRect(
       borderRadius: BorderRadius.circular(16 * scale),
       child: Stack(
@@ -327,62 +398,67 @@ class RefereeRequestCard extends StatelessWidget {
                           ),
                         ),
                         const Spacer(),
-                        Flexible(
-                          child: Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 6 * scale,
-                              vertical: 2 * scale,
-                            ),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10 * scale),
-                              gradient: LinearGradient(
-                                colors: isPartner
-                                    ? const [
-                                        Color(0x1AFF58DD),
-                                        Color(0x1ADC65AC)
-                                      ]
-                                    : const [
-                                        Color(0x1A7AD3FF),
-                                        Color(0x1A4FBAF0)
-                                      ],
+                        if (sourceLabel.isNotEmpty) ...[
+                          Flexible(
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 6 * scale,
+                                vertical: 2 * scale,
                               ),
-                            ),
-                            child: RefereeGradientText(
-                              requestSourceLabel(request),
-                              gradient:
-                                  isPartner ? _pinkGradient : _blueGradient,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: 12 * scale,
-                                fontWeight: FontWeight.w500,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10 * scale),
+                                gradient: LinearGradient(
+                                  colors: isPartner
+                                      ? const [
+                                          Color(0x1AFF58DD),
+                                          Color(0x1ADC65AC)
+                                        ]
+                                      : const [
+                                          Color(0x1A7AD3FF),
+                                          Color(0x1A4FBAF0)
+                                        ],
+                                ),
+                              ),
+                              child: RefereeGradientText(
+                                sourceLabel,
+                                gradient:
+                                    isPartner ? _pinkGradient : _blueGradient,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 12 * scale,
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        SizedBox(width: 8 * scale),
-                        RefereeGradientText(
-                          requestClockText(request),
-                          gradient: _goldGradient,
-                          maxLines: 1,
-                          style: TextStyle(
-                            fontSize: 14 * scale,
-                            fontWeight: FontWeight.w600,
+                          SizedBox(width: 8 * scale),
+                        ],
+                        if (clock.isNotEmpty)
+                          RefereeGradientText(
+                            clock,
+                            gradient: _goldGradient,
+                            maxLines: 1,
+                            style: TextStyle(
+                              fontSize: 14 * scale,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
-                        ),
                       ],
                     ),
-                    SizedBox(height: 6 * scale),
-                    RefereeGradientText(
-                      requestCustomerName(request),
-                      gradient: _blueGradient,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 14 * scale,
-                        fontWeight: FontWeight.w600,
+                    if (customer.isNotEmpty) ...[
+                      SizedBox(height: 6 * scale),
+                      RefereeGradientText(
+                        customer,
+                        gradient: _blueGradient,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 14 * scale,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                    ),
+                    ],
                     SizedBox(height: 2 * scale),
                     Text(
                       request.displayTournament,
@@ -397,89 +473,105 @@ class RefereeRequestCard extends StatelessWidget {
                     SizedBox(height: 2 * scale),
                     Row(
                       children: [
-                        RefereeGradientText(
-                          requestDateText(request),
-                          gradient: _goldGradient,
-                          style: TextStyle(
-                            fontSize: 12 * scale,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 6 * scale),
-                          child: Container(
-                            width: 2 * scale,
-                            height: 2 * scale,
-                            decoration: const BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Color(0xFFFEBD38),
+                        if (dateText.isNotEmpty)
+                          Flexible(
+                            child: RefereeGradientText(
+                              dateText,
+                              gradient: _goldGradient,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 12 * scale,
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
                           ),
-                        ),
-                        Flexible(
-                          child: RefereeGradientText(
-                            requestTimeRangeText(request),
-                            gradient: _goldGradient,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: 12 * scale,
-                              fontWeight: FontWeight.w500,
+                        if (timeRange.isNotEmpty) ...[
+                          Padding(
+                            padding:
+                                EdgeInsets.symmetric(horizontal: 6 * scale),
+                            child: Container(
+                              width: 2 * scale,
+                              height: 2 * scale,
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Color(0xFFFEBD38),
+                              ),
                             ),
                           ),
-                        ),
+                          Flexible(
+                            child: RefereeGradientText(
+                              timeRange,
+                              gradient: _goldGradient,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 12 * scale,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                     SizedBox(height: 10 * scale),
                     Container(
                         height: 0.5 * scale, color: const Color(0x33FFFFFF)),
-                    SizedBox(height: 4 * scale),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Row(
-                            children: [
-                              SportoSvgIcon(
-                                SportoRefereeBookingIcons.pinGreenSmall,
-                                size: 16 * scale,
-                              ),
-                              SizedBox(width: 2 * scale),
-                              Expanded(
-                                child: Text(
-                                  requestLocationText(request),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    fontSize: 12 * scale,
-                                    fontWeight: FontWeight.w500,
-                                    color: const Color(0xFFA0A0A0),
+                    if (hasLocationRow) ...[
+                      SizedBox(height: 4 * scale),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: location.isEmpty
+                                ? const SizedBox.shrink()
+                                : Row(
+                                    children: [
+                                      SportoSvgIcon(
+                                        SportoRefereeBookingIcons.pinGreenSmall,
+                                        size: 16 * scale,
+                                      ),
+                                      SizedBox(width: 2 * scale),
+                                      Expanded(
+                                        child: Text(
+                                          location,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                            fontSize: 12 * scale,
+                                            fontWeight: FontWeight.w500,
+                                            color: const Color(0xFFA0A0A0),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ),
-                              ),
-                            ],
                           ),
-                        ),
-                        SizedBox(width: 4 * scale),
-                        RefereeDistancePill(
-                            scale: scale, label: requestDistanceText(request)),
-                      ],
-                    ),
-                    SizedBox(height: 4 * scale),
-                    Container(
-                        height: 0.5 * scale, color: const Color(0x33FFFFFF)),
+                          if (distance != null) ...[
+                            SizedBox(width: 4 * scale),
+                            RefereeDistancePill(scale: scale, label: distance),
+                          ],
+                        ],
+                      ),
+                      SizedBox(height: 4 * scale),
+                      Container(
+                          height: 0.5 * scale, color: const Color(0x33FFFFFF)),
+                    ],
                     SizedBox(height: 8 * scale),
                     Row(
                       children: [
-                        Expanded(
-                          child: RefereeGradientText(
-                            requestFeeText(request),
-                            gradient: _orangeGradient,
-                            style: TextStyle(
-                              fontSize: 16 * scale,
-                              fontWeight: FontWeight.w600,
+                        if (fee != null)
+                          Expanded(
+                            child: RefereeGradientText(
+                              fee,
+                              gradient: _orangeGradient,
+                              style: TextStyle(
+                                fontSize: 16 * scale,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
-                          ),
-                        ),
+                          )
+                        else
+                          const Spacer(),
                         _RequestActionButton(
                           scale: scale,
                           width: 87,

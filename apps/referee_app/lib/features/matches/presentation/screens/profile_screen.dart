@@ -9,14 +9,33 @@ import '../../../../core/session/referee_session_cleanup.dart';
 import 'package:ui_kit/ui_kit.dart';
 
 class RefereeProfileScreen extends StatefulWidget {
-  const RefereeProfileScreen({super.key});
+  const RefereeProfileScreen({super.key, this.loadProfile});
+
+  /// Test/preview override so widget tests never touch the live network.
+  final Future<RefereeProfileResponse> Function()? loadProfile;
+
   @override
   State<RefereeProfileScreen> createState() => _RefereeProfileScreenState();
 }
 
 class _RefereeProfileScreenState extends State<RefereeProfileScreen> {
-  late Future<RefereeProfileResponse> _profile =
-      DependencyInjector.instance.refereeRemoteDataSource.getProfile();
+  late Future<RefereeProfileResponse> _profile;
+
+  @override
+  void initState() {
+    super.initState();
+    _profile = _loadProfile();
+  }
+
+  Future<RefereeProfileResponse> _loadProfile() {
+    final loader = widget.loadProfile;
+    if (loader != null) return loader();
+    return DependencyInjector.instance.refereeRemoteDataSource.getProfile();
+  }
+
+  void _reload() {
+    setState(() => _profile = _loadProfile());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,11 +66,7 @@ class _RefereeProfileScreenState extends State<RefereeProfileScreen> {
                     ),
                     const SizedBox(height: 18),
                     ElevatedButton(
-                      onPressed: () => setState(() {
-                        _profile = DependencyInjector
-                            .instance.refereeRemoteDataSource
-                            .getProfile();
-                      }),
+                      onPressed: _reload,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFED7B00),
                         foregroundColor: Colors.white,
@@ -69,7 +84,9 @@ class _RefereeProfileScreenState extends State<RefereeProfileScreen> {
         final phone =
             (profile.mobile ?? '').trim().isEmpty ? '—' : profile.mobile!;
         final sport = profile.sports.isNotEmpty ? profile.sports.first : '—';
-        final matches = '${profile.experienceYears ?? '—'}';
+        final matches = profile.totalMatches?.toString() ?? '—';
+        final rating = profile.rating?.toStringAsFixed(1) ?? '—';
+        final disputes = profile.disputesCount?.toString() ?? '—';
 
         return Container(
           decoration: const BoxDecoration(
@@ -109,7 +126,12 @@ class _RefereeProfileScreenState extends State<RefereeProfileScreen> {
                   // ============================================
                   // STATS ROW (Frame 1244830902): Matches, Rating, Disputes
                   // ============================================
-                  _buildStatsRow(scale: scale, matches: matches),
+                  _buildStatsRow(
+                    scale: scale,
+                    matches: matches,
+                    rating: rating,
+                    disputes: disputes,
+                  ),
 
                   SizedBox(height: 20 * scale),
 
@@ -347,18 +369,22 @@ class _RefereeProfileScreenState extends State<RefereeProfileScreen> {
           SizedBox(width: 6 * scale),
 
           // "Certified Referee" in green gradient text
-          ShaderMask(
-            shaderCallback: (bounds) => const LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [Color(0xFF99FFA3), Color(0xFF68EE76)],
-            ).createShader(bounds),
-            child: Text(
-              'Certified Referee',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 14 * scale,
-                fontWeight: FontWeight.w500,
+          Flexible(
+            child: ShaderMask(
+              shaderCallback: (bounds) => const LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Color(0xFF99FFA3), Color(0xFF68EE76)],
+              ).createShader(bounds),
+              child: Text(
+                'Certified Referee',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 14 * scale,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
           ),
@@ -378,12 +404,16 @@ class _RefereeProfileScreenState extends State<RefereeProfileScreen> {
           SizedBox(width: 6 * scale),
 
           // Sport label in white
-          Text(
-            sport,
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 14 * scale,
-              fontWeight: FontWeight.w500,
+          Flexible(
+            child: Text(
+              sport,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 14 * scale,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
         ],
@@ -395,14 +425,19 @@ class _RefereeProfileScreenState extends State<RefereeProfileScreen> {
   // STATS ROW (Frame 1244830902)
   // ==========================================================
 
-  Widget _buildStatsRow({required double scale, required String matches}) {
+  Widget _buildStatsRow({
+    required double scale,
+    required String matches,
+    required String rating,
+    required String disputes,
+  }) {
     return Row(
       children: [
         _buildStatCard(scale: scale, value: matches, label: 'Matches'),
         SizedBox(width: 16 * scale),
-        _buildStatCard(scale: scale, value: '4.9', label: 'Rating'),
+        _buildStatCard(scale: scale, value: rating, label: 'Rating'),
         SizedBox(width: 16 * scale),
-        _buildStatCard(scale: scale, value: '2', label: 'Disputes'),
+        _buildStatCard(scale: scale, value: disputes, label: 'Disputes'),
       ],
     );
   }

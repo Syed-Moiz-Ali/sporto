@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:referee_data/referee_data.dart';
 
 /// Masks a bank account number so only the final four characters stay visible.
 ///
@@ -114,4 +115,70 @@ class BankAccountDetails {
     if (value.length <= 4) return '';
     return value.substring(value.length - 4);
   }
+}
+
+// ============================================================
+// API model display helpers
+// ============================================================
+
+String _nonEmpty(String? value) {
+  final trimmed = value?.trim();
+  return trimmed == null || trimmed.isEmpty ? '' : trimmed;
+}
+
+/// Title shown on bank cards: the bank name for BANK rows and the UPI handle
+/// for UPI rows, with the API summary as a fallback.
+String bankDetailsTitle(RefereeBankDetails details) {
+  if (details.isUpi) {
+    final upi = _nonEmpty(details.upiId);
+    if (upi.isNotEmpty) return upi;
+  }
+  final bankName = _nonEmpty(details.bankName);
+  if (bankName.isNotEmpty) return bankName;
+  final summary = _nonEmpty(details.summary);
+  if (summary.isNotEmpty) return summary;
+  return details.isUpi ? 'UPI account' : 'Bank account';
+}
+
+/// API-safe masked number. The API never returns the full account number, so
+/// [RefereeBankDetails.accountNumber] is deliberately never rendered directly.
+String bankMaskedAccountLabel(RefereeBankDetails details) {
+  if (details.isUpi) {
+    final summary = _nonEmpty(details.summary);
+    return summary.isEmpty ? _nonEmpty(details.upiId) : summary;
+  }
+  final masked = _nonEmpty(details.maskedAccountNumber);
+  if (masked.isNotEmpty) return masked;
+  final lastFour = details.lastFour;
+  if (lastFour == null || lastFour.isEmpty) return '';
+  return lastFour.length >= 4
+      ? 'XXXX XXXX ${lastFour.substring(lastFour.length - 4)}'
+      : 'XXXX XXXX';
+}
+
+/// A full account number is only usable when the API response actually
+/// contains unmasked digits. Masked values such as `********9012` are rejected.
+String? bankFullAccountNumber(RefereeBankDetails details) {
+  if (details.isUpi) return null;
+  final raw = _nonEmpty(details.accountNumber);
+  if (raw.isEmpty) return null;
+  final lower = raw.toLowerCase();
+  if (lower.contains('*') || lower.contains('x')) return null;
+  final digits = raw.replaceAll(RegExp(r'\D'), '');
+  if (digits.length < 9 || digits.length > 18) return null;
+  return digits;
+}
+
+/// Verification label straight from the API; unknown responses stay honest and
+/// render as pending instead of claiming the account is verified.
+String bankVerificationLabel(RefereeBankDetails details) {
+  final label = _nonEmpty(details.verificationStatusLabel);
+  return label.isEmpty ? 'Pending' : label;
+}
+
+bool bankIsVerified(RefereeBankDetails details) {
+  final lower = bankVerificationLabel(details).toLowerCase();
+  return lower.contains('verified') &&
+      !lower.contains('unverified') &&
+      !lower.contains('not verified');
 }

@@ -13,7 +13,10 @@ void main() {
   Widget createTestWidget({int initialIndex = 0}) {
     return MaterialApp(
       theme: SportoTheme.darkTheme,
-      home: RefereeShellScreen(initialIndex: initialIndex),
+      home: RefereeShellScreen(
+        initialIndex: initialIndex,
+        enableRequestPolling: false,
+      ),
     );
   }
 

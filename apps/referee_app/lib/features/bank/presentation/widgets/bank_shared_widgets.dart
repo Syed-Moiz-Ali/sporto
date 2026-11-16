@@ -194,6 +194,105 @@ class BankInfoStrip extends StatelessWidget {
   }
 }
 
+/// Small API-status chip used by the list and details screens.
+class BankStatusPill extends StatelessWidget {
+  const BankStatusPill({
+    super.key,
+    required this.label,
+    required this.positive,
+  });
+
+  final String label;
+  final bool positive;
+
+  @override
+  Widget build(BuildContext context) {
+    final scale = context.sportoScale;
+    final sporto = context.sporto;
+    final color = positive ? sporto.accentGreen : sporto.muted;
+
+    return Container(
+      constraints: BoxConstraints(
+        minHeight: 21 * scale,
+        maxWidth: 112 * scale,
+      ),
+      padding: EdgeInsets.fromLTRB(
+        5 * scale,
+        4 * scale,
+        7 * scale,
+        4 * scale,
+      ),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: .06),
+        borderRadius: BorderRadius.circular(50 * scale),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (positive)
+            SportoSvgIcon(
+              BankIcons.checkCircle,
+              width: 12 * scale,
+              height: 12 * scale,
+            )
+          else
+            Icon(
+              Icons.info_outline_rounded,
+              size: 12 * scale,
+              color: color,
+            ),
+          SizedBox(width: 3 * scale),
+          Flexible(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: SportoTextStyles.text(
+                size: 10,
+                weight: FontWeight.w500,
+                color: color,
+                height: 13 / 10,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Marks the payout account that receives referee settlements.
+class BankDefaultPill extends StatelessWidget {
+  const BankDefaultPill({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final scale = context.sportoScale;
+    final sporto = context.sporto;
+
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: 7 * scale,
+        vertical: 3 * scale,
+      ),
+      decoration: BoxDecoration(
+        color: sporto.gold.withValues(alpha: .12),
+        borderRadius: BorderRadius.circular(50 * scale),
+      ),
+      child: Text(
+        'Default',
+        maxLines: 1,
+        style: SportoTextStyles.text(
+          size: 10,
+          weight: FontWeight.w600,
+          color: sporto.gold,
+          height: 13 / 10,
+        ),
+      ),
+    );
+  }
+}
+
 /// Full-width gradient CTA used by the onboarding and add-account screens.
 class BankGradientButton extends StatelessWidget {
   const BankGradientButton._({

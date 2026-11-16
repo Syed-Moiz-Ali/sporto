@@ -25,9 +25,13 @@ import 'referee_scoring_tab_screen.dart';
 class RefereeShellScreen extends StatefulWidget {
   final int initialIndex;
 
+  /// Disable the Home incoming-request poller in widget tests.
+  final bool enableRequestPolling;
+
   const RefereeShellScreen({
     super.key,
     this.initialIndex = 0,
+    this.enableRequestPolling = true,
   });
 
   @override
@@ -74,6 +78,9 @@ class RefereeShellScreenState extends State<RefereeShellScreen> {
               children: [
                 RefereeHomeScreen(
                   key: _homeKey,
+                  pollInterval: widget.enableRequestPolling
+                      ? const Duration(seconds: 20)
+                      : Duration.zero,
                   onViewAll: () => setIndex(1),
                   onAvailability: () =>
                       context.push(AppRouter.availabilityPath),

@@ -16,6 +16,216 @@ class RefereeRemoteDataSource {
     return RefereeProfileResponse.fromJson(Map<String, dynamic>.from(data));
   }
 
+  Future<RefereeDashboardResponse> getDashboardData() async {
+    final response = await _get(SportoApiEndpoints.dashboard.dashboard);
+    return _dashboardFromData(response.data);
+  }
+
+  Future<RefereeWalletSummary> getWalletData() async {
+    final response = await _get(SportoApiEndpoints.dashboard.wallet);
+    return _walletFromData(response.data);
+  }
+
+  Future<RefereeEarningsPage> listEarningsData({
+    String status = 'all',
+    int page = 1,
+    int perPage = 20,
+  }) async {
+    final response = await _get(
+      SportoApiEndpoints.dashboard.earnings,
+      queryParameters: {
+        'status': status,
+        'page': page,
+        'per_page': perPage,
+      },
+    );
+    return _earningsPageFromData(response.data);
+  }
+
+  Future<RefereeStatistics> getStatisticsData() async {
+    final response = await _get(SportoApiEndpoints.dashboard.statistics);
+    return _statisticsFromData(response.data);
+  }
+
+  Future<RefereeTournamentHistoryPage> listTournamentsData({
+    int page = 1,
+    int perPage = 20,
+  }) async {
+    final response = await _get(
+      SportoApiEndpoints.dashboard.tournaments,
+      queryParameters: {'page': page, 'per_page': perPage},
+    );
+    return _tournamentsPageFromData(response.data);
+  }
+
+  Future<RefereeWalletTransactionsPage> listWalletTransactionsData({
+    int page = 1,
+    int perPage = 20,
+  }) async {
+    final response = await _get(
+      SportoApiEndpoints.dashboard.walletTransactions,
+      queryParameters: {'page': page, 'per_page': perPage},
+    );
+    return _walletTransactionsPageFromData(response.data);
+  }
+
+  /// Loads both pending tournament assignments and booking invitations.
+  ///
+  /// One failing endpoint is tolerated. When both lists are empty (or both
+  /// calls failed) the request is retried once after [retryDelay]. If both
+  /// calls still fail, a [SportoApiException] is thrown so callers never treat
+  /// a total network failure as an empty inbox.
+  Future<RefereeIncomingRequestsBundle> listIncomingRequestsData({
+    bool retryOnEmpty = true,
+    Duration retryDelay = const Duration(milliseconds: 1500),
+  }) async {
+    var result = await _loadIncomingRequests();
+    final shouldRetry =
+        retryOnEmpty && (result.bothFailed || result.bothSucceededAndEmpty);
+    if (shouldRetry) {
+      await Future<void>.delayed(retryDelay);
+      result = await _loadIncomingRequests();
+    }
+    if (result.bothFailed) {
+      throw const SportoApiException(
+        'Unable to load referee incoming requests: both match-requests and '
+        'booking-requests failed.',
+      );
+    }
+    return RefereeIncomingRequestsBundle(
+      matchRequests: result.matchRequests ?? const [],
+      bookingRequests: result.bookingRequests ?? const [],
+    );
+  }
+
+  Future<List<RefereeBankDetails>> listBankDetailsData() async {
+    final response = await _get(SportoApiEndpoints.bank.list);
+    final data = response.data;
+    if (data == null) return const [];
+    final list = _listOrPaginatedData(data);
+    if (list.isNotEmpty) {
+      return list.map(RefereeBankDetails.fromJson).toList();
+    }
+    if (data is Map && (data.containsKey('id') || data.containsKey('type'))) {
+      return [
+        RefereeBankDetails.fromJson(Map<String, dynamic>.from(data)),
+      ];
+    }
+    return const [];
+  }
+
+  Future<RefereeBankDetails> addBankDetails(
+    RefereeBankDetailsRequest request, {
+    RefereeBankDetails? fallback,
+  }) async {
+    final response = await _post(
+      SportoApiEndpoints.bank.add,
+      request.toJson(),
+    );
+    return _bankDetailsFromData(
+      response.data,
+      fallback: fallback,
+      errorMessage: 'Bank details response data is invalid.',
+    );
+  }
+
+  Future<RefereeBankDetails> updateBankDetails(
+    Object bankDetailId,
+    RefereeBankDetailsRequest request,
+  ) async {
+    final response = await _put(
+      SportoApiEndpoints.bank.update(bankDetailId),
+      request.toJson(),
+    );
+    return _bankDetailsFromData(
+      response.data,
+      errorMessage: 'Updated bank details response data is invalid.',
+    );
+  }
+
+  Future<void> setDefaultBank(Object bankDetailId) async {
+    await _post(
+      SportoApiEndpoints.bank.setDefault(bankDetailId),
+      const {},
+    );
+  }
+
+  Future<void> deleteBankDetails(Object bankDetailId) async {
+    await _delete(SportoApiEndpoints.bank.delete(bankDetailId));
+  }
+
+  Future<RefereePlayerOfMatch?> awardPlayerOfMatch(
+    Object matchId, {
+    required int playerUserId,
+  }) async {
+    final response = await _post(
+      SportoApiEndpoints.refereeMatches.playerOfMatch(matchId),
+      {'player_user_id': playerUserId},
+    );
+    final data = response.data;
+    if (data is! Map) return null;
+    final map = Map<String, dynamic>.from(data);
+    final raw = map['player_of_match'];
+    if (raw is Map) {
+      return RefereePlayerOfMatch.fromJson(
+        Map<String, dynamic>.from(raw),
+      );
+    }
+    if (map.containsKey('user_id') || map.containsKey('name')) {
+      return RefereePlayerOfMatch.fromJson(map);
+    }
+    return null;
+  }
+
+  Future<RefereeCommentaryPage> getMatchCommentaryData(
+    Object matchId, {
+    String order = 'desc',
+    int page = 1,
+    int perPage = 10,
+  }) async {
+    final response = await _get(
+      SportoApiEndpoints.refereeMatches.commentary(matchId),
+      queryParameters: {
+        'order': order,
+        'page': page,
+        'per_page': perPage,
+      },
+    );
+    return _commentaryPageFromData(response.data);
+  }
+
+  Future<RefereeMatchGraphsResponse> getMatchGraphsData(
+    Object matchId, {
+    bool includeSuperOvers = false,
+  }) async {
+    final response = await _get(
+      SportoApiEndpoints.refereeMatches.graphs(matchId),
+      queryParameters: {
+        'include_super_overs': includeSuperOvers ? 1 : 0,
+      },
+    );
+    return _graphsFromData(response.data);
+  }
+
+  Future<RefereeLeaderboardResponse> getMatchLeaderboardData(
+    Object matchId,
+    String category, {
+    int? limit,
+    bool includeSuperOvers = false,
+    String? qualification,
+  }) async {
+    final response = await _get(
+      SportoApiEndpoints.refereeMatches.leaderboard(matchId, category),
+      queryParameters: {
+        if (limit != null) 'limit': limit,
+        'include_super_overs': includeSuperOvers ? 1 : 0,
+        if (qualification != null && qualification.trim().isNotEmpty)
+          'qualification': qualification.trim(),
+      },
+    );
+    return _leaderboardFromData(response.data);
+  }
+
   Future<RefereeApplicationResponse?> getApplicationData() async {
     final response = await _get(
       SportoApiEndpoints.refereeApplication.application,
@@ -742,4 +952,140 @@ class RefereeRemoteDataSource {
     }
     return const [];
   }
+
+  Map<String, dynamic> _mapDataOrThrow(Object? data, String message) {
+    if (data is! Map) throw SportoApiException(message);
+    return Map<String, dynamic>.from(data);
+  }
+
+  RefereeDashboardResponse _dashboardFromData(Object? data) =>
+      RefereeDashboardResponse.fromJson(
+        _mapDataOrThrow(data, 'Dashboard response data is invalid.'),
+      );
+
+  RefereeWalletSummary _walletFromData(Object? data) =>
+      RefereeWalletSummary.fromJson(
+        _mapDataOrThrow(data, 'Wallet response data is invalid.'),
+      );
+
+  RefereeStatistics _statisticsFromData(Object? data) =>
+      RefereeStatistics.fromJson(
+        _mapDataOrThrow(data, 'Statistics response data is invalid.'),
+      );
+
+  RefereeEarningsPage _earningsPageFromData(Object? data) =>
+      RefereeEarningsPage.fromJson(
+        _mapDataOrThrow(data, 'Earnings response data is invalid.'),
+      );
+
+  RefereeTournamentHistoryPage _tournamentsPageFromData(Object? data) =>
+      RefereeTournamentHistoryPage.fromJson(
+        _mapDataOrThrow(data, 'Tournaments response data is invalid.'),
+      );
+
+  RefereeWalletTransactionsPage _walletTransactionsPageFromData(
+    Object? data,
+  ) =>
+      RefereeWalletTransactionsPage.fromJson(
+        _mapDataOrThrow(
+          data,
+          'Wallet transactions response data is invalid.',
+        ),
+      );
+
+  RefereeCommentaryPage _commentaryPageFromData(Object? data) =>
+      RefereeCommentaryPage.fromJson(
+        _mapDataOrThrow(data, 'Commentary response data is invalid.'),
+      );
+
+  RefereeMatchGraphsResponse _graphsFromData(Object? data) =>
+      RefereeMatchGraphsResponse.fromJson(
+        _mapDataOrThrow(data, 'Match graphs response data is invalid.'),
+      );
+
+  RefereeLeaderboardResponse _leaderboardFromData(Object? data) =>
+      RefereeLeaderboardResponse.fromJson(
+        _mapDataOrThrow(data, 'Match leaderboard response data is invalid.'),
+      );
+
+  RefereeBankDetails _bankDetailsFromData(
+    Object? data, {
+    RefereeBankDetails? fallback,
+    required String errorMessage,
+  }) {
+    if (data is Map) {
+      final map = Map<String, dynamic>.from(data);
+      final nested = map['bank'] ?? map['bank_detail'] ?? map['data'];
+      if (nested is Map && nested.isNotEmpty) {
+        return RefereeBankDetails.fromJson(
+          Map<String, dynamic>.from(nested),
+        );
+      }
+      if (map.isNotEmpty) return RefereeBankDetails.fromJson(map);
+    }
+    if (data is List && data.isNotEmpty && data.first is Map) {
+      return RefereeBankDetails.fromJson(
+        Map<String, dynamic>.from(data.first as Map),
+      );
+    }
+    if (fallback != null) return fallback;
+    throw SportoApiException(errorMessage);
+  }
+
+  Future<_IncomingListResult> _loadIncomingRequests() async {
+    final results = await Future.wait([
+      _tryLoadMatchRequests(),
+      _tryLoadBookingRequests(),
+    ]);
+    return _IncomingListResult(
+      matchRequests: results[0],
+      bookingRequests: results[1],
+    );
+  }
+
+  Future<List<RefereeMatchRequestResponse>?> _tryLoadMatchRequests() async {
+    try {
+      final response = await _get(
+        SportoApiEndpoints.refereeMatches.matchRequests,
+        queryParameters: const {'page': 1, 'per_page': 20},
+      );
+      return _listOrPaginatedData(response.data)
+          .map(RefereeMatchRequestResponse.fromJson)
+          .toList();
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<List<RefereeMatchRequestResponse>?> _tryLoadBookingRequests() async {
+    try {
+      final response = await _get(
+        SportoApiEndpoints.refereeBookings.requests,
+        queryParameters: const {'page': 1, 'per_page': 20},
+      );
+      return _listOrPaginatedData(response.data)
+          .map(RefereeMatchRequestResponse.fromBookingRequestJson)
+          .toList();
+    } catch (_) {
+      return null;
+    }
+  }
+}
+
+class _IncomingListResult {
+  const _IncomingListResult({
+    this.matchRequests,
+    this.bookingRequests,
+  });
+
+  final List<RefereeMatchRequestResponse>? matchRequests;
+  final List<RefereeMatchRequestResponse>? bookingRequests;
+
+  bool get bothFailed => matchRequests == null && bookingRequests == null;
+
+  bool get bothSucceededAndEmpty =>
+      matchRequests != null &&
+      matchRequests!.isEmpty &&
+      bookingRequests != null &&
+      bookingRequests!.isEmpty;
 }

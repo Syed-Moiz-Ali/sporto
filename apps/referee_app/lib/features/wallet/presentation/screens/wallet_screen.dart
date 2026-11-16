@@ -1,37 +1,68 @@
 import 'package:flutter/material.dart';
-import 'package:referee_app/core/config/referee_demo_data.dart';
+import 'package:referee_app/core/di/dependency_injector.dart';
 import 'package:referee_app/features/bank/presentation/screens/bank_accounts_screen.dart';
+import 'package:referee_data/referee_data.dart';
 import 'package:ui_kit/ui_kit.dart';
 
-import '../wallet_figma_data.dart';
+import '../wallet_adapters.dart';
+import '../wallet_formatters.dart';
 import '../wallet_icons.dart';
-import '../wallet_models.dart';
 import '../widgets/wallet_shared_widgets.dart';
 import 'transaction_details_screen.dart';
 import 'wallet_transactions_screen.dart';
 
 /// Screen 02 - wallet overview (Figma `02_Wallet`).
-class WalletScreen extends StatelessWidget {
-  final WalletOverview? overview;
+///
+/// Loads the live wallet summary and the five most recent ledger rows in
+/// parallel. Both futures can be injected by tests so no network is required.
+class WalletScreen extends StatefulWidget {
+  final Future<RefereeWalletSummary>? walletFuture;
+  final Future<RefereeWalletTransactionsPage>? transactionsFuture;
 
   const WalletScreen({
     super.key,
-    this.overview,
+    this.walletFuture,
+    this.transactionsFuture,
   });
 
   @override
+  State<WalletScreen> createState() => _WalletScreenState();
+}
+
+class _WalletScreenState extends State<WalletScreen> {
+  late Future<_WalletScreenData> _future;
+
+  RefereeRemoteDataSource get _remote =>
+      DependencyInjector.instance.refereeRemoteDataSource;
+
+  @override
+  void initState() {
+    super.initState();
+    _future = _load();
+  }
+
+  Future<_WalletScreenData> _load() async {
+    final walletFuture = widget.walletFuture ?? _remote.getWalletData();
+    final transactionsFuture = widget.transactionsFuture ??
+        _remote.listWalletTransactionsData(perPage: 5);
+    final results = await Future.wait<Object>([
+      walletFuture,
+      transactionsFuture,
+    ]);
+    return _WalletScreenData(
+      wallet: results[0] as RefereeWalletSummary,
+      transactions: results[1] as RefereeWalletTransactionsPage,
+    );
+  }
+
+  void _retry() {
+    setState(() => _future = _load());
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final overview = this.overview ??
-        (kRefereeDemoData
-            ? WalletFigmaData.overview
-            : const WalletOverview(
-                balanceRupees: 0,
-                pendingSettlementRupees: 0,
-                totalEarningsRupees: 0,
-              ));
     final scale = context.sportoScale;
     final tokens = context.sporto;
-    final bottomInset = MediaQuery.paddingOf(context).bottom;
 
     return Scaffold(
       backgroundColor: tokens.canvas,
@@ -51,92 +82,38 @@ class WalletScreen extends StatelessWidget {
                   size: 12 * scale,
                 ),
                 fontSize: 14,
-                onTap: () => Navigator.of(context).push(
-                  MaterialPageRoute<void>(
-                    builder: (_) => const BankAccountsScreen(),
-                  ),
-                ),
+                onTap: _openBankAccounts,
               ),
             ),
             Expanded(
-              child: ListView(
-                padding: EdgeInsets.fromLTRB(
-                  20 * scale,
-                  10 * scale,
-                  20 * scale,
-                  24 * scale + bottomInset,
-                ),
-                children: [
-                  _BalanceCard(overview: overview, scale: scale),
-                  SizedBox(height: 8 * scale),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _StatCard(
-                          amount: formatIndianRupees(
-                            overview.pendingSettlementRupees,
-                          ),
-                          label: 'Pending Settlement',
-                          scale: scale,
-                        ),
+              child: FutureBuilder<_WalletScreenData>(
+                future: _future,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting ||
+                      snapshot.connectionState == ConnectionState.none) {
+                    return const _WalletScreenSkeleton();
+                  }
+                  if (snapshot.hasError) {
+                    return Center(
+                      child: SportoErrorView(
+                        headline: 'Unable to load wallet',
+                        description: 'Check your connection and try again.',
+                        onRetry: _retry,
                       ),
-                      SizedBox(width: 12 * scale),
-                      Expanded(
-                        child: _StatCard(
-                          amount: formatIndianCompactRupees(
-                            overview.totalEarningsRupees,
-                          ),
-                          label: 'Total Earnings',
-                          scale: scale,
-                        ),
+                    );
+                  }
+                  final data = snapshot.data;
+                  if (data == null) {
+                    return Center(
+                      child: SportoErrorView(
+                        headline: 'Unable to load wallet',
+                        description: 'Check your connection and try again.',
+                        onRetry: _retry,
                       ),
-                    ],
-                  ),
-                  SizedBox(height: 8 * scale),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _ActionButton(
-                          label: 'Transaction History',
-                          scale: scale,
-                          onTap: () => _openHistory(context),
-                        ),
-                      ),
-                      SizedBox(width: 8 * scale),
-                      Expanded(
-                        child: _ActionButton(
-                          label: 'Download Statement',
-                          icon: WalletIcons.download,
-                          scale: scale,
-                          onTap: () => _comingSoon(
-                            context,
-                            'Statement downloads will be available soon.',
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 8 * scale),
-                  _RecentHeader(
-                    scale: scale,
-                    onViewAll: () => _openHistory(context),
-                  ),
-                  SizedBox(height: 10 * scale),
-                  if (overview.recentTransactions.isEmpty)
-                    const WalletEmptyState(message: 'No transactions yet')
-                  else
-                    for (var i = 0;
-                        i < overview.recentTransactions.length;
-                        i++) ...[
-                      WalletTransactionTile(
-                        transaction: overview.recentTransactions[i],
-                        onTap: () => _openDetails(
-                            context, overview.recentTransactions[i]),
-                      ),
-                      if (i != overview.recentTransactions.length - 1)
-                        SizedBox(height: 10 * scale),
-                    ],
-                ],
+                    );
+                  }
+                  return _buildBody(context, data, scale);
+                },
               ),
             ),
           ],
@@ -145,7 +122,120 @@ class WalletScreen extends StatelessWidget {
     );
   }
 
-  void _openHistory(BuildContext context) {
+  Widget _buildBody(
+    BuildContext context,
+    _WalletScreenData data,
+    double scale,
+  ) {
+    final bottomInset = MediaQuery.paddingOf(context).bottom;
+    final wallet = data.wallet;
+    final transactions = data.transactions.items;
+
+    return ListView(
+      padding: EdgeInsets.fromLTRB(
+        20 * scale,
+        10 * scale,
+        20 * scale,
+        24 * scale + bottomInset,
+      ),
+      children: [
+        _BalanceCard(
+          amount: formatCurrencyAmount(
+            wallet.balance,
+            currency: wallet.currency,
+          ),
+          scale: scale,
+          onWithdraw: () => _showComingSoon(
+            'Withdrawals are not available yet.',
+          ),
+        ),
+        SizedBox(height: 8 * scale),
+        Row(
+          children: [
+            Expanded(
+              child: _StatCard(
+                amount: formatCurrencyAmount(
+                  wallet.pendingEarnings,
+                  currency: wallet.currency,
+                ),
+                label: 'Pending Settlement',
+                scale: scale,
+              ),
+            ),
+            SizedBox(width: 12 * scale),
+            Expanded(
+              child: _StatCard(
+                amount: formatCompactCurrencyAmount(
+                  wallet.totalEarned,
+                  currency: wallet.currency,
+                ),
+                label: 'Total Earnings',
+                scale: scale,
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 8 * scale),
+        Row(
+          children: [
+            Expanded(
+              child: _ActionButton(
+                label: 'Transaction History',
+                scale: scale,
+                onTap: _openHistory,
+              ),
+            ),
+            SizedBox(width: 8 * scale),
+            Expanded(
+              child: _ActionButton(
+                label: 'Download Statement',
+                icon: WalletIcons.download,
+                scale: scale,
+                onTap: () => _showComingSoon(
+                  'Statement downloads are not available yet.',
+                ),
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 8 * scale),
+        if (transactions.isNotEmpty) ...[
+          _RecentHeader(
+            scale: scale,
+            onViewAll: _openHistory,
+          ),
+          SizedBox(height: 10 * scale),
+          for (var i = 0; i < transactions.length; i++) ...[
+            WalletLedgerTile(
+              transaction: WalletTransactionView(transactions[i]),
+              onTap: () => _openDetails(transactions[i]),
+            ),
+            if (i != transactions.length - 1) SizedBox(height: 10 * scale),
+          ],
+        ] else if (!_hasWalletData(wallet))
+          const WalletEmptyState(message: 'Wallet not set up yet'),
+      ],
+    );
+  }
+
+  bool _hasWalletData(RefereeWalletSummary wallet) {
+    if (wallet.walletExists) return true;
+    // `reserved_balance` is often present as `0` even when no wallet exists,
+    // so only a non-zero money value proves the wallet is set up.
+    return (wallet.balance ?? 0) != 0 ||
+        (wallet.totalEarned ?? 0) != 0 ||
+        (wallet.pendingEarnings ?? 0) != 0;
+  }
+
+  void _openBankAccounts() {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => const BankAccountsScreen(),
+      ),
+    );
+  }
+
+  void _openHistory() {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (_) => const WalletTransactionsScreen(),
@@ -153,7 +243,7 @@ class WalletScreen extends StatelessWidget {
     );
   }
 
-  void _openDetails(BuildContext context, WalletTransaction transaction) {
+  void _openDetails(RefereeWalletTransaction transaction) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (_) => TransactionDetailsScreen(transaction: transaction),
@@ -161,7 +251,7 @@ class WalletScreen extends StatelessWidget {
     );
   }
 
-  void _comingSoon(BuildContext context, String message) {
+  void _showComingSoon(String message) {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
@@ -174,15 +264,95 @@ class WalletScreen extends StatelessWidget {
   }
 }
 
-class _BalanceCard extends StatelessWidget {
-  final WalletOverview overview;
-  final double scale;
+class _WalletScreenData {
+  const _WalletScreenData({
+    required this.wallet,
+    required this.transactions,
+  });
 
-  const _BalanceCard({required this.overview, required this.scale});
+  final RefereeWalletSummary wallet;
+  final RefereeWalletTransactionsPage transactions;
+}
+
+class _WalletScreenSkeleton extends StatelessWidget {
+  const _WalletScreenSkeleton();
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.sporto;
+    final scale = context.sportoScale;
+    final bottomInset = MediaQuery.paddingOf(context).bottom;
+    return Semantics(
+      label: 'Loading wallet',
+      child: ListView(
+        padding: EdgeInsets.fromLTRB(
+          20 * scale,
+          10 * scale,
+          20 * scale,
+          24 * scale + bottomInset,
+        ),
+        children: [
+          SportoSkeletonCard(height: 76 * scale, borderRadius: 20 * scale),
+          SizedBox(height: 8 * scale),
+          Row(
+            children: [
+              Expanded(
+                child: SportoSkeletonCard(
+                  height: 66 * scale,
+                  borderRadius: 16 * scale,
+                ),
+              ),
+              SizedBox(width: 12 * scale),
+              Expanded(
+                child: SportoSkeletonCard(
+                  height: 66 * scale,
+                  borderRadius: 16 * scale,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 8 * scale),
+          Row(
+            children: [
+              Expanded(
+                child: SportoSkeletonCard(
+                  height: 40 * scale,
+                  borderRadius: 14 * scale,
+                ),
+              ),
+              SizedBox(width: 8 * scale),
+              Expanded(
+                child: SportoSkeletonCard(
+                  height: 40 * scale,
+                  borderRadius: 14 * scale,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 16 * scale),
+          const SkeletonLine(width: 140, height: 14),
+          SizedBox(height: 10 * scale),
+          const BookingListItemSkeleton(),
+          SizedBox(height: 10 * scale),
+          const BookingListItemSkeleton(),
+        ],
+      ),
+    );
+  }
+}
+
+class _BalanceCard extends StatelessWidget {
+  final String amount;
+  final double scale;
+  final VoidCallback onWithdraw;
+
+  const _BalanceCard({
+    required this.amount,
+    required this.scale,
+    required this.onWithdraw,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       height: 76 * scale,
       padding: EdgeInsets.symmetric(horizontal: 14 * scale),
@@ -215,7 +385,7 @@ class _BalanceCard extends StatelessWidget {
                   fit: BoxFit.scaleDown,
                   alignment: Alignment.centerLeft,
                   child: WalletMoneyText(
-                    formatIndianRupees(overview.balanceRupees),
+                    amount,
                     maxLines: 1,
                     symbolStyle: TextStyle(
                       fontSize: 18 * scale,
@@ -241,15 +411,7 @@ class _BalanceCard extends StatelessWidget {
             textColor: const Color(0xFF090C10),
             height: 27,
             fontSize: 12,
-            onTap: () => ScaffoldMessenger.of(context)
-              ..hideCurrentSnackBar()
-              ..showSnackBar(
-                SnackBar(
-                  content: const Text('Withdrawals are not available yet.'),
-                  backgroundColor: tokens.cardElevated,
-                  behavior: SnackBarBehavior.floating,
-                ),
-              ),
+            onTap: onWithdraw,
           ),
         ],
       ),

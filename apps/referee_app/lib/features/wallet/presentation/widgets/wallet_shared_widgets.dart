@@ -1,55 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:ui_kit/ui_kit.dart';
 
+import '../wallet_adapters.dart';
 import '../wallet_icons.dart';
-import '../wallet_models.dart';
-
-// ---------------------------------------------------------------------------
-// Money formatting (pure, unit-testable)
-// ---------------------------------------------------------------------------
-
-/// Formats [rupees] using the Indian digit grouping (1,20,400 / 3,800).
-///
-/// The default renders `₹ 1,20,400`; pass `space: false` for Figma variants
-/// such as `+₹1,000` and `₹1000`.
-String formatIndianRupees(
-  int rupees, {
-  bool space = true,
-  bool grouping = true,
-}) {
-  final negative = rupees < 0;
-  final digits = rupees.abs().toString();
-  final grouped = grouping ? _groupIndianDigits(digits) : digits;
-  final symbol = space ? '₹ ' : '₹';
-  return '${negative ? '-' : ''}$symbol$grouped';
-}
-
-/// Compact Indian money label used by the Total Earnings card (`₹ 8.40L`).
-String formatIndianCompactRupees(int rupees) {
-  final negative = rupees < 0;
-  final value = rupees.abs();
-  final sign = negative ? '-' : '';
-  if (value >= 10000000) {
-    return '₹ $sign${(value / 10000000).toStringAsFixed(2)}Cr';
-  }
-  if (value >= 100000) {
-    return '₹ $sign${(value / 100000).toStringAsFixed(2)}L';
-  }
-  return formatIndianRupees(rupees);
-}
-
-String _groupIndianDigits(String digits) {
-  if (digits.length <= 3) return digits;
-  final lastThree = digits.substring(digits.length - 3);
-  var rest = digits.substring(0, digits.length - 3);
-  final groups = <String>[];
-  while (rest.length > 2) {
-    groups.insert(0, rest.substring(rest.length - 2));
-    rest = rest.substring(0, rest.length - 2);
-  }
-  if (rest.isNotEmpty) groups.insert(0, rest);
-  return '${groups.join(',')},$lastThree';
-}
 
 /// Renders a formatted money string with the Figma's lighter rupee symbol.
 ///
@@ -463,55 +416,15 @@ class WalletBadge extends StatelessWidget {
   }
 }
 
-/// Gradient "by User" / "by Partner" chip on transaction rows.
-class WalletPartyChip extends StatelessWidget {
-  final WalletTransactionParty party;
-
-  const WalletPartyChip({super.key, required this.party});
-
-  @override
-  Widget build(BuildContext context) {
-    final scale = context.sportoScale;
-    final tokens = context.sporto;
-    final isUser = party == WalletTransactionParty.user;
-    final gradient = isUser ? tokens.gradientBlue : tokens.gradientPink;
-    final softGradient = LinearGradient(
-      begin: gradient.begin,
-      end: gradient.end,
-      colors: gradient.colors
-          .map((color) => color.withValues(alpha: 0.14))
-          .toList(growable: false),
-    );
-
-    return Container(
-      height: 19 * scale,
-      padding: EdgeInsets.symmetric(horizontal: 6 * scale),
-      decoration: BoxDecoration(
-        gradient: softGradient,
-        borderRadius: BorderRadius.circular(10 * scale),
-      ),
-      alignment: Alignment.center,
-      child: SportoGradientText(
-        isUser ? 'by User' : 'by Partner',
-        gradient: gradient,
-        maxLines: 1,
-        style: TextStyle(
-          fontSize: 11 * scale,
-          fontWeight: FontWeight.w500,
-          color: Colors.white,
-          height: 1.1,
-        ),
-      ),
-    );
-  }
-}
-
-/// Wallet history row used by the overview (02) and history (03) screens.
-class WalletTransactionTile extends StatelessWidget {
-  final WalletTransaction transaction;
+/// Wallet ledger row backed exclusively by the API model.
+///
+/// Missing fields render `—`; nothing (party, method, status, direction) is
+/// invented when the backend did not send it.
+class WalletLedgerTile extends StatelessWidget {
+  final WalletTransactionView transaction;
   final VoidCallback? onTap;
 
-  const WalletTransactionTile({
+  const WalletLedgerTile({
     super.key,
     required this.transaction,
     this.onTap,
@@ -521,15 +434,17 @@ class WalletTransactionTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final scale = context.sportoScale;
     final tokens = context.sporto;
-    final isPaid = transaction.status == WalletTransactionStatus.paid;
-    final statusColor = isPaid ? tokens.accentGreen : tokens.red;
-    final statusLabel = isPaid ? 'Paid' : 'Processing';
-    final amount = formatIndianRupees(transaction.amountRupees);
+    final statusColor = _statusColor(transaction.statusLabel, tokens);
+    final amountColor = switch (transaction.direction) {
+      WalletLedgerDirection.credit => tokens.accentGreen,
+      WalletLedgerDirection.debit => tokens.red,
+      WalletLedgerDirection.unknown => tokens.muted,
+    };
+    final subtitle = transaction.displaySubtitle;
 
     return Semantics(
       button: onTap != null,
-      label: '${transaction.name}, ${transaction.tournamentName}, '
-          '$statusLabel, $amount',
+      label: transaction.semanticLabel,
       child: Material(
         color: Colors.transparent,
         child: InkWell(
@@ -549,28 +464,8 @@ class WalletTransactionTile extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        children: [
-                          Flexible(
-                            child: Text(
-                              transaction.name,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: 14 * scale,
-                                fontWeight: FontWeight.w400,
-                                color: tokens.muted,
-                                height: 1.25,
-                              ),
-                            ),
-                          ),
-                          SizedBox(width: 6 * scale),
-                          WalletPartyChip(party: transaction.party),
-                        ],
-                      ),
-                      SizedBox(height: 2 * scale),
                       Text(
-                        transaction.tournamentName,
+                        transaction.displayTitle,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
@@ -580,12 +475,26 @@ class WalletTransactionTile extends StatelessWidget {
                           height: 1.25,
                         ),
                       ),
+                      if (subtitle != null) ...[
+                        SizedBox(height: 2 * scale),
+                        Text(
+                          subtitle,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 12 * scale,
+                            fontWeight: FontWeight.w400,
+                            color: tokens.muted,
+                            height: 1.2,
+                          ),
+                        ),
+                      ],
                       SizedBox(height: 2 * scale),
                       Row(
                         children: [
                           Flexible(
                             child: Text(
-                              statusLabel,
+                              transaction.statusLabel,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
@@ -625,20 +534,26 @@ class WalletTransactionTile extends StatelessWidget {
                   ),
                 ),
                 SizedBox(width: 8 * scale),
-                WalletMoneyText(
-                  amount,
-                  maxLines: 1,
-                  symbolStyle: TextStyle(
-                    fontSize: 14 * scale,
-                    fontWeight: FontWeight.w400,
-                    color: statusColor,
-                    height: 1.25,
-                  ),
-                  amountStyle: TextStyle(
-                    fontSize: 14 * scale,
-                    fontWeight: FontWeight.w600,
-                    color: statusColor,
-                    height: 1.25,
+                Flexible(
+                  child: Align(
+                    alignment: Alignment.topRight,
+                    child: WalletMoneyText(
+                      transaction.amountLabel,
+                      maxLines: 1,
+                      textAlign: TextAlign.end,
+                      symbolStyle: TextStyle(
+                        fontSize: 14 * scale,
+                        fontWeight: FontWeight.w400,
+                        color: amountColor,
+                        height: 1.25,
+                      ),
+                      amountStyle: TextStyle(
+                        fontSize: 14 * scale,
+                        fontWeight: FontWeight.w600,
+                        color: amountColor,
+                        height: 1.25,
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -648,6 +563,15 @@ class WalletTransactionTile extends StatelessWidget {
       ),
     );
   }
+}
+
+Color _statusColor(String label, SportoDesignTokens tokens) {
+  return switch (walletStatusTone(label)) {
+    WalletStatusTone.positive => tokens.accentGreen,
+    WalletStatusTone.pending => tokens.gold,
+    WalletStatusTone.negative => tokens.red,
+    WalletStatusTone.neutral => tokens.muted,
+  };
 }
 
 /// Honest empty state used when a list has no rows.

@@ -43,21 +43,8 @@ class _IncomingRequestsScreenState extends State<IncomingRequestsScreen> {
   }
 
   Future<List<RefereeMatchRequestResponse>> _load() async {
-    final results = await Future.wait<List<RefereeMatchRequestResponse>>([
-      _remote
-          .listMatchRequestsData()
-          .catchError((_) => <RefereeMatchRequestResponse>[]),
-      _remote
-          .listBookingRequestsData()
-          .catchError((_) => <RefereeMatchRequestResponse>[]),
-    ]);
-    final seen = <String>{};
-    final merged = [
-      for (final list in results)
-        for (final item in list)
-          if (seen.add('${item.isBooking}:${item.assignmentId ?? item.id}'))
-            item,
-    ];
+    final bundle = await _remote.listIncomingRequestsData(retryOnEmpty: true);
+    final merged = List<RefereeMatchRequestResponse>.of(bundle.requests);
     merged.sort((a, b) {
       final aDate = requestDateTime(a);
       final bDate = requestDateTime(b);

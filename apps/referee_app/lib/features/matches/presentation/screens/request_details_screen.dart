@@ -216,7 +216,11 @@ class _DetailsBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isPartner = requestSourceLabel(request) == 'by Partner';
+    final sourceLabel = requestSourceLabel(request);
+    final isPartner = sourceLabel == 'by Partner';
+    final clock = requestClockText(request);
+    final distance = requestDistanceText(request);
+    final fee = requestFeeText(request);
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
       padding: EdgeInsets.fromLTRB(
@@ -280,120 +284,124 @@ class _DetailsBody extends StatelessWidget {
                   ),
                 ),
                 const Spacer(),
-                Flexible(
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 4 * scale,
-                      vertical: 4 * scale,
-                    ),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10 * scale),
-                      gradient: LinearGradient(
-                        colors: isPartner
-                            ? const [Color(0x1AFF58DD), Color(0x1ADC65AC)]
-                            : const [Color(0x1A7AD3FF), Color(0x1A4FBAF0)],
+                if (sourceLabel.isNotEmpty)
+                  Flexible(
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 4 * scale,
+                        vertical: 4 * scale,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10 * scale),
+                        gradient: LinearGradient(
+                          colors: isPartner
+                              ? const [Color(0x1AFF58DD), Color(0x1ADC65AC)]
+                              : const [Color(0x1A7AD3FF), Color(0x1A4FBAF0)],
+                        ),
+                      ),
+                      child: RefereeGradientText(
+                        sourceLabel,
+                        gradient: isPartner ? _pinkTextGradient : _blueGradient,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 12 * scale,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ),
-                    child: RefereeGradientText(
-                      requestSourceLabel(request),
-                      gradient: isPartner ? _pinkTextGradient : _blueGradient,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 12 * scale,
-                        fontWeight: FontWeight.w500,
-                      ),
+                  ),
+                if (clock.isNotEmpty) ...[
+                  SizedBox(width: 10 * scale),
+                  RefereeGradientText(
+                    clock,
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFFED7B00), Color(0xFFCF9E24)],
+                    ),
+                    maxLines: 1,
+                    style: TextStyle(
+                      fontSize: 20 * scale,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
-                ),
-                SizedBox(width: 10 * scale),
-                RefereeGradientText(
-                  requestClockText(request),
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFFED7B00), Color(0xFFCF9E24)],
-                  ),
-                  maxLines: 1,
-                  style: TextStyle(
-                    fontSize: 20 * scale,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+                ],
               ],
             ),
           ),
           SizedBox(height: 18 * scale),
 
           // Booked by
-          Container(
-            padding: EdgeInsets.all(14 * scale),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16 * scale),
-              gradient: _pinkGradient,
-            ),
-            child: Row(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(10 * scale),
-                  child: SportoAssetIcon(
-                    SportoRefereeBookingIcons.avatarReferee,
-                    size: 40 * scale,
-                    fit: BoxFit.cover,
+          if (requestCustomerName(request).isNotEmpty)
+            Container(
+              padding: EdgeInsets.all(14 * scale),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16 * scale),
+                gradient: _pinkGradient,
+              ),
+              child: Row(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(10 * scale),
+                    child: SportoAssetIcon(
+                      SportoRefereeBookingIcons.avatarReferee,
+                      size: 40 * scale,
+                      fit: BoxFit.cover,
+                    ),
                   ),
-                ),
-                SizedBox(width: 10 * scale),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              'Booked by',
-                              style: TextStyle(
-                                fontSize: 12 * scale,
-                                fontWeight: FontWeight.w500,
-                                color: const Color(0xFF666666),
+                  SizedBox(width: 10 * scale),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                'Booked by',
+                                style: TextStyle(
+                                  fontSize: 12 * scale,
+                                  fontWeight: FontWeight.w500,
+                                  color: const Color(0xFF666666),
+                                ),
                               ),
                             ),
-                          ),
-                          Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 6 * scale,
-                              vertical: 2 * scale,
-                            ),
-                            decoration: BoxDecoration(
-                              color: const Color(0x1A2BB673),
-                              borderRadius: BorderRadius.circular(10 * scale),
-                            ),
-                            child: Text(
-                              requestStatusText(request),
-                              style: TextStyle(
-                                fontSize: 12 * scale,
-                                fontWeight: FontWeight.w500,
-                                color: const Color(0xFF2BB673),
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 6 * scale,
+                                vertical: 2 * scale,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0x1A2BB673),
+                                borderRadius: BorderRadius.circular(10 * scale),
+                              ),
+                              child: Text(
+                                requestStatusText(request),
+                                style: TextStyle(
+                                  fontSize: 12 * scale,
+                                  fontWeight: FontWeight.w500,
+                                  color: const Color(0xFF2BB673),
+                                ),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 2 * scale),
-                      RefereeGradientText(
-                        requestCustomerName(request),
-                        gradient: _pinkTextGradient,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 16 * scale,
-                          fontWeight: FontWeight.w600,
+                          ],
                         ),
-                      ),
-                    ],
+                        SizedBox(height: 2 * scale),
+                        RefereeGradientText(
+                          requestCustomerName(request),
+                          gradient: _pinkTextGradient,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 16 * scale,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
           SizedBox(height: 20 * scale),
 
           // Tournament / venue / location
@@ -458,10 +466,11 @@ class _DetailsBody extends StatelessWidget {
                       ),
                     ),
                     SizedBox(width: 6 * scale),
-                    _DetailDistancePill(
-                      scale: scale,
-                      label: requestDistanceText(request),
-                    ),
+                    if (distance != null)
+                      _DetailDistancePill(
+                        scale: scale,
+                        label: distance,
+                      ),
                   ],
                 ),
               ],
@@ -505,7 +514,9 @@ class _DetailsBody extends StatelessWidget {
                       label: 'Start Time',
                     ),
                     _detailColumn(
-                      value: requestDurationText(request),
+                      value: requestDurationText(request).isEmpty
+                          ? '—'
+                          : requestDurationText(request),
                       label: 'Duration',
                     ),
                   ],
@@ -546,31 +557,34 @@ class _DetailsBody extends StatelessWidget {
                     ),
                   ],
                 ),
-                SizedBox(height: 8 * scale),
-                Container(height: 0.5 * scale, color: const Color(0x33FFFFFF)),
-                SizedBox(height: 8 * scale),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        'Expected Earnings',
-                        style: TextStyle(
-                          fontSize: 14 * scale,
-                          fontWeight: FontWeight.w500,
-                          color: const Color(0xFFFFFFFF),
+                if (fee != null) ...[
+                  SizedBox(height: 8 * scale),
+                  Container(
+                      height: 0.5 * scale, color: const Color(0x33FFFFFF)),
+                  SizedBox(height: 8 * scale),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'Expected Earnings',
+                          style: TextStyle(
+                            fontSize: 14 * scale,
+                            fontWeight: FontWeight.w500,
+                            color: const Color(0xFFFFFFFF),
+                          ),
                         ),
                       ),
-                    ),
-                    RefereeGradientText(
-                      requestFeeText(request),
-                      gradient: _orangeGradient,
-                      style: TextStyle(
-                        fontSize: 14 * scale,
-                        fontWeight: FontWeight.w600,
+                      RefereeGradientText(
+                        fee,
+                        gradient: _orangeGradient,
+                        style: TextStyle(
+                          fontSize: 14 * scale,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
+                    ],
+                  ),
+                ],
               ],
             ),
           ),

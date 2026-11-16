@@ -1,23 +1,25 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:referee_app/core/config/referee_demo_data.dart';
+import 'package:referee_data/referee_data.dart';
 import 'package:ui_kit/ui_kit.dart';
 
-import '../bank_figma_data.dart';
 import '../bank_icons.dart';
 import '../bank_models.dart';
 import '../widgets/bank_shared_widgets.dart';
 import 'add_bank_account_screen.dart';
 
-/// Verified bank account details from the Figma `04_Bank-Account-Details` frame.
+/// Bank account details from the Figma `04_Bank-Account-Details` frame.
+///
+/// The API only ever returns a masked account number. If a reveal is attempted
+/// without a full number, the screen keeps the masked value and explains why.
 class BankAccountDetailsScreen extends StatefulWidget {
   const BankAccountDetailsScreen({
     super.key,
     this.details,
   });
 
-  final BankAccountDetails? details;
+  final RefereeBankDetails? details;
 
   @override
   State<BankAccountDetailsScreen> createState() =>
@@ -50,6 +52,18 @@ class _BankAccountDetailsScreenState extends State<BankAccountDetailsScreen>
   }
 
   void _toggleReveal() {
+    final details = widget.details;
+    final fullNumber = details == null ? null : bankFullAccountNumber(details);
+    if (fullNumber == null) {
+      _hideTimer?.cancel();
+      if (_revealed) setState(() => _revealed = false);
+      showBankSnackBar(
+        context,
+        "Full account number isn't available for security",
+      );
+      return;
+    }
+
     final next = !_revealed;
     setState(() => _revealed = next);
     _hideTimer?.cancel();
@@ -60,12 +74,39 @@ class _BankAccountDetailsScreenState extends State<BankAccountDetailsScreen>
     }
   }
 
-  void _openAddAccount() {
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(
+  Future<void> _openAddAccount() async {
+    final saved = await Navigator.of(context).push<bool>(
+      MaterialPageRoute<bool>(
         builder: (_) => const AddBankAccountScreen(),
       ),
     );
+    if (saved == true && mounted) _closeWithChange();
+  }
+
+  Future<void> _openChangeAccount() async {
+    final existing = widget.details;
+    if (existing != null && existing.isUpi) {
+      showBankSnackBar(
+        context,
+        "Changing a UPI ID isn't available yet",
+      );
+      return;
+    }
+    final editable = existing != null && existing.isBank && existing.id != null;
+    final saved = await Navigator.of(context).push<bool>(
+      MaterialPageRoute<bool>(
+        builder: (_) => AddBankAccountScreen(
+          existing: editable ? existing : null,
+          makeDefault: editable ? existing.isDefault : false,
+        ),
+      ),
+    );
+    if (saved == true && mounted) _closeWithChange();
+  }
+
+  void _closeWithChange() {
+    final navigator = Navigator.of(context);
+    if (navigator.canPop()) navigator.pop(true);
   }
 
   void _requestReverification() {
@@ -75,8 +116,8 @@ class _BankAccountDetailsScreenState extends State<BankAccountDetailsScreen>
   @override
   Widget build(BuildContext context) {
     final scale = context.sportoScale;
-    final details =
-        widget.details ?? (kRefereeDemoData ? BankFigmaData.details : null);
+    final details = widget.details;
+
     if (details == null) {
       return Scaffold(
         backgroundColor: context.sporto.canvas,
@@ -101,8 +142,12 @@ class _BankAccountDetailsScreenState extends State<BankAccountDetailsScreen>
         ),
       );
     }
-    final number =
-        _revealed ? details.accountNumber : details.maskedAccountNumber;
+
+    final fullNumber = bankFullAccountNumber(details);
+    final maskedNumber = bankMaskedAccountLabel(details);
+    final canReveal = fullNumber != null;
+    final number = _revealed && fullNumber != null ? fullNumber : maskedNumber;
+    final isUpi = details.isUpi;
 
     return Scaffold(
       backgroundColor: context.sporto.canvas,
@@ -127,10 +172,23 @@ class _BankAccountDetailsScreenState extends State<BankAccountDetailsScreen>
                       details: details,
                       revealed: _revealed,
                       displayNumber: number.trim().isEmpty
-                          ? 'Account not available'
+                          ? (isUpi ? 'UPI account' : 'Account not available')
                           : number,
+                      showReveal: !isUpi,
                       onToggleReveal: _toggleReveal,
                     ),
+                    if (!canReveal && !isUpi) ...[
+                      SizedBox(height: 8 * scale),
+                      Text(
+                        'Full account numbers are hidden for security.',
+                        style: SportoTextStyles.text(
+                          size: 12,
+                          weight: FontWeight.w400,
+                          color: context.sporto.muted,
+                          height: 15 / 12,
+                        ),
+                      ),
+                    ],
                     SizedBox(height: 20 * scale),
                     LayoutBuilder(
                       builder: (context, constraints) {
@@ -145,7 +203,7 @@ class _BankAccountDetailsScreenState extends State<BankAccountDetailsScreen>
                           label: 'Change Bank Account',
                           icon: BankIcons.checkCircle,
                           glowWhite: true,
-                          onTap: _openAddAccount,
+                          onTap: _openChangeAccount,
                         );
                         final reverifyButton = _DetailActionButton(
                           scale: scale,
@@ -201,20 +259,26 @@ class _DetailsCard extends StatelessWidget {
     required this.details,
     required this.revealed,
     required this.displayNumber,
+    required this.showReveal,
     required this.onToggleReveal,
   });
 
   final double scale;
-  final BankAccountDetails details;
+  final RefereeBankDetails details;
   final bool revealed;
   final String displayNumber;
+  final bool showReveal;
   final VoidCallback onToggleReveal;
 
-  String _value(String value) => value.trim().isEmpty ? '—' : value;
+  String _value(String? value) {
+    final trimmed = value?.trim() ?? '';
+    return trimmed.isEmpty ? '—' : trimmed;
+  }
 
   @override
   Widget build(BuildContext context) {
     final sporto = context.sporto;
+    final verification = bankVerificationLabel(details);
 
     return Container(
       padding: EdgeInsets.all(14 * scale),
@@ -243,30 +307,35 @@ class _DetailsCard extends StatelessWidget {
                           ),
                         ),
                       ),
-                      SizedBox(width: 8 * scale),
-                      SizedBox.square(
-                        dimension: 44 * scale,
-                        child: IconButton(
-                          key: const ValueKey('bank_eye_toggle'),
-                          tooltip: revealed
-                              ? 'Hide account number'
-                              : 'Show account number',
-                          padding: EdgeInsets.zero,
-                          iconSize: 16 * scale,
-                          onPressed: onToggleReveal,
-                          icon: SportoSvgIcon(
-                            revealed ? BankIcons.eyeOff : BankIcons.eye,
-                            width: 16 * scale,
-                            height: 16 * scale,
-                            color: sporto.muted,
+                      if (showReveal) ...[
+                        SizedBox(width: 8 * scale),
+                        SizedBox.square(
+                          dimension: 44 * scale,
+                          child: IconButton(
+                            key: const ValueKey('bank_eye_toggle'),
+                            tooltip: revealed
+                                ? 'Hide account number'
+                                : 'Show account number',
+                            padding: EdgeInsets.zero,
+                            iconSize: 16 * scale,
+                            onPressed: onToggleReveal,
+                            icon: SportoSvgIcon(
+                              revealed ? BankIcons.eyeOff : BankIcons.eye,
+                              width: 16 * scale,
+                              height: 16 * scale,
+                              color: sporto.muted,
+                            ),
                           ),
                         ),
-                      ),
+                      ],
                     ],
                   ),
                 ),
                 SizedBox(width: 8 * scale),
-                _VerifiedPill(scale: scale, isVerified: details.isVerified),
+                BankStatusPill(
+                  label: verification,
+                  positive: bankIsVerified(details),
+                ),
               ],
             ),
           ),
@@ -339,60 +408,6 @@ class _DetailRow extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _VerifiedPill extends StatelessWidget {
-  const _VerifiedPill({required this.scale, required this.isVerified});
-
-  final double scale;
-  final bool isVerified;
-
-  @override
-  Widget build(BuildContext context) {
-    final sporto = context.sporto;
-    final color = isVerified ? sporto.accentGreen : sporto.muted;
-
-    return Container(
-      constraints: BoxConstraints(minHeight: 21 * scale),
-      padding: EdgeInsets.fromLTRB(
-        5 * scale,
-        4 * scale,
-        7 * scale,
-        4 * scale,
-      ),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: .06),
-        borderRadius: BorderRadius.circular(50 * scale),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (isVerified)
-            SportoSvgIcon(
-              BankIcons.checkCircle,
-              width: 12 * scale,
-              height: 12 * scale,
-            )
-          else
-            Icon(
-              Icons.info_outline_rounded,
-              size: 12 * scale,
-              color: color,
-            ),
-          SizedBox(width: 3 * scale),
-          Text(
-            isVerified ? 'Verified' : 'Unverified',
-            style: SportoTextStyles.text(
-              size: 10,
-              weight: FontWeight.w500,
-              color: color,
-              height: 13 / 10,
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

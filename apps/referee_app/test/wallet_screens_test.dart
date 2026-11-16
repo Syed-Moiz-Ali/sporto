@@ -1,12 +1,15 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:referee_app/features/bank/presentation/screens/bank_accounts_screen.dart';
 import 'package:referee_app/features/wallet/presentation/screens/tournaments_history_screen.dart';
 import 'package:referee_app/features/wallet/presentation/screens/transaction_details_screen.dart';
 import 'package:referee_app/features/wallet/presentation/screens/wallet_screen.dart';
 import 'package:referee_app/features/wallet/presentation/screens/wallet_transactions_screen.dart';
-import 'package:referee_app/features/wallet/presentation/wallet_figma_data.dart';
-import 'package:referee_app/features/wallet/presentation/wallet_models.dart';
+import 'package:referee_app/features/wallet/presentation/wallet_formatters.dart';
 import 'package:referee_app/features/wallet/presentation/widgets/wallet_shared_widgets.dart';
+import 'package:referee_data/referee_data.dart';
 import 'package:ui_kit/ui_kit.dart';
 
 void main() {
@@ -27,6 +30,115 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
   }
 
+  Future<void> pumpScreen(WidgetTester tester, Widget widget) async {
+    await tester.pumpWidget(app(widget));
+    await tester.pump();
+    await tester.pump();
+  }
+
+  RefereeWalletSummary walletSummary({
+    double? balance = 120400,
+    double? pending = 98600,
+    double? total = 840000,
+    String? currency = 'INR',
+    bool walletExists = true,
+  }) {
+    return RefereeWalletSummary(
+      balance: balance,
+      reservedBalance: 0,
+      totalEarned: total,
+      pendingEarnings: pending,
+      currency: currency,
+      walletExists: walletExists,
+      earningsAvailable: true,
+    );
+  }
+
+  RefereeWalletTransaction earningTx({
+    int id = 1,
+    String? title = 'Match earnings',
+    String? description = 'Referee fee',
+    String? tournament = 'Gachibowli Super Over Qualifier',
+    double? amount = 3000,
+    String? createdAt = '2026-09-09T19:42:00Z',
+  }) {
+    return RefereeWalletTransaction(
+      id: id,
+      reference: 'TXN-$id',
+      amount: amount,
+      status: 'paid',
+      statusLabel: 'Paid',
+      category: 'earnings',
+      description: description,
+      title: title,
+      tournamentName: tournament,
+      createdAt: createdAt,
+      direction: 'CREDIT',
+      currency: 'INR',
+      paymentMethod: 'Spoto Wallet Credit',
+    );
+  }
+
+  RefereeWalletTransaction withdrawalTx({
+    int id = 2,
+    String? title = 'Bank payout',
+    double? amount = 1000,
+    String? createdAt = '2026-09-10T10:00:00Z',
+  }) {
+    return RefereeWalletTransaction(
+      id: id,
+      reference: 'TXN-$id',
+      amount: amount,
+      status: 'processing',
+      statusLabel: 'Processing',
+      category: 'withdrawal',
+      description: 'Wallet withdrawal',
+      title: title,
+      createdAt: createdAt,
+      direction: 'DEBIT',
+      currency: 'INR',
+      paymentMethod: 'Bank Payout',
+    );
+  }
+
+  RefereeWalletTransactionsPage transactionsPage(
+    List<RefereeWalletTransaction> items,
+  ) {
+    return RefereeWalletTransactionsPage(
+      items: items,
+      total: items.length,
+      currentPage: 1,
+      lastPage: 1,
+    );
+  }
+
+  RefereeTournamentHistoryItem tournament({
+    required int id,
+    required String name,
+    String? code,
+    int? status,
+    String? currency,
+  }) {
+    return RefereeTournamentHistoryItem(
+      id: id,
+      name: name,
+      code: code,
+      status: status,
+      currency: currency,
+    );
+  }
+
+  RefereeTournamentHistoryPage tournamentsPage(
+    List<RefereeTournamentHistoryItem> items,
+  ) {
+    return RefereeTournamentHistoryPage(
+      items: items,
+      total: items.length,
+      page: 1,
+      lastPage: 1,
+    );
+  }
+
   group('money formatting', () {
     test('uses Indian digit grouping', () {
       expect(formatIndianRupees(120400), '₹ 1,20,400');
@@ -42,26 +154,106 @@ void main() {
       expect(formatIndianRupees(120400, space: false), '₹1,20,400');
     });
 
-    test('can skip grouping for the Figma description variant', () {
+    test('formats API decimals with currency-aware grouping', () {
       expect(
-        formatIndianRupees(1000, space: false, grouping: false),
-        '₹1000',
+        formatCurrencyAmount(120400, currency: 'INR'),
+        '₹ 1,20,400',
+      );
+      expect(
+        formatCurrencyAmount(1234.56, currency: 'INR'),
+        '₹ 1,234.56',
+      );
+      expect(
+        formatCurrencyAmount(1234.5, currency: 'USD'),
+        'USD 1,234.50',
+      );
+      expect(formatCurrencyAmount(null), '—');
+    });
+
+    test('formats compact wallet amounts', () {
+      expect(
+        formatCompactCurrencyAmount(840000, currency: 'INR'),
+        '₹ 8.40L',
+      );
+      expect(
+        formatCompactCurrencyAmount(98600, currency: 'INR'),
+        '₹ 98,600',
+      );
+      expect(
+        formatCompactCurrencyAmount(1500, currency: 'USD'),
+        'USD 1,500',
       );
     });
 
-    test('formats compact lakh / crore labels', () {
-      expect(formatIndianCompactRupees(840000), '₹ 8.40L');
-      expect(formatIndianCompactRupees(12500000), '₹ 1.25Cr');
-      expect(formatIndianCompactRupees(98600), '₹ 98,600');
+    test('formats status labels and dates defensively', () {
+      expect(formatStatusLabel('in_progress'), 'In Progress');
+      expect(formatStatusLabel(null), '—');
+      expect(formatApiDate(null), isNull);
+      expect(formatApiDate('2026-09-09'), '09 Sep 2026');
     });
   });
 
   group('WalletScreen', () {
-    testWidgets('renders balance, stat cards and recent transactions',
+    testWidgets('shows a loading skeleton', (tester) async {
+      setSurface(tester);
+      final wallet = Completer<RefereeWalletSummary>();
+      final transactions = Completer<RefereeWalletTransactionsPage>();
+
+      await tester.pumpWidget(
+        app(
+          WalletScreen(
+            walletFuture: wallet.future,
+            transactionsFuture: transactions.future,
+          ),
+        ),
+      );
+      await tester.pump();
+
+      expect(find.byType(SportoShimmer), findsWidgets);
+      expect(find.text('Wallet balance'), findsNothing);
+
+      wallet.complete(walletSummary());
+      transactions.complete(transactionsPage(const []));
+      await tester.pump();
+    });
+
+    testWidgets('shows an error with retry when the wallet fails',
         (tester) async {
       setSurface(tester);
-      await tester.pumpWidget(app(const WalletScreen()));
+      final wallet = Completer<RefereeWalletSummary>();
+      final transactions = Completer<RefereeWalletTransactionsPage>();
+
+      await tester.pumpWidget(
+        app(
+          WalletScreen(
+            walletFuture: wallet.future,
+            transactionsFuture: transactions.future,
+          ),
+        ),
+      );
       await tester.pump();
+
+      wallet.completeError(Exception('offline'));
+      transactions.complete(transactionsPage(const []));
+      await tester.pump();
+      await tester.pump();
+
+      expect(find.text('Unable to load wallet'), findsOneWidget);
+      expect(find.text('Retry'), findsOneWidget);
+    });
+
+    testWidgets('renders API balance, stats and recent transactions',
+        (tester) async {
+      setSurface(tester);
+      await pumpScreen(
+        tester,
+        WalletScreen(
+          walletFuture: Future.value(walletSummary()),
+          transactionsFuture: Future.value(
+            transactionsPage([earningTx()]),
+          ),
+        ),
+      );
 
       expect(find.text('Wallet balance'), findsOneWidget);
       expect(find.text('₹ 1,20,400'), findsOneWidget);
@@ -69,185 +261,520 @@ void main() {
       expect(find.text('₹ 98,600'), findsOneWidget);
       expect(find.text('Total Earnings'), findsOneWidget);
       expect(find.text('₹ 8.40L'), findsOneWidget);
-      expect(find.text('Transaction History'), findsOneWidget);
-      expect(find.text('Download Statement'), findsOneWidget);
       expect(find.text('Recent Transactions'), findsOneWidget);
-
-      expect(find.text('Gachibowli Super Over Qualifier'), findsOneWidget);
-      expect(find.text('Hyd Super Over Premier League'), findsOneWidget);
-      expect(find.text('₹ 3,000'), findsOneWidget);
-      expect(find.text('₹ 3,800'), findsOneWidget);
-      expect(find.text('Processing'), findsOneWidget);
+      expect(find.byType(WalletLedgerTile), findsOneWidget);
+      expect(find.text('Match earnings'), findsOneWidget);
+      expect(find.textContaining('Gachibowli'), findsOneWidget);
       expect(find.text('Paid'), findsOneWidget);
-      expect(find.text('by User'), findsOneWidget);
-      expect(find.text('by Partner'), findsOneWidget);
+      expect(find.text('+₹ 3,000'), findsOneWidget);
     });
 
-    testWidgets('transaction tap opens the details screen', (tester) async {
+    testWidgets('hides the recent section when the ledger is empty',
+        (tester) async {
       setSurface(tester);
-      await tester.pumpWidget(app(const WalletScreen()));
+      await pumpScreen(
+        tester,
+        WalletScreen(
+          walletFuture: Future.value(walletSummary()),
+          transactionsFuture: Future.value(transactionsPage(const [])),
+        ),
+      );
+
+      expect(find.text('Recent Transactions'), findsNothing);
+      expect(find.byType(WalletLedgerTile), findsNothing);
+      expect(find.text('Wallet not set up yet'), findsNothing);
+    });
+
+    testWidgets('shows a setup empty state when no wallet data exists',
+        (tester) async {
+      setSurface(tester);
+      await pumpScreen(
+        tester,
+        WalletScreen(
+          walletFuture: Future.value(
+            walletSummary(
+              balance: null,
+              pending: null,
+              total: null,
+              walletExists: false,
+            ),
+          ),
+          transactionsFuture: Future.value(transactionsPage(const [])),
+        ),
+      );
+
+      expect(find.text('Wallet not set up yet'), findsOneWidget);
+      expect(find.text('Recent Transactions'), findsNothing);
+    });
+
+    testWidgets('download statement shows an honest snackbar', (tester) async {
+      setSurface(tester);
+      await pumpScreen(
+        tester,
+        WalletScreen(
+          walletFuture: Future.value(walletSummary()),
+          transactionsFuture: Future.value(transactionsPage(const [])),
+        ),
+      );
+
+      await tester.tap(find.text('Download Statement'));
       await tester.pump();
 
-      await tester.tap(find.text('Gachibowli Super Over Qualifier'));
+      expect(
+        find.text('Statement downloads are not available yet.'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('withdraw shows an honest snackbar', (tester) async {
+      setSurface(tester);
+      await pumpScreen(
+        tester,
+        WalletScreen(
+          walletFuture: Future.value(walletSummary()),
+          transactionsFuture: Future.value(transactionsPage(const [])),
+        ),
+      );
+
+      await tester.tap(find.text('Withdraw'));
+      await tester.pump();
+
+      expect(
+        find.text('Withdrawals are not available yet.'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('Add bank opens the bank accounts screen', (tester) async {
+      setSurface(tester);
+      await pumpScreen(
+        tester,
+        WalletScreen(
+          walletFuture: Future.value(walletSummary()),
+          transactionsFuture: Future.value(transactionsPage(const [])),
+        ),
+      );
+
+      await tester.tap(find.text('Add bank'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(BankAccountsScreen), findsOneWidget);
+    });
+  });
+
+  group('WalletTransactionsScreen', () {
+    testWidgets('shows a loading skeleton', (tester) async {
+      setSurface(tester);
+      final page = Completer<RefereeWalletTransactionsPage>();
+
+      await tester.pumpWidget(
+        app(WalletTransactionsScreen(transactionsFuture: page.future)),
+      );
+      await tester.pump();
+
+      expect(find.byType(SportoShimmer), findsWidgets);
+
+      page.complete(transactionsPage(const []));
+      await tester.pump();
+    });
+
+    testWidgets('shows an error with retry', (tester) async {
+      setSurface(tester);
+      final page = Completer<RefereeWalletTransactionsPage>();
+
+      await tester.pumpWidget(
+        app(WalletTransactionsScreen(transactionsFuture: page.future)),
+      );
+      await tester.pump();
+
+      page.completeError(Exception('offline'));
+      await tester.pump();
+      await tester.pump();
+
+      expect(find.text('Unable to load transactions'), findsOneWidget);
+      expect(find.text('Retry'), findsOneWidget);
+    });
+
+    testWidgets('All tab renders real rows and tabs filter by category',
+        (tester) async {
+      setSurface(tester);
+      await pumpScreen(
+        tester,
+        WalletTransactionsScreen(
+          transactionsFuture: Future.value(
+            transactionsPage([
+              earningTx(
+                id: 1,
+                title: 'Older earning',
+                createdAt: '2026-09-09T10:00:00Z',
+              ),
+              withdrawalTx(
+                id: 2,
+                title: 'Newer payout',
+                createdAt: '2026-09-10T10:00:00Z',
+              ),
+            ]),
+          ),
+        ),
+      );
+
+      expect(find.byType(WalletLedgerTile), findsNWidgets(2));
+      expect(find.text('Older earning'), findsOneWidget);
+      expect(find.text('Newer payout'), findsOneWidget);
+
+      await tester.tap(find.text('Earnings'));
+      await tester.pump();
+      expect(find.byType(WalletLedgerTile), findsOneWidget);
+      expect(find.text('Older earning'), findsOneWidget);
+      expect(find.text('Newer payout'), findsNothing);
+
+      await tester.tap(find.text('Withdrawals'));
+      await tester.pump();
+      expect(find.byType(WalletLedgerTile), findsOneWidget);
+      expect(find.text('Newer payout'), findsOneWidget);
+      expect(find.text('Older earning'), findsNothing);
+
+      await tester.tap(find.text('All'));
+      await tester.pump();
+      expect(find.byType(WalletLedgerTile), findsNWidgets(2));
+    });
+
+    testWidgets('sort toggles the local ordering', (tester) async {
+      setSurface(tester);
+      await pumpScreen(
+        tester,
+        WalletTransactionsScreen(
+          transactionsFuture: Future.value(
+            transactionsPage([
+              earningTx(
+                id: 1,
+                title: 'Older earning',
+                createdAt: '2026-09-09T10:00:00Z',
+              ),
+              withdrawalTx(
+                id: 2,
+                title: 'Newer payout',
+                createdAt: '2026-09-10T10:00:00Z',
+              ),
+            ]),
+          ),
+        ),
+      );
+
+      List<String> visibleTitles() => tester
+          .widgetList<WalletLedgerTile>(find.byType(WalletLedgerTile))
+          .map((tile) => tile.transaction.displayTitle)
+          .toList(growable: false);
+
+      expect(visibleTitles().first, 'Newer payout');
+
+      await tester.tap(find.byType(WalletSortButton));
+      await tester.pump();
+
+      expect(visibleTitles().first, 'Older earning');
+    });
+
+    testWidgets('empty tabs show their own empty states', (tester) async {
+      setSurface(tester);
+      await pumpScreen(
+        tester,
+        WalletTransactionsScreen(
+          transactionsFuture: Future.value(transactionsPage(const [])),
+        ),
+      );
+
+      expect(find.text('No transactions yet'), findsOneWidget);
+
+      await tester.tap(find.text('Earnings'));
+      await tester.pump();
+      expect(find.text('No earnings yet'), findsOneWidget);
+
+      await tester.tap(find.text('Withdrawals'));
+      await tester.pump();
+      expect(find.text('No withdrawals yet'), findsOneWidget);
+    });
+
+    testWidgets('missing fields render em dashes, never invented values',
+        (tester) async {
+      setSurface(tester);
+      await pumpScreen(
+        tester,
+        WalletTransactionsScreen(
+          transactionsFuture: Future.value(
+            transactionsPage([RefereeWalletTransaction(id: 9)]),
+          ),
+        ),
+      );
+
+      expect(find.byType(WalletLedgerTile), findsOneWidget);
+      expect(find.text('—'), findsWidgets);
+    });
+
+    testWidgets('tapping a row opens the details screen', (tester) async {
+      setSurface(tester);
+      await pumpScreen(
+        tester,
+        WalletTransactionsScreen(
+          transactionsFuture: Future.value(
+            transactionsPage([earningTx(id: 7, title: 'Older earning')]),
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('Older earning'));
       await tester.pumpAndSettle();
 
       expect(find.byType(TransactionDetailsScreen), findsOneWidget);
       expect(find.text('Transaction Details'), findsOneWidget);
-      expect(find.text('+₹3,000'), findsOneWidget);
+      expect(find.text('+₹ 3,000'), findsOneWidget);
+      expect(find.text('TXN-7'), findsOneWidget);
+    });
+  });
+
+  group('TransactionDetailsScreen', () {
+    testWidgets('shows an explicit state without a transaction',
+        (tester) async {
+      setSurface(tester);
+      await pumpScreen(tester, const TransactionDetailsScreen());
+
+      expect(
+        find.text('Transaction details are not available yet.'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('renders only fields present on the tapped row',
+        (tester) async {
+      setSurface(tester);
+      await pumpScreen(
+        tester,
+        TransactionDetailsScreen(transaction: earningTx()),
+      );
+
+      expect(find.text('Transaction Details'), findsOneWidget);
+      expect(find.text('+₹ 3,000'), findsOneWidget);
       expect(find.text('Earnings'), findsOneWidget);
-      expect(find.text('Processing'), findsOneWidget);
+      expect(find.text('Paid'), findsOneWidget);
       expect(find.text('Transaction Ref'), findsOneWidget);
-      expect(find.text('TXN-88213'), findsOneWidget);
+      expect(find.text('TXN-1'), findsOneWidget);
       expect(find.text('Payment Method'), findsOneWidget);
       expect(find.text('Spoto Wallet Credit'), findsOneWidget);
       expect(find.text('Direction'), findsOneWidget);
       expect(find.text('Credited'), findsOneWidget);
       expect(find.text('Description'), findsOneWidget);
-      expect(find.text('Gachibowli Super Over Qualifier'), findsWidgets);
       expect(find.text('Match earnings'), findsOneWidget);
+      expect(find.text('Referee fee'), findsOneWidget);
       expect(find.text('Tournament Details'), findsOneWidget);
+      expect(
+        find.text('Gachibowli Super Over Qualifier'),
+        findsOneWidget,
+      );
     });
 
-    testWidgets('empty recent transactions show a clean empty state',
-        (tester) async {
+    testWidgets('omits sections whose fields are absent', (tester) async {
       setSurface(tester);
-      await tester.pumpWidget(
-        app(
-          const WalletScreen(
-            overview: WalletOverview(
-              balanceRupees: 0,
-              pendingSettlementRupees: 0,
-              totalEarningsRupees: 0,
-            ),
-          ),
+      await pumpScreen(
+        tester,
+        TransactionDetailsScreen(
+          transaction: RefereeWalletTransaction(id: 9),
         ),
       );
-      await tester.pump();
 
-      expect(find.text('No transactions yet'), findsOneWidget);
-    });
-
-    testWidgets('does not overflow at 320 px width', (tester) async {
-      setSurface(tester, size: const Size(320, 800));
-      await tester.pumpWidget(app(const WalletScreen()));
-      await tester.pump();
-
-      expect(tester.takeException(), isNull);
-    });
-  });
-
-  group('WalletTransactionsScreen', () {
-    testWidgets('All tab renders every transaction', (tester) async {
-      setSurface(tester);
-      await tester.pumpWidget(app(const WalletTransactionsScreen()));
-      await tester.pump();
-
-      expect(find.byType(WalletTransactionTile), findsNWidgets(2));
-      expect(find.text('Gachibowli Super Over Qualifier'), findsOneWidget);
-      expect(find.text('Hyd Super Over Premier League'), findsOneWidget);
-    });
-
-    testWidgets('Earnings and Withdrawals tabs filter the list',
-        (tester) async {
-      setSurface(tester);
-      await tester.pumpWidget(app(const WalletTransactionsScreen()));
-      await tester.pump();
-
-      await tester.tap(find.text('Earnings'));
-      await tester.pump();
-      expect(find.byType(WalletTransactionTile), findsNWidgets(2));
-
-      await tester.tap(find.text('Withdrawals'));
-      await tester.pump();
-      expect(find.byType(WalletTransactionTile), findsNothing);
-      expect(find.text('No withdrawals yet'), findsOneWidget);
-
-      await tester.tap(find.text('All'));
-      await tester.pump();
-      expect(find.byType(WalletTransactionTile), findsNWidgets(2));
-    });
-
-    testWidgets('empty list shows a clean empty state', (tester) async {
-      setSurface(tester);
-      await tester.pumpWidget(
-        app(const WalletTransactionsScreen(transactions: [])),
-      );
-      await tester.pump();
-
-      expect(find.text('No transactions yet'), findsOneWidget);
-      expect(find.byType(WalletTransactionTile), findsNothing);
-    });
-
-    testWidgets('transaction tap opens the details screen', (tester) async {
-      setSurface(tester);
-      await tester.pumpWidget(app(const WalletTransactionsScreen()));
-      await tester.pump();
-
-      await tester.tap(find.text('Hyd Super Over Premier League'));
-      await tester.pumpAndSettle();
-
-      expect(find.byType(TransactionDetailsScreen), findsOneWidget);
-      expect(find.text('Transaction Details'), findsOneWidget);
-      expect(find.text('+₹3,800'), findsOneWidget);
-      expect(find.text('TXN-88214'), findsOneWidget);
+      expect(find.text('Transaction Ref'), findsOneWidget);
+      expect(find.text('Payment Method'), findsNothing);
+      expect(find.text('Direction'), findsNothing);
+      expect(find.text('Description'), findsNothing);
+      expect(find.text('Tournament Details'), findsNothing);
+      expect(find.text('—'), findsWidgets);
     });
   });
 
   group('TournamentsHistoryScreen', () {
-    testWidgets('renders badges, team counts and card actions', (tester) async {
+    testWidgets('shows a loading skeleton', (tester) async {
       setSurface(tester);
-      await tester.pumpWidget(app(const TournamentsHistoryScreen()));
+      final page = Completer<RefereeTournamentHistoryPage>();
+
+      await tester.pumpWidget(
+        app(TournamentsHistoryScreen(tournamentsFuture: page.future)),
+      );
       await tester.pump();
 
-      expect(find.text('Tournaments History'), findsOneWidget);
-      expect(find.text('Completed'), findsOneWidget);
-      expect(find.text('Cancelled'), findsOneWidget);
-      expect(find.text('Create'), findsOneWidget);
-      expect(find.text('Local'), findsNWidgets(2));
-      expect(find.text('Approved'), findsNWidgets(2));
-      expect(find.text('Hitech City Super Over Cup'), findsNWidgets(2));
-      expect(find.text('Hitech Box Cricket Arena'), findsNWidgets(2));
-      expect(find.text('Aug 5'), findsNWidgets(2));
-      expect(find.text('41/64 Teams'), findsNWidgets(2));
-      expect(find.text('₹ 3,800'), findsNWidgets(2));
-      expect(find.text('View'), findsNWidgets(2));
-      expect(find.text('Manage'), findsNWidgets(2));
-      expect(find.text('Earnings'), findsNWidgets(2));
+      expect(find.byType(SportoShimmer), findsWidgets);
+
+      page.complete(tournamentsPage(const []));
+      await tester.pump();
     });
 
-    testWidgets('Cancelled filter shows its empty state', (tester) async {
+    testWidgets('shows an error with retry', (tester) async {
       setSurface(tester);
-      await tester.pumpWidget(app(const TournamentsHistoryScreen()));
+      final page = Completer<RefereeTournamentHistoryPage>();
+
+      await tester.pumpWidget(
+        app(TournamentsHistoryScreen(tournamentsFuture: page.future)),
+      );
       await tester.pump();
+
+      page.completeError(Exception('offline'));
+      await tester.pump();
+      await tester.pump();
+
+      expect(find.text('Unable to load tournaments'), findsOneWidget);
+      expect(find.text('Retry'), findsOneWidget);
+    });
+
+    testWidgets('renders only the fields supplied by the API', (tester) async {
+      setSurface(tester);
+      await pumpScreen(
+        tester,
+        TournamentsHistoryScreen(
+          tournamentsFuture: Future.value(
+            tournamentsPage([
+              tournament(
+                id: 1,
+                name: 'Hitech City Super Over Cup',
+                code: 'T-1001',
+                status: 7,
+                currency: 'INR',
+              ),
+              tournament(
+                id: 2,
+                name: 'Cancelled Cup',
+                code: 'T-1002',
+                status: 8,
+                currency: 'USD',
+              ),
+            ]),
+          ),
+        ),
+      );
+
+      expect(find.text('Hitech City Super Over Cup'), findsOneWidget);
+      expect(find.text('T-1001'), findsOneWidget);
+      expect(find.text('INR'), findsOneWidget);
+      expect(find.text('Cancelled Cup'), findsNothing);
+      expect(find.textContaining('Teams'), findsNothing);
+      expect(find.textContaining('Venue'), findsNothing);
+
+      await tester.tap(find.text('Cancelled'));
+      await tester.pump();
+
+      expect(find.text('Cancelled Cup'), findsOneWidget);
+      expect(find.text('T-1002'), findsOneWidget);
+      expect(find.text('USD'), findsOneWidget);
+      expect(find.text('Hitech City Super Over Cup'), findsNothing);
+    });
+
+    testWidgets('missing code and currency render em dashes', (tester) async {
+      setSurface(tester);
+      await pumpScreen(
+        tester,
+        TournamentsHistoryScreen(
+          tournamentsFuture: Future.value(
+            tournamentsPage([
+              tournament(
+                id: 1,
+                name: 'Hitech City Super Over Cup',
+                status: 7,
+              ),
+            ]),
+          ),
+        ),
+      );
+
+      expect(find.text('—'), findsNWidgets(2));
+    });
+
+    testWidgets('cancelled filter shows its empty state', (tester) async {
+      setSurface(tester);
+      await pumpScreen(
+        tester,
+        TournamentsHistoryScreen(
+          tournamentsFuture: Future.value(
+            tournamentsPage([
+              tournament(id: 1, name: 'Completed Cup', status: 7),
+            ]),
+          ),
+        ),
+      );
 
       await tester.tap(find.text('Cancelled'));
       await tester.pump();
 
       expect(find.text('No cancelled tournaments yet'), findsOneWidget);
-      expect(find.text('Hitech City Super Over Cup'), findsNothing);
+      expect(find.text('Completed Cup'), findsNothing);
     });
 
-    testWidgets('does not overflow at 360 px width', (tester) async {
-      setSurface(tester, size: const Size(360, 800));
-      await tester.pumpWidget(app(const TournamentsHistoryScreen()));
+    testWidgets('card actions show honest snackbars', (tester) async {
+      setSurface(tester);
+      await pumpScreen(
+        tester,
+        TournamentsHistoryScreen(
+          tournamentsFuture: Future.value(
+            tournamentsPage([
+              tournament(id: 1, name: 'Completed Cup', status: 7),
+            ]),
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('View'));
+      await tester.pump();
+      expect(find.text('View is not available yet.'), findsOneWidget);
+    });
+
+    testWidgets('create shows an honest snackbar', (tester) async {
+      setSurface(tester);
+      await pumpScreen(
+        tester,
+        TournamentsHistoryScreen(
+          tournamentsFuture: Future.value(tournamentsPage(const [])),
+        ),
+      );
+
+      await tester.tap(find.text('Create'));
       await tester.pump();
 
-      expect(tester.takeException(), isNull);
+      expect(
+        find.text('Tournament creation is not available yet.'),
+        findsOneWidget,
+      );
     });
   });
 
   group('responsive layout', () {
     testWidgets('all four screens fit between 320 and 430 px', (tester) async {
       final screens = <Widget>[
-        const TournamentsHistoryScreen(),
-        const WalletScreen(),
-        const WalletTransactionsScreen(),
-        const TransactionDetailsScreen(),
+        TournamentsHistoryScreen(
+          tournamentsFuture: Future.value(
+            tournamentsPage([
+              tournament(
+                id: 1,
+                name: 'Hitech City Super Over Cup',
+                code: 'T-1001',
+                status: 7,
+                currency: 'INR',
+              ),
+            ]),
+          ),
+        ),
+        WalletScreen(
+          walletFuture: Future.value(walletSummary()),
+          transactionsFuture: Future.value(
+            transactionsPage([earningTx()]),
+          ),
+        ),
+        WalletTransactionsScreen(
+          transactionsFuture: Future.value(
+            transactionsPage([earningTx(), withdrawalTx()]),
+          ),
+        ),
+        TransactionDetailsScreen(transaction: earningTx()),
       ];
       for (final size in const [Size(320, 800), Size(430, 900)]) {
         setSurface(tester, size: size);
         for (final screen in screens) {
           await tester.pumpWidget(app(screen));
+          await tester.pump();
           await tester.pump();
           expect(
             tester.takeException(),
@@ -256,38 +783,6 @@ void main() {
           );
         }
       }
-    });
-  });
-
-  group('TransactionDetailsScreen', () {
-    testWidgets('renders the receipt fields', (tester) async {
-      setSurface(tester);
-      await tester.pumpWidget(
-        app(
-          const TransactionDetailsScreen(
-            detail: WalletFigmaData.transactionDetail,
-          ),
-        ),
-      );
-      await tester.pump();
-
-      expect(find.text('Transaction Details'), findsOneWidget);
-      expect(find.textContaining('TXN-88213'), findsOneWidget);
-      expect(find.text('+₹1,000'), findsOneWidget);
-      expect(find.text('Sponsorship'), findsOneWidget);
-      expect(find.text('Completed'), findsOneWidget);
-      expect(find.text('Transaction Ref'), findsOneWidget);
-      expect(find.text('TXN-88301'), findsOneWidget);
-      expect(find.text('Payment Method'), findsOneWidget);
-      expect(find.text('Spoto Wallet Credit'), findsOneWidget);
-      expect(find.text('Direction'), findsOneWidget);
-      expect(find.text('Credited'), findsOneWidget);
-      expect(find.text('Description'), findsOneWidget);
-      expect(find.text('Kondapur Super Over Cup'), findsOneWidget);
-      expect(find.text('Winner Prize (your split)'), findsOneWidget);
-      expect(find.text('₹1000'), findsOneWidget);
-      expect(find.text('Tournament Details'), findsOneWidget);
-      expect(find.text('Spoto Kondapur Super Over Cup'), findsOneWidget);
     });
   });
 }
