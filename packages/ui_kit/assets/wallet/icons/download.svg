@@ -1,0 +1,14 @@
+<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="vuesax/linear/logout">
+<g id="logout">
+<path id="Vector" d="M7 9L10 12L13 9M10 12V4" stroke-width="1.2" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" stroke="url(#paint0_linear_3169_1651)"/>
+<path id="Vector_2" d="M17 9.99805V11.998C17 14.2072 15.2091 15.998 13 15.998H7C4.79086 15.998 3 14.2072 3 11.998V9.99805" stroke-width="1.2" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round" stroke="white"/>
+</g>
+</g>
+<defs>
+<linearGradient id="paint0_linear_3169_1651" x1="10" y1="12" x2="10" y2="4" gradientUnits="userSpaceOnUse">
+<stop stop-color="#7AD3FF"/>
+<stop offset="1" stop-color="#4FBAF0"/>
+</linearGradient>
+</defs>
+</svg>

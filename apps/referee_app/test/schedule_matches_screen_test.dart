@@ -140,7 +140,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('Matches'), findsOneWidget);
+      expect(find.text('Schedule'), findsOneWidget);
       expect(find.text('Open Live Match'), findsOneWidget);
       expect(find.text('Thunder Titans'), findsWidgets);
 
@@ -153,9 +153,9 @@ void main() {
 
       await tester.tap(find.text('Completed').first);
       await tester.pumpAndSettle();
-      expect(find.text('Delhi Warriors Won'), findsOneWidget);
-      expect(find.text('View Report'), findsOneWidget);
-      expect(find.text('90/2'), findsWidgets);
+      expect(find.text('Delhi Warriors'), findsWidgets);
+      expect(find.text('Winner'), findsWidgets);
+      expect(find.text('Completed'), findsWidgets);
       expect(tester.takeException(), isNull);
     }
   });
@@ -166,7 +166,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Search'));
+    await tester.tap(find.text('Search cricket, football..'));
     await tester.pumpAndSettle();
 
     await tester.enterText(find.byType(TextField), 'Delhi');

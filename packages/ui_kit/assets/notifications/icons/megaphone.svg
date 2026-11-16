@@ -1,0 +1,11 @@
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="megaphone_grey" x1="5" y1="6" x2="19" y2="18" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#E6E9ED"/>
+      <stop offset="1" stop-color="#AEB6C2"/>
+    </linearGradient>
+  </defs>
+  <path d="M4 10.35V13.1C4 14.24 4.92 15.16 6.05 15.16H7.16L8.62 18.9C8.82 19.43 9.33 19.78 9.89 19.78H10.31C11.13 19.78 11.69 18.99 11.42 18.22L10.22 14.78H11.05L18.9 18.03C19.85 18.42 20.88 17.73 20.88 16.7V6.75C20.88 5.72 19.85 5.03 18.9 5.42L11.05 8.67H6.05C4.92 8.67 4 9.59 4 10.35Z" fill="url(#megaphone_grey)" stroke="#8F96A3" stroke-width="0.8" stroke-linejoin="round"/>
+  <path d="M8.15 9V14.8" stroke="#F6F8FA" stroke-width="1"/>
+  <path d="M13 8.9V14.6" stroke="#C3CAD4" stroke-width="0.8" opacity="0.8"/>
+</svg>

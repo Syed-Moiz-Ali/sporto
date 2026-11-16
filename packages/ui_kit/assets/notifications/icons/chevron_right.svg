@@ -1,0 +1,9 @@
+<svg width="8" height="13" viewBox="0 0 8 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M1.3 1.3L6.1 6.5L1.3 11.7" stroke="url(#chevron_gradient)" stroke-linecap="round" stroke-linejoin="round"/>
+  <defs>
+    <linearGradient id="chevron_gradient" x1="3.7" y1="1.3" x2="3.7" y2="11.7" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#7AD3FF"/>
+      <stop offset="1" stop-color="#4FBAF0"/>
+    </linearGradient>
+  </defs>
+</svg>

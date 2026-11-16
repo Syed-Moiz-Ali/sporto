@@ -3,6 +3,7 @@ import 'package:core/core.dart';
 
 import '../../app/router/app_router.dart';
 import '../di/dependency_injector.dart';
+import 'referee_session_cleanup.dart';
 
 bool _handlingSessionExpiry = false;
 
@@ -16,6 +17,7 @@ Future<void> handleSessionExpired() async {
   _handlingSessionExpiry = true;
   try {
     await AuthSessionStore().clear();
+    clearRefereeUserState();
     // Reset auth state (drops the cached user from memory) so the app falls
     // back to the login screen instead of showing screen-level auth errors.
     DependencyInjector.instance.authBloc.add(SessionExpiredEvent());

@@ -36,7 +36,16 @@ class _SportoShimmerState extends State<SportoShimmer>
     _controller ??= AnimationController(
       vsync: this,
       duration: layout?.shimmerDuration ?? const Duration(milliseconds: 1000),
-    )..repeat();
+    );
+    final reduceMotion =
+        MediaQuery.maybeOf(context)?.disableAnimations ?? false;
+    if (reduceMotion) {
+      _controller!
+        ..stop()
+        ..value = 0.5;
+    } else if (!_controller!.isAnimating) {
+      _controller!.repeat();
+    }
   }
 
   @override
@@ -67,8 +76,8 @@ class _SportoShimmerState extends State<SportoShimmer>
     final (begin, end) =
         _alignment(layout?.shimmerDirection ?? ShimmerDirection.leftToRight);
     final curve = layout?.shimmerCurve ?? Curves.easeInOut;
-    final base =
-        tokens?.shimmerBase ?? theme.colorScheme.onSurface.withValues(alpha: 0.08);
+    final base = tokens?.shimmerBase ??
+        theme.colorScheme.onSurface.withValues(alpha: 0.08);
     final highlight = tokens?.shimmerHighlight ??
         theme.colorScheme.onSurface.withValues(alpha: 0.22);
 

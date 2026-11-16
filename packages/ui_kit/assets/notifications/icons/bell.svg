@@ -1,0 +1,12 @@
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bell_gold" x1="6" y1="3" x2="18" y2="21" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFE08A"/>
+      <stop offset="0.55" stop-color="#F4B41A"/>
+      <stop offset="1" stop-color="#D08A08"/>
+    </linearGradient>
+  </defs>
+  <path d="M12 2.6C8.35 2.6 5.85 5.15 5.85 8.8V12.1C5.85 13.02 5.53 13.75 4.94 14.42L3.93 15.55C3.2 16.37 3.72 17.7 4.82 17.7H19.18C20.28 17.7 20.8 16.37 20.07 15.55L19.06 14.42C18.47 13.75 18.15 13.02 18.15 12.1V8.8C18.15 5.15 15.65 2.6 12 2.6Z" fill="url(#bell_gold)" stroke="#B7790A" stroke-width="0.8"/>
+  <path d="M9.45 19.05C9.72 20.36 10.72 21.25 12 21.25C13.28 21.25 14.28 20.36 14.55 19.05" stroke="#B7790A" stroke-width="1.4" stroke-linecap="round"/>
+  <path d="M9.25 7.4C9.55 5.95 10.6 4.98 12.05 4.85" stroke="#FFF3C4" stroke-width="1.1" stroke-linecap="round" opacity="0.95"/>
+</svg>

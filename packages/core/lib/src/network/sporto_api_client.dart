@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 
 import 'sporto_api_endpoints.dart';
 
@@ -32,11 +33,12 @@ class SportoApiClient {
                 'Accept': 'application/json',
               },
             )) {
-    this.dio.interceptors.add(_SportoDioLogInterceptor());
+    if (kDebugMode) {
+      this.dio.interceptors.add(_SportoDioLogInterceptor());
+    }
     this.dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) async {
         final token = await _tokenProvider?.call();
-        log('Token: $token');
         if (token != null && token.isNotEmpty) {
           options.headers['Authorization'] = 'Bearer $token';
         }
@@ -248,13 +250,36 @@ class _SportoDioLogInterceptor extends Interceptor {
     return '${DateTime.now().difference(startedAt).inMilliseconds}ms';
   }
 
+  static const _sensitiveKeys = <String>{
+    'authorization',
+    'token',
+    'access_token',
+    'refresh_token',
+    'session_key',
+    'otp',
+    'account_number',
+    'accountnumber',
+    'account_number_masked',
+    'bank_account',
+    'ifsc',
+    'ifsc_code',
+    'upi_id',
+    'upi',
+    'mobile',
+    'mobile_number',
+    'phone',
+    'email',
+    'address',
+    'pan',
+    'aadhaar',
+    'aadhar',
+  };
+
   static Object? _redact(Object? value) {
     if (value is Map) {
       return value.map((key, val) {
         final keyText = key.toString().toLowerCase();
-        if (keyText == 'authorization' ||
-            keyText.contains('token') ||
-            keyText.contains('otp')) {
+        if (_sensitiveKeys.any(keyText.contains)) {
           return MapEntry(key, '<redacted>');
         }
         return MapEntry(key, _redact(val));

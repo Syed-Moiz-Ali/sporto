@@ -10,6 +10,7 @@ import 'package:ui_kit/ui_kit.dart';
 
 import '../../../application/application/referee_application_cubit.dart';
 import '../../../../core/upload_image_compressor.dart';
+import '../../../../core/session/referee_session_cleanup.dart';
 import '../../../matches/presentation/screens/referee_shell_screen.dart';
 
 /// Routes an authenticated referee using the server application state.
@@ -446,7 +447,10 @@ class _RefereeApplicationGateState extends State<_RefereeApplicationGate>
         5: 'Badminton',
       }[id];
 
-  void _logout() => context.read<AuthBloc>().add(LogoutRequestedEvent());
+  void _logout() {
+    clearRefereeUserState();
+    context.read<AuthBloc>().add(LogoutRequestedEvent());
+  }
 }
 
 class _ApplicationLoadingScreen extends StatelessWidget {

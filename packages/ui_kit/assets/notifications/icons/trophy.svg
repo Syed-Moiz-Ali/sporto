@@ -1,0 +1,16 @@
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="trophy_gold" x1="6.5" y1="2.8" x2="17.5" y2="16" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFE79B"/>
+      <stop offset="0.55" stop-color="#F4B41A"/>
+      <stop offset="1" stop-color="#C98505"/>
+    </linearGradient>
+  </defs>
+  <path d="M7 3.2H17V8.4C17 11.4 14.76 13.8 12 13.8C9.24 13.8 7 11.4 7 8.4V3.2Z" fill="url(#trophy_gold)" stroke="#B7790A" stroke-width="0.8"/>
+  <path d="M7.1 5.2H4.7C4.7 8.02 6.05 9.7 8.25 10.02" stroke="#C98505" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M16.9 5.2H19.3C19.3 8.02 17.95 9.7 15.75 10.02" stroke="#C98505" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M12 13.8V17" stroke="#B7790A" stroke-width="1.6" stroke-linecap="round"/>
+  <path d="M8.4 20.4H15.6" stroke="#B7790A" stroke-width="1.8" stroke-linecap="round"/>
+  <path d="M9.2 17H14.8C14.8 18.88 13.55 20.2 12 20.2C10.45 20.2 9.2 18.88 9.2 17Z" fill="url(#trophy_gold)" stroke="#B7790A" stroke-width="0.7"/>
+  <path d="M9.2 4.4H10.1" stroke="#FFF6D2" stroke-width="1" stroke-linecap="round" opacity="0.9"/>
+</svg>

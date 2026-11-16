@@ -5,6 +5,7 @@ import 'package:core/core.dart';
 import 'package:referee_data/referee_data.dart';
 import '../../../../app/router/app_router.dart';
 import '../../../../core/di/dependency_injector.dart';
+import '../../../../core/session/referee_session_cleanup.dart';
 import 'package:ui_kit/ui_kit.dart';
 
 class RefereeProfileScreen extends StatefulWidget {
@@ -82,7 +83,7 @@ class _RefereeProfileScreenState extends State<RefereeProfileScreen> {
                 20 * scale,
                 10 * scale,
                 20 * scale,
-                20 * scale,
+                96 * scale,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -126,15 +127,22 @@ class _RefereeProfileScreenState extends State<RefereeProfileScreen> {
                       ),
                       const _MenuItem(
                           icon: Icons.bar_chart_rounded, label: 'Statistic'),
-                      const _MenuItem(
-                          icon: Icons.emoji_events_outlined,
-                          label: 'My Tournaments'),
-                      const _MenuItem(
-                          icon: Icons.account_balance_wallet_outlined,
-                          label: 'Wallet Transaction'),
-                      const _MenuItem(
-                          icon: Icons.account_balance_outlined,
-                          label: 'Bank Account'),
+                      _MenuItem(
+                        icon: Icons.emoji_events_outlined,
+                        label: 'My Tournaments',
+                        onTap: () =>
+                            context.push(AppRouter.tournamentsHistoryRoute),
+                      ),
+                      _MenuItem(
+                        icon: Icons.account_balance_wallet_outlined,
+                        label: 'Wallet Transaction',
+                        onTap: () => context.push(AppRouter.walletRoute),
+                      ),
+                      _MenuItem(
+                        icon: Icons.account_balance_outlined,
+                        label: 'Bank Account',
+                        onTap: () => context.push(AppRouter.bankAccountsRoute),
+                      ),
                     ],
                     opacity: 1.0,
                     labelColor: Colors.white,
@@ -493,7 +501,8 @@ class _RefereeProfileScreenState extends State<RefereeProfileScreen> {
     return InkWell(
       onTap: item.onTap,
       borderRadius: BorderRadius.circular(10 * scale),
-      child: Padding(
+      child: Container(
+        constraints: BoxConstraints(minHeight: 44 * scale),
         padding: EdgeInsets.symmetric(vertical: 2 * scale),
         child: Row(
           children: [
@@ -609,6 +618,7 @@ class _RefereeProfileScreenState extends State<RefereeProfileScreen> {
               ),
               onPressed: () {
                 Navigator.of(dialogContext).pop();
+                clearRefereeUserState();
                 context.read<AuthBloc>().add(LogoutRequestedEvent());
               },
               child: const Text('Logout'),

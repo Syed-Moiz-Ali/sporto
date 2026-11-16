@@ -102,7 +102,10 @@ class _ScheduleMatchesScreenState extends State<ScheduleMatchesScreen> {
     final resolved = resolveMatchAction(match);
     switch (resolved.action) {
       case MatchAction.viewReport:
-        context.push('${AppRouter.matchResultRoute}?matchId=${match.id}');
+        context.push(
+          '${AppRouter.matchSummaryRoute}?matchId=${match.id}',
+          extra: match,
+        );
       case MatchAction.continueScoring:
       case MatchAction.startScoring:
         context.push(
@@ -389,45 +392,47 @@ class _MatchesHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 44 * scale,
-      child: Row(
+      child: Column(
         children: [
-          Expanded(
-            child: Text(
-              'Matches',
-              style: TextStyle(
-                fontSize: 20 * scale,
-                fontWeight: FontWeight.w700,
-                color: const Color(0xFFFFFFFF),
-              ),
+          SizedBox(
+            height: 34 * scale,
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'Schedule',
+                    style: TextStyle(
+                      fontSize: 20 * scale,
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xFFFFFFFF),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
+          SizedBox(height: 10 * scale),
           GestureDetector(
             onTap: onSearch,
             behavior: HitTestBehavior.opaque,
             child: Container(
-              height: 32 * scale,
-              constraints: BoxConstraints(maxWidth: 140 * scale),
-              padding: EdgeInsets.symmetric(
-                horizontal: 8 * scale,
-                vertical: 6 * scale,
-              ),
+              height: 46 * scale,
+              padding: EdgeInsets.symmetric(horizontal: 14 * scale),
               decoration: BoxDecoration(
-                color: const Color(0x1F767680),
+                color: const Color(0xFF12161C),
                 borderRadius: BorderRadius.circular(16 * scale),
-                border: Border.all(color: const Color(0x14FFFFFF)),
+                border: Border.all(color: const Color(0x1AFFFFFF)),
               ),
               child: Row(
-                mainAxisSize: MainAxisSize.min,
                 children: [
                   SportoSvgIcon(
                     SportoHomeRedesignIcons.search,
-                    size: 20 * scale,
+                    size: 22 * scale,
                   ),
-                  SizedBox(width: 8 * scale),
-                  Flexible(
+                  SizedBox(width: 10 * scale),
+                  Expanded(
                     child: Text(
-                      query.isEmpty ? 'Search' : query,
+                      query.isEmpty ? 'Search cricket, football..' : query,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
@@ -436,6 +441,16 @@ class _MatchesHeader extends StatelessWidget {
                         color: const Color(0xFFA0A0A0),
                       ),
                     ),
+                  ),
+                  Container(
+                    width: 0.8 * scale,
+                    height: 22 * scale,
+                    color: const Color(0x1AFFFFFF),
+                  ),
+                  SizedBox(width: 10 * scale),
+                  SportoSvgIcon(
+                    SportoHomeRedesignIcons.mic,
+                    size: 22 * scale,
                   ),
                 ],
               ),
@@ -463,7 +478,7 @@ class _MatchesTabs extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 34 * scale,
+      height: 44 * scale,
       padding: EdgeInsets.symmetric(horizontal: 20 * scale),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
@@ -481,69 +496,74 @@ class _MatchesTabs extends StatelessWidget {
           for (var i = 0; i < _labels.length; i++) ...[
             if (i > 0) SizedBox(width: 16 * scale),
             Flexible(
-              child: GestureDetector(
-                onTap: () => onSelected(i),
-                behavior: HitTestBehavior.opaque,
-                child: SizedBox(
-                  height: 34 * scale,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (i == 0) ...[
-                            Container(
-                              width: 8 * scale,
-                              height: 8 * scale,
-                              decoration: const BoxDecoration(
-                                shape: BoxShape.circle,
-                                gradient: LinearGradient(
-                                  colors: [
-                                    Color(0xFFFF4444),
-                                    Color(0xFFFF1919),
-                                  ],
+              child: Semantics(
+                button: true,
+                selected: selected == i,
+                label: _labels[i],
+                child: GestureDetector(
+                  onTap: () => onSelected(i),
+                  behavior: HitTestBehavior.opaque,
+                  child: SizedBox(
+                    height: 44 * scale,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (i == 0) ...[
+                              Container(
+                                width: 8 * scale,
+                                height: 8 * scale,
+                                decoration: const BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      Color(0xFFFF4444),
+                                      Color(0xFFFF1919),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              SizedBox(width: 6 * scale),
+                            ],
+                            Flexible(
+                              child: Text(
+                                _labels[i],
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 14 * scale,
+                                  fontWeight: selected == i
+                                      ? FontWeight.w600
+                                      : FontWeight.w400,
+                                  color: selected == i
+                                      ? const Color(0xFFFFFFFF)
+                                      : const Color(0xFFA0A0A0),
                                 ),
                               ),
                             ),
-                            SizedBox(width: 6 * scale),
                           ],
-                          Flexible(
-                            child: Text(
-                              _labels[i],
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: 14 * scale,
-                                fontWeight: selected == i
-                                    ? FontWeight.w600
-                                    : FontWeight.w400,
-                                color: selected == i
-                                    ? const Color(0xFFFFFFFF)
-                                    : const Color(0xFFA0A0A0),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 4 * scale),
-                      AnimatedContainer(
-                        duration: const Duration(milliseconds: 160),
-                        width: 40 * scale,
-                        height: 2 * scale,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(2),
-                          gradient: selected == i
-                              ? const LinearGradient(
-                                  colors: [
-                                    Color(0xFFED7B00),
-                                    Color(0xFFCF9E24),
-                                  ],
-                                )
-                              : null,
                         ),
-                      ),
-                    ],
+                        SizedBox(height: 4 * scale),
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 160),
+                          width: 40 * scale,
+                          height: 2 * scale,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(2),
+                            gradient: selected == i
+                                ? const LinearGradient(
+                                    colors: [
+                                      Color(0xFFED7B00),
+                                      Color(0xFFCF9E24),
+                                    ],
+                                  )
+                                : null,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -1426,31 +1446,10 @@ class _CompletedMatchCard extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  _BadgePill(
-                    scale: scale,
-                    label: _stage(match),
-                    textColor: const Color(0xFFFFFFFF),
-                    background: const Color(0x332BB673),
-                    border: const Color(0xFF2BB673),
-                  ),
-                  const Spacer(),
-                  Flexible(
-                    child: Text(
-                      requestScheduleText(match),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 12 * scale,
-                        fontWeight: FontWeight.w600,
-                        color: const Color(0xFFAAAAAA),
-                      ),
-                    ),
-                  ),
-                  const Spacer(),
                   Container(
                     padding: EdgeInsets.symmetric(
-                      horizontal: 6 * scale,
-                      vertical: 2 * scale,
+                      horizontal: 8 * scale,
+                      vertical: 3 * scale,
                     ),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10 * scale),
@@ -1464,156 +1463,180 @@ class _CompletedMatchCard extends StatelessWidget {
                         colors: [Color(0xFF7AD3FF), Color(0xFF4FBAF0)],
                       ),
                       style: TextStyle(
-                        fontSize: 12 * scale,
+                        fontSize: 11 * scale,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
                   ),
-                ],
-              ),
-              SizedBox(height: 8 * scale),
-              Text(
-                match.displayTournament,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 16 * scale,
-                  fontWeight: FontWeight.w600,
-                  color: const Color(0xFFFFFFFF),
-                ),
-              ),
-              SizedBox(height: 2 * scale),
-              Row(
-                children: [
-                  SportoAssetIcon(
-                    SportoAssets.locationPin,
-                    size: 16 * scale,
-                    color: const Color(0xFFA0A0A0),
-                  ),
-                  SizedBox(width: 2 * scale),
-                  Expanded(
+                  const Spacer(),
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 8 * scale,
+                      vertical: 3 * scale,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0x14FF58DD),
+                      borderRadius: BorderRadius.circular(10 * scale),
+                    ),
                     child: Text(
-                      match.displayVenue,
+                      _sourceLabel(match),
+                      style: TextStyle(
+                        fontSize: 10 * scale,
+                        fontWeight: FontWeight.w500,
+                        color: const Color(0xFFDC65AC),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 8 * scale),
+                  Flexible(
+                    child: Text(
+                      requestScheduleText(match),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.right,
                       style: TextStyle(
-                        fontSize: 12 * scale,
+                        fontSize: 11 * scale,
                         fontWeight: FontWeight.w500,
-                        color: const Color(0xFFA0A0A0),
+                        color: const Color(0xFFAAAAAA),
                       ),
                     ),
                   ),
                 ],
               ),
-              SizedBox(height: 8 * scale),
+              SizedBox(height: 10 * scale),
               Row(
                 children: [
+                  Container(
+                    width: 34 * scale,
+                    height: 34 * scale,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [Color(0xFF2BB673), Color(0xFF1E7F53)],
+                      ),
+                      borderRadius: BorderRadius.circular(8 * scale),
+                    ),
+                    child: Text(
+                      _initials(match.displayTournament),
+                      style: TextStyle(
+                        fontSize: 13 * scale,
+                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFFFFFFFF),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 10 * scale),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          match.displayTeamA,
+                          match.displayTournament,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            fontSize: 12 * scale,
-                            fontWeight: FontWeight.w400,
-                            color: const Color(0xFFA0A0A0),
-                          ),
-                        ),
-                        RefereeGradientText(
-                          _teamScore(match.teamA),
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFF99FFA3), Color(0xFF68EE76)],
-                          ),
-                          style: TextStyle(
-                            fontSize: 14 * scale,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8 * scale),
-                    child: Text(
-                      'Vs',
-                      style: TextStyle(
-                        fontSize: 12 * scale,
-                        fontWeight: FontWeight.w700,
-                        color: const Color(0xFFAAAAAA),
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          match.displayTeamB,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          textAlign: TextAlign.right,
-                          style: TextStyle(
-                            fontSize: 12 * scale,
-                            fontWeight: FontWeight.w400,
-                            color: const Color(0xFFA0A0A0),
-                          ),
-                        ),
-                        Text(
-                          _teamScore(match.teamB),
-                          textAlign: TextAlign.right,
-                          style: TextStyle(
-                            fontSize: 14 * scale,
-                            fontWeight: FontWeight.w700,
+                            fontSize: 16 * scale,
+                            fontWeight: FontWeight.w600,
                             color: const Color(0xFFFFFFFF),
                           ),
+                        ),
+                        SizedBox(height: 2 * scale),
+                        Row(
+                          children: [
+                            Text(
+                              'Cricket',
+                              style: TextStyle(
+                                fontSize: 11 * scale,
+                                fontWeight: FontWeight.w500,
+                                color: const Color(0xFF2BB673),
+                              ),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 5 * scale,
+                              ),
+                              child: Text(
+                                '\u00B7',
+                                style: TextStyle(
+                                  fontSize: 11 * scale,
+                                  color: const Color(0xFFA0A0A0),
+                                ),
+                              ),
+                            ),
+                            SportoAssetIcon(
+                              SportoAssets.locationPin,
+                              size: 13 * scale,
+                              color: const Color(0xFFA0A0A0),
+                            ),
+                            SizedBox(width: 2 * scale),
+                            Expanded(
+                              child: Text(
+                                match.displayVenue,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 11 * scale,
+                                  fontWeight: FontWeight.w500,
+                                  color: const Color(0xFFA0A0A0),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
                   ),
                 ],
               ),
-              SizedBox(height: 8 * scale),
-              _CardDivider(scale: scale),
-              SizedBox(height: 6 * scale),
-              Row(
-                children: [
-                  Container(
-                    width: 8 * scale,
-                    height: 8 * scale,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: LinearGradient(
-                        colors: [Color(0xFF99FFA3), Color(0xFF68EE76)],
-                      ),
+              SizedBox(height: 10 * scale),
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.symmetric(
+                  horizontal: 8 * scale,
+                  vertical: 6 * scale,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0x1AF4B41A),
+                  borderRadius: BorderRadius.circular(10 * scale),
+                  border: Border.all(color: const Color(0x33F4B41A)),
+                ),
+                child: Row(
+                  children: [
+                    SportoSvgIcon(
+                      'assets/schedule_redesign/icons/trophy.svg',
+                      size: 28 * scale,
                     ),
-                  ),
-                  SizedBox(width: 4 * scale),
-                  Expanded(
-                    child: RefereeGradientText(
-                      _winnerLabel(match),
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFF99FFA3), Color(0xFF68EE76)],
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 14 * scale,
-                        fontWeight: FontWeight.w600,
-                      ),
+                    SizedBox(width: 8 * scale),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Winner',
+                          style: TextStyle(
+                            fontSize: 9 * scale,
+                            fontWeight: FontWeight.w500,
+                            color: const Color(0xFFA0A0A0),
+                            height: 1.1,
+                          ),
+                        ),
+                        SizedBox(height: 2 * scale),
+                        Text(
+                          _winnerLabel(match),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 12 * scale,
+                            fontWeight: FontWeight.w600,
+                            color: const Color(0xFFFFFFFF),
+                            height: 1.1,
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                  SizedBox(width: 8 * scale),
-                  _OutlineActionButton(
-                    scale: scale,
-                    label: 'View Report',
-                    width: 101,
-                    height: 30,
-                    onTap: onOpen,
-                  ),
-                ],
+                  ],
+                ),
               ),
             ],
           ),
@@ -2078,6 +2101,35 @@ String _teamScore(RefereeMatchTeam? team) {
   return score.isEmpty ? '—' : score;
 }
 
+String _sourceLabel(RefereeMatchResponse match) {
+  final raw = match.raw;
+  final source = (raw['booking_source'] ??
+          raw['request_type'] ??
+          raw['booked_by_role'] ??
+          '')
+      .toString()
+      .toLowerCase();
+  if (source.contains('partner')) return 'by Partner';
+  if (source.contains('user') || match.isBooking) return 'by User';
+  return 'by Partner';
+}
+
+String _initials(String value) {
+  final parts = value
+      .trim()
+      .split(RegExp(r'\s+'))
+      .where((part) => part.isNotEmpty)
+      .toList();
+  if (parts.isEmpty) return '?';
+  if (parts.length == 1) {
+    final word = parts.first;
+    return word.length >= 2
+        ? word.substring(0, 2).toUpperCase()
+        : word.toUpperCase();
+  }
+  return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
+}
+
 String _winnerLabel(RefereeMatchResponse match) {
   for (final value in [
     match.raw['winner_team_name'],
@@ -2086,14 +2138,13 @@ String _winnerLabel(RefereeMatchResponse match) {
   ]) {
     final text = value?.toString().trim() ?? '';
     if (text.isNotEmpty) {
-      return text.toLowerCase().endsWith('won') ? text : '$text Won';
+      return text;
     }
   }
   final a = _parseScore(match.teamA?.score);
   final b = _parseScore(match.teamB?.score);
   if (a != null && b != null && a != b) {
-    final name = a > b ? match.displayTeamA : match.displayTeamB;
-    return '$name Won';
+    return a > b ? match.displayTeamA : match.displayTeamB;
   }
   return 'Match Completed';
 }

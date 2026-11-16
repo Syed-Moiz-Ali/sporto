@@ -7,6 +7,7 @@ import 'package:referee_data/referee_data.dart';
 import 'package:ui_kit/ui_kit.dart';
 
 import '../../../../app/router/app_router.dart';
+import '../../../../core/config/referee_demo_data.dart';
 import '../../../../core/di/dependency_injector.dart';
 import '../../../../core/match_action/match_action_resolver.dart';
 import '../../../../core/match_request/match_request_refresh.dart';
@@ -249,7 +250,13 @@ class RefereeHomeScreenState extends State<RefereeHomeScreen>
                         20 * scale,
                         0,
                       ),
-                      child: _HomeHeader(scale: scale, wallet: '500'),
+                      child: _HomeHeader(
+                        scale: scale,
+                        wallet: kRefereeDemoData ? '500' : '0',
+                        onWalletTap: () => context.push(AppRouter.walletRoute),
+                        onBellTap: () =>
+                            context.push(AppRouter.notificationSettingsRoute),
+                      ),
                     ),
                     SizedBox(height: 24 * scale),
                     Padding(
@@ -296,7 +303,13 @@ class RefereeHomeScreenState extends State<RefereeHomeScreen>
                         20 * scale,
                         0,
                       ),
-                      child: _HomeHeader(scale: scale, wallet: '500'),
+                      child: _HomeHeader(
+                        scale: scale,
+                        wallet: kRefereeDemoData ? '500' : '0',
+                        onWalletTap: () => context.push(AppRouter.walletRoute),
+                        onBellTap: () =>
+                            context.push(AppRouter.notificationSettingsRoute),
+                      ),
                     ),
                     SizedBox(height: 8 * scale),
                     Padding(
@@ -334,9 +347,11 @@ class RefereeHomeScreenState extends State<RefereeHomeScreen>
                           if (isPopulated) ...[
                             _WalletBalanceCard(
                               scale: scale,
-                              balance: '₹3,650',
-                              totalEarned: '₹5,150',
+                              balance: kRefereeDemoData ? '₹3,650' : '₹0',
+                              totalEarned: kRefereeDemoData ? '₹5,150' : '₹0',
                               pending: '₹0',
+                              onWithdraw: () =>
+                                  context.push(AppRouter.walletRoute),
                             ),
                             SizedBox(height: 10 * scale),
                           ],
@@ -431,7 +446,7 @@ class RefereeHomeScreenState extends State<RefereeHomeScreen>
           value is num ? value : num.tryParse(value?.toString() ?? '');
       total += parsed ?? 0;
     }
-    if (total <= 0) return '₹8,500';
+    if (total <= 0) return kRefereeDemoData ? '₹8,500' : '₹0';
     return '₹${_formatNumber(total)}';
   }
 
@@ -454,8 +469,15 @@ class RefereeHomeScreenState extends State<RefereeHomeScreen>
 class _HomeHeader extends StatelessWidget {
   final double scale;
   final String wallet;
+  final VoidCallback? onWalletTap;
+  final VoidCallback? onBellTap;
 
-  const _HomeHeader({required this.scale, required this.wallet});
+  const _HomeHeader({
+    required this.scale,
+    required this.wallet,
+    this.onWalletTap,
+    this.onBellTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -489,64 +511,90 @@ class _HomeHeader extends StatelessWidget {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Container(
-                height: 24 * scale,
-                decoration: BoxDecoration(
-                  color: const Color(0x33767680),
-                  borderRadius: BorderRadius.circular(6 * scale),
-                ),
-                clipBehavior: Clip.antiAlias,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 6 * scale),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          SportoSvgIcon(
-                            SportoHomeRedesignIcons.rupee,
-                            width: 8.3 * scale,
-                            height: 12 * scale,
-                          ),
-                          SizedBox(width: 4 * scale),
-                          Text(
-                            wallet,
-                            style: TextStyle(
-                              fontSize: 16 * scale,
-                              fontWeight: FontWeight.w600,
-                              color: const Color(0xFFFFFFFF),
-                              height: 1.0,
+              Semantics(
+                button: true,
+                label: 'Wallet',
+                child: GestureDetector(
+                  onTap: onWalletTap,
+                  behavior: HitTestBehavior.opaque,
+                  child: SizedBox(
+                    height: 44 * scale,
+                    child: Center(
+                      child: Container(
+                        height: 24 * scale,
+                        decoration: BoxDecoration(
+                          color: const Color(0x33767680),
+                          borderRadius: BorderRadius.circular(6 * scale),
+                        ),
+                        clipBehavior: Clip.antiAlias,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 6 * scale,
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  SportoSvgIcon(
+                                    SportoHomeRedesignIcons.rupee,
+                                    width: 8.3 * scale,
+                                    height: 12 * scale,
+                                  ),
+                                  SizedBox(width: 4 * scale),
+                                  Text(
+                                    wallet,
+                                    style: TextStyle(
+                                      fontSize: 16 * scale,
+                                      fontWeight: FontWeight.w600,
+                                      color: const Color(0xFFFFFFFF),
+                                      height: 1.0,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      width: 25 * scale,
-                      height: 24 * scale,
-                      alignment: Alignment.center,
-                      decoration: const BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [Color(0xFFED7B00), Color(0xFFCF9E24)],
+                            Container(
+                              width: 25 * scale,
+                              height: 24 * scale,
+                              alignment: Alignment.center,
+                              decoration: const BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    Color(0xFFED7B00),
+                                    Color(0xFFCF9E24),
+                                  ],
+                                ),
+                              ),
+                              child: SportoSvgIcon(
+                                SportoHomeRedesignIcons.plus,
+                                size: 12 * scale,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      child: SportoSvgIcon(
-                        SportoHomeRedesignIcons.plus,
-                        size: 12 * scale,
-                      ),
                     ),
-                  ],
+                  ),
                 ),
               ),
               SizedBox(width: 10 * scale),
-              SizedBox(
-                width: 28 * scale,
-                height: 28 * scale,
-                child: Center(
-                  child: SportoSvgIcon(
-                    SportoHomeRedesignIcons.bell,
-                    size: 24 * scale,
+              Semantics(
+                button: true,
+                label: 'Notification settings',
+                child: GestureDetector(
+                  onTap: onBellTap,
+                  behavior: HitTestBehavior.opaque,
+                  child: SizedBox(
+                    width: 44 * scale,
+                    height: 44 * scale,
+                    child: Center(
+                      child: SportoSvgIcon(
+                        SportoHomeRedesignIcons.bell,
+                        size: 24 * scale,
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -917,38 +965,49 @@ class _StatusToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => onChanged(!value),
-      child: Container(
-        width: 40 * scale,
-        height: 20 * scale,
-        padding: EdgeInsets.all(2 * scale),
-        decoration: BoxDecoration(
-          color: value ? const Color(0xFF0E0C08) : const Color(0xFFFFFFFF),
-          borderRadius: BorderRadius.circular(10 * scale),
-        ),
-        child: AnimatedAlign(
-          duration: const Duration(milliseconds: 180),
-          curve: Curves.easeOut,
-          alignment: value ? Alignment.centerRight : Alignment.centerLeft,
-          child: Container(
-            width: 16 * scale,
-            height: 16 * scale,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: value
-                  ? const LinearGradient(
-                      colors: [Color(0xFFED7B00), Color(0xFFCF9E24)],
-                    )
-                  : null,
-              color: value ? null : const Color(0xFFFFFFFF),
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0x33000000),
-                  blurRadius: 2 * scale,
-                  offset: Offset(-1 * scale, 0.5 * scale),
+    return Semantics(
+      toggled: value,
+      label: 'Referee availability',
+      child: GestureDetector(
+        onTap: () => onChanged(!value),
+        behavior: HitTestBehavior.opaque,
+        child: SizedBox(
+          height: 44 * scale,
+          child: Center(
+            child: Container(
+              width: 40 * scale,
+              height: 20 * scale,
+              padding: EdgeInsets.all(2 * scale),
+              decoration: BoxDecoration(
+                color:
+                    value ? const Color(0xFF0E0C08) : const Color(0xFFFFFFFF),
+                borderRadius: BorderRadius.circular(10 * scale),
+              ),
+              child: AnimatedAlign(
+                duration: const Duration(milliseconds: 180),
+                curve: Curves.easeOut,
+                alignment: value ? Alignment.centerRight : Alignment.centerLeft,
+                child: Container(
+                  width: 16 * scale,
+                  height: 16 * scale,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: value
+                        ? const LinearGradient(
+                            colors: [Color(0xFFED7B00), Color(0xFFCF9E24)],
+                          )
+                        : null,
+                    color: value ? null : const Color(0xFFFFFFFF),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0x33000000),
+                        blurRadius: 2 * scale,
+                        offset: Offset(-1 * scale, 0.5 * scale),
+                      ),
+                    ],
+                  ),
                 ),
-              ],
+              ),
             ),
           ),
         ),
@@ -1061,12 +1120,14 @@ class _WalletBalanceCard extends StatelessWidget {
   final String balance;
   final String totalEarned;
   final String pending;
+  final VoidCallback? onWithdraw;
 
   const _WalletBalanceCard({
     required this.scale,
     required this.balance,
     required this.totalEarned,
     required this.pending,
+    this.onWithdraw,
   });
 
   @override
@@ -1099,13 +1160,49 @@ class _WalletBalanceCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Wallet Balance',
-                  style: TextStyle(
-                    fontSize: 12 * scale,
-                    fontWeight: FontWeight.w500,
-                    color: const Color(0xFFA0A0A0),
-                  ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'Wallet Balance',
+                        style: TextStyle(
+                          fontSize: 12 * scale,
+                          fontWeight: FontWeight.w500,
+                          color: const Color(0xFFA0A0A0),
+                        ),
+                      ),
+                    ),
+                    Semantics(
+                      button: true,
+                      label: 'Withdraw from wallet',
+                      child: GestureDetector(
+                        onTap: onWithdraw,
+                        behavior: HitTestBehavior.opaque,
+                        child: Container(
+                          height: 30 * scale,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 12 * scale,
+                          ),
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFFF4B41A), Color(0xFFCF9E24)],
+                            ),
+                            borderRadius: BorderRadius.circular(20 * scale),
+                          ),
+                          child: Text(
+                            'Withdraw',
+                            style: TextStyle(
+                              fontSize: 12 * scale,
+                              fontWeight: FontWeight.w700,
+                              color: const Color(0xFF0E0C08),
+                              height: 1.0,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
                 SizedBox(height: 6 * scale),
                 Text(
@@ -1286,7 +1383,7 @@ class _HomeStatsRow extends StatelessWidget {
       ),
       child: Container(
         padding: EdgeInsets.symmetric(
-          horizontal: 8 * scale,
+          horizontal: 4 * scale,
           vertical: 9 * scale,
         ),
         decoration: BoxDecoration(
@@ -2455,9 +2552,13 @@ void _onMatchAction(BuildContext context, RefereeMatchResponse match) {
   switch (resolved.action) {
     case MatchAction.continueScoring:
     case MatchAction.startScoring:
-    case MatchAction.viewReport:
       context.push(
         '${AppRouter.liveScoringRoute}?matchId=${match.id}&matchCode=SPT-${match.id}',
+      );
+    case MatchAction.viewReport:
+      context.push(
+        '${AppRouter.matchSummaryRoute}?matchId=${match.id}',
+        extra: match,
       );
     case MatchAction.toss:
       context.push('${AppRouter.conductTossRoute}?matchId=${match.id}');
