@@ -247,6 +247,34 @@ void main() {
       expect(find.text('START SESSION'), findsOneWidget);
     });
 
+    testWidgets('does not fake a countdown when the schedule is missing',
+        (tester) async {
+      final match = RefereeMatchResponse.fromJson({
+        'id': 4197,
+        'match_code': 'SP-4197',
+        'status': 1,
+        'status_label': 'Upcoming',
+        'booking_source': 'PARTNER',
+        'tournament': {'id': 421, 'name': '1017 T Cricket League'},
+        'participants': {
+          'team_a': 'Winner of Match 4195',
+          'team_b': 'Winner of Match 4196',
+        },
+        'schedule': null,
+        'fee': null,
+        'distance_km': null,
+      });
+      await tester.pumpWidget(
+        createTestWidget(matchesFuture: Future.value([match])),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('1017 T Cricket League'), findsOneWidget);
+      expect(find.textContaining('--:--'), findsNothing);
+      expect(find.textContaining('Starts in'), findsNothing);
+      expect(find.text('START SESSION'), findsOneWidget);
+    });
+
     testWidgets('Renders incoming requests section with actions',
         (tester) async {
       await tester.pumpWidget(

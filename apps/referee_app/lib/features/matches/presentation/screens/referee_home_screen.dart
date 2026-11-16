@@ -557,7 +557,7 @@ class RefereeHomeScreenState extends State<RefereeHomeScreen>
                             SizedBox(height: 10 * scale),
                             SizedBox(
                               height:
-                                  (_selectedMatchTab == 0 ? 148 : 198) * scale,
+                                  (_selectedMatchTab == 0 ? 148 : 203) * scale,
                               child: tabMatches.isEmpty
                                   ? _NoMatchesCard(
                                       scale: scale,
@@ -996,9 +996,14 @@ class _RefereeStatusCard extends StatelessWidget {
             Positioned.fill(
               child: DecoratedBox(
                 decoration: BoxDecoration(
-                  color: enabled
-                      ? const Color(0xFF1C2026)
-                      : const Color(0xFFF4B41A),
+                  color: enabled ? const Color(0xFF1C2026) : null,
+                  gradient: enabled
+                      ? null
+                      : const LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [Color(0xFFF4B41A), Color(0xFFE5A100)],
+                        ),
                 ),
               ),
             ),
@@ -1118,7 +1123,7 @@ class _RefereeStatusCard extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            fontSize: 12 * scale,
+                            fontSize: 11 * scale,
                             fontWeight: FontWeight.w500,
                             color: enabled
                                 ? const Color(0xFFA0A0A0)
@@ -1142,14 +1147,14 @@ class _RefereeStatusCard extends StatelessWidget {
                                       ],
                                     ),
                                     style: TextStyle(
-                                      fontSize: 12 * scale,
+                                      fontSize: 11 * scale,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   )
                                 : Text(
                                     'Availability',
                                     style: TextStyle(
-                                      fontSize: 12 * scale,
+                                      fontSize: 11 * scale,
                                       fontWeight: FontWeight.w600,
                                       color: const Color(0xFF1B2335),
                                     ),
@@ -1210,7 +1215,7 @@ class _StatusToggle extends StatelessWidget {
               padding: EdgeInsets.all(2 * scale),
               decoration: BoxDecoration(
                 color:
-                    value ? const Color(0xFF0E0C08) : const Color(0xFFFFFFFF),
+                    value ? const Color(0xFF0E0C08) : const Color(0xFFFFE7A3),
                 borderRadius: BorderRadius.circular(10 * scale),
               ),
               child: AnimatedAlign(
@@ -1746,30 +1751,30 @@ class _HomeStatsRow extends StatelessWidget {
     Color? color,
     Gradient? gradient,
   }) {
-    if (gradient != null) {
-      return RefereeGradientText(
-        label,
-        gradient: gradient,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: TextStyle(
-          fontSize: fontSize,
-          fontWeight: FontWeight.w500,
-          height: 1.0,
-        ),
-      );
-    }
-    return Text(
-      label,
-      maxLines: 1,
-      overflow: TextOverflow.ellipsis,
-      style: TextStyle(
-        fontSize: fontSize,
-        fontWeight: FontWeight.w500,
-        color: color ?? const Color(0xFFFFFFFF),
-        height: 1.0,
-      ),
-    );
+    final child = gradient != null
+        ? RefereeGradientText(
+            label,
+            gradient: gradient,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: fontSize,
+              fontWeight: FontWeight.w500,
+              height: 1.0,
+            ),
+          )
+        : Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: fontSize,
+              fontWeight: FontWeight.w500,
+              color: color ?? const Color(0xFFFFFFFF),
+              height: 1.0,
+            ),
+          );
+    return FittedBox(fit: BoxFit.scaleDown, child: child);
   }
 }
 
@@ -2139,22 +2144,23 @@ class _TodayMatchCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFF1C2026),
         borderRadius: BorderRadius.circular(14 * scale),
+        border: Border.all(color: const Color(0x26FF58DD), width: 0.6),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Flexible(
-                child: _Pill(
-                  scale: scale,
-                  label: 'Upcoming',
-                  gradient: const LinearGradient(
-                    colors: [Color(0x1AFF9364), Color(0x1AF25F33)],
-                  ),
-                  textGradient: const LinearGradient(
-                    colors: [Color(0xFFFF9364), Color(0xFFF25F33)],
-                  ),
+              RefereeGradientText(
+                'Upcoming',
+                gradient: const LinearGradient(
+                  colors: [Color(0xFFFF9364), Color(0xFFF25F33)],
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 12 * scale,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
               if (sourceLabel.isNotEmpty) ...[
@@ -2162,7 +2168,7 @@ class _TodayMatchCard extends StatelessWidget {
                 Flexible(
                   child: _Pill(
                     scale: scale,
-                    label: sourceLabel,
+                    label: sourceLabel.replaceFirst('by ', 'By '),
                     gradient: const LinearGradient(
                       colors: [Color(0x1AFF58DD), Color(0x1ADC65AC)],
                     ),
@@ -2218,15 +2224,13 @@ class _TodayMatchCard extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              fontSize: 14 * scale,
+              fontSize: 16 * scale,
               fontWeight: FontWeight.w600,
               color: const Color(0xFFFFFFFF),
             ),
           ),
-          SizedBox(height: 10 * scale),
-          Container(height: 0.5 * scale, color: const Color(0x33FFFFFF)),
           if (hasLocationRow) ...[
-            SizedBox(height: 6 * scale),
+            SizedBox(height: 10 * scale),
             Row(
               children: [
                 Expanded(
@@ -2260,52 +2264,52 @@ class _TodayMatchCard extends StatelessWidget {
                 ],
               ],
             ),
-            SizedBox(height: 6 * scale),
-            Container(height: 0.5 * scale, color: const Color(0x33FFFFFF)),
           ],
-          SizedBox(height: 6 * scale),
-          Row(
-            children: [
-              Expanded(
-                child: Text.rich(
-                  TextSpan(
-                    children: [
-                      TextSpan(
-                        text: 'Starts in ',
-                        style: TextStyle(
-                          fontSize: 14 * scale,
-                          fontWeight: FontWeight.w500,
-                          color: const Color(0xFFFFFFFF),
+          if (countdown != null) ...[
+            SizedBox(height: 10 * scale),
+            Row(
+              children: [
+                Expanded(
+                  child: Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                          text: 'Starts in ',
+                          style: TextStyle(
+                            fontSize: 14 * scale,
+                            fontWeight: FontWeight.w500,
+                            color: const Color(0xFFFFFFFF),
+                          ),
                         ),
-                      ),
-                      TextSpan(
-                        text: countdown ?? '--:--:--',
-                        style: TextStyle(
-                          fontSize: 14 * scale,
-                          fontWeight: FontWeight.w700,
-                          color: const Color(0xFF2BB673),
+                        TextSpan(
+                          text: countdown,
+                          style: TextStyle(
+                            fontSize: 14 * scale,
+                            fontWeight: FontWeight.w700,
+                            color: const Color(0xFF2BB673),
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              if (timeRange.isNotEmpty)
-                Text(
-                  'At $timeRange',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 12 * scale,
-                    fontWeight: FontWeight.w500,
-                    color: const Color(0xFFFFFFFF),
+                      ],
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
-            ],
-          ),
-          SizedBox(height: 6 * scale),
+                if (timeRange.isNotEmpty)
+                  Text(
+                    'At $timeRange',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 12 * scale,
+                      fontWeight: FontWeight.w500,
+                      color: const Color(0xFFFFFFFF),
+                    ),
+                  ),
+              ],
+            ),
+          ],
+          const Spacer(),
           SizedBox(
             height: 34 * scale,
             width: double.infinity,
