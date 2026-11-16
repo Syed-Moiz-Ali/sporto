@@ -22,6 +22,8 @@ class BankAccountsScreen extends StatefulWidget {
     this.accountsFuture,
     this.loadAccounts,
     this.submit,
+    this.setDefault,
+    this.deleteAccount,
   });
 
   /// One-shot future override for tests/previews.
@@ -33,12 +35,20 @@ class BankAccountsScreen extends StatefulWidget {
   /// Test/preview override forwarded to the add/change form.
   final BankDetailsSubmitter? submit;
 
+  /// Test/preview overrides for bank mutations.
+  final Future<void> Function(int id)? setDefault;
+  final Future<void> Function(int id)? deleteAccount;
+
   @override
   State<BankAccountsScreen> createState() => _BankAccountsScreenState();
 }
 
 class _BankAccountsScreenState extends State<BankAccountsScreen> {
   late Future<List<RefereeBankDetails>> _accounts;
+  int? _busyAccountId;
+
+  RefereeRemoteDataSource get _remote =>
+      DependencyInjector.instance.refereeRemoteDataSource;
 
   @override
   void initState() {
@@ -89,6 +99,90 @@ class _BankAccountsScreenState extends State<BankAccountsScreen> {
       ),
     );
     if (changed == true && mounted) _reload();
+  }
+
+  Future<void> _setDefault(RefereeBankDetails account) async {
+    if (_busyAccountId != null) return;
+    final id = account.id;
+    if (id == null) {
+      showBankSnackBar(context, 'Bank account id is missing.');
+      return;
+    }
+    setState(() => _busyAccountId = id);
+    try {
+      final mutation = widget.setDefault;
+      if (mutation != null) {
+        await mutation(id);
+      } else {
+        await _remote.setDefaultBank(id);
+      }
+      if (!mounted) return;
+      showBankSnackBar(context, 'Default bank updated.');
+      _reload();
+    } catch (error) {
+      if (mounted) {
+        showBankSnackBar(context, 'Unable to set default bank: $error');
+      }
+    } finally {
+      if (mounted) setState(() => _busyAccountId = null);
+    }
+  }
+
+  Future<void> _delete(RefereeBankDetails account) async {
+    if (_busyAccountId != null) return;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: context.sporto.cardElevated,
+        title: const Text(
+          'Delete bank account?',
+          style: TextStyle(color: Colors.white),
+        ),
+        content: Text(
+          '${bankDetailsTitle(account)} will be removed from your payout '
+          'accounts. This cannot be undone.',
+          style: TextStyle(color: context.sporto.muted),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: context.sporto.red,
+            ),
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    final id = account.id;
+    if (id == null) {
+      showBankSnackBar(context, 'Bank account id is missing.');
+      return;
+    }
+
+    setState(() => _busyAccountId = id);
+    try {
+      final mutation = widget.deleteAccount;
+      if (mutation != null) {
+        await mutation(id);
+      } else {
+        await _remote.deleteBankDetails(id);
+      }
+      if (!mounted) return;
+      showBankSnackBar(context, 'Bank account deleted.');
+      _reload();
+    } catch (error) {
+      if (mounted) {
+        showBankSnackBar(context, 'Unable to delete bank account: $error');
+      }
+    } finally {
+      if (mounted) setState(() => _busyAccountId = null);
+    }
   }
 
   @override
@@ -158,7 +252,10 @@ class _BankAccountsScreenState extends State<BankAccountsScreen> {
               _BankAccountCard(
                 scale: scale,
                 account: accounts[index],
+                busy: _busyAccountId == accounts[index].id,
                 onTap: () => _openDetails(accounts[index]),
+                onSetDefault: () => _setDefault(accounts[index]),
+                onDelete: () => _delete(accounts[index]),
               ),
             ],
         ],
@@ -369,11 +466,17 @@ class _BankAccountCard extends StatelessWidget {
     required this.scale,
     required this.account,
     required this.onTap,
+    required this.onSetDefault,
+    required this.onDelete,
+    this.busy = false,
   });
 
   final double scale;
   final RefereeBankDetails account;
   final VoidCallback onTap;
+  final VoidCallback onSetDefault;
+  final VoidCallback onDelete;
+  final bool busy;
 
   @override
   Widget build(BuildContext context) {
@@ -485,6 +588,58 @@ class _BankAccountCard extends StatelessWidget {
                   ],
                 ),
               ),
+              SizedBox(width: 2 * scale),
+              if (busy)
+                SizedBox(
+                  width: 44 * scale,
+                  height: 44 * scale,
+                  child: Center(
+                    child: SizedBox(
+                      width: 18 * scale,
+                      height: 18 * scale,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2 * scale,
+                        color: sporto.gold,
+                      ),
+                    ),
+                  ),
+                )
+              else
+                Semantics(
+                  label: 'Bank actions for $title',
+                  button: true,
+                  child: PopupMenuButton<_BankCardAction>(
+                    tooltip: 'Bank actions',
+                    icon: Icon(
+                      Icons.more_vert_rounded,
+                      size: 20 * scale,
+                      color: sporto.muted,
+                    ),
+                    color: sporto.cardElevated,
+                    onSelected: (action) {
+                      switch (action) {
+                        case _BankCardAction.setDefault:
+                          onSetDefault();
+                        case _BankCardAction.delete:
+                          onDelete();
+                      }
+                    },
+                    itemBuilder: (context) => [
+                      if (!account.isDefault)
+                        const PopupMenuItem(
+                          value: _BankCardAction.setDefault,
+                          child: Text('Set as default'),
+                        ),
+                      PopupMenuItem(
+                        value: _BankCardAction.delete,
+                        child: Text(
+                          'Delete',
+                          style: TextStyle(color: sporto.red),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
             ],
           ),
         ),
@@ -502,7 +657,7 @@ class _BankAccountCard extends StatelessWidget {
         if (account.isDefault) 'Default account',
       ].join(', '),
       onTap: onTap,
-      child: ExcludeSemantics(child: card),
+      child: card,
     );
   }
 }
@@ -608,3 +763,5 @@ class _DashedRoundedBorderPainter extends CustomPainter {
   bool shouldRepaint(covariant _DashedRoundedBorderPainter oldDelegate) =>
       color != oldDelegate.color || radius != oldDelegate.radius;
 }
+
+enum _BankCardAction { setDefault, delete }

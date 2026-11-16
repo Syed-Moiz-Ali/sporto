@@ -148,8 +148,15 @@ String bankMaskedAccountLabel(RefereeBankDetails details) {
     return summary.isEmpty ? _nonEmpty(details.upiId) : summary;
   }
   final masked = _nonEmpty(details.maskedAccountNumber);
-  if (masked.isNotEmpty) return masked;
   final lastFour = details.lastFour;
+  if (masked.isNotEmpty) {
+    if (lastFour != null &&
+        lastFour.length == 4 &&
+        RegExp(r'\d{4}$').hasMatch(lastFour)) {
+      return 'XXXX XXXX $lastFour';
+    }
+    return masked;
+  }
   if (lastFour == null || lastFour.isEmpty) return '';
   return lastFour.length >= 4
       ? 'XXXX XXXX ${lastFour.substring(lastFour.length - 4)}'

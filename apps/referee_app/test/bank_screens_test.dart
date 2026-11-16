@@ -137,7 +137,7 @@ void main() {
       final upi = _upi();
 
       expect(bankDetailsTitle(bank), 'HDFC Bank');
-      expect(bankMaskedAccountLabel(bank), '********9012');
+      expect(bankMaskedAccountLabel(bank), 'XXXX XXXX 9012');
       expect(bankFullAccountNumber(bank), isNull);
       expect(bankVerificationLabel(bank), 'Verified');
       expect(bankIsVerified(bank), isTrue);
@@ -425,7 +425,7 @@ void main() {
       expect(find.text('Add bank'), findsOneWidget);
       expect(find.text('HDFC Bank'), findsOneWidget);
       expect(find.text('Account Name: Rajesh Kumar'), findsOneWidget);
-      expect(find.text('A/c ********9012'), findsOneWidget);
+      expect(find.text('A/c XXXX XXXX 9012'), findsOneWidget);
       expect(find.text('Verified'), findsOneWidget);
       expect(find.text('Default'), findsOneWidget);
 
@@ -534,7 +534,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Bank Account Details'), findsOneWidget);
-      expect(find.text('********9012'), findsOneWidget);
+      expect(find.text('XXXX XXXX 9012'), findsOneWidget);
       expect(find.text('HDFC0001234'), findsOneWidget);
     });
   });
@@ -548,7 +548,7 @@ void main() {
         _app(BankAccountDetailsScreen(details: _bank())),
       );
 
-      expect(find.text('********9012'), findsOneWidget);
+      expect(find.text('XXXX XXXX 9012'), findsOneWidget);
       expect(find.text('50100123454521'), findsNothing);
       expect(find.byTooltip('Show account number'), findsOneWidget);
       expect(
@@ -567,7 +567,7 @@ void main() {
         find.text("Full account number isn't available for security"),
         findsOneWidget,
       );
-      expect(find.text('********9012'), findsOneWidget);
+      expect(find.text('XXXX XXXX 9012'), findsOneWidget);
       expect(find.text('50100123454521'), findsNothing);
       expect(find.byTooltip('Show account number'), findsOneWidget);
     });
@@ -584,7 +584,7 @@ void main() {
       );
       await tester.pumpWidget(_app(BankAccountDetailsScreen(details: full)));
 
-      expect(find.text('********4521'), findsOneWidget);
+      expect(find.text('XXXX XXXX 4521'), findsOneWidget);
       await tester.tap(find.byKey(const ValueKey('bank_eye_toggle')));
       await tester.pump();
 
@@ -667,5 +667,62 @@ void main() {
         }
       });
     }
+  });
+  group('Bank account actions', () {
+    testWidgets('sets a non-default account as default', (tester) async {
+      _useScreenSize(tester, const Size(390, 844));
+      int? selected;
+      await tester.pumpWidget(
+        _app(
+          BankAccountsScreen(
+            accountsFuture: Future.value([
+              _bank(id: 1),
+              _bank(id: 2, isDefault: true),
+            ]),
+            loadAccounts: () async => [
+              _bank(id: 1),
+              _bank(id: 2, isDefault: true),
+            ],
+            setDefault: (id) async => selected = id,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byTooltip('Bank actions').first);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Set as default'));
+      await tester.pumpAndSettle();
+
+      expect(selected, 1);
+      expect(find.text('Default bank updated.'), findsOneWidget);
+    });
+
+    testWidgets('deletes an account after confirmation', (tester) async {
+      _useScreenSize(tester, const Size(390, 844));
+      int? deleted;
+      await tester.pumpWidget(
+        _app(
+          BankAccountsScreen(
+            accountsFuture: Future.value([_bank(id: 7)]),
+            loadAccounts: () async => [_bank(id: 7)],
+            deleteAccount: (id) async => deleted = id,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byTooltip('Bank actions').first);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Delete'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Delete bank account?'), findsOneWidget);
+      await tester.tap(find.widgetWithText(FilledButton, 'Delete'));
+      await tester.pumpAndSettle();
+
+      expect(deleted, 7);
+      expect(find.text('Bank account deleted.'), findsOneWidget);
+    });
   });
 }
