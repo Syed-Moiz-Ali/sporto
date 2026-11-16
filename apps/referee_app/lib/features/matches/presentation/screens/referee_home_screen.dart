@@ -561,16 +561,26 @@ class RefereeHomeScreenState extends State<RefereeHomeScreen>
                                   setState(() => _selectedMatchTab = index),
                             ),
                             SizedBox(height: 10 * scale),
-                            SizedBox(
-                              height: tabCardHeight,
-                              child: tabMatches.isEmpty
-                                  ? _NoMatchesCard(
-                                      scale: scale,
-                                      label: _selectedMatchTab == 0
-                                          ? 'No live matches right now'
-                                          : 'No matches scheduled',
-                                    )
-                                  : ListView.separated(
+                            if (tabMatches.isEmpty)
+                              SizedBox(
+                                height: tabCardHeight,
+                                child: _NoMatchesCard(
+                                  scale: scale,
+                                  label: _selectedMatchTab == 0
+                                      ? 'No live matches right now'
+                                      : 'No matches scheduled',
+                                ),
+                              )
+                            else
+                              SizedBox(
+                                height: tabCardHeight,
+                                child: OverflowBox(
+                                  alignment: Alignment.centerLeft,
+                                  maxWidth: double.infinity,
+                                  child: SizedBox(
+                                    width: MediaQuery.sizeOf(context).width -
+                                        20 * scale,
+                                    child: ListView.separated(
                                       scrollDirection: Axis.horizontal,
                                       physics: const BouncingScrollPhysics(),
                                       padding: EdgeInsets.zero,
@@ -593,7 +603,9 @@ class RefereeHomeScreenState extends State<RefereeHomeScreen>
                                         );
                                       },
                                     ),
-                            ),
+                                  ),
+                                ),
+                              ),
                           ],
                           if (!isPopulated) ...[
                             SizedBox(height: 22 * scale),
