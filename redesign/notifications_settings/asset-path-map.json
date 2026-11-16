@@ -1,0 +1,710 @@
+{
+  "schema": "dev-export-asset-path-map",
+  "schemaVersion": "1.1.0",
+  "generatedAt": "2026-11-16T10:29:05.256Z",
+  "note": "Original Figma layer/image names mapped to sanitized, content-addressed export filenames.",
+  "assets": [
+    {
+      "assetId": "dd3aadc35b6d",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-dd3aadc35b6d.svg",
+      "pngFileName": "assets/png/vector-dd3aadc35b6d@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3172_7496"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Notification Settings"
+        }
+      ]
+    },
+    {
+      "assetId": "430c0593dc44",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-430c0593dc44.svg",
+      "pngFileName": "assets/png/vector-430c0593dc44@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3172_7505"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Notification Settings"
+        }
+      ]
+    },
+    {
+      "assetId": "22b2877f7ebe",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-22b2877f7ebe.svg",
+      "pngFileName": "assets/png/vector-22b2877f7ebe@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3172_7514"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Notification Settings"
+        }
+      ]
+    },
+    {
+      "assetId": "0c9ed3cffce8",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-0c9ed3cffce8.svg",
+      "pngFileName": "assets/png/vector-0c9ed3cffce8@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3172_7523"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Notification Settings"
+        }
+      ]
+    },
+    {
+      "assetId": "54e564abe7b9",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-54e564abe7b9.svg",
+      "pngFileName": "assets/png/vector-54e564abe7b9@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3172_7532"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Notification Settings"
+        }
+      ]
+    },
+    {
+      "assetId": "6953da7ddff6",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-6953da7ddff6.svg",
+      "pngFileName": "assets/png/vector-6953da7ddff6@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3172_7559"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Notification Settings"
+        }
+      ]
+    },
+    {
+      "assetId": "2424910fe04e",
+      "kind": "svg",
+      "originalName": "Line 5 (Stroke)",
+      "originalFileName": "Line 5 (Stroke).svg",
+      "fileName": "assets/svg/line_5_stroke-2424910fe04e.svg",
+      "pngFileName": "assets/png/line_5_stroke-2424910fe04e@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I3172_7571_1661_919"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Match Notifications - Notification Settings"
+        }
+      ]
+    },
+    {
+      "assetId": "ded6e8a46bcf",
+      "kind": "svg",
+      "originalName": "Ellipse 816",
+      "originalFileName": "Ellipse 816.svg",
+      "fileName": "assets/svg/ellipse_816-ded6e8a46bcf.svg",
+      "pngFileName": "assets/png/ellipse_816-ded6e8a46bcf@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I3172_7571_1661_920"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Match Notifications - Notification Settings"
+        }
+      ]
+    },
+    {
+      "assetId": "20789454f776",
+      "kind": "svg",
+      "originalName": "Line 5 (Stroke)",
+      "originalFileName": "Line 5 (Stroke).svg",
+      "fileName": "assets/svg/line_5_stroke-20789454f776.svg",
+      "pngFileName": "assets/png/line_5_stroke-20789454f776@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I3172_7576_1661_919"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Match Notifications - Notification Settings"
+        }
+      ]
+    },
+    {
+      "assetId": "cca3a5a5c489",
+      "kind": "svg",
+      "originalName": "Ellipse 816",
+      "originalFileName": "Ellipse 816.svg",
+      "fileName": "assets/svg/ellipse_816-cca3a5a5c489.svg",
+      "pngFileName": "assets/png/ellipse_816-cca3a5a5c489@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I3172_7576_1661_920"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Match Notifications - Notification Settings"
+        }
+      ]
+    },
+    {
+      "assetId": "45599b474c3e",
+      "kind": "svg",
+      "originalName": "Line 5 (Stroke)",
+      "originalFileName": "Line 5 (Stroke).svg",
+      "fileName": "assets/svg/line_5_stroke-45599b474c3e.svg",
+      "pngFileName": "assets/png/line_5_stroke-45599b474c3e@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I3172_7581_1661_922"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Match Notifications - Notification Settings"
+        }
+      ]
+    },
+    {
+      "assetId": "fde77617978a",
+      "kind": "svg",
+      "originalName": "Ellipse 816",
+      "originalFileName": "Ellipse 816.svg",
+      "fileName": "assets/svg/ellipse_816-fde77617978a.svg",
+      "pngFileName": "assets/png/ellipse_816-fde77617978a@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I3172_7581_1661_923"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Match Notifications - Notification Settings"
+        }
+      ]
+    },
+    {
+      "assetId": "bf1613852bd5",
+      "kind": "svg",
+      "originalName": "Line 5 (Stroke)",
+      "originalFileName": "Line 5 (Stroke).svg",
+      "fileName": "assets/svg/line_5_stroke-bf1613852bd5.svg",
+      "pngFileName": "assets/png/line_5_stroke-bf1613852bd5@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I3172_7586_1661_919"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Match Notifications - Notification Settings"
+        }
+      ]
+    },
+    {
+      "assetId": "9c6284fab643",
+      "kind": "svg",
+      "originalName": "Ellipse 816",
+      "originalFileName": "Ellipse 816.svg",
+      "fileName": "assets/svg/ellipse_816-9c6284fab643.svg",
+      "pngFileName": "assets/png/ellipse_816-9c6284fab643@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I3172_7586_1661_920"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Match Notifications - Notification Settings"
+        }
+      ]
+    },
+    {
+      "assetId": "32f632ca90cd",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-32f632ca90cd.svg",
+      "pngFileName": "assets/png/vector-32f632ca90cd@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3172_7613"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Match Notifications - Notification Settings"
+        }
+      ]
+    },
+    {
+      "assetId": "af8918001545",
+      "kind": "svg",
+      "originalName": "Line 5 (Stroke)",
+      "originalFileName": "Line 5 (Stroke).svg",
+      "fileName": "assets/svg/line_5_stroke-af8918001545.svg",
+      "pngFileName": "assets/png/line_5_stroke-af8918001545@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I3172_7625_1661_919"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Tournament Updates - Notification Settings"
+        }
+      ]
+    },
+    {
+      "assetId": "dc6835a33c51",
+      "kind": "svg",
+      "originalName": "Ellipse 816",
+      "originalFileName": "Ellipse 816.svg",
+      "fileName": "assets/svg/ellipse_816-dc6835a33c51.svg",
+      "pngFileName": "assets/png/ellipse_816-dc6835a33c51@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I3172_7625_1661_920"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Tournament Updates - Notification Settings"
+        }
+      ]
+    },
+    {
+      "assetId": "35781ef52608",
+      "kind": "svg",
+      "originalName": "Line 5 (Stroke)",
+      "originalFileName": "Line 5 (Stroke).svg",
+      "fileName": "assets/svg/line_5_stroke-35781ef52608.svg",
+      "pngFileName": "assets/png/line_5_stroke-35781ef52608@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I3172_7630_1661_919"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Tournament Updates - Notification Settings"
+        }
+      ]
+    },
+    {
+      "assetId": "662279c607b9",
+      "kind": "svg",
+      "originalName": "Ellipse 816",
+      "originalFileName": "Ellipse 816.svg",
+      "fileName": "assets/svg/ellipse_816-662279c607b9.svg",
+      "pngFileName": "assets/png/ellipse_816-662279c607b9@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I3172_7630_1661_920"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Tournament Updates - Notification Settings"
+        }
+      ]
+    },
+    {
+      "assetId": "7f7707b9298c",
+      "kind": "svg",
+      "originalName": "Line 5 (Stroke)",
+      "originalFileName": "Line 5 (Stroke).svg",
+      "fileName": "assets/svg/line_5_stroke-7f7707b9298c.svg",
+      "pngFileName": "assets/png/line_5_stroke-7f7707b9298c@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I3172_7635_1661_922"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Tournament Updates - Notification Settings"
+        }
+      ]
+    },
+    {
+      "assetId": "6e2d9937b749",
+      "kind": "svg",
+      "originalName": "Ellipse 816",
+      "originalFileName": "Ellipse 816.svg",
+      "fileName": "assets/svg/ellipse_816-6e2d9937b749.svg",
+      "pngFileName": "assets/png/ellipse_816-6e2d9937b749@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I3172_7635_1661_923"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Tournament Updates - Notification Settings"
+        }
+      ]
+    },
+    {
+      "assetId": "3ba6fdde839e",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-3ba6fdde839e.svg",
+      "pngFileName": "assets/png/vector-3ba6fdde839e@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3172_7662"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Tournament Updates - Notification Settings"
+        }
+      ]
+    },
+    {
+      "assetId": "30e653e70295",
+      "kind": "svg",
+      "originalName": "Line 5 (Stroke)",
+      "originalFileName": "Line 5 (Stroke).svg",
+      "fileName": "assets/svg/line_5_stroke-30e653e70295.svg",
+      "pngFileName": "assets/png/line_5_stroke-30e653e70295@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I3172_7674_1661_919"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Team & Requests - Notification Settings"
+        }
+      ]
+    },
+    {
+      "assetId": "dec022a82429",
+      "kind": "svg",
+      "originalName": "Ellipse 816",
+      "originalFileName": "Ellipse 816.svg",
+      "fileName": "assets/svg/ellipse_816-dec022a82429.svg",
+      "pngFileName": "assets/png/ellipse_816-dec022a82429@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I3172_7674_1661_920"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Team & Requests - Notification Settings"
+        }
+      ]
+    },
+    {
+      "assetId": "052cbb21a8c4",
+      "kind": "svg",
+      "originalName": "Line 5 (Stroke)",
+      "originalFileName": "Line 5 (Stroke).svg",
+      "fileName": "assets/svg/line_5_stroke-052cbb21a8c4.svg",
+      "pngFileName": "assets/png/line_5_stroke-052cbb21a8c4@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I3172_7679_1661_919"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Team & Requests - Notification Settings"
+        }
+      ]
+    },
+    {
+      "assetId": "7853c3aaca5b",
+      "kind": "svg",
+      "originalName": "Ellipse 816",
+      "originalFileName": "Ellipse 816.svg",
+      "fileName": "assets/svg/ellipse_816-7853c3aaca5b.svg",
+      "pngFileName": "assets/png/ellipse_816-7853c3aaca5b@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I3172_7679_1661_920"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Team & Requests - Notification Settings"
+        }
+      ]
+    },
+    {
+      "assetId": "54774ce32d22",
+      "kind": "svg",
+      "originalName": "Line 5 (Stroke)",
+      "originalFileName": "Line 5 (Stroke).svg",
+      "fileName": "assets/svg/line_5_stroke-54774ce32d22.svg",
+      "pngFileName": "assets/png/line_5_stroke-54774ce32d22@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I3172_7684_1661_922"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Team & Requests - Notification Settings"
+        }
+      ]
+    },
+    {
+      "assetId": "f64edeaf37bd",
+      "kind": "svg",
+      "originalName": "Ellipse 816",
+      "originalFileName": "Ellipse 816.svg",
+      "fileName": "assets/svg/ellipse_816-f64edeaf37bd.svg",
+      "pngFileName": "assets/png/ellipse_816-f64edeaf37bd@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I3172_7684_1661_923"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Team & Requests - Notification Settings"
+        }
+      ]
+    },
+    {
+      "assetId": "1a30a3f34c0d",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-1a30a3f34c0d.svg",
+      "pngFileName": "assets/png/vector-1a30a3f34c0d@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3172_7711"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Team & Requests - Notification Settings"
+        }
+      ]
+    },
+    {
+      "assetId": "f33cf6d2d445",
+      "kind": "svg",
+      "originalName": "Line 5 (Stroke)",
+      "originalFileName": "Line 5 (Stroke).svg",
+      "fileName": "assets/svg/line_5_stroke-f33cf6d2d445.svg",
+      "pngFileName": "assets/png/line_5_stroke-f33cf6d2d445@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I3172_7723_1661_919"
+      ],
+      "screens": [
+        {
+          "index": 5,
+          "name": "Registration & Payments - Notification Settings"
+        }
+      ]
+    },
+    {
+      "assetId": "ee24d45dea7b",
+      "kind": "svg",
+      "originalName": "Ellipse 816",
+      "originalFileName": "Ellipse 816.svg",
+      "fileName": "assets/svg/ellipse_816-ee24d45dea7b.svg",
+      "pngFileName": "assets/png/ellipse_816-ee24d45dea7b@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I3172_7723_1661_920"
+      ],
+      "screens": [
+        {
+          "index": 5,
+          "name": "Registration & Payments - Notification Settings"
+        }
+      ]
+    },
+    {
+      "assetId": "bbebc72fc929",
+      "kind": "svg",
+      "originalName": "Line 5 (Stroke)",
+      "originalFileName": "Line 5 (Stroke).svg",
+      "fileName": "assets/svg/line_5_stroke-bbebc72fc929.svg",
+      "pngFileName": "assets/png/line_5_stroke-bbebc72fc929@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I3172_7728_1661_919"
+      ],
+      "screens": [
+        {
+          "index": 5,
+          "name": "Registration & Payments - Notification Settings"
+        }
+      ]
+    },
+    {
+      "assetId": "6ffc70dacdd7",
+      "kind": "svg",
+      "originalName": "Ellipse 816",
+      "originalFileName": "Ellipse 816.svg",
+      "fileName": "assets/svg/ellipse_816-6ffc70dacdd7.svg",
+      "pngFileName": "assets/png/ellipse_816-6ffc70dacdd7@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I3172_7728_1661_920"
+      ],
+      "screens": [
+        {
+          "index": 5,
+          "name": "Registration & Payments - Notification Settings"
+        }
+      ]
+    },
+    {
+      "assetId": "94a14d6b3d9b",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-94a14d6b3d9b.svg",
+      "pngFileName": "assets/png/vector-94a14d6b3d9b@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3172_7755"
+      ],
+      "screens": [
+        {
+          "index": 5,
+          "name": "Registration & Payments - Notification Settings"
+        }
+      ]
+    },
+    {
+      "assetId": "2e04ef5f7681",
+      "kind": "svg",
+      "originalName": "Line 5 (Stroke)",
+      "originalFileName": "Line 5 (Stroke).svg",
+      "fileName": "assets/svg/line_5_stroke-2e04ef5f7681.svg",
+      "pngFileName": "assets/png/line_5_stroke-2e04ef5f7681@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I3172_7767_1661_919"
+      ],
+      "screens": [
+        {
+          "index": 6,
+          "name": "Others - Notification Settings"
+        }
+      ]
+    },
+    {
+      "assetId": "3822245dc025",
+      "kind": "svg",
+      "originalName": "Ellipse 816",
+      "originalFileName": "Ellipse 816.svg",
+      "fileName": "assets/svg/ellipse_816-3822245dc025.svg",
+      "pngFileName": "assets/png/ellipse_816-3822245dc025@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I3172_7767_1661_920"
+      ],
+      "screens": [
+        {
+          "index": 6,
+          "name": "Others - Notification Settings"
+        }
+      ]
+    },
+    {
+      "assetId": "c42f95cf7017",
+      "kind": "svg",
+      "originalName": "Line 5 (Stroke)",
+      "originalFileName": "Line 5 (Stroke).svg",
+      "fileName": "assets/svg/line_5_stroke-c42f95cf7017.svg",
+      "pngFileName": "assets/png/line_5_stroke-c42f95cf7017@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I3172_7772_1661_919"
+      ],
+      "screens": [
+        {
+          "index": 6,
+          "name": "Others - Notification Settings"
+        }
+      ]
+    },
+    {
+      "assetId": "0b70e876d99f",
+      "kind": "svg",
+      "originalName": "Ellipse 816",
+      "originalFileName": "Ellipse 816.svg",
+      "fileName": "assets/svg/ellipse_816-0b70e876d99f.svg",
+      "pngFileName": "assets/png/ellipse_816-0b70e876d99f@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I3172_7772_1661_920"
+      ],
+      "screens": [
+        {
+          "index": 6,
+          "name": "Others - Notification Settings"
+        }
+      ]
+    },
+    {
+      "assetId": "1d04a2d35375",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-1d04a2d35375.svg",
+      "pngFileName": "assets/png/vector-1d04a2d35375@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3172_7799"
+      ],
+      "screens": [
+        {
+          "index": 6,
+          "name": "Others - Notification Settings"
+        }
+      ]
+    }
+  ]
+}

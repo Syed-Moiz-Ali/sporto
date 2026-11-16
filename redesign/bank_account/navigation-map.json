@@ -1,0 +1,45 @@
+{
+  "schema": "dev-export-navigation-map",
+  "schemaVersion": "1.1.0",
+  "generatedAt": "2026-11-16T10:28:36.907Z",
+  "note": "Named-route stubs for every screen. Interactions are populated only when Figma prototype reactions exist.",
+  "manualRouteMapRequired": false,
+  "screens": [
+    {
+      "index": 1,
+      "name": "On-boarding Screen",
+      "folder": "screens/01_On-boarding-Screen",
+      "route": "/on-boarding-screen"
+    },
+    {
+      "index": 2,
+      "name": "Add Bank Account",
+      "folder": "screens/02_Add-Bank-Account",
+      "route": "/add-bank-account"
+    },
+    {
+      "index": 3,
+      "name": "Back Account",
+      "folder": "screens/03_Back-Account",
+      "route": "/back-account"
+    },
+    {
+      "index": 4,
+      "name": "Bank Account Details",
+      "folder": "screens/04_Bank-Account-Details",
+      "route": "/bank-account-details"
+    }
+  ],
+  "interactions": [
+    {
+      "screenIndex": 3,
+      "screenName": "Back Account",
+      "nodeId": "3172:6964",
+      "nodeName": "Select City",
+      "sourceRoute": "/back-account",
+      "trigger": "ON_CLICK",
+      "action": "NODE",
+      "navigation": "NAVIGATE"
+    }
+  ]
+}

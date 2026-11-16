@@ -1,0 +1,1847 @@
+{
+  "info": {
+    "name": "Referee - Core API",
+    "description": "APIs used by authenticated referees for assigned tournament/match operations.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "6aaecda13d7f14.79533027"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{referee_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{referee_base_url}}/api/v1/referee/logout",
+              "host": [
+                "{{referee_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "logout"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200 Success",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{referee_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{referee_base_url}}/api/v1/referee/logout",
+                  "host": [
+                    "{{referee_base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "referee",
+                    "logout"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Logged out successfully.\",\n  \"data\": []\n}"
+            },
+            {
+              "name": "401 Unauthorized",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{referee_base_url}}/api/v1/referee/logout",
+                  "host": [
+                    "{{referee_base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "referee",
+                    "logout"
+                  ]
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"message\": \"Unauthenticated.\"\n}"
+            },
+            {
+              "name": "401 Already Logged Out",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{revoked_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{referee_base_url}}/api/v1/referee/logout",
+                  "host": [
+                    "{{referee_base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "referee",
+                    "logout"
+                  ]
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"message\": \"Unauthenticated.\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "send-otp",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{referee_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{referee_base_url}}/api/v1/referee/send-otp",
+              "host": [
+                "{{referee_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "send-otp"
+              ],
+              "variable": [
+                {
+                  "key": "referee_base_url",
+                  "value": "1",
+                  "description": "Referee base url"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"mobile_number\": \"example_value\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "verify-otp",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{referee_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{referee_base_url}}/api/v1/referee/verify-otp",
+              "host": [
+                "{{referee_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "verify-otp"
+              ],
+              "variable": [
+                {
+                  "key": "referee_base_url",
+                  "value": "1",
+                  "description": "Referee base url"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"mobile_number\": \"example_value\",\n    \"otp\": 1,\n    \"session_key\": \"example_value\",\n    \"device_id\": \"example_value\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Profile",
+      "item": [
+        {
+          "name": "View Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{referee_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{referee_base_url}}/api/v1/referee/profile",
+              "host": [
+                "{{referee_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "profile"
+              ],
+              "variable": [
+                {
+                  "key": "referee_base_url",
+                  "value": "1",
+                  "description": "Referee base url"
+                }
+              ]
+            },
+            "description": "\nprofile.total_matches counts distinct accepted scoring matches; profile.rating is the visible verified-review average or null. profile.disputes_count is null because no referee dispute source exists. statistics separates booking counts."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Application",
+      "item": [
+        {
+          "name": "application",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{referee_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{referee_base_url}}/api/v1/referee/application",
+              "host": [
+                "{{referee_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "application"
+              ],
+              "variable": [
+                {
+                  "key": "referee_base_url",
+                  "value": "1",
+                  "description": "Referee base url"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "personal",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{referee_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{referee_base_url}}/api/v1/referee/application/personal",
+              "host": [
+                "{{referee_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "application",
+                "personal"
+              ],
+              "variable": [
+                {
+                  "key": "referee_base_url",
+                  "value": "1",
+                  "description": "Referee base url"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"first_name\": \"Example Name\",\n    \"last_name\": \"Example Name\",\n    \"email\": \"user@example.com\",\n    \"date_of_birth\": \"example_value\",\n    \"gender\": \"example_value\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "address",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{referee_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{referee_base_url}}/api/v1/referee/application/address",
+              "host": [
+                "{{referee_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "application",
+                "address"
+              ],
+              "variable": [
+                {
+                  "key": "referee_base_url",
+                  "value": "1",
+                  "description": "Referee base url"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"address_line_1\": \"example_value\",\n    \"address_line_2\": \"example_value\",\n    \"city\": \"example_value\",\n    \"state\": \"example_value\",\n    \"pincode\": \"example_value\",\n    \"country\": \"example_value\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "sports",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{referee_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{referee_base_url}}/api/v1/referee/application/sports",
+              "host": [
+                "{{referee_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "application",
+                "sports"
+              ],
+              "variable": [
+                {
+                  "key": "referee_base_url",
+                  "value": "1",
+                  "description": "Referee base url"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"sport_ids\": {\n        \"*\": 1\n    },\n    \"experience_years\": 1,\n    \"highest_qualification\": \"example_value\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "availability",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{referee_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{referee_base_url}}/api/v1/referee/application/availability",
+              "host": [
+                "{{referee_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "application",
+                "availability"
+              ],
+              "variable": [
+                {
+                  "key": "referee_base_url",
+                  "value": "1",
+                  "description": "Referee base url"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"availability\": {\n        \"*\": \"example_value\"\n    },\n    \"preferred_city\": \"example_value\",\n    \"travel_radius\": 1,\n    \"emergency_contact_name\": \"Example Name\",\n    \"emergency_contact_number\": \"example_value\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "documents",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{referee_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{referee_base_url}}/api/v1/referee/application/documents",
+              "host": [
+                "{{referee_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "application",
+                "documents"
+              ],
+              "variable": [
+                {
+                  "key": "referee_base_url",
+                  "value": "1",
+                  "description": "Referee base url"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"type\": 1,\n    \"file_path\": \"example_value\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "{id}",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{referee_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{referee_base_url}}/api/v1/referee/application/documents/{{id}}",
+              "host": [
+                "{{referee_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "application",
+                "documents",
+                "{{id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "review",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{referee_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{referee_base_url}}/api/v1/referee/application/review",
+              "host": [
+                "{{referee_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "application",
+                "review"
+              ],
+              "variable": [
+                {
+                  "key": "referee_base_url",
+                  "value": "1",
+                  "description": "Referee base url"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "submit",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{referee_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{referee_base_url}}/api/v1/referee/application/submit",
+              "host": [
+                "{{referee_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "application",
+                "submit"
+              ],
+              "variable": [
+                {
+                  "key": "referee_base_url",
+                  "value": "1",
+                  "description": "Referee base url"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "status",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{referee_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{referee_base_url}}/api/v1/referee/application/status",
+              "host": [
+                "{{referee_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "application",
+                "status"
+              ],
+              "variable": [
+                {
+                  "key": "referee_base_url",
+                  "value": "1",
+                  "description": "Referee base url"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Tournament Match Requests",
+      "item": [
+        {
+          "name": "List Match Requests",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{referee_base_url}}/api/v1/referee/match-requests",
+              "host": [
+                "{{referee_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "match-requests"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{referee_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "\npage >= 1 and per_page 1..100; invalid pagination returns 422. This feed contains scoring-match assignments, distinct from independent booking invitations."
+          },
+          "response": [
+            {
+              "name": "422 invalid pagination",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{referee_base_url}}/api/v1/referee/match-requests?per_page=101",
+                  "host": [
+                    "{{referee_base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "referee",
+                    "match-requests"
+                  ],
+                  "query": [
+                    {
+                      "key": "per_page",
+                      "value": "101"
+                    }
+                  ]
+                },
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{referee_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "description": "\npage >= 1 and per_page 1..100; invalid pagination returns 422. This feed contains scoring-match assignments, distinct from independent booking invitations."
+              },
+              "status": "Unprocessable Entity",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Validation failed.\",\n  \"errors\": {\n    \"per_page\": [\n      \"The per page field must not be greater than 100.\"\n    ]\n  }\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "const items = json?.data?.items;",
+                  "if (Array.isArray(items) && items.length > 0) {",
+                  "    const first = items[0];",
+                  "    if (first.id) {",
+                  "        pm.environment.set('assignmentId', first.id);",
+                  "    }",
+                  "    if (first.match?.id) {",
+                  "        pm.environment.set('matchId', first.match.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Accept Match Request",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{referee_base_url}}/api/v1/referee/match-requests/:assignmentId/accept",
+              "host": [
+                "{{referee_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "match-requests",
+                "{{assignmentId}}",
+                "accept"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{referee_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Reject Match Request",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{referee_base_url}}/api/v1/referee/match-requests/:assignmentId/reject",
+              "host": [
+                "{{referee_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "match-requests",
+                "{{assignmentId}}",
+                "reject"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{referee_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Dashboard, Wallet and Earnings",
+      "item": [
+        {
+          "name": "Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{referee_base_url}}/api/v1/referee/dashboard",
+              "host": [
+                "{{referee_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "dashboard"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{referee_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "\nDashboard uses Asia/Kolkata dates before pagination. Match and independent booking IDs/counts remain separate. today_matches and today_bookings are previews (20 each) with total; recent_booking_requests is a five-item preview. No wallet mutation occurs."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Successful response\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Response has a JSON body\", () => { pm.expect(() => pm.response.json()).not.to.throw(); });"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if(pm.response.code===200){ const d=pm.response.json().data; pm.test(\"Dashboard contract\",()=>{",
+                  "pm.expect(d.today_matches.items).to.be.an(\"array\");",
+                  "pm.expect(d.today_bookings.items).to.be.an(\"array\");",
+                  "pm.expect(d.stats).to.have.property(\"pending_booking_requests\");",
+                  "}); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Wallet",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{referee_base_url}}/api/v1/referee/wallet",
+              "host": [
+                "{{referee_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "wallet"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{referee_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Successful response\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Response has a JSON body\", () => { pm.expect(() => pm.response.json()).not.to.throw(); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Earnings",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{referee_base_url}}/api/v1/referee/earnings?status=all&page=1&per_page=20",
+              "host": [
+                "{{referee_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "earnings"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{referee_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "\nitems[].match_id returns the linked scoring match ID when one exists; null for service-only bookings. expected_fee is not a wallet credit. PAID, PAYOUT_PENDING and SIMULATED_UNFUNDED remain distinct."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Successful response\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Response has a JSON body\", () => { pm.expect(() => pm.response.json()).not.to.throw(); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get referee statistics",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{referee_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{referee_base_url}}/api/v1/referee/statistics",
+              "host": [
+                "{{referee_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "statistics"
+              ]
+            },
+            "description": "Read-only, own referee data. Existing profile required. No wallet creation, payment or settlement. Real distinct match and booking counters; visible verified reviews only. Unknown disputes are null."
+          },
+          "response": [
+            {
+              "name": "200 fixture example",
+              "originalRequest": {
+                "method": "GET",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{referee_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{referee_base_url}}/api/v1/referee/statistics",
+                  "host": [
+                    "{{referee_base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "referee",
+                    "statistics"
+                  ]
+                },
+                "description": "Read-only, own referee data. Existing profile required. No wallet creation, payment or settlement. Real distinct match and booking counters; visible verified reviews only. Unknown disputes are null."
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Retrieved.\",\n  \"data\": {\n    \"live_matches\": 0,\n    \"upcoming_matches\": 0,\n    \"completed_matches\": 0,\n    \"pending_requests\": 0,\n    \"pending_tournament_requests\": 0,\n    \"pending_booking_requests\": 0,\n    \"total_matches\": 0,\n    \"bookings\": {\n      \"confirmed\": 0,\n      \"ongoing\": 0,\n      \"completed\": 0\n    },\n    \"disputes_count\": null,\n    \"rating\": null\n  }\n}"
+            },
+            {
+              "name": "401 fixture example",
+              "originalRequest": {
+                "method": "GET",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{referee_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{referee_base_url}}/api/v1/referee/statistics",
+                  "host": [
+                    "{{referee_base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "referee",
+                    "statistics"
+                  ]
+                },
+                "description": "Read-only, own referee data. Existing profile required. No wallet creation, payment or settlement. Real distinct match and booking counters; visible verified reviews only. Unknown disputes are null."
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Unauthenticated.\",\n  \"errors\": null\n}"
+            },
+            {
+              "name": "404 fixture example",
+              "originalRequest": {
+                "method": "GET",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{referee_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{referee_base_url}}/api/v1/referee/statistics",
+                  "host": [
+                    "{{referee_base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "referee",
+                    "statistics"
+                  ]
+                },
+                "description": "Read-only, own referee data. Existing profile required. No wallet creation, payment or settlement. Real distinct match and booking counters; visible verified reviews only. Unknown disputes are null."
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Resource not found.\",\n  \"errors\": null\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\",()=>pm.response.to.have.status(200));",
+                  "pm.test(\"Sporto envelope\",()=>{const b=pm.response.json();pm.expect(b.success).to.eql(true);pm.expect(b).to.have.property(\"data\");});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get referee tournaments",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{referee_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{referee_base_url}}/api/v1/referee/tournaments",
+              "host": [
+                "{{referee_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "tournaments"
+              ]
+            },
+            "description": "Read-only, own referee data. Existing profile required. No wallet creation, payment or settlement. page >= 1, per_page 1..100; defaults to 20. Transaction fields omit metadata and internal keys."
+          },
+          "response": [
+            {
+              "name": "200 fixture example",
+              "originalRequest": {
+                "method": "GET",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{referee_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{referee_base_url}}/api/v1/referee/tournaments",
+                  "host": [
+                    "{{referee_base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "referee",
+                    "tournaments"
+                  ]
+                },
+                "description": "Read-only, own referee data. Existing profile required. No wallet creation, payment or settlement. page >= 1, per_page 1..100; defaults to 20. Transaction fields omit metadata and internal keys."
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Retrieved.\",\n  \"data\": {\n    \"items\": [],\n    \"current_page\": 1,\n    \"last_page\": 1,\n    \"total\": 0\n  }\n}"
+            },
+            {
+              "name": "401 fixture example",
+              "originalRequest": {
+                "method": "GET",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{referee_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{referee_base_url}}/api/v1/referee/tournaments",
+                  "host": [
+                    "{{referee_base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "referee",
+                    "tournaments"
+                  ]
+                },
+                "description": "Read-only, own referee data. Existing profile required. No wallet creation, payment or settlement. page >= 1, per_page 1..100; defaults to 20. Transaction fields omit metadata and internal keys."
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Unauthenticated.\",\n  \"errors\": null\n}"
+            },
+            {
+              "name": "404 fixture example",
+              "originalRequest": {
+                "method": "GET",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{referee_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{referee_base_url}}/api/v1/referee/tournaments",
+                  "host": [
+                    "{{referee_base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "referee",
+                    "tournaments"
+                  ]
+                },
+                "description": "Read-only, own referee data. Existing profile required. No wallet creation, payment or settlement. page >= 1, per_page 1..100; defaults to 20. Transaction fields omit metadata and internal keys."
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Resource not found.\",\n  \"errors\": null\n}"
+            },
+            {
+              "name": "422 fixture example",
+              "originalRequest": {
+                "method": "GET",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{referee_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{referee_base_url}}/api/v1/referee/tournaments",
+                  "host": [
+                    "{{referee_base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "referee",
+                    "tournaments"
+                  ]
+                },
+                "description": "Read-only, own referee data. Existing profile required. No wallet creation, payment or settlement. page >= 1, per_page 1..100; defaults to 20. Transaction fields omit metadata and internal keys."
+              },
+              "status": "Unprocessable Entity",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Validation failed.\",\n  \"errors\": {\n    \"per_page\": [\n      \"The per page field must not be greater than 100.\"\n    ]\n  }\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\",()=>pm.response.to.have.status(200));",
+                  "pm.test(\"Sporto envelope\",()=>{const b=pm.response.json();pm.expect(b.success).to.eql(true);pm.expect(b).to.have.property(\"data\");});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get referee wallet transactions",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{referee_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{referee_base_url}}/api/v1/referee/wallet/transactions",
+              "host": [
+                "{{referee_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "wallet",
+                "transactions"
+              ]
+            },
+            "description": "Read-only, own referee data. Existing profile required. No wallet creation, payment or settlement. page >= 1, per_page 1..100; defaults to 20. Transaction fields omit metadata and internal keys."
+          },
+          "response": [
+            {
+              "name": "200 fixture example",
+              "originalRequest": {
+                "method": "GET",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{referee_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{referee_base_url}}/api/v1/referee/wallet/transactions",
+                  "host": [
+                    "{{referee_base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "referee",
+                    "wallet",
+                    "transactions"
+                  ]
+                },
+                "description": "Read-only, own referee data. Existing profile required. No wallet creation, payment or settlement. page >= 1, per_page 1..100; defaults to 20. Transaction fields omit metadata and internal keys."
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Retrieved.\",\n  \"data\": {\n    \"items\": [],\n    \"current_page\": 1,\n    \"last_page\": 1,\n    \"total\": 0\n  }\n}"
+            },
+            {
+              "name": "401 fixture example",
+              "originalRequest": {
+                "method": "GET",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{referee_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{referee_base_url}}/api/v1/referee/wallet/transactions",
+                  "host": [
+                    "{{referee_base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "referee",
+                    "wallet",
+                    "transactions"
+                  ]
+                },
+                "description": "Read-only, own referee data. Existing profile required. No wallet creation, payment or settlement. page >= 1, per_page 1..100; defaults to 20. Transaction fields omit metadata and internal keys."
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Unauthenticated.\",\n  \"errors\": null\n}"
+            },
+            {
+              "name": "404 fixture example",
+              "originalRequest": {
+                "method": "GET",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{referee_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{referee_base_url}}/api/v1/referee/wallet/transactions",
+                  "host": [
+                    "{{referee_base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "referee",
+                    "wallet",
+                    "transactions"
+                  ]
+                },
+                "description": "Read-only, own referee data. Existing profile required. No wallet creation, payment or settlement. page >= 1, per_page 1..100; defaults to 20. Transaction fields omit metadata and internal keys."
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Resource not found.\",\n  \"errors\": null\n}"
+            },
+            {
+              "name": "422 fixture example",
+              "originalRequest": {
+                "method": "GET",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{referee_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{referee_base_url}}/api/v1/referee/wallet/transactions",
+                  "host": [
+                    "{{referee_base_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "referee",
+                    "wallet",
+                    "transactions"
+                  ]
+                },
+                "description": "Read-only, own referee data. Existing profile required. No wallet creation, payment or settlement. page >= 1, per_page 1..100; defaults to 20. Transaction fields omit metadata and internal keys."
+              },
+              "status": "Unprocessable Entity",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Validation failed.\",\n  \"errors\": {\n    \"per_page\": [\n      \"The per page field must not be greater than 100.\"\n    ]\n  }\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\",()=>pm.response.to.have.status(200));",
+                  "pm.test(\"Sporto envelope\",()=>{const b=pm.response.json();pm.expect(b.success).to.eql(true);pm.expect(b).to.have.property(\"data\");});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Referee Availability Status",
+      "item": [
+        {
+          "name": "Availability status",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{referee_base_url}}/api/v1/referee/availability/status",
+              "host": [
+                "{{referee_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "availability",
+                "status"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{referee_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Successful response\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Response has a JSON body\", () => { pm.expect(() => pm.response.json()).not.to.throw(); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Online or offline",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{referee_base_url}}/api/v1/referee/availability/status",
+              "host": [
+                "{{referee_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "referee",
+                "availability",
+                "status"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"is_available\": true\n}"
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{referee_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Successful response\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Response has a JSON body\", () => { pm.expect(() => pm.response.json()).not.to.throw(); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

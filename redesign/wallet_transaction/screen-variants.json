@@ -1,0 +1,83 @@
+{
+  "schema": "dev-export-screen-variants",
+  "schemaVersion": "1.1.0",
+  "generatedAt": "2026-11-16T10:28:02.496Z",
+  "note": "Screens that are states or tabs of the same logical screen are grouped here. Code generation creates one screen with variant handling instead of duplicate screens.",
+  "logicalScreenCount": 3,
+  "variantScreenCount": 4,
+  "screens": [
+    {
+      "id": "logical-3c5a3e0796",
+      "name": "My Tournaments",
+      "width": 390,
+      "height": 844,
+      "variantTypes": [
+        "default"
+      ],
+      "variants": [
+        {
+          "screenIndex": 1,
+          "screenName": "My Tournaments",
+          "variantType": "default",
+          "variantName": "Default",
+          "isDefault": true,
+          "folder": "screens/01_My-Tournaments",
+          "json": "screens/01_My-Tournaments/My-Tournaments.json",
+          "preview": "screens/01_My-Tournaments/My-Tournaments@2x.png"
+        }
+      ]
+    },
+    {
+      "id": "logical-cccdcd98fb",
+      "name": "Wallet",
+      "width": 390,
+      "height": 844,
+      "variantTypes": [
+        "default"
+      ],
+      "variants": [
+        {
+          "screenIndex": 2,
+          "screenName": "Wallet",
+          "variantType": "default",
+          "variantName": "Default",
+          "isDefault": true,
+          "folder": "screens/02_Wallet",
+          "json": "screens/02_Wallet/Wallet.json",
+          "preview": "screens/02_Wallet/Wallet@2x.png"
+        },
+        {
+          "screenIndex": 3,
+          "screenName": "Wallet",
+          "variantType": "default",
+          "variantName": "Default",
+          "isDefault": false,
+          "folder": "screens/03_Wallet",
+          "json": "screens/03_Wallet/Wallet.json",
+          "preview": "screens/03_Wallet/Wallet@2x.png"
+        }
+      ]
+    },
+    {
+      "id": "logical-220eb315e2",
+      "name": "Transaction Details",
+      "width": 390,
+      "height": 844,
+      "variantTypes": [
+        "default"
+      ],
+      "variants": [
+        {
+          "screenIndex": 4,
+          "screenName": "Transaction Details",
+          "variantType": "default",
+          "variantName": "Default",
+          "isDefault": true,
+          "folder": "screens/04_Transaction-Details",
+          "json": "screens/04_Transaction-Details/Transaction-Details.json",
+          "preview": "screens/04_Transaction-Details/Transaction-Details@2x.png"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,145 @@
+{
+  "schema": "dev-export-assets",
+  "schemaVersion": "1.1.0",
+  "generatedAt": "2026-11-16T10:28:39.774Z",
+  "screen": {
+    "id": "3172:6931",
+    "name": "Back Account"
+  },
+  "assets": [
+    {
+      "ref": "svg-3172_6958",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "assetId": "7bf3ec93c80b",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-7bf3ec93c80b.svg",
+      "pngFileName": "assets/png/vector-7bf3ec93c80b@2x.png",
+      "pngScale": 2,
+      "formats": {
+        "svg": "assets/svg/vector-7bf3ec93c80b.svg",
+        "png": "assets/png/vector-7bf3ec93c80b@2x.png"
+      },
+      "nodeId": "3172:6958",
+      "nodeName": "Vector",
+      "nodeType": "VECTOR",
+      "width": 6,
+      "height": 12,
+      "byteLength": 990,
+      "pngByteLength": 694
+    },
+    {
+      "ref": "svg-3172_6965",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "assetId": "a4eb49850c93",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-a4eb49850c93.svg",
+      "pngFileName": "assets/png/vector-a4eb49850c93@2x.png",
+      "pngScale": 2,
+      "formats": {
+        "svg": "assets/svg/vector-a4eb49850c93.svg",
+        "png": "assets/png/vector-a4eb49850c93@2x.png"
+      },
+      "nodeId": "3172:6965",
+      "nodeName": "Vector",
+      "nodeType": "VECTOR",
+      "width": 12,
+      "height": 12,
+      "byteLength": 267,
+      "pngByteLength": 296
+    },
+    {
+      "ref": "svg-3172_6970",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "assetId": "149be7e3dfc4",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-149be7e3dfc4.svg",
+      "pngFileName": "assets/png/vector-149be7e3dfc4@2x.png",
+      "pngScale": 2,
+      "formats": {
+        "svg": "assets/svg/vector-149be7e3dfc4.svg",
+        "png": "assets/png/vector-149be7e3dfc4@2x.png"
+      },
+      "nodeId": "3172:6970",
+      "nodeName": "Vector",
+      "nodeType": "VECTOR",
+      "width": 26,
+      "height": 26,
+      "byteLength": 893,
+      "pngByteLength": 1153
+    },
+    {
+      "ref": "svg-3172_6978",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "assetId": "149be7e3dfc4",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-149be7e3dfc4.svg",
+      "pngFileName": "assets/png/vector-149be7e3dfc4@2x.png",
+      "pngScale": 2,
+      "formats": {
+        "svg": "assets/svg/vector-149be7e3dfc4.svg",
+        "png": "assets/png/vector-149be7e3dfc4@2x.png"
+      },
+      "nodeId": "3172:6978",
+      "nodeName": "Vector",
+      "nodeType": "VECTOR",
+      "width": 26,
+      "height": 26,
+      "byteLength": 893,
+      "pngByteLength": 1153
+    },
+    {
+      "ref": "svg-3172_6986",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "assetId": "38982698c110",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-38982698c110.svg",
+      "pngFileName": "assets/png/vector-38982698c110@2x.png",
+      "pngScale": 2,
+      "formats": {
+        "svg": "assets/svg/vector-38982698c110.svg",
+        "png": "assets/png/vector-38982698c110@2x.png"
+      },
+      "nodeId": "3172:6986",
+      "nodeName": "Vector",
+      "nodeType": "VECTOR",
+      "width": 28.595861434936523,
+      "height": 24,
+      "byteLength": 7739,
+      "pngByteLength": 2303
+    }
+  ],
+  "sharedAssets": [
+    {
+      "id": "shared-310f004dc86a",
+      "file": "shared/assets/png/Vector-310f004d.png",
+      "relativeFromScreen": "../../shared/assets/png/Vector-310f004d.png",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "mime": "image/png",
+      "byteLength": 694,
+      "usedAt": [
+        {
+          "nodeId": "3172:6958",
+          "nodeName": "Vector",
+          "nodeType": "VECTOR",
+          "layerPath": "Back Account / Frame 1000003334 / Frame 1000003337 / Back / Vector",
+          "usage": "vector",
+          "x": 15,
+          "y": 12,
+          "width": 6,
+          "height": 12
+        }
+      ]
+    }
+  ]
+}

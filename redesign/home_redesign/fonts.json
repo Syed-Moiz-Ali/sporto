@@ -1,0 +1,380 @@
+{
+  "schema": "dev-export-fonts",
+  "schemaVersion": "1.1.0",
+  "generatedAt": "2026-11-16T10:24:29.622Z",
+  "familyCount": 3,
+  "fonts": [
+    {
+      "family": "Quicksand",
+      "source": "system",
+      "license": "system-font",
+      "fallbackStack": [
+        "Quicksand",
+        "Noto Sans",
+        "Noto Sans Arabic",
+        "Noto Color Emoji",
+        "Apple Color Emoji",
+        "Segoe UI Emoji",
+        "ui-sans-serif",
+        "system-ui",
+        "sans-serif"
+      ],
+      "substitute": "Inter",
+      "isIconFont": false,
+      "iconLigatures": false,
+      "mixed": true,
+      "weights": {
+        "400": "Regular",
+        "500": "Medium",
+        "600": "SemiBold",
+        "700": "Bold"
+      },
+      "allWeights": [
+        400,
+        500,
+        600,
+        700
+      ],
+      "usageCount": 228,
+      "styles": [
+        {
+          "style": "Regular",
+          "count": 9,
+          "weights": [
+            400
+          ],
+          "availableOnClient": true
+        },
+        {
+          "style": "Medium",
+          "count": 122,
+          "weights": [
+            400,
+            500,
+            600,
+            700
+          ],
+          "availableOnClient": true
+        },
+        {
+          "style": "SemiBold",
+          "count": 60,
+          "weights": [
+            600
+          ],
+          "availableOnClient": true
+        },
+        {
+          "style": "Bold",
+          "count": 37,
+          "weights": [
+            700
+          ],
+          "availableOnClient": true
+        }
+      ],
+      "sizes": [
+        {
+          "value": 12,
+          "count": 108
+        },
+        {
+          "value": 14,
+          "count": 59
+        },
+        {
+          "value": 16,
+          "count": 33
+        },
+        {
+          "value": 11,
+          "count": 12
+        },
+        {
+          "value": 18,
+          "count": 6
+        },
+        {
+          "value": 20,
+          "count": 3
+        },
+        {
+          "value": 10,
+          "count": 3
+        },
+        {
+          "value": 13,
+          "count": 2
+        },
+        {
+          "value": 30,
+          "count": 1
+        }
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home"
+        },
+        {
+          "index": 2,
+          "name": "Home - Live"
+        },
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        },
+        {
+          "index": 4,
+          "name": "Incoming Requests"
+        },
+        {
+          "index": 5,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 6,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 7,
+          "name": "BOOKING CONFIRMED"
+        }
+      ],
+      "samples": [
+        {
+          "screenIndex": 1,
+          "screenName": "Home",
+          "nodeId": "2956:3338",
+          "path": "Home / Frame 1000003334 / Frame 1000003336 / Frame 1000003337 / Good Evening",
+          "characters": "Good Evening",
+          "fontSize": 14,
+          "fontWeight": 400
+        },
+        {
+          "screenIndex": 1,
+          "screenName": "Home",
+          "nodeId": "2956:3339",
+          "path": "Home / Frame 1000003334 / Frame 1000003336 / Frame 1000003337 / Shravan Prajapati",
+          "characters": "Shravan Prajapati",
+          "fontSize": 18,
+          "fontWeight": 700
+        },
+        {
+          "screenIndex": 1,
+          "screenName": "Home",
+          "nodeId": "2956:3372",
+          "path": "Home / Frame 1261154190 / SIGNATURE: MATCH TICKET / Frame 1261154607 / Frame 1261154608 / Dark Gray Wingback C",
+          "characters": "Referee Status",
+          "fontSize": 14,
+          "fontWeight": 600
+        },
+        {
+          "screenIndex": 1,
+          "screenName": "Home",
+          "nodeId": "2956:3374",
+          "path": "Home / Frame 1261154190 / SIGNATURE: MATCH TICKET / Frame 1261154607 / Frame 1261154609 / Dark Gray Wingback C",
+          "characters": "Off",
+          "fontSize": 14,
+          "fontWeight": 600
+        },
+        {
+          "screenIndex": 1,
+          "screenName": "Home",
+          "nodeId": "2956:3376",
+          "path": "Home / Frame 1261154190 / SIGNATURE: MATCH TICKET / Upto 3.5% Cashback",
+          "characters": "Not taking new matches",
+          "fontSize": 16,
+          "fontWeight": 700
+        }
+      ],
+      "notes": "System font. Confirm redistribution/licensing before packaging binaries."
+    },
+    {
+      "family": "Inter",
+      "source": "google",
+      "downloadUrl": "https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap",
+      "weightUrls": {
+        "600": "https://fonts.googleapis.com/css2?family=Inter:wght@600&display=swap"
+      },
+      "license": "OFL-1.1",
+      "licenseUrl": "https://openfontlicense.org",
+      "fallbackStack": [
+        "Inter",
+        "Noto Sans",
+        "Noto Sans Arabic",
+        "Noto Color Emoji",
+        "Apple Color Emoji",
+        "Segoe UI Emoji",
+        "ui-sans-serif",
+        "system-ui",
+        "sans-serif"
+      ],
+      "substitute": "Inter",
+      "isIconFont": false,
+      "iconLigatures": false,
+      "mixed": false,
+      "weights": {
+        "600": "Semi Bold"
+      },
+      "allWeights": [
+        600
+      ],
+      "usageCount": 3,
+      "styles": [
+        {
+          "style": "Semi Bold",
+          "count": 3,
+          "weights": [
+            600
+          ],
+          "availableOnClient": true
+        }
+      ],
+      "sizes": [
+        {
+          "value": 16,
+          "count": 3
+        }
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home"
+        },
+        {
+          "index": 2,
+          "name": "Home - Live"
+        },
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ],
+      "samples": [
+        {
+          "screenIndex": 1,
+          "screenName": "Home",
+          "nodeId": "2956:3345",
+          "path": "Home / Frame 1000003334 / Frame 1000003336 / Frame 1000003338 / Frame 1261154256 / Frame 1000003340 / 500",
+          "characters": "500",
+          "fontSize": 16,
+          "fontWeight": 600
+        },
+        {
+          "screenIndex": 2,
+          "screenName": "Home - Live",
+          "nodeId": "2958:3688",
+          "path": "Home - Live / Frame 1000003334 / Frame 1000003336 / Frame 1000003338 / Frame 1261154256 / Frame 1000003340 / 500",
+          "characters": "500",
+          "fontSize": 16,
+          "fontWeight": 600
+        },
+        {
+          "screenIndex": 3,
+          "screenName": "Home - Today's Match",
+          "nodeId": "2958:4299",
+          "path": "Home - Today's Match / Frame 1000003334 / Frame 1000003336 / Frame 1000003338 / Frame 1261154256 / Frame 1000003340 / 500",
+          "characters": "500",
+          "fontSize": 16,
+          "fontWeight": 600
+        }
+      ],
+      "googleFontsUrl": "https://fonts.google.com/specimen/Inter"
+    },
+    {
+      "family": "Mulish",
+      "source": "system",
+      "license": "system-font",
+      "fallbackStack": [
+        "Mulish",
+        "Noto Sans",
+        "Noto Sans Arabic",
+        "Noto Color Emoji",
+        "Apple Color Emoji",
+        "Segoe UI Emoji",
+        "ui-sans-serif",
+        "system-ui",
+        "sans-serif"
+      ],
+      "substitute": "Inter",
+      "isIconFont": false,
+      "iconLigatures": false,
+      "mixed": false,
+      "weights": {
+        "400": "Regular"
+      },
+      "allWeights": [
+        400
+      ],
+      "usageCount": 3,
+      "styles": [
+        {
+          "style": "Regular",
+          "count": 3,
+          "weights": [
+            400
+          ],
+          "availableOnClient": true
+        }
+      ],
+      "sizes": [
+        {
+          "value": 14,
+          "count": 3
+        }
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home"
+        },
+        {
+          "index": 2,
+          "name": "Home - Live"
+        },
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ],
+      "samples": [
+        {
+          "screenIndex": 1,
+          "screenName": "Home",
+          "nodeId": "2956:3360",
+          "path": "Home / Frame 1000003334 / Frame 1000003337 / Shape / Prefix",
+          "characters": "Search cricket, football..",
+          "fontSize": 14,
+          "fontWeight": 400
+        },
+        {
+          "screenIndex": 2,
+          "screenName": "Home - Live",
+          "nodeId": "2958:3703",
+          "path": "Home - Live / Frame 1000003334 / Frame 1000003337 / Shape / Prefix",
+          "characters": "Search cricket, football..",
+          "fontSize": 14,
+          "fontWeight": 400
+        },
+        {
+          "screenIndex": 3,
+          "screenName": "Home - Today's Match",
+          "nodeId": "2958:4314",
+          "path": "Home - Today's Match / Frame 1000003334 / Frame 1000003337 / Shape / Prefix",
+          "characters": "Search cricket, football..",
+          "fontSize": 14,
+          "fontWeight": 400
+        }
+      ],
+      "notes": "System font. Confirm redistribution/licensing before packaging binaries."
+    }
+  ],
+  "warnings": [
+    {
+      "code": "MIXED_FONT_WEIGHT",
+      "family": "Quicksand",
+      "message": "Font Quicksand has mixed weights across text runs. Resolve weights from styledSegments when rendering."
+    }
+  ]
+}

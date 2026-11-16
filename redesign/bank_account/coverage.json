@@ -1,0 +1,146 @@
+{
+  "schema": "dev-export-coverage",
+  "schemaVersion": "1.1.0",
+  "generatedAt": "2026-11-16T10:28:36.907Z",
+  "summary": {
+    "CONSTRAINT_LAYOUT": 10,
+    "FIXED_TEXT_BOX": 2,
+    "MULTIPLE_FILLS": 1,
+    "MISSING_FONT": 1,
+    "HEURISTIC_COMPONENTS": 1
+  },
+  "globalWarnings": [
+    {
+      "code": "MIXED_FONT_WEIGHT",
+      "family": "Quicksand",
+      "message": "Font Quicksand has mixed weights across text runs. Resolve weights from styledSegments when rendering."
+    },
+    {
+      "code": "HEURISTIC_COMPONENTS",
+      "message": "2 repeated structures were detected heuristically. Review their props and variants in central-ui.json."
+    }
+  ],
+  "screens": [
+    {
+      "index": 1,
+      "screen": "On-boarding Screen",
+      "name": "On-boarding Screen",
+      "folder": "screens/01_On-boarding-Screen",
+      "json": "screens/01_On-boarding-Screen/On-boarding-Screen.json",
+      "warningCount": 4,
+      "truncated": false,
+      "warnings": [
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "3172:6915",
+          "path": "On-boarding Screen / Frame 1261154190 / Frame 1171275339 / Frame 1171275271 / Frame 1171275269 / info-circle / vuesax/linear/info-circle / info-circle / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "3172:6916",
+          "path": "On-boarding Screen / Frame 1261154190 / Frame 1171275339 / Frame 1171275271 / Frame 1171275269 / info-circle / vuesax/linear/info-circle / info-circle / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "3172:6917",
+          "path": "On-boarding Screen / Frame 1261154190 / Frame 1171275339 / Frame 1171275271 / Frame 1171275269 / info-circle / vuesax/linear/info-circle / info-circle / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "3172:6918",
+          "path": "On-boarding Screen / Frame 1261154190 / Frame 1171275339 / Frame 1171275271 / Frame 1171275269 / info-circle / vuesax/linear/info-circle / info-circle / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "screen": "Add Bank Account",
+      "name": "Add Bank Account",
+      "folder": "screens/02_Add-Bank-Account",
+      "json": "screens/02_Add-Bank-Account/Add-Bank-Account.json",
+      "warningCount": 0,
+      "truncated": false,
+      "warnings": []
+    },
+    {
+      "index": 3,
+      "screen": "Back Account",
+      "name": "Back Account",
+      "folder": "screens/03_Back-Account",
+      "json": "screens/03_Back-Account/Back-Account.json",
+      "warningCount": 2,
+      "truncated": false,
+      "warnings": [
+        {
+          "code": "FIXED_TEXT_BOX",
+          "nodeId": "3172:6972",
+          "path": "Back Account / Frame 1261154190 / Frame 1261154714 / Frame 1171275339 / Frame 1171275285 / Upto 3.5% Cashback",
+          "message": "Text box is fixed. Verify overflow and wrapping behavior."
+        },
+        {
+          "code": "FIXED_TEXT_BOX",
+          "nodeId": "3172:6980",
+          "path": "Back Account / Frame 1261154190 / Frame 1261154714 / Frame 1171275341 / Frame 1171275285 / Upto 3.5% Cashback",
+          "message": "Text box is fixed. Verify overflow and wrapping behavior."
+        }
+      ]
+    },
+    {
+      "index": 4,
+      "screen": "Bank Account Details",
+      "name": "Bank Account Details",
+      "folder": "screens/04_Bank-Account-Details",
+      "json": "screens/04_Bank-Account-Details/Bank-Account-Details.json",
+      "warningCount": 7,
+      "truncated": false,
+      "warnings": [
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "I3172:6816;1:48287",
+          "path": "Bank Account Details / Frame 1261154190 / Frame 1261154590 / Background+Border / Frame 1261154605 / Frame 1261154580 / eye / vuesax/linear/eye / eye / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "I3172:6816;1:48288",
+          "path": "Bank Account Details / Frame 1261154190 / Frame 1261154590 / Background+Border / Frame 1261154605 / Frame 1261154580 / eye / vuesax/linear/eye / eye / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "I3172:6816;1:48289",
+          "path": "Bank Account Details / Frame 1261154190 / Frame 1261154590 / Background+Border / Frame 1261154605 / Frame 1261154580 / eye / vuesax/linear/eye / eye / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "I3172:6818;1:504",
+          "path": "Bank Account Details / Frame 1261154190 / Frame 1261154590 / Background+Border / Frame 1261154605 / Frame 1261154517 / tick-circle / vuesax/linear/tick-circle / tick-circle / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "I3172:6818;1:505",
+          "path": "Bank Account Details / Frame 1261154190 / Frame 1261154590 / Background+Border / Frame 1261154605 / Frame 1261154517 / tick-circle / vuesax/linear/tick-circle / tick-circle / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "I3172:6818;1:506",
+          "path": "Bank Account Details / Frame 1261154190 / Frame 1261154590 / Background+Border / Frame 1261154605 / Frame 1261154517 / tick-circle / vuesax/linear/tick-circle / tick-circle / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "MULTIPLE_FILLS",
+          "nodeId": "3172:6848",
+          "path": "Bank Account Details / Frame 1261154402",
+          "message": "Multiple fills are stacked; verify background layering."
+        }
+      ]
+    }
+  ]
+}

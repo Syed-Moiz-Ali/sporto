@@ -1,0 +1,240 @@
+{
+  "schema": "dev-export-multiscreen-package",
+  "schemaVersion": "1.1.0",
+  "generatedAt": "2026-11-16T10:28:02.496Z",
+  "source": {
+    "editorType": "figma",
+    "fileName": "🏏 SPOTO (Copy)",
+    "page": {
+      "id": "133:342",
+      "name": "Referee App"
+    }
+  },
+  "ordering": "Screens are ordered top-to-bottom, then left-to-right by their position on the Figma page.",
+  "nestedSelectionBehavior": "If both a selected screen and one of its descendants are selected, only the outermost selected node is packaged.",
+  "screenCount": 4,
+  "failedScreenCount": 0,
+  "failedScreens": [],
+  "totals": {
+    "serializedNodes": 254,
+    "assets": 45,
+    "individualSvg": 31,
+    "composedSvg": 14,
+    "raster": 0,
+    "pngAssetPreviews": 45,
+    "assetBytes": 57376,
+    "previewBytes": 549216,
+    "sharedAssets": 9,
+    "sharedAssetBytes": 3564,
+    "centralComponents": 10,
+    "centralTokens": {
+      "colors": 23,
+      "typography": 22,
+      "spacing": 11,
+      "radii": 9,
+      "shadows": 3,
+      "gradients": 12,
+      "namedStyles": 14,
+      "variables": 43
+    }
+  },
+  "sharedAssets": {
+    "folder": "shared/assets",
+    "manifest": "shared/assets/manifest.json",
+    "guide": "shared/SHARED_ASSETS.md",
+    "assetCount": 9,
+    "totalBytes": 3564
+  },
+  "centralUi": {
+    "manifest": "central-ui/central-ui.json",
+    "readme": "central-ui/README.md",
+    "architecture": "centralized-ui",
+    "componentCount": 10,
+    "figmaComponents": 1,
+    "repeatedComponents": 9,
+    "tokenCounts": {
+      "colors": 23,
+      "typography": 22,
+      "spacing": 11,
+      "radii": 9,
+      "shadows": 3,
+      "gradients": 12,
+      "namedStyles": 14,
+      "variables": 43
+    }
+  },
+  "nodeIndex": "node-index.json",
+  "designTokens": {
+    "json": "tokens/tokens.json",
+    "css": "tokens/tokens.css",
+    "tailwind": "tokens/tailwind.config.js",
+    "counts": {
+      "colors": 23,
+      "typography": 22,
+      "spacing": 11,
+      "radii": 9,
+      "shadows": 3,
+      "gradients": 12,
+      "namedStyles": 14,
+      "variables": 43
+    }
+  },
+  "componentIndex": "component-index.json",
+  "assetPathMap": "asset-path-map.json",
+  "navigationMap": "navigation-map.json",
+  "screenGroups": "screen-groups.json",
+  "screenVariants": {
+    "manifest": "screen-variants.json",
+    "logicalScreenCount": 3,
+    "variantScreenCount": 4
+  },
+  "verification": {
+    "enabled": false
+  },
+  "output": {
+    "mode": "design",
+    "target": null,
+    "codeFolder": null
+  },
+  "codeGeneration": {
+    "enabled": false
+  },
+  "fonts": {
+    "manifest": "fonts.json",
+    "familyCount": 1,
+    "warningCount": 1
+  },
+  "coverage": {
+    "manifest": "coverage.json",
+    "warningCount": 13,
+    "summary": {
+      "CONSTRAINT_LAYOUT": 9,
+      "MULTIPLE_FILLS": 2,
+      "MISSING_FONT": 1,
+      "HEURISTIC_COMPONENTS": 1
+    }
+  },
+  "aiPrompt": "AI_AGENT_PROMPT.md",
+  "aiScreensFolder": "ai/",
+  "recommendedReadOrder": [
+    "package-manifest.json",
+    "central-ui/central-ui.json",
+    "FRONTEND_IMPLEMENTATION_GUIDE.md",
+    "AI_AGENT_PROMPT.md",
+    "fonts.json",
+    "coverage.json",
+    "node-index.json",
+    "tokens/tokens.json",
+    "tokens/tokens.css",
+    "tokens/tailwind.config.js",
+    "component-index.json",
+    "screen-groups.json",
+    "screen-variants.json",
+    "verify/README.md",
+    "verify/expected/manifest.json",
+    "code/<target>/README.md",
+    "screens/<screen>/<screen>.json -> developerSummary",
+    "screens/<screen>/<screen>.json -> assetIndex",
+    "screens/<screen>/<screen>.json -> centralUi",
+    "screens/<screen>/<screen>.json -> nodes",
+    "screens/<screen>/<screen>@2x.png",
+    "screens/<screen>/assets/ASSET_CATALOG.html",
+    "shared/assets/manifest.json",
+    "shared/SHARED_ASSETS.md",
+    "ai/<screen>.md"
+  ],
+  "screens": [
+    {
+      "index": 1,
+      "nodeId": "3172:8068",
+      "name": "My Tournaments",
+      "nodeType": "FRAME",
+      "width": 390,
+      "height": 844,
+      "folder": "screens/01_My-Tournaments",
+      "json": "screens/01_My-Tournaments/My-Tournaments.json",
+      "preview": "screens/01_My-Tournaments/My-Tournaments@2x.png",
+      "preview1x": "screens/01_My-Tournaments/My-Tournaments@1x.png",
+      "assetsFolder": "screens/01_My-Tournaments/assets",
+      "assetsManifest": "screens/01_My-Tournaments/assets/manifest.json",
+      "serializedNodeCount": 75,
+      "assetCount": 12,
+      "individualSvgCount": 10,
+      "composedSvgCount": 2,
+      "rasterCount": 0,
+      "pngAssetPreviewCount": 12,
+      "assetCatalog": "screens/01_My-Tournaments/assets/ASSET_CATALOG.html",
+      "assetBytes": 9035,
+      "previewBytes": 178052
+    },
+    {
+      "index": 2,
+      "nodeId": "3169:1623",
+      "name": "Wallet",
+      "nodeType": "FRAME",
+      "width": 390,
+      "height": 844,
+      "folder": "screens/02_Wallet",
+      "json": "screens/02_Wallet/Wallet.json",
+      "preview": "screens/02_Wallet/Wallet@2x.png",
+      "preview1x": "screens/02_Wallet/Wallet@1x.png",
+      "assetsFolder": "screens/02_Wallet/assets",
+      "assetsManifest": "screens/02_Wallet/assets/manifest.json",
+      "serializedNodeCount": 71,
+      "assetCount": 9,
+      "individualSvgCount": 7,
+      "composedSvgCount": 2,
+      "rasterCount": 0,
+      "pngAssetPreviewCount": 9,
+      "assetCatalog": "screens/02_Wallet/assets/ASSET_CATALOG.html",
+      "assetBytes": 9603,
+      "previewBytes": 128331
+    },
+    {
+      "index": 3,
+      "nodeId": "3172:8355",
+      "name": "Wallet",
+      "nodeType": "FRAME",
+      "width": 390,
+      "height": 844,
+      "folder": "screens/03_Wallet",
+      "json": "screens/03_Wallet/Wallet.json",
+      "preview": "screens/03_Wallet/Wallet@2x.png",
+      "preview1x": "screens/03_Wallet/Wallet@1x.png",
+      "assetsFolder": "screens/03_Wallet/assets",
+      "assetsManifest": "screens/03_Wallet/assets/manifest.json",
+      "serializedNodeCount": 45,
+      "assetCount": 7,
+      "individualSvgCount": 5,
+      "composedSvgCount": 2,
+      "rasterCount": 0,
+      "pngAssetPreviewCount": 7,
+      "assetCatalog": "screens/03_Wallet/assets/ASSET_CATALOG.html",
+      "assetBytes": 6803,
+      "previewBytes": 80304
+    },
+    {
+      "index": 4,
+      "nodeId": "3172:8168",
+      "name": "Transaction Details",
+      "nodeType": "FRAME",
+      "width": 390,
+      "height": 844,
+      "folder": "screens/04_Transaction-Details",
+      "json": "screens/04_Transaction-Details/Transaction-Details.json",
+      "preview": "screens/04_Transaction-Details/Transaction-Details@2x.png",
+      "preview1x": "screens/04_Transaction-Details/Transaction-Details@1x.png",
+      "assetsFolder": "screens/04_Transaction-Details/assets",
+      "assetsManifest": "screens/04_Transaction-Details/assets/manifest.json",
+      "serializedNodeCount": 63,
+      "assetCount": 17,
+      "individualSvgCount": 9,
+      "composedSvgCount": 8,
+      "rasterCount": 0,
+      "pngAssetPreviewCount": 17,
+      "assetCatalog": "screens/04_Transaction-Details/assets/ASSET_CATALOG.html",
+      "assetBytes": 31935,
+      "previewBytes": 162529
+    }
+  ]
+}

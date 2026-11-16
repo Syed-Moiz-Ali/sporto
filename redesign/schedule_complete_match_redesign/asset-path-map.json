@@ -1,0 +1,1927 @@
+{
+  "schema": "dev-export-asset-path-map",
+  "schemaVersion": "1.1.0",
+  "generatedAt": "2026-11-16T10:25:39.322Z",
+  "note": "Original Figma layer/image names mapped to sanitized, content-addressed export filenames.",
+  "assets": [
+    {
+      "assetId": "544f6f7cc7a6",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-544f6f7cc7a6.svg",
+      "pngFileName": "assets/png/vector-544f6f7cc7a6@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3087_9464"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home - Schedule"
+        }
+      ]
+    },
+    {
+      "assetId": "9422c9fd08e3",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-9422c9fd08e3.svg",
+      "pngFileName": "assets/png/vector-9422c9fd08e3@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3087_9465"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home - Schedule"
+        }
+      ]
+    },
+    {
+      "assetId": "7ec0310627f4",
+      "kind": "composed-svg",
+      "originalName": "search-normal",
+      "originalFileName": "search-normal.svg",
+      "fileName": "assets/composed/svg/search_normal-7ec0310627f4.svg",
+      "pngFileName": "assets/composed/png/search_normal-7ec0310627f4@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-3087_9463"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home - Schedule"
+        }
+      ]
+    },
+    {
+      "assetId": "3b68e520fdef",
+      "kind": "composed-svg",
+      "originalName": "vuesax/twotone/search-normal",
+      "originalFileName": "vuesax/twotone/search-normal.svg",
+      "fileName": "assets/composed/svg/vuesax_twotone_search_normal-3b68e520fdef.svg",
+      "pngFileName": "assets/composed/png/vuesax_twotone_search_normal-3b68e520fdef@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-3087_9462"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home - Schedule"
+        }
+      ]
+    },
+    {
+      "assetId": "7dc885b63c6f",
+      "kind": "composed-svg",
+      "originalName": "search-normal",
+      "originalFileName": "search-normal.svg",
+      "fileName": "assets/composed/svg/search_normal-7dc885b63c6f.svg",
+      "pngFileName": "assets/composed/png/search_normal-7dc885b63c6f@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-3087_9461"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home - Schedule"
+        }
+      ]
+    },
+    {
+      "assetId": "2c290e55d346",
+      "kind": "svg",
+      "originalName": "Line 11",
+      "originalFileName": "Line 11.svg",
+      "fileName": "assets/svg/line_11-2c290e55d346.svg",
+      "pngFileName": "assets/png/line_11-2c290e55d346@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3087_9469"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home - Schedule"
+        }
+      ]
+    },
+    {
+      "assetId": "4b2458a1cc17",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-4b2458a1cc17.svg",
+      "pngFileName": "assets/png/vector-4b2458a1cc17@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3087_9473"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home - Schedule"
+        }
+      ]
+    },
+    {
+      "assetId": "d8ccccd2b92a",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-d8ccccd2b92a.svg",
+      "pngFileName": "assets/png/vector-d8ccccd2b92a@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3087_9474"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home - Schedule"
+        }
+      ]
+    },
+    {
+      "assetId": "e5a01284e904",
+      "kind": "composed-svg",
+      "originalName": "Group",
+      "originalFileName": "Group.svg",
+      "fileName": "assets/composed/svg/group-e5a01284e904.svg",
+      "pngFileName": "assets/composed/png/group-e5a01284e904@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-3087_9471"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home - Schedule"
+        }
+      ]
+    },
+    {
+      "assetId": "aaa67d3d5dbb",
+      "kind": "composed-svg",
+      "originalName": "ri-mic-2-line",
+      "originalFileName": "ri-mic-2-line.svg",
+      "fileName": "assets/composed/svg/ri_mic_2_line-aaa67d3d5dbb.svg",
+      "pngFileName": "assets/composed/png/ri_mic_2_line-aaa67d3d5dbb@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-3087_9470"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home - Schedule"
+        }
+      ]
+    },
+    {
+      "assetId": "1ec593c548d0",
+      "kind": "composed-svg",
+      "originalName": "mic",
+      "originalFileName": "mic.svg",
+      "fileName": "assets/composed/svg/mic-1ec593c548d0.svg",
+      "pngFileName": "assets/composed/png/mic-1ec593c548d0@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-3087_9468"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home - Schedule"
+        }
+      ]
+    },
+    {
+      "assetId": "535b2ae4c440",
+      "kind": "svg",
+      "originalName": "Ellipse 46",
+      "originalFileName": "Ellipse 46.svg",
+      "fileName": "assets/svg/ellipse_46-535b2ae4c440.svg",
+      "pngFileName": "assets/png/ellipse_46-535b2ae4c440@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3087_9480"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home - Schedule"
+        }
+      ]
+    },
+    {
+      "assetId": "c605385341d1",
+      "kind": "svg",
+      "originalName": "Line 2",
+      "originalFileName": "Line 2.svg",
+      "fileName": "assets/svg/line_2-c605385341d1.svg",
+      "pngFileName": "assets/png/line_2-c605385341d1@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3087_9488"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home - Schedule"
+        }
+      ]
+    },
+    {
+      "assetId": "59ee755e7e81",
+      "kind": "svg",
+      "originalName": "Ellipse 1",
+      "originalFileName": "Ellipse 1.svg",
+      "fileName": "assets/svg/ellipse_1-59ee755e7e81.svg",
+      "pngFileName": "assets/png/ellipse_1-59ee755e7e81@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3087_12061",
+        "svg-3087_12176",
+        "svg-3087_11082",
+        "svg-3087_11175",
+        "svg-3087_11194",
+        "svg-3087_11221",
+        "svg-3087_11409",
+        "svg-3087_11445",
+        "svg-3087_11464",
+        "svg-3087_11491",
+        "svg-3087_11699",
+        "svg-3087_11735"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home - Schedule"
+        },
+        {
+          "index": 2,
+          "name": "Cricket Match"
+        },
+        {
+          "index": 3,
+          "name": "Cricket Match"
+        },
+        {
+          "index": 4,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "a982a4ade867",
+      "kind": "svg",
+      "originalName": "Icon",
+      "originalFileName": "Icon.svg",
+      "fileName": "assets/svg/icon-a982a4ade867.svg",
+      "pngFileName": "assets/png/icon-a982a4ade867@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3087_12064"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home - Schedule"
+        }
+      ]
+    },
+    {
+      "assetId": "91c5c04f8742",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-91c5c04f8742.svg",
+      "pngFileName": "assets/png/vector-91c5c04f8742@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3087_12015"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home - Schedule"
+        }
+      ]
+    },
+    {
+      "assetId": "7a881ebf9248",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-7a881ebf9248.svg",
+      "pngFileName": "assets/png/vector-7a881ebf9248@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3087_12016"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home - Schedule"
+        }
+      ]
+    },
+    {
+      "assetId": "8a67bc0eef71",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-8a67bc0eef71.svg",
+      "pngFileName": "assets/png/vector-8a67bc0eef71@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3087_12017"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home - Schedule"
+        }
+      ]
+    },
+    {
+      "assetId": "5526cbd3e792",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-5526cbd3e792.svg",
+      "pngFileName": "assets/png/vector-5526cbd3e792@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3087_12018"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home - Schedule"
+        }
+      ]
+    },
+    {
+      "assetId": "dd0a6055a709",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-dd0a6055a709.svg",
+      "pngFileName": "assets/png/vector-dd0a6055a709@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3087_12019"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home - Schedule"
+        }
+      ]
+    },
+    {
+      "assetId": "764bbce505dd",
+      "kind": "composed-svg",
+      "originalName": "Group",
+      "originalFileName": "Group.svg",
+      "fileName": "assets/composed/svg/group-764bbce505dd.svg",
+      "pngFileName": "assets/composed/png/group-764bbce505dd@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-3087_12014"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home - Schedule"
+        }
+      ]
+    },
+    {
+      "assetId": "e1e796c7098e",
+      "kind": "composed-svg",
+      "originalName": "All Icons",
+      "originalFileName": "All Icons.svg",
+      "fileName": "assets/composed/svg/all_icons-e1e796c7098e.svg",
+      "pngFileName": "assets/composed/png/all_icons-e1e796c7098e@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-3087_12013"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home - Schedule"
+        }
+      ]
+    },
+    {
+      "assetId": "60a1d5fe1740",
+      "kind": "svg",
+      "originalName": "Icon",
+      "originalFileName": "Icon.svg",
+      "fileName": "assets/svg/icon-60a1d5fe1740.svg",
+      "pngFileName": "assets/png/icon-60a1d5fe1740@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3087_12179"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home - Schedule"
+        }
+      ]
+    },
+    {
+      "assetId": "8596496ec3e8",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-8596496ec3e8.svg",
+      "pngFileName": "assets/png/vector-8596496ec3e8@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3087_12184"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home - Schedule"
+        }
+      ]
+    },
+    {
+      "assetId": "b9024334ea7b",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-b9024334ea7b.svg",
+      "pngFileName": "assets/png/vector-b9024334ea7b@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3087_12185"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home - Schedule"
+        }
+      ]
+    },
+    {
+      "assetId": "261426eb08d9",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-261426eb08d9.svg",
+      "pngFileName": "assets/png/vector-261426eb08d9@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3087_12186"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home - Schedule"
+        }
+      ]
+    },
+    {
+      "assetId": "26d92d595bac",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-26d92d595bac.svg",
+      "pngFileName": "assets/png/vector-26d92d595bac@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3087_12187"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home - Schedule"
+        }
+      ]
+    },
+    {
+      "assetId": "cd63d04bbefa",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-cd63d04bbefa.svg",
+      "pngFileName": "assets/png/vector-cd63d04bbefa@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3087_12188"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home - Schedule"
+        }
+      ]
+    },
+    {
+      "assetId": "2527edf2ffb8",
+      "kind": "composed-svg",
+      "originalName": "Group",
+      "originalFileName": "Group.svg",
+      "fileName": "assets/composed/svg/group-2527edf2ffb8.svg",
+      "pngFileName": "assets/composed/png/group-2527edf2ffb8@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-3087_12183"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home - Schedule"
+        }
+      ]
+    },
+    {
+      "assetId": "19da4d311014",
+      "kind": "composed-svg",
+      "originalName": "All Icons",
+      "originalFileName": "All Icons.svg",
+      "fileName": "assets/composed/svg/all_icons-19da4d311014.svg",
+      "pngFileName": "assets/composed/png/all_icons-19da4d311014@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-3087_12182"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home - Schedule"
+        }
+      ]
+    },
+    {
+      "assetId": "4014d28b4af0",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-4014d28b4af0.svg",
+      "pngFileName": "assets/png/vector-4014d28b4af0@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I3087_9610_26_467"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home - Schedule"
+        }
+      ]
+    },
+    {
+      "assetId": "bc2b0b5b287f",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-bc2b0b5b287f.svg",
+      "pngFileName": "assets/png/vector-bc2b0b5b287f@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I3087_9610_26_468"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home - Schedule"
+        }
+      ]
+    },
+    {
+      "assetId": "755b81892f59",
+      "kind": "composed-svg",
+      "originalName": "Group 1000006146",
+      "originalFileName": "Group 1000006146.svg",
+      "fileName": "assets/composed/svg/group_1000006146-755b81892f59.svg",
+      "pngFileName": "assets/composed/png/group_1000006146-755b81892f59@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-I3087_9610_26_466"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home - Schedule"
+        }
+      ]
+    },
+    {
+      "assetId": "38dc06712dc7",
+      "kind": "composed-svg",
+      "originalName": "Home",
+      "originalFileName": "Home.svg",
+      "fileName": "assets/composed/svg/home-38dc06712dc7.svg",
+      "pngFileName": "assets/composed/png/home-38dc06712dc7@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-I3087_9610_26_465"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home - Schedule"
+        }
+      ]
+    },
+    {
+      "assetId": "320a92eca8f4",
+      "kind": "svg",
+      "originalName": "Rectangle 3 (Stroke)",
+      "originalFileName": "Rectangle 3 (Stroke).svg",
+      "fileName": "assets/svg/rectangle_3_stroke-320a92eca8f4.svg",
+      "pngFileName": "assets/png/rectangle_3_stroke-320a92eca8f4@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I3087_9613_182_209"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home - Schedule"
+        }
+      ]
+    },
+    {
+      "assetId": "235c40039ff3",
+      "kind": "svg",
+      "originalName": "Line (Stroke)",
+      "originalFileName": "Line (Stroke).svg",
+      "fileName": "assets/svg/line_stroke-235c40039ff3.svg",
+      "pngFileName": "assets/png/line_stroke-235c40039ff3@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I3087_9613_185_276",
+        "svg-I3087_9613_185_277"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home - Schedule"
+        }
+      ]
+    },
+    {
+      "assetId": "e7385fe61beb",
+      "kind": "svg",
+      "originalName": "Subtract",
+      "originalFileName": "Subtract.svg",
+      "fileName": "assets/svg/subtract-e7385fe61beb.svg",
+      "pngFileName": "assets/png/subtract-e7385fe61beb@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I3087_9613_183_218"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home - Schedule"
+        }
+      ]
+    },
+    {
+      "assetId": "279c93532234",
+      "kind": "composed-svg",
+      "originalName": "Calendar",
+      "originalFileName": "Calendar.svg",
+      "fileName": "assets/composed/svg/calendar-279c93532234.svg",
+      "pngFileName": "assets/composed/png/calendar-279c93532234@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-I3087_9613_180_189"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home - Schedule"
+        }
+      ]
+    },
+    {
+      "assetId": "df4c40ea6794",
+      "kind": "composed-svg",
+      "originalName": "Matches",
+      "originalFileName": "Matches.svg",
+      "fileName": "assets/composed/svg/matches-df4c40ea6794.svg",
+      "pngFileName": "assets/composed/png/matches-df4c40ea6794@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-I3087_9613_178_153"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home - Schedule"
+        }
+      ]
+    },
+    {
+      "assetId": "5944c7bbd9fd",
+      "kind": "svg",
+      "originalName": "Ellipse 3",
+      "originalFileName": "Ellipse 3.svg",
+      "fileName": "assets/svg/ellipse_3-5944c7bbd9fd.svg",
+      "pngFileName": "assets/png/ellipse_3-5944c7bbd9fd@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I3087_9613_178_158"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home - Schedule"
+        }
+      ]
+    },
+    {
+      "assetId": "ded489c811c1",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-ded489c811c1.svg",
+      "pngFileName": "assets/png/vector-ded489c811c1@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I3087_9614_187_167"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home - Schedule"
+        }
+      ]
+    },
+    {
+      "assetId": "4b99a9d5f370",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-4b99a9d5f370.svg",
+      "pngFileName": "assets/png/vector-4b99a9d5f370@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I3087_9614_187_168"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home - Schedule"
+        }
+      ]
+    },
+    {
+      "assetId": "ae727ac643fb",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-ae727ac643fb.svg",
+      "pngFileName": "assets/png/vector-ae727ac643fb@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I3087_9614_187_169"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home - Schedule"
+        }
+      ]
+    },
+    {
+      "assetId": "fd714ddf0649",
+      "kind": "composed-svg",
+      "originalName": "Group 1000006149",
+      "originalFileName": "Group 1000006149.svg",
+      "fileName": "assets/composed/svg/group_1000006149-fd714ddf0649.svg",
+      "pngFileName": "assets/composed/png/group_1000006149-fd714ddf0649@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-I3087_9614_187_166"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home - Schedule"
+        }
+      ]
+    },
+    {
+      "assetId": "6ebc29ce8442",
+      "kind": "composed-svg",
+      "originalName": "Group 1000006150",
+      "originalFileName": "Group 1000006150.svg",
+      "fileName": "assets/composed/svg/group_1000006150-6ebc29ce8442.svg",
+      "pngFileName": "assets/composed/png/group_1000006150-6ebc29ce8442@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-I3087_9614_187_165"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home - Schedule"
+        }
+      ]
+    },
+    {
+      "assetId": "0e3362c5cb06",
+      "kind": "composed-svg",
+      "originalName": "Scoring",
+      "originalFileName": "Scoring.svg",
+      "fileName": "assets/composed/svg/scoring-0e3362c5cb06.svg",
+      "pngFileName": "assets/composed/png/scoring-0e3362c5cb06@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-I3087_9614_178_177"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home - Schedule"
+        }
+      ]
+    },
+    {
+      "assetId": "99931fb16be9",
+      "kind": "svg",
+      "originalName": "Rectangle 7",
+      "originalFileName": "Rectangle 7.svg",
+      "fileName": "assets/svg/rectangle_7-99931fb16be9.svg",
+      "pngFileName": "assets/png/rectangle_7-99931fb16be9@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I3087_9615_189_261"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home - Schedule"
+        }
+      ]
+    },
+    {
+      "assetId": "c778c7d9af97",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-c778c7d9af97.svg",
+      "pngFileName": "assets/png/vector-c778c7d9af97@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I3087_9615_189_262"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home - Schedule"
+        }
+      ]
+    },
+    {
+      "assetId": "aae93e22a501",
+      "kind": "composed-svg",
+      "originalName": "Selected Profile",
+      "originalFileName": "Selected Profile.svg",
+      "fileName": "assets/composed/svg/selected_profile-aae93e22a501.svg",
+      "pngFileName": "assets/composed/png/selected_profile-aae93e22a501@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-I3087_9615_189_260"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home - Schedule"
+        }
+      ]
+    },
+    {
+      "assetId": "07eaafbd7a57",
+      "kind": "composed-svg",
+      "originalName": "Group 1000006151",
+      "originalFileName": "Group 1000006151.svg",
+      "fileName": "assets/composed/svg/group_1000006151-07eaafbd7a57.svg",
+      "pngFileName": "assets/composed/png/group_1000006151-07eaafbd7a57@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-I3087_9615_189_256"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home - Schedule"
+        }
+      ]
+    },
+    {
+      "assetId": "22b2734a3148",
+      "kind": "composed-svg",
+      "originalName": "Profile",
+      "originalFileName": "Profile.svg",
+      "fileName": "assets/composed/svg/profile-22b2734a3148.svg",
+      "pngFileName": "assets/composed/png/profile-22b2734a3148@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-I3087_9615_26_481"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home - Schedule"
+        }
+      ]
+    },
+    {
+      "assetId": "72ed81c08d17",
+      "kind": "svg",
+      "originalName": "Ellipse 1",
+      "originalFileName": "Ellipse 1.svg",
+      "fileName": "assets/svg/ellipse_1-72ed81c08d17.svg",
+      "pngFileName": "assets/png/ellipse_1-72ed81c08d17@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3087_12351"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "0103c43bbf25",
+      "kind": "svg",
+      "originalName": "Icon",
+      "originalFileName": "Icon.svg",
+      "fileName": "assets/svg/icon-0103c43bbf25.svg",
+      "pngFileName": "assets/png/icon-0103c43bbf25@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3087_11085"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "40f6ceedb927",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-40f6ceedb927.svg",
+      "pngFileName": "assets/png/vector-40f6ceedb927@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3087_11106"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "de3913dfcfce",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-de3913dfcfce.svg",
+      "pngFileName": "assets/png/vector-de3913dfcfce@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3087_11107"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "c16c9e225abb",
+      "kind": "composed-svg",
+      "originalName": "Group",
+      "originalFileName": "Group.svg",
+      "fileName": "assets/composed/svg/group-c16c9e225abb.svg",
+      "pngFileName": "assets/composed/png/group-c16c9e225abb@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-3087_11102"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "7bf8d740f5b2",
+      "kind": "composed-svg",
+      "originalName": "All Icons",
+      "originalFileName": "All Icons.svg",
+      "fileName": "assets/composed/svg/all_icons-7bf8d740f5b2.svg",
+      "pngFileName": "assets/composed/png/all_icons-7bf8d740f5b2@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-3087_11101"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "ab9dadf9de13",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-ab9dadf9de13.svg",
+      "pngFileName": "assets/png/vector-ab9dadf9de13@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I3087_11112_1_3251"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "77b9822deb96",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-77b9822deb96.svg",
+      "pngFileName": "assets/png/vector-77b9822deb96@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I3087_11112_1_3252"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "e6ea9bf03f8a",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-e6ea9bf03f8a.svg",
+      "pngFileName": "assets/png/vector-e6ea9bf03f8a@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I3087_11112_1_3253"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "aa8429f8bb7d",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-aa8429f8bb7d.svg",
+      "pngFileName": "assets/png/vector-aa8429f8bb7d@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I3087_11112_1_3255"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "7ba3775d681e",
+      "kind": "composed-svg",
+      "originalName": "ranking",
+      "originalFileName": "ranking.svg",
+      "fileName": "assets/composed/svg/ranking-7ba3775d681e.svg",
+      "pngFileName": "assets/composed/png/ranking-7ba3775d681e@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-I3087_11112_1_3250"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "4c89961afa9d",
+      "kind": "composed-svg",
+      "originalName": "vuesax/linear/ranking",
+      "originalFileName": "vuesax/linear/ranking.svg",
+      "fileName": "assets/composed/svg/vuesax_linear_ranking-4c89961afa9d.svg",
+      "pngFileName": "assets/composed/png/vuesax_linear_ranking-4c89961afa9d@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-I3087_11112_1_3249"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "174e98d2942a",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-174e98d2942a.svg",
+      "pngFileName": "assets/png/vector-174e98d2942a@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3087_11167"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "9d7069f48d22",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-9d7069f48d22.svg",
+      "pngFileName": "assets/png/vector-9d7069f48d22@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3087_11173",
+        "svg-3087_11443"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Cricket Match"
+        },
+        {
+          "index": 3,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "6d86ffffdb3c",
+      "kind": "svg",
+      "originalName": "Icon",
+      "originalFileName": "Icon.svg",
+      "fileName": "assets/svg/icon-6d86ffffdb3c.svg",
+      "pngFileName": "assets/png/icon-6d86ffffdb3c@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3087_11197"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "56819e543322",
+      "kind": "svg",
+      "originalName": "Line 7",
+      "originalFileName": "Line 7.svg",
+      "fileName": "assets/svg/line_7-56819e543322.svg",
+      "pngFileName": "assets/png/line_7-56819e543322@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3087_11218"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "3ee7bbce981f",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-3ee7bbce981f.svg",
+      "pngFileName": "assets/png/vector-3ee7bbce981f@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3087_11228"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "e1e80bf8ebe4",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-e1e80bf8ebe4.svg",
+      "pngFileName": "assets/png/vector-e1e80bf8ebe4@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3087_11229"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "34d6a7904750",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-34d6a7904750.svg",
+      "pngFileName": "assets/png/vector-34d6a7904750@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3087_11230"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "e7b528e3ce57",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-e7b528e3ce57.svg",
+      "pngFileName": "assets/png/vector-e7b528e3ce57@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3087_11231"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "3126d49d1665",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-3126d49d1665.svg",
+      "pngFileName": "assets/png/vector-3126d49d1665@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3087_11232"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "c07f7e9e6a00",
+      "kind": "composed-svg",
+      "originalName": "Group",
+      "originalFileName": "Group.svg",
+      "fileName": "assets/composed/svg/group-c07f7e9e6a00.svg",
+      "pngFileName": "assets/composed/png/group-c07f7e9e6a00@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-3087_11227"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "3d17dceaaa88",
+      "kind": "composed-svg",
+      "originalName": "All Icons",
+      "originalFileName": "All Icons.svg",
+      "fileName": "assets/composed/svg/all_icons-3d17dceaaa88.svg",
+      "pngFileName": "assets/composed/png/all_icons-3d17dceaaa88@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-3087_11226"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "1b060444ee28",
+      "kind": "svg",
+      "originalName": "Line 7",
+      "originalFileName": "Line 7.svg",
+      "fileName": "assets/svg/line_7-1b060444ee28.svg",
+      "pngFileName": "assets/png/line_7-1b060444ee28@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3087_11324"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "a538433bf20e",
+      "kind": "svg",
+      "originalName": "Line 7",
+      "originalFileName": "Line 7.svg",
+      "fileName": "assets/svg/line_7-a538433bf20e.svg",
+      "pngFileName": "assets/png/line_7-a538433bf20e@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3087_11334"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "86a2da17ac83",
+      "kind": "svg",
+      "originalName": "Line 7",
+      "originalFileName": "Line 7.svg",
+      "fileName": "assets/svg/line_7-86a2da17ac83.svg",
+      "pngFileName": "assets/png/line_7-86a2da17ac83@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3087_11389"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "6ebcbaea55b4",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-6ebcbaea55b4.svg",
+      "pngFileName": "assets/png/vector-6ebcbaea55b4@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3087_11400"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "a3f0d21836b8",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-a3f0d21836b8.svg",
+      "pngFileName": "assets/png/vector-a3f0d21836b8@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3087_11401"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "e40c54fb0787",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-e40c54fb0787.svg",
+      "pngFileName": "assets/png/vector-e40c54fb0787@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3087_11402"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "2b860fad27b1",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-2b860fad27b1.svg",
+      "pngFileName": "assets/png/vector-2b860fad27b1@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3087_11403"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "e8fd569f2e93",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-e8fd569f2e93.svg",
+      "pngFileName": "assets/png/vector-e8fd569f2e93@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3087_11404"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "d11b71880e05",
+      "kind": "composed-svg",
+      "originalName": "Group",
+      "originalFileName": "Group.svg",
+      "fileName": "assets/composed/svg/group-d11b71880e05.svg",
+      "pngFileName": "assets/composed/png/group-d11b71880e05@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-3087_11399"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "e1b9dcdd87a5",
+      "kind": "composed-svg",
+      "originalName": "All Icons",
+      "originalFileName": "All Icons.svg",
+      "fileName": "assets/composed/svg/all_icons-e1b9dcdd87a5.svg",
+      "pngFileName": "assets/composed/png/all_icons-e1b9dcdd87a5@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-3087_11398"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "828de038c1ea",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-828de038c1ea.svg",
+      "pngFileName": "assets/png/vector-828de038c1ea@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3087_11437"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "32bfb36f0844",
+      "kind": "svg",
+      "originalName": "Icon",
+      "originalFileName": "Icon.svg",
+      "fileName": "assets/svg/icon-32bfb36f0844.svg",
+      "pngFileName": "assets/png/icon-32bfb36f0844@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3087_11467"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "b25b8d6ded00",
+      "kind": "svg",
+      "originalName": "Line 7",
+      "originalFileName": "Line 7.svg",
+      "fileName": "assets/svg/line_7-b25b8d6ded00.svg",
+      "pngFileName": "assets/png/line_7-b25b8d6ded00@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3087_11488"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "293ad4afe8b2",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-293ad4afe8b2.svg",
+      "pngFileName": "assets/png/vector-293ad4afe8b2@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3087_11498"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "2ffd0071232b",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-2ffd0071232b.svg",
+      "pngFileName": "assets/png/vector-2ffd0071232b@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3087_11499"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "13d77932871e",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-13d77932871e.svg",
+      "pngFileName": "assets/png/vector-13d77932871e@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3087_11500"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "7479edd31b06",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-7479edd31b06.svg",
+      "pngFileName": "assets/png/vector-7479edd31b06@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3087_11501"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "4bf500410d21",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-4bf500410d21.svg",
+      "pngFileName": "assets/png/vector-4bf500410d21@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3087_11502"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "16d70567679f",
+      "kind": "composed-svg",
+      "originalName": "Group",
+      "originalFileName": "Group.svg",
+      "fileName": "assets/composed/svg/group-16d70567679f.svg",
+      "pngFileName": "assets/composed/png/group-16d70567679f@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-3087_11497"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "ecc9001d1fb9",
+      "kind": "composed-svg",
+      "originalName": "All Icons",
+      "originalFileName": "All Icons.svg",
+      "fileName": "assets/composed/svg/all_icons-ecc9001d1fb9.svg",
+      "pngFileName": "assets/composed/png/all_icons-ecc9001d1fb9@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-3087_11496"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "161c67fe8da8",
+      "kind": "svg",
+      "originalName": "Line 7",
+      "originalFileName": "Line 7.svg",
+      "fileName": "assets/svg/line_7-161c67fe8da8.svg",
+      "pngFileName": "assets/png/line_7-161c67fe8da8@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3087_11612"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "51ed3e7f1ef7",
+      "kind": "svg",
+      "originalName": "Line 7",
+      "originalFileName": "Line 7.svg",
+      "fileName": "assets/svg/line_7-51ed3e7f1ef7.svg",
+      "pngFileName": "assets/png/line_7-51ed3e7f1ef7@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3087_11622"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "6ef63fc50b1e",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-6ef63fc50b1e.svg",
+      "pngFileName": "assets/png/vector-6ef63fc50b1e@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3087_11690"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "828a009bdc59",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-828a009bdc59.svg",
+      "pngFileName": "assets/png/vector-828a009bdc59@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3087_11691"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "7aed322ce5fd",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-7aed322ce5fd.svg",
+      "pngFileName": "assets/png/vector-7aed322ce5fd@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3087_11692"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "d710a6936e03",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-d710a6936e03.svg",
+      "pngFileName": "assets/png/vector-d710a6936e03@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3087_11693"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "d2d7bc99212f",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-d2d7bc99212f.svg",
+      "pngFileName": "assets/png/vector-d2d7bc99212f@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3087_11694"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "651f26d61b7c",
+      "kind": "composed-svg",
+      "originalName": "Group",
+      "originalFileName": "Group.svg",
+      "fileName": "assets/composed/svg/group-651f26d61b7c.svg",
+      "pngFileName": "assets/composed/png/group-651f26d61b7c@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-3087_11689"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "f6e4759d7ea1",
+      "kind": "composed-svg",
+      "originalName": "All Icons",
+      "originalFileName": "All Icons.svg",
+      "fileName": "assets/composed/svg/all_icons-f6e4759d7ea1.svg",
+      "pngFileName": "assets/composed/png/all_icons-f6e4759d7ea1@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-3087_11688"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "a17859786d33",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-a17859786d33.svg",
+      "pngFileName": "assets/png/vector-a17859786d33@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3087_11727"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "907416f54df0",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-907416f54df0.svg",
+      "pngFileName": "assets/png/vector-907416f54df0@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3087_11733"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Cricket Match"
+        }
+      ]
+    }
+  ]
+}

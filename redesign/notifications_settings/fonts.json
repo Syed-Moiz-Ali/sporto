@@ -1,0 +1,162 @@
+{
+  "schema": "dev-export-fonts",
+  "schemaVersion": "1.1.0",
+  "generatedAt": "2026-11-16T10:29:05.256Z",
+  "familyCount": 1,
+  "fonts": [
+    {
+      "family": "Quicksand",
+      "source": "system",
+      "license": "system-font",
+      "fallbackStack": [
+        "Quicksand",
+        "Noto Sans",
+        "Noto Sans Arabic",
+        "Noto Color Emoji",
+        "Apple Color Emoji",
+        "Segoe UI Emoji",
+        "ui-sans-serif",
+        "system-ui",
+        "sans-serif"
+      ],
+      "substitute": "Inter",
+      "isIconFont": false,
+      "iconLigatures": false,
+      "mixed": false,
+      "weights": {
+        "400": "Regular",
+        "500": "Medium",
+        "700": "Bold"
+      },
+      "allWeights": [
+        400,
+        500,
+        700
+      ],
+      "usageCount": 55,
+      "styles": [
+        {
+          "style": "Regular",
+          "count": 19,
+          "weights": [
+            400
+          ],
+          "availableOnClient": true
+        },
+        {
+          "style": "Medium",
+          "count": 30,
+          "weights": [
+            500
+          ],
+          "availableOnClient": true
+        },
+        {
+          "style": "Bold",
+          "count": 6,
+          "weights": [
+            700
+          ],
+          "availableOnClient": true
+        }
+      ],
+      "sizes": [
+        {
+          "value": 14,
+          "count": 25
+        },
+        {
+          "value": 12,
+          "count": 14
+        },
+        {
+          "value": 16,
+          "count": 6
+        },
+        {
+          "value": 24,
+          "count": 5
+        },
+        {
+          "value": 10,
+          "count": 5
+        }
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Notification Settings"
+        },
+        {
+          "index": 2,
+          "name": "Match Notifications - Notification Settings"
+        },
+        {
+          "index": 3,
+          "name": "Tournament Updates - Notification Settings"
+        },
+        {
+          "index": 4,
+          "name": "Team & Requests - Notification Settings"
+        },
+        {
+          "index": 5,
+          "name": "Registration & Payments - Notification Settings"
+        },
+        {
+          "index": 6,
+          "name": "Others - Notification Settings"
+        }
+      ],
+      "samples": [
+        {
+          "screenIndex": 1,
+          "screenName": "Notification Settings",
+          "nodeId": "3172:7486",
+          "path": "Notification Settings / Frame 1261154190 / Frame 1261154499 / Choose what you want to be notified about.",
+          "characters": "Choose what you want to be notified about.",
+          "fontSize": 14,
+          "fontWeight": 500
+        },
+        {
+          "screenIndex": 1,
+          "screenName": "Notification Settings",
+          "nodeId": "3172:7490",
+          "path": "Notification Settings / Frame 1261154190 / Frame 1261154423 / SIGNATURE: MATCH TICKET / Frame 1261154465 / Upto 3.5% Cashback",
+          "characters": "🔔",
+          "fontSize": 24,
+          "fontWeight": 500
+        },
+        {
+          "screenIndex": 1,
+          "screenName": "Notification Settings",
+          "nodeId": "3172:7493",
+          "path": "Notification Settings / Frame 1261154190 / Frame 1261154423 / SIGNATURE: MATCH TICKET / Frame 1261154503 / Frame 1261154596 / Upto 3.5% Cashback",
+          "characters": "Match Notifications",
+          "fontSize": 14,
+          "fontWeight": 500
+        },
+        {
+          "screenIndex": 1,
+          "screenName": "Notification Settings",
+          "nodeId": "3172:7494",
+          "path": "Notification Settings / Frame 1261154190 / Frame 1261154423 / SIGNATURE: MATCH TICKET / Frame 1261154503 / Frame 1261154596 / Upto 3.5% Cashback",
+          "characters": "Captain, Batter, Bowler",
+          "fontSize": 10,
+          "fontWeight": 400
+        },
+        {
+          "screenIndex": 1,
+          "screenName": "Notification Settings",
+          "nodeId": "3172:7499",
+          "path": "Notification Settings / Frame 1261154190 / Frame 1261154423 / SIGNATURE: MATCH TICKET / Frame 1261154465 / Upto 3.5% Cashback",
+          "characters": "🏆",
+          "fontSize": 24,
+          "fontWeight": 500
+        }
+      ],
+      "notes": "System font. Confirm redistribution/licensing before packaging binaries."
+    }
+  ],
+  "warnings": []
+}

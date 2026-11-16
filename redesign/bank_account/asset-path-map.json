@@ -1,0 +1,478 @@
+{
+  "schema": "dev-export-asset-path-map",
+  "schemaVersion": "1.1.0",
+  "generatedAt": "2026-11-16T10:28:36.907Z",
+  "note": "Original Figma layer/image names mapped to sanitized, content-addressed export filenames.",
+  "assets": [
+    {
+      "assetId": "8dce437d48e9",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-8dce437d48e9.svg",
+      "pngFileName": "assets/png/vector-8dce437d48e9@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3172_6905"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "On-boarding Screen"
+        }
+      ]
+    },
+    {
+      "assetId": "439af28f781d",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-439af28f781d.svg",
+      "pngFileName": "assets/png/vector-439af28f781d@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3172_6915"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "On-boarding Screen"
+        }
+      ]
+    },
+    {
+      "assetId": "dab79f89e48d",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-dab79f89e48d.svg",
+      "pngFileName": "assets/png/vector-dab79f89e48d@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3172_6916"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "On-boarding Screen"
+        }
+      ]
+    },
+    {
+      "assetId": "45a79c568e52",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-45a79c568e52.svg",
+      "pngFileName": "assets/png/vector-45a79c568e52@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3172_6917"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "On-boarding Screen"
+        }
+      ]
+    },
+    {
+      "assetId": "3a09cdde292a",
+      "kind": "composed-svg",
+      "originalName": "info-circle",
+      "originalFileName": "info-circle.svg",
+      "fileName": "assets/composed/svg/info_circle-3a09cdde292a.svg",
+      "pngFileName": "assets/composed/png/info_circle-3a09cdde292a@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-3172_6914"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "On-boarding Screen"
+        }
+      ]
+    },
+    {
+      "assetId": "b0b024b4d5de",
+      "kind": "composed-svg",
+      "originalName": "vuesax/linear/info-circle",
+      "originalFileName": "vuesax/linear/info-circle.svg",
+      "fileName": "assets/composed/svg/vuesax_linear_info_circle-b0b024b4d5de.svg",
+      "pngFileName": "assets/composed/png/vuesax_linear_info_circle-b0b024b4d5de@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-3172_6913"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "On-boarding Screen"
+        }
+      ]
+    },
+    {
+      "assetId": "3b615cde258b",
+      "kind": "composed-svg",
+      "originalName": "info-circle",
+      "originalFileName": "info-circle.svg",
+      "fileName": "assets/composed/svg/info_circle-3b615cde258b.svg",
+      "pngFileName": "assets/composed/png/info_circle-3b615cde258b@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-3172_6912"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "On-boarding Screen"
+        }
+      ]
+    },
+    {
+      "assetId": "15c42adc4b91",
+      "kind": "composed-svg",
+      "originalName": "Frame 1171275269",
+      "originalFileName": "Frame 1171275269.svg",
+      "fileName": "assets/composed/svg/frame_1171275269-15c42adc4b91.svg",
+      "pngFileName": "assets/composed/png/frame_1171275269-15c42adc4b91@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-3172_6911"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "On-boarding Screen"
+        }
+      ]
+    },
+    {
+      "assetId": "d5e919234bd2",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-d5e919234bd2.svg",
+      "pngFileName": "assets/png/vector-d5e919234bd2@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3172_6929"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "On-boarding Screen"
+        }
+      ]
+    },
+    {
+      "assetId": "86bf81529718",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-86bf81529718.svg",
+      "pngFileName": "assets/png/vector-86bf81529718@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3172_7019"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Add Bank Account"
+        }
+      ]
+    },
+    {
+      "assetId": "7bf3ec93c80b",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-7bf3ec93c80b.svg",
+      "pngFileName": "assets/png/vector-7bf3ec93c80b@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3172_6958"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Back Account"
+        }
+      ]
+    },
+    {
+      "assetId": "a4eb49850c93",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-a4eb49850c93.svg",
+      "pngFileName": "assets/png/vector-a4eb49850c93@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3172_6965"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Back Account"
+        }
+      ]
+    },
+    {
+      "assetId": "149be7e3dfc4",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-149be7e3dfc4.svg",
+      "pngFileName": "assets/png/vector-149be7e3dfc4@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3172_6970",
+        "svg-3172_6978"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Back Account"
+        }
+      ]
+    },
+    {
+      "assetId": "38982698c110",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-38982698c110.svg",
+      "pngFileName": "assets/png/vector-38982698c110@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3172_6986"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Back Account"
+        }
+      ]
+    },
+    {
+      "assetId": "08a05596cfee",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-08a05596cfee.svg",
+      "pngFileName": "assets/png/vector-08a05596cfee@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I3172_6816_1_48287"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Bank Account Details"
+        }
+      ]
+    },
+    {
+      "assetId": "4efc6a7e9b6e",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-4efc6a7e9b6e.svg",
+      "pngFileName": "assets/png/vector-4efc6a7e9b6e@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I3172_6816_1_48288"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Bank Account Details"
+        }
+      ]
+    },
+    {
+      "assetId": "b01dc3f34560",
+      "kind": "composed-svg",
+      "originalName": "eye",
+      "originalFileName": "eye.svg",
+      "fileName": "assets/composed/svg/eye-b01dc3f34560.svg",
+      "pngFileName": "assets/composed/png/eye-b01dc3f34560@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-I3172_6816_1_48286"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Bank Account Details"
+        }
+      ]
+    },
+    {
+      "assetId": "61eb802c005e",
+      "kind": "composed-svg",
+      "originalName": "vuesax/linear/eye",
+      "originalFileName": "vuesax/linear/eye.svg",
+      "fileName": "assets/composed/svg/vuesax_linear_eye-61eb802c005e.svg",
+      "pngFileName": "assets/composed/png/vuesax_linear_eye-61eb802c005e@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-I3172_6816_1_48285"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Bank Account Details"
+        }
+      ]
+    },
+    {
+      "assetId": "3b805b442a15",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-3b805b442a15.svg",
+      "pngFileName": "assets/png/vector-3b805b442a15@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I3172_6818_1_504"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Bank Account Details"
+        }
+      ]
+    },
+    {
+      "assetId": "0cdb89d75933",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-0cdb89d75933.svg",
+      "pngFileName": "assets/png/vector-0cdb89d75933@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I3172_6818_1_505"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Bank Account Details"
+        }
+      ]
+    },
+    {
+      "assetId": "772417ccfada",
+      "kind": "composed-svg",
+      "originalName": "tick-circle",
+      "originalFileName": "tick-circle.svg",
+      "fileName": "assets/composed/svg/tick_circle-772417ccfada.svg",
+      "pngFileName": "assets/composed/png/tick_circle-772417ccfada@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-I3172_6818_1_503"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Bank Account Details"
+        }
+      ]
+    },
+    {
+      "assetId": "238a4b6fe642",
+      "kind": "composed-svg",
+      "originalName": "vuesax/linear/tick-circle",
+      "originalFileName": "vuesax/linear/tick-circle.svg",
+      "fileName": "assets/composed/svg/vuesax_linear_tick_circle-238a4b6fe642.svg",
+      "pngFileName": "assets/composed/png/vuesax_linear_tick_circle-238a4b6fe642@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-I3172_6818_1_502"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Bank Account Details"
+        }
+      ]
+    },
+    {
+      "assetId": "95318f27d6de",
+      "kind": "svg",
+      "originalName": "Line 11",
+      "originalFileName": "Line 11.svg",
+      "fileName": "assets/svg/line_11-95318f27d6de.svg",
+      "pngFileName": "assets/png/line_11-95318f27d6de@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3172_6820"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Bank Account Details"
+        }
+      ]
+    },
+    {
+      "assetId": "3e350fe6126d",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-3e350fe6126d.svg",
+      "pngFileName": "assets/png/vector-3e350fe6126d@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3172_6838"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Bank Account Details"
+        }
+      ]
+    },
+    {
+      "assetId": "3d700b891fef",
+      "kind": "svg",
+      "originalName": "Icon",
+      "originalFileName": "Icon.svg",
+      "fileName": "assets/svg/icon-3d700b891fef.svg",
+      "pngFileName": "assets/png/icon-3d700b891fef@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3172_6842",
+        "svg-3172_6846"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Bank Account Details"
+        }
+      ]
+    },
+    {
+      "assetId": "19ab662d3742",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-19ab662d3742.svg",
+      "pngFileName": "assets/png/vector-19ab662d3742@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3172_6875"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Bank Account Details"
+        }
+      ]
+    }
+  ]
+}

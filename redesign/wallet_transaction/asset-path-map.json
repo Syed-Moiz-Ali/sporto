@@ -1,0 +1,690 @@
+{
+  "schema": "dev-export-asset-path-map",
+  "schemaVersion": "1.1.0",
+  "generatedAt": "2026-11-16T10:28:02.496Z",
+  "note": "Original Figma layer/image names mapped to sanitized, content-addressed export filenames.",
+  "assets": [
+    {
+      "assetId": "b7b3f03696a3",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-b7b3f03696a3.svg",
+      "pngFileName": "assets/png/vector-b7b3f03696a3@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3172_8079"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "My Tournaments"
+        }
+      ]
+    },
+    {
+      "assetId": "6d2d06a90942",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-6d2d06a90942.svg",
+      "pngFileName": "assets/png/vector-6d2d06a90942@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3172_8080"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "My Tournaments"
+        }
+      ]
+    },
+    {
+      "assetId": "fc7810371af3",
+      "kind": "composed-svg",
+      "originalName": "Group 1000007028",
+      "originalFileName": "Group 1000007028.svg",
+      "fileName": "assets/composed/svg/group_1000007028-fc7810371af3.svg",
+      "pngFileName": "assets/composed/png/group_1000007028-fc7810371af3@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-3172_8078"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "My Tournaments"
+        }
+      ]
+    },
+    {
+      "assetId": "06b33f780967",
+      "kind": "composed-svg",
+      "originalName": "ri-mic-2-line",
+      "originalFileName": "ri-mic-2-line.svg",
+      "fileName": "assets/composed/svg/ri_mic_2_line-06b33f780967.svg",
+      "pngFileName": "assets/composed/png/ri_mic_2_line-06b33f780967@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-3172_8077"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "My Tournaments"
+        }
+      ]
+    },
+    {
+      "assetId": "72ed81c08d17",
+      "kind": "svg",
+      "originalName": "Ellipse 2",
+      "originalFileName": "Ellipse 2.svg",
+      "fileName": "assets/svg/ellipse_2-72ed81c08d17.svg",
+      "pngFileName": "assets/png/ellipse_2-72ed81c08d17@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3172_8092",
+        "svg-3172_8118",
+        "svg-3172_8248"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "My Tournaments"
+        },
+        {
+          "index": 4,
+          "name": "Transaction Details"
+        }
+      ]
+    },
+    {
+      "assetId": "fa87dd124b4a",
+      "kind": "svg",
+      "originalName": "Line 7",
+      "originalFileName": "Line 7.svg",
+      "fileName": "assets/svg/line_7-fa87dd124b4a.svg",
+      "pngFileName": "assets/png/line_7-fa87dd124b4a@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3172_8095",
+        "svg-3172_8100",
+        "svg-3172_8121",
+        "svg-3172_8126"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "My Tournaments"
+        }
+      ]
+    },
+    {
+      "assetId": "65d54f6d1f81",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-65d54f6d1f81.svg",
+      "pngFileName": "assets/png/vector-65d54f6d1f81@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3172_8161"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "My Tournaments"
+        }
+      ]
+    },
+    {
+      "assetId": "259e5c489eb6",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-259e5c489eb6.svg",
+      "pngFileName": "assets/png/vector-259e5c489eb6@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3172_8165"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "My Tournaments"
+        }
+      ]
+    },
+    {
+      "assetId": "5af69e49fbea",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-5af69e49fbea.svg",
+      "pngFileName": "assets/png/vector-5af69e49fbea@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3169_1653"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Wallet"
+        }
+      ]
+    },
+    {
+      "assetId": "3b3489cff0dd",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-3b3489cff0dd.svg",
+      "pngFileName": "assets/png/vector-3b3489cff0dd@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3169_1654"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Wallet"
+        }
+      ]
+    },
+    {
+      "assetId": "8c4eda5237c1",
+      "kind": "composed-svg",
+      "originalName": "logout",
+      "originalFileName": "logout.svg",
+      "fileName": "assets/composed/svg/logout-8c4eda5237c1.svg",
+      "pngFileName": "assets/composed/png/logout-8c4eda5237c1@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-3169_1652"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Wallet"
+        }
+      ]
+    },
+    {
+      "assetId": "95a06f14e4a3",
+      "kind": "composed-svg",
+      "originalName": "vuesax/linear/logout",
+      "originalFileName": "vuesax/linear/logout.svg",
+      "fileName": "assets/composed/svg/vuesax_linear_logout-95a06f14e4a3.svg",
+      "pngFileName": "assets/composed/png/vuesax_linear_logout-95a06f14e4a3@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-3169_1651"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Wallet"
+        }
+      ]
+    },
+    {
+      "assetId": "63b2d0c8247a",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-63b2d0c8247a.svg",
+      "pngFileName": "assets/png/vector-63b2d0c8247a@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3172_7924"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Wallet"
+        }
+      ]
+    },
+    {
+      "assetId": "95f9936b2bc1",
+      "kind": "svg",
+      "originalName": "Ellipse 1",
+      "originalFileName": "Ellipse 1.svg",
+      "fileName": "assets/svg/ellipse_1-95f9936b2bc1.svg",
+      "pngFileName": "assets/png/ellipse_1-95f9936b2bc1@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3172_7936",
+        "svg-3172_8051",
+        "svg-3172_8402",
+        "svg-3172_8414"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Wallet"
+        },
+        {
+          "index": 3,
+          "name": "Wallet"
+        }
+      ]
+    },
+    {
+      "assetId": "71e861cd69ea",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-71e861cd69ea.svg",
+      "pngFileName": "assets/png/vector-71e861cd69ea@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3169_1702"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Wallet"
+        }
+      ]
+    },
+    {
+      "assetId": "a4eb49850c93",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-a4eb49850c93.svg",
+      "pngFileName": "assets/png/vector-a4eb49850c93@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3172_7916"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Wallet"
+        }
+      ]
+    },
+    {
+      "assetId": "ae0d10cffb68",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-ae0d10cffb68.svg",
+      "pngFileName": "assets/png/vector-ae0d10cffb68@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3172_8444"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Wallet"
+        }
+      ]
+    },
+    {
+      "assetId": "2690caa75103",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-2690caa75103.svg",
+      "pngFileName": "assets/png/vector-2690caa75103@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3172_8458"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Wallet"
+        }
+      ]
+    },
+    {
+      "assetId": "61ce9cf0d05a",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-61ce9cf0d05a.svg",
+      "pngFileName": "assets/png/vector-61ce9cf0d05a@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3172_8459"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Wallet"
+        }
+      ]
+    },
+    {
+      "assetId": "1784572d9440",
+      "kind": "composed-svg",
+      "originalName": "Group 1000007028",
+      "originalFileName": "Group 1000007028.svg",
+      "fileName": "assets/composed/svg/group_1000007028-1784572d9440.svg",
+      "pngFileName": "assets/composed/png/group_1000007028-1784572d9440@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-3172_8457"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Wallet"
+        }
+      ]
+    },
+    {
+      "assetId": "c68130e75da2",
+      "kind": "composed-svg",
+      "originalName": "ri-mic-2-line",
+      "originalFileName": "ri-mic-2-line.svg",
+      "fileName": "assets/composed/svg/ri_mic_2_line-c68130e75da2.svg",
+      "pngFileName": "assets/composed/png/ri_mic_2_line-c68130e75da2@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-3172_8456"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Wallet"
+        }
+      ]
+    },
+    {
+      "assetId": "9207e1ade470",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-9207e1ade470.svg",
+      "pngFileName": "assets/png/vector-9207e1ade470@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3172_8175"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Transaction Details"
+        }
+      ]
+    },
+    {
+      "assetId": "ad0ae63382f4",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-ad0ae63382f4.svg",
+      "pngFileName": "assets/png/vector-ad0ae63382f4@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3172_8176"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Transaction Details"
+        }
+      ]
+    },
+    {
+      "assetId": "ba2b0cdd1280",
+      "kind": "composed-svg",
+      "originalName": "Group 1000007027",
+      "originalFileName": "Group 1000007027.svg",
+      "fileName": "assets/composed/svg/group_1000007027-ba2b0cdd1280.svg",
+      "pngFileName": "assets/composed/png/group_1000007027-ba2b0cdd1280@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-3172_8174"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Transaction Details"
+        }
+      ]
+    },
+    {
+      "assetId": "0d4d6c062443",
+      "kind": "composed-svg",
+      "originalName": "Frame 1261154413",
+      "originalFileName": "Frame 1261154413.svg",
+      "fileName": "assets/composed/svg/frame_1261154413-0d4d6c062443.svg",
+      "pngFileName": "assets/composed/png/frame_1261154413-0d4d6c062443@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-3172_8173"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Transaction Details"
+        }
+      ]
+    },
+    {
+      "assetId": "47969aa66d0e",
+      "kind": "composed-svg",
+      "originalName": "Frame 1261154631",
+      "originalFileName": "Frame 1261154631.svg",
+      "fileName": "assets/composed/svg/frame_1261154631-47969aa66d0e.svg",
+      "pngFileName": "assets/composed/png/frame_1261154631-47969aa66d0e@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-3172_8172"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Transaction Details"
+        }
+      ]
+    },
+    {
+      "assetId": "3b805b442a15",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-3b805b442a15.svg",
+      "pngFileName": "assets/png/vector-3b805b442a15@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I3172_8182_1_504"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Transaction Details"
+        }
+      ]
+    },
+    {
+      "assetId": "0cdb89d75933",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-0cdb89d75933.svg",
+      "pngFileName": "assets/png/vector-0cdb89d75933@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I3172_8182_1_505"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Transaction Details"
+        }
+      ]
+    },
+    {
+      "assetId": "772417ccfada",
+      "kind": "composed-svg",
+      "originalName": "tick-circle",
+      "originalFileName": "tick-circle.svg",
+      "fileName": "assets/composed/svg/tick_circle-772417ccfada.svg",
+      "pngFileName": "assets/composed/png/tick_circle-772417ccfada@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-I3172_8182_1_503"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Transaction Details"
+        }
+      ]
+    },
+    {
+      "assetId": "238a4b6fe642",
+      "kind": "composed-svg",
+      "originalName": "vuesax/linear/tick-circle",
+      "originalFileName": "vuesax/linear/tick-circle.svg",
+      "fileName": "assets/composed/svg/vuesax_linear_tick_circle-238a4b6fe642.svg",
+      "pngFileName": "assets/composed/png/vuesax_linear_tick_circle-238a4b6fe642@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-I3172_8182_1_502"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Transaction Details"
+        }
+      ]
+    },
+    {
+      "assetId": "df8752aa3fc3",
+      "kind": "svg",
+      "originalName": "Line 11",
+      "originalFileName": "Line 11.svg",
+      "fileName": "assets/svg/line_11-df8752aa3fc3.svg",
+      "pngFileName": "assets/png/line_11-df8752aa3fc3@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3172_8184"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Transaction Details"
+        }
+      ]
+    },
+    {
+      "assetId": "32e1268e0e97",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-32e1268e0e97.svg",
+      "pngFileName": "assets/png/vector-32e1268e0e97@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3172_8212"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Transaction Details"
+        }
+      ]
+    },
+    {
+      "assetId": "074fe9319dca",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-074fe9319dca.svg",
+      "pngFileName": "assets/png/vector-074fe9319dca@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3172_8213"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Transaction Details"
+        }
+      ]
+    },
+    {
+      "assetId": "c27dc7a1b0d1",
+      "kind": "composed-svg",
+      "originalName": "Group 1000007027",
+      "originalFileName": "Group 1000007027.svg",
+      "fileName": "assets/composed/svg/group_1000007027-c27dc7a1b0d1.svg",
+      "pngFileName": "assets/composed/png/group_1000007027-c27dc7a1b0d1@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-3172_8211"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Transaction Details"
+        }
+      ]
+    },
+    {
+      "assetId": "1ef2ee11338e",
+      "kind": "composed-svg",
+      "originalName": "Frame 1261154413",
+      "originalFileName": "Frame 1261154413.svg",
+      "fileName": "assets/composed/svg/frame_1261154413-1ef2ee11338e.svg",
+      "pngFileName": "assets/composed/png/frame_1261154413-1ef2ee11338e@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-3172_8210"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Transaction Details"
+        }
+      ]
+    },
+    {
+      "assetId": "a47131bdb99d",
+      "kind": "composed-svg",
+      "originalName": "Frame 1261154465",
+      "originalFileName": "Frame 1261154465.svg",
+      "fileName": "assets/composed/svg/frame_1261154465-a47131bdb99d.svg",
+      "pngFileName": "assets/composed/png/frame_1261154465-a47131bdb99d@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-3172_8209"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Transaction Details"
+        }
+      ]
+    },
+    {
+      "assetId": "a663790c80be",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-a663790c80be.svg",
+      "pngFileName": "assets/png/vector-a663790c80be@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3172_8243"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Transaction Details"
+        }
+      ]
+    }
+  ]
+}

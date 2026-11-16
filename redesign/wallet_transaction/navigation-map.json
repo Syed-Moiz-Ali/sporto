@@ -1,0 +1,45 @@
+{
+  "schema": "dev-export-navigation-map",
+  "schemaVersion": "1.1.0",
+  "generatedAt": "2026-11-16T10:28:02.496Z",
+  "note": "Named-route stubs for every screen. Interactions are populated only when Figma prototype reactions exist.",
+  "manualRouteMapRequired": false,
+  "screens": [
+    {
+      "index": 1,
+      "name": "My Tournaments",
+      "folder": "screens/01_My-Tournaments",
+      "route": "/my-tournaments"
+    },
+    {
+      "index": 2,
+      "name": "Wallet",
+      "folder": "screens/02_Wallet",
+      "route": "/wallet"
+    },
+    {
+      "index": 3,
+      "name": "Wallet",
+      "folder": "screens/03_Wallet",
+      "route": "/wallet"
+    },
+    {
+      "index": 4,
+      "name": "Transaction Details",
+      "folder": "screens/04_Transaction-Details",
+      "route": "/transaction-details"
+    }
+  ],
+  "interactions": [
+    {
+      "screenIndex": 2,
+      "screenName": "Wallet",
+      "nodeId": "3172:7915",
+      "nodeName": "Select City",
+      "sourceRoute": "/wallet",
+      "trigger": "ON_CLICK",
+      "action": "NODE",
+      "navigation": "NAVIGATE"
+    }
+  ]
+}

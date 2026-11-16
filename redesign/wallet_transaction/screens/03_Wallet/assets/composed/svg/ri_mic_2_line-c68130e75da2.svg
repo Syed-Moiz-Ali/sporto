@@ -1,0 +1,14 @@
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="ri-mic-2-line">
+<g id="Group 1000007028">
+<path id="Vector" d="M17.5 14V6M14.5 9L17.5 6L20.5 9" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" stroke="url(#paint0_linear_3172_8456)"/>
+<path id="Vector_2" d="M3.5 18H15.5M3.5 13H12.5M3.5 8H9.5" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" stroke="white"/>
+</g>
+</g>
+<defs>
+<linearGradient id="paint0_linear_3172_8456" x1="14.5" y1="10" x2="20.5" y2="10" gradientUnits="userSpaceOnUse">
+<stop stop-color="#ED7B00"/>
+<stop offset="1" stop-color="#CF9E24"/>
+</linearGradient>
+</defs>
+</svg>

@@ -1,0 +1,86 @@
+{
+  "schema": "dev-export-navigation-map",
+  "schemaVersion": "1.1.0",
+  "generatedAt": "2026-11-16T10:24:29.622Z",
+  "note": "Named-route stubs for every screen. Interactions are populated only when Figma prototype reactions exist.",
+  "manualRouteMapRequired": false,
+  "screens": [
+    {
+      "index": 1,
+      "name": "Home",
+      "folder": "screens/01_Home",
+      "route": "/home"
+    },
+    {
+      "index": 2,
+      "name": "Home - Live",
+      "folder": "screens/02_Home-Live",
+      "route": "/home-live"
+    },
+    {
+      "index": 3,
+      "name": "Home - Today's Match",
+      "folder": "screens/03_Home-Today-s-Match",
+      "route": "/home-today-s-match"
+    },
+    {
+      "index": 4,
+      "name": "Incoming Requests",
+      "folder": "screens/04_Incoming-Requests",
+      "route": "/incoming-requests"
+    },
+    {
+      "index": 5,
+      "name": "Incoming Requests Details",
+      "folder": "screens/05_Incoming-Requests-Details",
+      "route": "/incoming-requests-details"
+    },
+    {
+      "index": 6,
+      "name": "Incoming Requests Details",
+      "folder": "screens/06_Incoming-Requests-Details",
+      "route": "/incoming-requests-details"
+    },
+    {
+      "index": 7,
+      "name": "BOOKING CONFIRMED",
+      "folder": "screens/07_BOOKING-CONFIRMED",
+      "route": "/booking-confirmed"
+    }
+  ],
+  "interactions": [
+    {
+      "screenIndex": 1,
+      "screenName": "Home",
+      "nodeId": "2956:3375",
+      "nodeName": "Toggle",
+      "sourceRoute": "/home",
+      "trigger": "ON_CLICK",
+      "action": "NODE",
+      "destinationId": "1661:921",
+      "navigation": "CHANGE_TO"
+    },
+    {
+      "screenIndex": 2,
+      "screenName": "Home - Live",
+      "nodeId": "2958:3719",
+      "nodeName": "Toggle",
+      "sourceRoute": "/home-live",
+      "trigger": "ON_CLICK",
+      "action": "NODE",
+      "destinationId": "1661:918",
+      "navigation": "CHANGE_TO"
+    },
+    {
+      "screenIndex": 3,
+      "screenName": "Home - Today's Match",
+      "nodeId": "2958:4330",
+      "nodeName": "Toggle",
+      "sourceRoute": "/home-today-s-match",
+      "trigger": "ON_CLICK",
+      "action": "NODE",
+      "destinationId": "1661:918",
+      "navigation": "CHANGE_TO"
+    }
+  ]
+}

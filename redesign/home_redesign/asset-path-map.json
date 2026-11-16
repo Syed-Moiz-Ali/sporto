@@ -1,0 +1,3358 @@
+{
+  "schema": "dev-export-asset-path-map",
+  "schemaVersion": "1.1.0",
+  "generatedAt": "2026-11-16T10:24:29.622Z",
+  "note": "Original Figma layer/image names mapped to sanitized, content-addressed export filenames.",
+  "assets": [
+    {
+      "assetId": "52ecf9c23e50",
+      "kind": "svg",
+      "originalName": "₹",
+      "originalFileName": "₹.svg",
+      "fileName": "assets/svg/asset-52ecf9c23e50.svg",
+      "pngFileName": "assets/png/asset-52ecf9c23e50@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2956_3344"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home"
+        }
+      ]
+    },
+    {
+      "assetId": "385986532dc3",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-385986532dc3.svg",
+      "pngFileName": "assets/png/vector-385986532dc3@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2956_3347"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home"
+        }
+      ]
+    },
+    {
+      "assetId": "1cb5a565a438",
+      "kind": "svg",
+      "originalName": "Path",
+      "originalFileName": "Path.svg",
+      "fileName": "assets/svg/path-1cb5a565a438.svg",
+      "pngFileName": "assets/png/path-1cb5a565a438@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2956_3350",
+        "svg-2958_3693",
+        "svg-2958_4304"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home"
+        },
+        {
+          "index": 2,
+          "name": "Home - Live"
+        },
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "2f612e013fcb",
+      "kind": "svg",
+      "originalName": "Path",
+      "originalFileName": "Path.svg",
+      "fileName": "assets/svg/path-2f612e013fcb.svg",
+      "pngFileName": "assets/png/path-2f612e013fcb@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2956_3351",
+        "svg-2958_3694",
+        "svg-2958_4305"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home"
+        },
+        {
+          "index": 2,
+          "name": "Home - Live"
+        },
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "b8cea05f20db",
+      "kind": "composed-svg",
+      "originalName": "Group",
+      "originalFileName": "Group.svg",
+      "fileName": "assets/composed/svg/group-b8cea05f20db.svg",
+      "pngFileName": "assets/composed/png/group-b8cea05f20db@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-2956_3349",
+        "composed-2958_3692",
+        "composed-2958_4303"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home"
+        },
+        {
+          "index": 2,
+          "name": "Home - Live"
+        },
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "8b712e8a44bd",
+      "kind": "composed-svg",
+      "originalName": "bell",
+      "originalFileName": "bell.svg",
+      "fileName": "assets/composed/svg/bell-8b712e8a44bd.svg",
+      "pngFileName": "assets/composed/png/bell-8b712e8a44bd@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-2956_3348",
+        "composed-2958_3691",
+        "composed-2958_4302"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home"
+        },
+        {
+          "index": 2,
+          "name": "Home - Live"
+        },
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "544f6f7cc7a6",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-544f6f7cc7a6.svg",
+      "pngFileName": "assets/png/vector-544f6f7cc7a6@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2956_3357",
+        "svg-2958_3700",
+        "svg-2958_4311"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home"
+        },
+        {
+          "index": 2,
+          "name": "Home - Live"
+        },
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "3a37ce30a2fc",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-3a37ce30a2fc.svg",
+      "pngFileName": "assets/png/vector-3a37ce30a2fc@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2956_3358"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home"
+        }
+      ]
+    },
+    {
+      "assetId": "60cb074b77f6",
+      "kind": "composed-svg",
+      "originalName": "search-normal",
+      "originalFileName": "search-normal.svg",
+      "fileName": "assets/composed/svg/search_normal-60cb074b77f6.svg",
+      "pngFileName": "assets/composed/png/search_normal-60cb074b77f6@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-2956_3356"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home"
+        }
+      ]
+    },
+    {
+      "assetId": "da190089fcf3",
+      "kind": "composed-svg",
+      "originalName": "vuesax/twotone/search-normal",
+      "originalFileName": "vuesax/twotone/search-normal.svg",
+      "fileName": "assets/composed/svg/vuesax_twotone_search_normal-da190089fcf3.svg",
+      "pngFileName": "assets/composed/png/vuesax_twotone_search_normal-da190089fcf3@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-2956_3355"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home"
+        }
+      ]
+    },
+    {
+      "assetId": "23aafda367da",
+      "kind": "composed-svg",
+      "originalName": "search-normal",
+      "originalFileName": "search-normal.svg",
+      "fileName": "assets/composed/svg/search_normal-23aafda367da.svg",
+      "pngFileName": "assets/composed/png/search_normal-23aafda367da@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-2956_3354"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home"
+        }
+      ]
+    },
+    {
+      "assetId": "2c290e55d346",
+      "kind": "svg",
+      "originalName": "Line 11",
+      "originalFileName": "Line 11.svg",
+      "fileName": "assets/svg/line_11-2c290e55d346.svg",
+      "pngFileName": "assets/png/line_11-2c290e55d346@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2956_3362",
+        "svg-2958_3705",
+        "svg-2958_4316"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home"
+        },
+        {
+          "index": 2,
+          "name": "Home - Live"
+        },
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "4b2458a1cc17",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-4b2458a1cc17.svg",
+      "pngFileName": "assets/png/vector-4b2458a1cc17@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2956_3366",
+        "svg-2958_3709",
+        "svg-2958_4320"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home"
+        },
+        {
+          "index": 2,
+          "name": "Home - Live"
+        },
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "27c2b4ba0de6",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-27c2b4ba0de6.svg",
+      "pngFileName": "assets/png/vector-27c2b4ba0de6@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2956_3367"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home"
+        }
+      ]
+    },
+    {
+      "assetId": "8be27fdd4088",
+      "kind": "composed-svg",
+      "originalName": "Group",
+      "originalFileName": "Group.svg",
+      "fileName": "assets/composed/svg/group-8be27fdd4088.svg",
+      "pngFileName": "assets/composed/png/group-8be27fdd4088@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-2956_3364"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home"
+        }
+      ]
+    },
+    {
+      "assetId": "0fe0b7c79781",
+      "kind": "composed-svg",
+      "originalName": "ri-mic-2-line",
+      "originalFileName": "ri-mic-2-line.svg",
+      "fileName": "assets/composed/svg/ri_mic_2_line-0fe0b7c79781.svg",
+      "pngFileName": "assets/composed/png/ri_mic_2_line-0fe0b7c79781@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-2956_3363"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home"
+        }
+      ]
+    },
+    {
+      "assetId": "75562741af50",
+      "kind": "composed-svg",
+      "originalName": "mic",
+      "originalFileName": "mic.svg",
+      "fileName": "assets/composed/svg/mic-75562741af50.svg",
+      "pngFileName": "assets/composed/png/mic-75562741af50@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-2956_3361"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home"
+        }
+      ]
+    },
+    {
+      "assetId": "f852c04da8c1",
+      "kind": "svg",
+      "originalName": "Line 5 (Stroke)",
+      "originalFileName": "Line 5 (Stroke).svg",
+      "fileName": "assets/svg/line_5_stroke-f852c04da8c1.svg",
+      "pngFileName": "assets/png/line_5_stroke-f852c04da8c1@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I2956_3375_1661_919"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home"
+        }
+      ]
+    },
+    {
+      "assetId": "d9069b4496b9",
+      "kind": "svg",
+      "originalName": "Ellipse 816",
+      "originalFileName": "Ellipse 816.svg",
+      "fileName": "assets/svg/ellipse_816-d9069b4496b9.svg",
+      "pngFileName": "assets/png/ellipse_816-d9069b4496b9@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I2956_3375_1661_920"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home"
+        }
+      ]
+    },
+    {
+      "assetId": "36722af00df9",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-36722af00df9.svg",
+      "pngFileName": "assets/png/vector-36722af00df9@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2956_3383"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home"
+        }
+      ]
+    },
+    {
+      "assetId": "1488b3291199",
+      "kind": "svg",
+      "originalName": "Line 7",
+      "originalFileName": "Line 7.svg",
+      "fileName": "assets/svg/line_7-1488b3291199.svg",
+      "pngFileName": "assets/png/line_7-1488b3291199@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2956_3412"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home"
+        }
+      ]
+    },
+    {
+      "assetId": "f650b9aec5a6",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-f650b9aec5a6.svg",
+      "pngFileName": "assets/png/vector-f650b9aec5a6@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2956_3418"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home"
+        }
+      ]
+    },
+    {
+      "assetId": "ff6bbd9037e0",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-ff6bbd9037e0.svg",
+      "pngFileName": "assets/png/vector-ff6bbd9037e0@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I2956_3420_26_459",
+        "svg-I2973_2726_26_459",
+        "svg-I2973_2787_26_459"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home"
+        },
+        {
+          "index": 2,
+          "name": "Home - Live"
+        },
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "c82a8904dd26",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-c82a8904dd26.svg",
+      "pngFileName": "assets/png/vector-c82a8904dd26@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I2956_3420_26_460",
+        "svg-I2973_2726_26_460",
+        "svg-I2973_2787_26_460"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home"
+        },
+        {
+          "index": 2,
+          "name": "Home - Live"
+        },
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "e6f1c68d30d0",
+      "kind": "composed-svg",
+      "originalName": "Group 1000006147",
+      "originalFileName": "Group 1000006147.svg",
+      "fileName": "assets/composed/svg/group_1000006147-e6f1c68d30d0.svg",
+      "pngFileName": "assets/composed/png/group_1000006147-e6f1c68d30d0@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-I2956_3420_26_458",
+        "composed-I2973_2726_26_458",
+        "composed-I2973_2787_26_458"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home"
+        },
+        {
+          "index": 2,
+          "name": "Home - Live"
+        },
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "c46e426f50bd",
+      "kind": "composed-svg",
+      "originalName": "Home",
+      "originalFileName": "Home.svg",
+      "fileName": "assets/composed/svg/home-c46e426f50bd.svg",
+      "pngFileName": "assets/composed/png/home-c46e426f50bd@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-I2956_3420_26_454",
+        "composed-I2973_2726_26_454",
+        "composed-I2973_2787_26_454"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home"
+        },
+        {
+          "index": 2,
+          "name": "Home - Live"
+        },
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "5944c7bbd9fd",
+      "kind": "svg",
+      "originalName": "Ellipse 3",
+      "originalFileName": "Ellipse 3.svg",
+      "fileName": "assets/svg/ellipse_3-5944c7bbd9fd.svg",
+      "pngFileName": "assets/png/ellipse_3-5944c7bbd9fd@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I2956_3420_26_462",
+        "svg-I2973_2726_26_462",
+        "svg-I2973_2787_26_462"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home"
+        },
+        {
+          "index": 2,
+          "name": "Home - Live"
+        },
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "eaab05c3e0dd",
+      "kind": "svg",
+      "originalName": "Rectangle 2",
+      "originalFileName": "Rectangle 2.svg",
+      "fileName": "assets/svg/rectangle_2-eaab05c3e0dd.svg",
+      "pngFileName": "assets/png/rectangle_2-eaab05c3e0dd@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I2956_3423_186_358",
+        "svg-I2973_2729_186_358",
+        "svg-I2973_2790_186_358"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home"
+        },
+        {
+          "index": 2,
+          "name": "Home - Live"
+        },
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "342d0949d8f0",
+      "kind": "svg",
+      "originalName": "Line",
+      "originalFileName": "Line.svg",
+      "fileName": "assets/svg/line-342d0949d8f0.svg",
+      "pngFileName": "assets/png/line-342d0949d8f0@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I2956_3423_186_359",
+        "svg-I2973_2729_186_359",
+        "svg-I2973_2790_186_359"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home"
+        },
+        {
+          "index": 2,
+          "name": "Home - Live"
+        },
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "a51848468e15",
+      "kind": "svg",
+      "originalName": "Line",
+      "originalFileName": "Line.svg",
+      "fileName": "assets/svg/line-a51848468e15.svg",
+      "pngFileName": "assets/png/line-a51848468e15@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I2956_3423_186_360",
+        "svg-I2956_3423_186_361",
+        "svg-I2973_2729_186_360",
+        "svg-I2973_2729_186_361",
+        "svg-I2973_2790_186_360",
+        "svg-I2973_2790_186_361"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home"
+        },
+        {
+          "index": 2,
+          "name": "Home - Live"
+        },
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "3a4ef82df92e",
+      "kind": "svg",
+      "originalName": "Line",
+      "originalFileName": "Line.svg",
+      "fileName": "assets/svg/line-3a4ef82df92e.svg",
+      "pngFileName": "assets/png/line-3a4ef82df92e@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I2956_3423_186_364",
+        "svg-I2956_3423_186_368",
+        "svg-I2973_2729_186_364",
+        "svg-I2973_2729_186_368",
+        "svg-I2973_2790_186_364",
+        "svg-I2973_2790_186_368"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home"
+        },
+        {
+          "index": 2,
+          "name": "Home - Live"
+        },
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "5ccdcffdb184",
+      "kind": "svg",
+      "originalName": "Line",
+      "originalFileName": "Line.svg",
+      "fileName": "assets/svg/line-5ccdcffdb184.svg",
+      "pngFileName": "assets/png/line-5ccdcffdb184@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I2956_3423_186_365",
+        "svg-I2956_3423_186_369",
+        "svg-I2956_3423_186_370",
+        "svg-I2973_2729_186_365",
+        "svg-I2973_2729_186_369",
+        "svg-I2973_2729_186_370",
+        "svg-I2973_2790_186_365",
+        "svg-I2973_2790_186_369",
+        "svg-I2973_2790_186_370"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home"
+        },
+        {
+          "index": 2,
+          "name": "Home - Live"
+        },
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "aa6f1e946aa7",
+      "kind": "composed-svg",
+      "originalName": "Group 219",
+      "originalFileName": "Group 219.svg",
+      "fileName": "assets/composed/svg/group_219-aa6f1e946aa7.svg",
+      "pngFileName": "assets/composed/png/group_219-aa6f1e946aa7@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-I2956_3423_186_363",
+        "composed-I2973_2729_186_363",
+        "composed-I2973_2790_186_363"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home"
+        },
+        {
+          "index": 2,
+          "name": "Home - Live"
+        },
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "609681e4867f",
+      "kind": "composed-svg",
+      "originalName": "Group 220",
+      "originalFileName": "Group 220.svg",
+      "fileName": "assets/composed/svg/group_220-609681e4867f.svg",
+      "pngFileName": "assets/composed/png/group_220-609681e4867f@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-I2956_3423_186_367",
+        "composed-I2973_2729_186_367",
+        "composed-I2973_2790_186_367"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home"
+        },
+        {
+          "index": 2,
+          "name": "Home - Live"
+        },
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "e690fd076a75",
+      "kind": "composed-svg",
+      "originalName": "Group 220",
+      "originalFileName": "Group 220.svg",
+      "fileName": "assets/composed/svg/group_220-e690fd076a75.svg",
+      "pngFileName": "assets/composed/png/group_220-e690fd076a75@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-I2956_3423_186_362",
+        "composed-I2973_2729_186_362",
+        "composed-I2973_2790_186_362"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home"
+        },
+        {
+          "index": 2,
+          "name": "Home - Live"
+        },
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "6a0fb7d81ea8",
+      "kind": "composed-svg",
+      "originalName": "Calendar",
+      "originalFileName": "Calendar.svg",
+      "fileName": "assets/composed/svg/calendar-6a0fb7d81ea8.svg",
+      "pngFileName": "assets/composed/png/calendar-6a0fb7d81ea8@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-I2956_3423_186_357"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home"
+        }
+      ]
+    },
+    {
+      "assetId": "9ad23725b18e",
+      "kind": "composed-svg",
+      "originalName": "Matches",
+      "originalFileName": "Matches.svg",
+      "fileName": "assets/composed/svg/matches-9ad23725b18e.svg",
+      "pngFileName": "assets/composed/png/matches-9ad23725b18e@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-I2956_3423_186_356"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home"
+        }
+      ]
+    },
+    {
+      "assetId": "ded489c811c1",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-ded489c811c1.svg",
+      "pngFileName": "assets/png/vector-ded489c811c1@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I2956_3424_187_167",
+        "svg-I2973_2730_187_167",
+        "svg-I2973_2791_187_167"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home"
+        },
+        {
+          "index": 2,
+          "name": "Home - Live"
+        },
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "4b99a9d5f370",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-4b99a9d5f370.svg",
+      "pngFileName": "assets/png/vector-4b99a9d5f370@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I2956_3424_187_168",
+        "svg-I2973_2730_187_168",
+        "svg-I2973_2791_187_168"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home"
+        },
+        {
+          "index": 2,
+          "name": "Home - Live"
+        },
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "ae727ac643fb",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-ae727ac643fb.svg",
+      "pngFileName": "assets/png/vector-ae727ac643fb@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I2956_3424_187_169",
+        "svg-I2973_2730_187_169",
+        "svg-I2973_2791_187_169"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home"
+        },
+        {
+          "index": 2,
+          "name": "Home - Live"
+        },
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "95c50200cc54",
+      "kind": "composed-svg",
+      "originalName": "Group 1000006149",
+      "originalFileName": "Group 1000006149.svg",
+      "fileName": "assets/composed/svg/group_1000006149-95c50200cc54.svg",
+      "pngFileName": "assets/composed/png/group_1000006149-95c50200cc54@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-I2956_3424_187_166"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home"
+        }
+      ]
+    },
+    {
+      "assetId": "7364af0b6f3d",
+      "kind": "composed-svg",
+      "originalName": "Group 1000006150",
+      "originalFileName": "Group 1000006150.svg",
+      "fileName": "assets/composed/svg/group_1000006150-7364af0b6f3d.svg",
+      "pngFileName": "assets/composed/png/group_1000006150-7364af0b6f3d@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-I2956_3424_187_165"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home"
+        }
+      ]
+    },
+    {
+      "assetId": "7fcabe69f2ce",
+      "kind": "composed-svg",
+      "originalName": "Scoring",
+      "originalFileName": "Scoring.svg",
+      "fileName": "assets/composed/svg/scoring-7fcabe69f2ce.svg",
+      "pngFileName": "assets/composed/png/scoring-7fcabe69f2ce@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-I2956_3424_178_177"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home"
+        }
+      ]
+    },
+    {
+      "assetId": "99931fb16be9",
+      "kind": "svg",
+      "originalName": "Rectangle 7",
+      "originalFileName": "Rectangle 7.svg",
+      "fileName": "assets/svg/rectangle_7-99931fb16be9.svg",
+      "pngFileName": "assets/png/rectangle_7-99931fb16be9@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I2956_3425_189_261",
+        "svg-I2973_2731_189_261",
+        "svg-I2973_2792_189_261"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home"
+        },
+        {
+          "index": 2,
+          "name": "Home - Live"
+        },
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "c778c7d9af97",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-c778c7d9af97.svg",
+      "pngFileName": "assets/png/vector-c778c7d9af97@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I2956_3425_189_262",
+        "svg-I2973_2731_189_262",
+        "svg-I2973_2792_189_262"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home"
+        },
+        {
+          "index": 2,
+          "name": "Home - Live"
+        },
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "aae93e22a501",
+      "kind": "composed-svg",
+      "originalName": "Selected Profile",
+      "originalFileName": "Selected Profile.svg",
+      "fileName": "assets/composed/svg/selected_profile-aae93e22a501.svg",
+      "pngFileName": "assets/composed/png/selected_profile-aae93e22a501@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-I2956_3425_189_260",
+        "composed-I2973_2731_189_260",
+        "composed-I2973_2792_189_260"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home"
+        },
+        {
+          "index": 2,
+          "name": "Home - Live"
+        },
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "07eaafbd7a57",
+      "kind": "composed-svg",
+      "originalName": "Group 1000006151",
+      "originalFileName": "Group 1000006151.svg",
+      "fileName": "assets/composed/svg/group_1000006151-07eaafbd7a57.svg",
+      "pngFileName": "assets/composed/png/group_1000006151-07eaafbd7a57@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-I2956_3425_189_256",
+        "composed-I2973_2731_189_256",
+        "composed-I2973_2792_189_256"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home"
+        },
+        {
+          "index": 2,
+          "name": "Home - Live"
+        },
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "22b2734a3148",
+      "kind": "composed-svg",
+      "originalName": "Profile",
+      "originalFileName": "Profile.svg",
+      "fileName": "assets/composed/svg/profile-22b2734a3148.svg",
+      "pngFileName": "assets/composed/png/profile-22b2734a3148@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-I2956_3425_26_481",
+        "composed-I2973_2731_26_481",
+        "composed-I2973_2792_26_481"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home"
+        },
+        {
+          "index": 2,
+          "name": "Home - Live"
+        },
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "b3066e3e4630",
+      "kind": "svg",
+      "originalName": "₹",
+      "originalFileName": "₹.svg",
+      "fileName": "assets/svg/asset-b3066e3e4630.svg",
+      "pngFileName": "assets/png/asset-b3066e3e4630@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2958_3687"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Home - Live"
+        }
+      ]
+    },
+    {
+      "assetId": "29e52f924df8",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-29e52f924df8.svg",
+      "pngFileName": "assets/png/vector-29e52f924df8@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2958_3690"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Home - Live"
+        }
+      ]
+    },
+    {
+      "assetId": "1b08396ca428",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-1b08396ca428.svg",
+      "pngFileName": "assets/png/vector-1b08396ca428@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2958_3701"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Home - Live"
+        }
+      ]
+    },
+    {
+      "assetId": "3a3dfb5d80f9",
+      "kind": "composed-svg",
+      "originalName": "search-normal",
+      "originalFileName": "search-normal.svg",
+      "fileName": "assets/composed/svg/search_normal-3a3dfb5d80f9.svg",
+      "pngFileName": "assets/composed/png/search_normal-3a3dfb5d80f9@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-2958_3699"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Home - Live"
+        }
+      ]
+    },
+    {
+      "assetId": "3bce7493eb43",
+      "kind": "composed-svg",
+      "originalName": "vuesax/twotone/search-normal",
+      "originalFileName": "vuesax/twotone/search-normal.svg",
+      "fileName": "assets/composed/svg/vuesax_twotone_search_normal-3bce7493eb43.svg",
+      "pngFileName": "assets/composed/png/vuesax_twotone_search_normal-3bce7493eb43@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-2958_3698"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Home - Live"
+        }
+      ]
+    },
+    {
+      "assetId": "fb631be53a2b",
+      "kind": "composed-svg",
+      "originalName": "search-normal",
+      "originalFileName": "search-normal.svg",
+      "fileName": "assets/composed/svg/search_normal-fb631be53a2b.svg",
+      "pngFileName": "assets/composed/png/search_normal-fb631be53a2b@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-2958_3697"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Home - Live"
+        }
+      ]
+    },
+    {
+      "assetId": "61cf5ec768d9",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-61cf5ec768d9.svg",
+      "pngFileName": "assets/png/vector-61cf5ec768d9@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2958_3710"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Home - Live"
+        }
+      ]
+    },
+    {
+      "assetId": "b4742c6cede0",
+      "kind": "composed-svg",
+      "originalName": "Group",
+      "originalFileName": "Group.svg",
+      "fileName": "assets/composed/svg/group-b4742c6cede0.svg",
+      "pngFileName": "assets/composed/png/group-b4742c6cede0@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-2958_3707"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Home - Live"
+        }
+      ]
+    },
+    {
+      "assetId": "5cd7e901f9b6",
+      "kind": "composed-svg",
+      "originalName": "ri-mic-2-line",
+      "originalFileName": "ri-mic-2-line.svg",
+      "fileName": "assets/composed/svg/ri_mic_2_line-5cd7e901f9b6.svg",
+      "pngFileName": "assets/composed/png/ri_mic_2_line-5cd7e901f9b6@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-2958_3706"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Home - Live"
+        }
+      ]
+    },
+    {
+      "assetId": "468c2c117c25",
+      "kind": "composed-svg",
+      "originalName": "mic",
+      "originalFileName": "mic.svg",
+      "fileName": "assets/composed/svg/mic-468c2c117c25.svg",
+      "pngFileName": "assets/composed/png/mic-468c2c117c25@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-2958_3704"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Home - Live"
+        }
+      ]
+    },
+    {
+      "assetId": "56da0e5c8226",
+      "kind": "svg",
+      "originalName": "Line 5 (Stroke)",
+      "originalFileName": "Line 5 (Stroke).svg",
+      "fileName": "assets/svg/line_5_stroke-56da0e5c8226.svg",
+      "pngFileName": "assets/png/line_5_stroke-56da0e5c8226@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I2958_3719_1661_922"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Home - Live"
+        }
+      ]
+    },
+    {
+      "assetId": "e76a39b556f4",
+      "kind": "svg",
+      "originalName": "Ellipse 816",
+      "originalFileName": "Ellipse 816.svg",
+      "fileName": "assets/svg/ellipse_816-e76a39b556f4.svg",
+      "pngFileName": "assets/png/ellipse_816-e76a39b556f4@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I2958_3719_1661_923"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Home - Live"
+        }
+      ]
+    },
+    {
+      "assetId": "1764fa141dfb",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-1764fa141dfb.svg",
+      "pngFileName": "assets/png/vector-1764fa141dfb@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2958_3727"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Home - Live"
+        }
+      ]
+    },
+    {
+      "assetId": "5ce08dd41a0b",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-5ce08dd41a0b.svg",
+      "pngFileName": "assets/png/vector-5ce08dd41a0b@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I2958_3730_1_757",
+        "svg-I3245_1438_1_757"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Home - Live"
+        },
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "02aefcbfaba6",
+      "kind": "composed-svg",
+      "originalName": "danger",
+      "originalFileName": "danger.svg",
+      "fileName": "assets/composed/svg/danger-02aefcbfaba6.svg",
+      "pngFileName": "assets/composed/png/danger-02aefcbfaba6@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-I2958_3730_1_756",
+        "composed-I3245_1438_1_756"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Home - Live"
+        },
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "27c09ab65f4f",
+      "kind": "composed-svg",
+      "originalName": "vuesax/bold/danger",
+      "originalFileName": "vuesax/bold/danger.svg",
+      "fileName": "assets/composed/svg/vuesax_bold_danger-27c09ab65f4f.svg",
+      "pngFileName": "assets/composed/png/vuesax_bold_danger-27c09ab65f4f@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-I2958_3730_1_755",
+        "composed-I3245_1438_1_755"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Home - Live"
+        },
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "411d9b2048b7",
+      "kind": "composed-svg",
+      "originalName": "Frame 2",
+      "originalFileName": "Frame 2.svg",
+      "fileName": "assets/composed/svg/frame_2-411d9b2048b7.svg",
+      "pngFileName": "assets/composed/png/frame_2-411d9b2048b7@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-2958_3729",
+        "composed-3245_1437"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Home - Live"
+        },
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "a2b082d3c0de",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-a2b082d3c0de.svg",
+      "pngFileName": "assets/png/vector-a2b082d3c0de@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2958_3735"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Home - Live"
+        }
+      ]
+    },
+    {
+      "assetId": "80f2ae625a89",
+      "kind": "svg",
+      "originalName": "Line 9",
+      "originalFileName": "Line 9.svg",
+      "fileName": "assets/svg/line_9-80f2ae625a89.svg",
+      "pngFileName": "assets/png/line_9-80f2ae625a89@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2988_5116"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Home - Live"
+        }
+      ]
+    },
+    {
+      "assetId": "72ed81c08d17",
+      "kind": "svg",
+      "originalName": "Ellipse 1",
+      "originalFileName": "Ellipse 1.svg",
+      "fileName": "assets/svg/ellipse_1-72ed81c08d17.svg",
+      "pngFileName": "assets/png/ellipse_1-72ed81c08d17@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2988_5119",
+        "svg-2958_4569",
+        "svg-2958_4617",
+        "svg-2958_4629",
+        "svg-3245_1420",
+        "svg-2958_4381",
+        "svg-2958_4448",
+        "svg-2958_4668",
+        "svg-2958_4707",
+        "svg-2958_5206",
+        "svg-2958_5349",
+        "svg-2972_670"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Home - Live"
+        },
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        },
+        {
+          "index": 4,
+          "name": "Incoming Requests"
+        },
+        {
+          "index": 5,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 6,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 7,
+          "name": "BOOKING CONFIRMED"
+        }
+      ]
+    },
+    {
+      "assetId": "da84f12feab9",
+      "kind": "svg",
+      "originalName": "Ellipse 46",
+      "originalFileName": "Ellipse 46.svg",
+      "fileName": "assets/svg/ellipse_46-da84f12feab9.svg",
+      "pngFileName": "assets/png/ellipse_46-da84f12feab9@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2958_3740"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Home - Live"
+        }
+      ]
+    },
+    {
+      "assetId": "a49ad3a513c5",
+      "kind": "svg",
+      "originalName": "Ellipse 46",
+      "originalFileName": "Ellipse 46.svg",
+      "fileName": "assets/svg/ellipse_46-a49ad3a513c5.svg",
+      "pngFileName": "assets/png/ellipse_46-a49ad3a513c5@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2958_3762"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Home - Live"
+        }
+      ]
+    },
+    {
+      "assetId": "9f8c927426be",
+      "kind": "svg",
+      "originalName": "Line 10",
+      "originalFileName": "Line 10.svg",
+      "fileName": "assets/svg/line_10-9f8c927426be.svg",
+      "pngFileName": "assets/png/line_10-9f8c927426be@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2958_4611"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Home - Live"
+        }
+      ]
+    },
+    {
+      "assetId": "f15d64cbd554",
+      "kind": "svg",
+      "originalName": "Line 9",
+      "originalFileName": "Line 9.svg",
+      "fileName": "assets/svg/line_9-f15d64cbd554.svg",
+      "pngFileName": "assets/png/line_9-f15d64cbd554@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2958_4609"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Home - Live"
+        }
+      ]
+    },
+    {
+      "assetId": "44f500b3c8c9",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-44f500b3c8c9.svg",
+      "pngFileName": "assets/png/vector-44f500b3c8c9@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2988_5015"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Home - Live"
+        }
+      ]
+    },
+    {
+      "assetId": "d75e8e314f15",
+      "kind": "svg",
+      "originalName": "Ellipse 1",
+      "originalFileName": "Ellipse 1.svg",
+      "fileName": "assets/svg/ellipse_1-d75e8e314f15.svg",
+      "pngFileName": "assets/png/ellipse_1-d75e8e314f15@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2958_4640"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Home - Live"
+        }
+      ]
+    },
+    {
+      "assetId": "df6c86e1a791",
+      "kind": "svg",
+      "originalName": "Line 9",
+      "originalFileName": "Line 9.svg",
+      "fileName": "assets/svg/line_9-df6c86e1a791.svg",
+      "pngFileName": "assets/png/line_9-df6c86e1a791@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2958_4643"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Home - Live"
+        }
+      ]
+    },
+    {
+      "assetId": "a502e71972c1",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-a502e71972c1.svg",
+      "pngFileName": "assets/png/vector-a502e71972c1@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2958_4647",
+        "svg-2958_4389",
+        "svg-2958_4465",
+        "svg-2958_4686",
+        "svg-2958_4725"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Home - Live"
+        },
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        },
+        {
+          "index": 4,
+          "name": "Incoming Requests"
+        }
+      ]
+    },
+    {
+      "assetId": "2600bc958cd4",
+      "kind": "svg",
+      "originalName": "Icon",
+      "originalFileName": "Icon.svg",
+      "fileName": "assets/svg/icon-2600bc958cd4.svg",
+      "pngFileName": "assets/png/icon-2600bc958cd4@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2958_4652",
+        "svg-2958_4394",
+        "svg-2958_4470",
+        "svg-2958_4691",
+        "svg-2958_4730",
+        "svg-2958_5277",
+        "svg-2973_2404"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Home - Live"
+        },
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        },
+        {
+          "index": 4,
+          "name": "Incoming Requests"
+        },
+        {
+          "index": 5,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 7,
+          "name": "BOOKING CONFIRMED"
+        }
+      ]
+    },
+    {
+      "assetId": "956235be2ffa",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-956235be2ffa.svg",
+      "pngFileName": "assets/png/vector-956235be2ffa@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2958_4655"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Home - Live"
+        }
+      ]
+    },
+    {
+      "assetId": "5afd6b0b976a",
+      "kind": "svg",
+      "originalName": "Line 8",
+      "originalFileName": "Line 8.svg",
+      "fileName": "assets/svg/line_8-5afd6b0b976a.svg",
+      "pngFileName": "assets/png/line_8-5afd6b0b976a@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2958_4656"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Home - Live"
+        }
+      ]
+    },
+    {
+      "assetId": "54cecac063c8",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-54cecac063c8.svg",
+      "pngFileName": "assets/png/vector-54cecac063c8@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2958_3854"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Home - Live"
+        }
+      ]
+    },
+    {
+      "assetId": "4a5c8ebf720c",
+      "kind": "composed-svg",
+      "originalName": "Calendar",
+      "originalFileName": "Calendar.svg",
+      "fileName": "assets/composed/svg/calendar-4a5c8ebf720c.svg",
+      "pngFileName": "assets/composed/png/calendar-4a5c8ebf720c@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-I2973_2729_186_357",
+        "composed-I2973_2790_186_357"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Home - Live"
+        },
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "7260f37a2a9d",
+      "kind": "composed-svg",
+      "originalName": "Matches",
+      "originalFileName": "Matches.svg",
+      "fileName": "assets/composed/svg/matches-7260f37a2a9d.svg",
+      "pngFileName": "assets/composed/png/matches-7260f37a2a9d@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-I2973_2729_186_356",
+        "composed-I2973_2790_186_356"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Home - Live"
+        },
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "fd714ddf0649",
+      "kind": "composed-svg",
+      "originalName": "Group 1000006149",
+      "originalFileName": "Group 1000006149.svg",
+      "fileName": "assets/composed/svg/group_1000006149-fd714ddf0649.svg",
+      "pngFileName": "assets/composed/png/group_1000006149-fd714ddf0649@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-I2973_2730_187_166",
+        "composed-I2973_2791_187_166"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Home - Live"
+        },
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "6ebc29ce8442",
+      "kind": "composed-svg",
+      "originalName": "Group 1000006150",
+      "originalFileName": "Group 1000006150.svg",
+      "fileName": "assets/composed/svg/group_1000006150-6ebc29ce8442.svg",
+      "pngFileName": "assets/composed/png/group_1000006150-6ebc29ce8442@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-I2973_2730_187_165",
+        "composed-I2973_2791_187_165"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Home - Live"
+        },
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "0e3362c5cb06",
+      "kind": "composed-svg",
+      "originalName": "Scoring",
+      "originalFileName": "Scoring.svg",
+      "fileName": "assets/composed/svg/scoring-0e3362c5cb06.svg",
+      "pngFileName": "assets/composed/png/scoring-0e3362c5cb06@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-I2973_2730_178_177",
+        "composed-I2973_2791_178_177"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Home - Live"
+        },
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "d8ccf68df89f",
+      "kind": "svg",
+      "originalName": "₹",
+      "originalFileName": "₹.svg",
+      "fileName": "assets/svg/asset-d8ccf68df89f.svg",
+      "pngFileName": "assets/png/asset-d8ccf68df89f@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2958_4298"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "acaf040ca28b",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-acaf040ca28b.svg",
+      "pngFileName": "assets/png/vector-acaf040ca28b@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2958_4301"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "9fa9a5ad8d3c",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-9fa9a5ad8d3c.svg",
+      "pngFileName": "assets/png/vector-9fa9a5ad8d3c@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2958_4312"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "c2f5420ae262",
+      "kind": "composed-svg",
+      "originalName": "search-normal",
+      "originalFileName": "search-normal.svg",
+      "fileName": "assets/composed/svg/search_normal-c2f5420ae262.svg",
+      "pngFileName": "assets/composed/png/search_normal-c2f5420ae262@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-2958_4310"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "5a1930fde73d",
+      "kind": "composed-svg",
+      "originalName": "vuesax/twotone/search-normal",
+      "originalFileName": "vuesax/twotone/search-normal.svg",
+      "fileName": "assets/composed/svg/vuesax_twotone_search_normal-5a1930fde73d.svg",
+      "pngFileName": "assets/composed/png/vuesax_twotone_search_normal-5a1930fde73d@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-2958_4309"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "9ac7512120ae",
+      "kind": "composed-svg",
+      "originalName": "search-normal",
+      "originalFileName": "search-normal.svg",
+      "fileName": "assets/composed/svg/search_normal-9ac7512120ae.svg",
+      "pngFileName": "assets/composed/png/search_normal-9ac7512120ae@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-2958_4308"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "c5d7582e8190",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-c5d7582e8190.svg",
+      "pngFileName": "assets/png/vector-c5d7582e8190@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2958_4321"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "0b4d539ff9e8",
+      "kind": "composed-svg",
+      "originalName": "Group",
+      "originalFileName": "Group.svg",
+      "fileName": "assets/composed/svg/group-0b4d539ff9e8.svg",
+      "pngFileName": "assets/composed/png/group-0b4d539ff9e8@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-2958_4318"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "926eb90bf2d1",
+      "kind": "composed-svg",
+      "originalName": "ri-mic-2-line",
+      "originalFileName": "ri-mic-2-line.svg",
+      "fileName": "assets/composed/svg/ri_mic_2_line-926eb90bf2d1.svg",
+      "pngFileName": "assets/composed/png/ri_mic_2_line-926eb90bf2d1@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-2958_4317"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "2dab9e25d828",
+      "kind": "composed-svg",
+      "originalName": "mic",
+      "originalFileName": "mic.svg",
+      "fileName": "assets/composed/svg/mic-2dab9e25d828.svg",
+      "pngFileName": "assets/composed/png/mic-2dab9e25d828@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-2958_4315"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "813b2d8d2af0",
+      "kind": "svg",
+      "originalName": "Line 5 (Stroke)",
+      "originalFileName": "Line 5 (Stroke).svg",
+      "fileName": "assets/svg/line_5_stroke-813b2d8d2af0.svg",
+      "pngFileName": "assets/png/line_5_stroke-813b2d8d2af0@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I2958_4330_1661_922"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "cb725a0175b6",
+      "kind": "svg",
+      "originalName": "Ellipse 816",
+      "originalFileName": "Ellipse 816.svg",
+      "fileName": "assets/svg/ellipse_816-cb725a0175b6.svg",
+      "pngFileName": "assets/png/ellipse_816-cb725a0175b6@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I2958_4330_1661_923"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "a117f59cb05a",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-a117f59cb05a.svg",
+      "pngFileName": "assets/png/vector-a117f59cb05a@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2958_4338"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "42b699349d7a",
+      "kind": "svg",
+      "originalName": "Line 9",
+      "originalFileName": "Line 9.svg",
+      "fileName": "assets/svg/line_9-42b699349d7a.svg",
+      "pngFileName": "assets/png/line_9-42b699349d7a@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3245_1417"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "282a55331381",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-282a55331381.svg",
+      "pngFileName": "assets/png/vector-282a55331381@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3245_1443"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "f69250c9a6db",
+      "kind": "svg",
+      "originalName": "Ellipse 46",
+      "originalFileName": "Ellipse 46.svg",
+      "fileName": "assets/svg/ellipse_46-f69250c9a6db.svg",
+      "pngFileName": "assets/png/ellipse_46-f69250c9a6db@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2958_4351"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "1b9510394d1e",
+      "kind": "svg",
+      "originalName": "Ellipse 46",
+      "originalFileName": "Ellipse 46.svg",
+      "fileName": "assets/svg/ellipse_46-1b9510394d1e.svg",
+      "pngFileName": "assets/png/ellipse_46-1b9510394d1e@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2958_4365"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "8dbae62c1870",
+      "kind": "svg",
+      "originalName": "Line 9",
+      "originalFileName": "Line 9.svg",
+      "fileName": "assets/svg/line_9-8dbae62c1870.svg",
+      "pngFileName": "assets/png/line_9-8dbae62c1870@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2958_4385"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "debd06e91973",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-debd06e91973.svg",
+      "pngFileName": "assets/png/vector-debd06e91973@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2958_4397"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "68fd6f52a1ee",
+      "kind": "svg",
+      "originalName": "Line 8",
+      "originalFileName": "Line 8.svg",
+      "fileName": "assets/svg/line_8-68fd6f52a1ee.svg",
+      "pngFileName": "assets/png/line_8-68fd6f52a1ee@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2958_4398"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "3c6190a6f3c5",
+      "kind": "svg",
+      "originalName": "Line 9",
+      "originalFileName": "Line 9.svg",
+      "fileName": "assets/svg/line_9-3c6190a6f3c5.svg",
+      "pngFileName": "assets/png/line_9-3c6190a6f3c5@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2958_4420"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "7cec70b3a08d",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-7cec70b3a08d.svg",
+      "pngFileName": "assets/png/vector-7cec70b3a08d@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2958_4424"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "6a2e0fb6043c",
+      "kind": "svg",
+      "originalName": "Line 8",
+      "originalFileName": "Line 8.svg",
+      "fileName": "assets/svg/line_8-6a2e0fb6043c.svg",
+      "pngFileName": "assets/png/line_8-6a2e0fb6043c@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2958_4433"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "0c4da302a556",
+      "kind": "svg",
+      "originalName": "Ellipse 1",
+      "originalFileName": "Ellipse 1.svg",
+      "fileName": "assets/svg/ellipse_1-0c4da302a556.svg",
+      "pngFileName": "assets/png/ellipse_1-0c4da302a556@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2958_4458"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "bcd31ddb63ba",
+      "kind": "svg",
+      "originalName": "Line 9",
+      "originalFileName": "Line 9.svg",
+      "fileName": "assets/svg/line_9-bcd31ddb63ba.svg",
+      "pngFileName": "assets/png/line_9-bcd31ddb63ba@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2958_4461"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "cdb2da44e221",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-cdb2da44e221.svg",
+      "pngFileName": "assets/png/vector-cdb2da44e221@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2958_4473"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "21f1149174f4",
+      "kind": "svg",
+      "originalName": "Line 8",
+      "originalFileName": "Line 8.svg",
+      "fileName": "assets/svg/line_8-21f1149174f4.svg",
+      "pngFileName": "assets/png/line_8-21f1149174f4@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2958_4474"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Home - Today's Match"
+        }
+      ]
+    },
+    {
+      "assetId": "4537d9a50c84",
+      "kind": "svg",
+      "originalName": "Ellipse 1",
+      "originalFileName": "Ellipse 1.svg",
+      "fileName": "assets/svg/ellipse_1-4537d9a50c84.svg",
+      "pngFileName": "assets/png/ellipse_1-4537d9a50c84@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2958_4679"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Incoming Requests"
+        }
+      ]
+    },
+    {
+      "assetId": "08eb3d8c8c56",
+      "kind": "svg",
+      "originalName": "Line 9",
+      "originalFileName": "Line 9.svg",
+      "fileName": "assets/svg/line_9-08eb3d8c8c56.svg",
+      "pngFileName": "assets/png/line_9-08eb3d8c8c56@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2958_4682"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Incoming Requests"
+        }
+      ]
+    },
+    {
+      "assetId": "7c7f701fa1ef",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-7c7f701fa1ef.svg",
+      "pngFileName": "assets/png/vector-7c7f701fa1ef@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2958_4694"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Incoming Requests"
+        }
+      ]
+    },
+    {
+      "assetId": "a00cfb30f471",
+      "kind": "svg",
+      "originalName": "Line 8",
+      "originalFileName": "Line 8.svg",
+      "fileName": "assets/svg/line_8-a00cfb30f471.svg",
+      "pngFileName": "assets/png/line_8-a00cfb30f471@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2958_4695"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Incoming Requests"
+        }
+      ]
+    },
+    {
+      "assetId": "60312867693a",
+      "kind": "svg",
+      "originalName": "Ellipse 1",
+      "originalFileName": "Ellipse 1.svg",
+      "fileName": "assets/svg/ellipse_1-60312867693a.svg",
+      "pngFileName": "assets/png/ellipse_1-60312867693a@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2958_4718"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Incoming Requests"
+        }
+      ]
+    },
+    {
+      "assetId": "bd9b0484b912",
+      "kind": "svg",
+      "originalName": "Line 9",
+      "originalFileName": "Line 9.svg",
+      "fileName": "assets/svg/line_9-bd9b0484b912.svg",
+      "pngFileName": "assets/png/line_9-bd9b0484b912@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2958_4721"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Incoming Requests"
+        }
+      ]
+    },
+    {
+      "assetId": "9c89f67b9260",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-9c89f67b9260.svg",
+      "pngFileName": "assets/png/vector-9c89f67b9260@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2958_4733"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Incoming Requests"
+        }
+      ]
+    },
+    {
+      "assetId": "6cda4e7e0c48",
+      "kind": "svg",
+      "originalName": "Line 8",
+      "originalFileName": "Line 8.svg",
+      "fileName": "assets/svg/line_8-6cda4e7e0c48.svg",
+      "pngFileName": "assets/png/line_8-6cda4e7e0c48@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2958_4734"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Incoming Requests"
+        }
+      ]
+    },
+    {
+      "assetId": "a741137e1d6f",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-a741137e1d6f.svg",
+      "pngFileName": "assets/png/vector-a741137e1d6f@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2956_3566"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Incoming Requests"
+        }
+      ]
+    },
+    {
+      "assetId": "db20c7f576b7",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-db20c7f576b7.svg",
+      "pngFileName": "assets/png/vector-db20c7f576b7@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2958_5040"
+      ],
+      "screens": [
+        {
+          "index": 5,
+          "name": "Incoming Requests Details"
+        }
+      ]
+    },
+    {
+      "assetId": "c0944a20038b",
+      "kind": "raster",
+      "originalName": "Frame 2",
+      "originalFileName": "assets/images/original/image-1-c0944a2003.jpg",
+      "fileName": "assets/images/original/image-1-c0944a2003.jpg",
+      "pngFileName": "assets/images/rendered_png/frame_2-c0944a20038b@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "raster-1-c0944a2003"
+      ],
+      "screens": [
+        {
+          "index": 5,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 7,
+          "name": "BOOKING CONFIRMED"
+        }
+      ]
+    },
+    {
+      "assetId": "0a3ae0d936b3",
+      "kind": "svg",
+      "originalName": "Line 10",
+      "originalFileName": "Line 10.svg",
+      "fileName": "assets/svg/line_10-0a3ae0d936b3.svg",
+      "pngFileName": "assets/png/line_10-0a3ae0d936b3@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2958_5225"
+      ],
+      "screens": [
+        {
+          "index": 5,
+          "name": "Incoming Requests Details"
+        }
+      ]
+    },
+    {
+      "assetId": "766b293c7c44",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-766b293c7c44.svg",
+      "pngFileName": "assets/png/vector-766b293c7c44@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2958_5272",
+        "svg-2958_5468"
+      ],
+      "screens": [
+        {
+          "index": 5,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 6,
+          "name": "Incoming Requests Details"
+        }
+      ]
+    },
+    {
+      "assetId": "18fbe6c32d3f",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-18fbe6c32d3f.svg",
+      "pngFileName": "assets/png/vector-18fbe6c32d3f@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2958_5280"
+      ],
+      "screens": [
+        {
+          "index": 5,
+          "name": "Incoming Requests Details"
+        }
+      ]
+    },
+    {
+      "assetId": "48f0c22aa4ac",
+      "kind": "svg",
+      "originalName": "Line 8",
+      "originalFileName": "Line 8.svg",
+      "fileName": "assets/svg/line_8-48f0c22aa4ac.svg",
+      "pngFileName": "assets/png/line_8-48f0c22aa4ac@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2958_5113"
+      ],
+      "screens": [
+        {
+          "index": 5,
+          "name": "Incoming Requests Details"
+        }
+      ]
+    },
+    {
+      "assetId": "38a5f9927757",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-38a5f9927757.svg",
+      "pngFileName": "assets/png/vector-38a5f9927757@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2958_5320"
+      ],
+      "screens": [
+        {
+          "index": 6,
+          "name": "Incoming Requests Details"
+        }
+      ]
+    },
+    {
+      "assetId": "0b8e09d47266",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-0b8e09d47266.svg",
+      "pngFileName": "assets/png/vector-0b8e09d47266@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2958_5321",
+        "svg-2958_5323",
+        "svg-2972_638",
+        "svg-2972_640"
+      ],
+      "screens": [
+        {
+          "index": 6,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 7,
+          "name": "BOOKING CONFIRMED"
+        }
+      ]
+    },
+    {
+      "assetId": "27f81ab87cd9",
+      "kind": "composed-svg",
+      "originalName": "Group 1000003335",
+      "originalFileName": "Group 1000003335.svg",
+      "fileName": "assets/composed/svg/group_1000003335-27f81ab87cd9.svg",
+      "pngFileName": "assets/composed/png/group_1000003335-27f81ab87cd9@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-2958_5319"
+      ],
+      "screens": [
+        {
+          "index": 6,
+          "name": "Incoming Requests Details"
+        }
+      ]
+    },
+    {
+      "assetId": "5078df9db16f",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-5078df9db16f.svg",
+      "pngFileName": "assets/png/vector-5078df9db16f@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2958_5322",
+        "svg-2972_639"
+      ],
+      "screens": [
+        {
+          "index": 6,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 7,
+          "name": "BOOKING CONFIRMED"
+        }
+      ]
+    },
+    {
+      "assetId": "7beafe99091e",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-7beafe99091e.svg",
+      "pngFileName": "assets/png/vector-7beafe99091e@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2958_5324",
+        "svg-2972_641"
+      ],
+      "screens": [
+        {
+          "index": 6,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 7,
+          "name": "BOOKING CONFIRMED"
+        }
+      ]
+    },
+    {
+      "assetId": "d1e3080805f9",
+      "kind": "composed-svg",
+      "originalName": "20:23",
+      "originalFileName": "20:23.svg",
+      "fileName": "assets/composed/svg/20_23-d1e3080805f9.svg",
+      "pngFileName": "assets/composed/png/20_23-d1e3080805f9@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-2958_5318"
+      ],
+      "screens": [
+        {
+          "index": 6,
+          "name": "Incoming Requests Details"
+        }
+      ]
+    },
+    {
+      "assetId": "89b991032554",
+      "kind": "composed-svg",
+      "originalName": "Group 2",
+      "originalFileName": "Group 2.svg",
+      "fileName": "assets/composed/svg/group_2-89b991032554.svg",
+      "pngFileName": "assets/composed/png/group_2-89b991032554@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-2958_5317"
+      ],
+      "screens": [
+        {
+          "index": 6,
+          "name": "Incoming Requests Details"
+        }
+      ]
+    },
+    {
+      "assetId": "9ce9a71d5a1d",
+      "kind": "svg",
+      "originalName": "Line 5 (Stroke)",
+      "originalFileName": "Line 5 (Stroke).svg",
+      "fileName": "assets/svg/line_5_stroke-9ce9a71d5a1d.svg",
+      "pngFileName": "assets/png/line_5_stroke-9ce9a71d5a1d@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2958_5327",
+        "svg-2972_644"
+      ],
+      "screens": [
+        {
+          "index": 6,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 7,
+          "name": "BOOKING CONFIRMED"
+        }
+      ]
+    },
+    {
+      "assetId": "198dbf72c1bc",
+      "kind": "svg",
+      "originalName": "Line 4 (Stroke)",
+      "originalFileName": "Line 4 (Stroke).svg",
+      "fileName": "assets/svg/line_4_stroke-198dbf72c1bc.svg",
+      "pngFileName": "assets/png/line_4_stroke-198dbf72c1bc@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2958_5328",
+        "svg-2972_645"
+      ],
+      "screens": [
+        {
+          "index": 6,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 7,
+          "name": "BOOKING CONFIRMED"
+        }
+      ]
+    },
+    {
+      "assetId": "c02f6451e6f1",
+      "kind": "svg",
+      "originalName": "Line 3 (Stroke)",
+      "originalFileName": "Line 3 (Stroke).svg",
+      "fileName": "assets/svg/line_3_stroke-c02f6451e6f1.svg",
+      "pngFileName": "assets/png/line_3_stroke-c02f6451e6f1@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2958_5329",
+        "svg-2972_646"
+      ],
+      "screens": [
+        {
+          "index": 6,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 7,
+          "name": "BOOKING CONFIRMED"
+        }
+      ]
+    },
+    {
+      "assetId": "ac7cc9dc21fe",
+      "kind": "svg",
+      "originalName": "Line 2 (Stroke)",
+      "originalFileName": "Line 2 (Stroke).svg",
+      "fileName": "assets/svg/line_2_stroke-ac7cc9dc21fe.svg",
+      "pngFileName": "assets/png/line_2_stroke-ac7cc9dc21fe@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2958_5330",
+        "svg-2972_647"
+      ],
+      "screens": [
+        {
+          "index": 6,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 7,
+          "name": "BOOKING CONFIRMED"
+        }
+      ]
+    },
+    {
+      "assetId": "cc08b2fe1bdd",
+      "kind": "composed-svg",
+      "originalName": "Frame 1000003339",
+      "originalFileName": "Frame 1000003339.svg",
+      "fileName": "assets/composed/svg/frame_1000003339-cc08b2fe1bdd.svg",
+      "pngFileName": "assets/composed/png/frame_1000003339-cc08b2fe1bdd@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-2958_5326",
+        "composed-2972_643"
+      ],
+      "screens": [
+        {
+          "index": 6,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 7,
+          "name": "BOOKING CONFIRMED"
+        }
+      ]
+    },
+    {
+      "assetId": "ef6d647ddb5f",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-ef6d647ddb5f.svg",
+      "pngFileName": "assets/png/vector-ef6d647ddb5f@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2958_5333",
+        "svg-2972_650"
+      ],
+      "screens": [
+        {
+          "index": 6,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 7,
+          "name": "BOOKING CONFIRMED"
+        }
+      ]
+    },
+    {
+      "assetId": "f46db935260b",
+      "kind": "svg",
+      "originalName": "Line 1 (Stroke)",
+      "originalFileName": "Line 1 (Stroke).svg",
+      "fileName": "assets/svg/line_1_stroke-f46db935260b.svg",
+      "pngFileName": "assets/png/line_1_stroke-f46db935260b@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2958_5334",
+        "svg-2972_651"
+      ],
+      "screens": [
+        {
+          "index": 6,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 7,
+          "name": "BOOKING CONFIRMED"
+        }
+      ]
+    },
+    {
+      "assetId": "c8ab1fdafa2c",
+      "kind": "composed-svg",
+      "originalName": "Group 3",
+      "originalFileName": "Group 3.svg",
+      "fileName": "assets/composed/svg/group_3-c8ab1fdafa2c.svg",
+      "pngFileName": "assets/composed/png/group_3-c8ab1fdafa2c@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-2958_5331",
+        "composed-2972_648"
+      ],
+      "screens": [
+        {
+          "index": 6,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 7,
+          "name": "BOOKING CONFIRMED"
+        }
+      ]
+    },
+    {
+      "assetId": "c062a03c22d9",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-c062a03c22d9.svg",
+      "pngFileName": "assets/png/vector-c062a03c22d9@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2958_5337",
+        "svg-2972_654"
+      ],
+      "screens": [
+        {
+          "index": 6,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 7,
+          "name": "BOOKING CONFIRMED"
+        }
+      ]
+    },
+    {
+      "assetId": "abe5e783e3cd",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-abe5e783e3cd.svg",
+      "pngFileName": "assets/png/vector-abe5e783e3cd@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2958_5338",
+        "svg-2972_655"
+      ],
+      "screens": [
+        {
+          "index": 6,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 7,
+          "name": "BOOKING CONFIRMED"
+        }
+      ]
+    },
+    {
+      "assetId": "cfa14d0ef234",
+      "kind": "composed-svg",
+      "originalName": "Group 1000003336",
+      "originalFileName": "Group 1000003336.svg",
+      "fileName": "assets/composed/svg/group_1000003336-cfa14d0ef234.svg",
+      "pngFileName": "assets/composed/png/group_1000003336-cfa14d0ef234@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-2958_5336",
+        "composed-2972_653"
+      ],
+      "screens": [
+        {
+          "index": 6,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 7,
+          "name": "BOOKING CONFIRMED"
+        }
+      ]
+    },
+    {
+      "assetId": "2ce98f5659ba",
+      "kind": "composed-svg",
+      "originalName": "Group 1000003334",
+      "originalFileName": "Group 1000003334.svg",
+      "fileName": "assets/composed/svg/group_1000003334-2ce98f5659ba.svg",
+      "pngFileName": "assets/composed/png/group_1000003334-2ce98f5659ba@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-2958_5325",
+        "composed-2972_642"
+      ],
+      "screens": [
+        {
+          "index": 6,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 7,
+          "name": "BOOKING CONFIRMED"
+        }
+      ]
+    },
+    {
+      "assetId": "228db1e6d5b0",
+      "kind": "composed-svg",
+      "originalName": "Frame 1000003335",
+      "originalFileName": "Frame 1000003335.svg",
+      "fileName": "assets/composed/svg/frame_1000003335-228db1e6d5b0.svg",
+      "pngFileName": "assets/composed/png/frame_1000003335-228db1e6d5b0@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-2958_5316"
+      ],
+      "screens": [
+        {
+          "index": 6,
+          "name": "Incoming Requests Details"
+        }
+      ]
+    },
+    {
+      "assetId": "59143b2f9093",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-59143b2f9093.svg",
+      "pngFileName": "assets/png/vector-59143b2f9093@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2958_5341"
+      ],
+      "screens": [
+        {
+          "index": 6,
+          "name": "Incoming Requests Details"
+        }
+      ]
+    },
+    {
+      "assetId": "e05580c8dbec",
+      "kind": "svg",
+      "originalName": "Ellipse 1",
+      "originalFileName": "Ellipse 1.svg",
+      "fileName": "assets/svg/ellipse_1-e05580c8dbec.svg",
+      "pngFileName": "assets/png/ellipse_1-e05580c8dbec@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2958_5482"
+      ],
+      "screens": [
+        {
+          "index": 6,
+          "name": "Incoming Requests Details"
+        }
+      ]
+    },
+    {
+      "assetId": "e395a5d644c1",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-e395a5d644c1.svg",
+      "pngFileName": "assets/png/vector-e395a5d644c1@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2972_637"
+      ],
+      "screens": [
+        {
+          "index": 7,
+          "name": "BOOKING CONFIRMED"
+        }
+      ]
+    },
+    {
+      "assetId": "a63213ffda14",
+      "kind": "composed-svg",
+      "originalName": "Group 1000003335",
+      "originalFileName": "Group 1000003335.svg",
+      "fileName": "assets/composed/svg/group_1000003335-a63213ffda14.svg",
+      "pngFileName": "assets/composed/png/group_1000003335-a63213ffda14@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-2972_636"
+      ],
+      "screens": [
+        {
+          "index": 7,
+          "name": "BOOKING CONFIRMED"
+        }
+      ]
+    },
+    {
+      "assetId": "f1f4f64d2b8c",
+      "kind": "composed-svg",
+      "originalName": "20:23",
+      "originalFileName": "20:23.svg",
+      "fileName": "assets/composed/svg/20_23-f1f4f64d2b8c.svg",
+      "pngFileName": "assets/composed/png/20_23-f1f4f64d2b8c@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-2972_635"
+      ],
+      "screens": [
+        {
+          "index": 7,
+          "name": "BOOKING CONFIRMED"
+        }
+      ]
+    },
+    {
+      "assetId": "2b4e57308d60",
+      "kind": "composed-svg",
+      "originalName": "Group 2",
+      "originalFileName": "Group 2.svg",
+      "fileName": "assets/composed/svg/group_2-2b4e57308d60.svg",
+      "pngFileName": "assets/composed/png/group_2-2b4e57308d60@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-2972_634"
+      ],
+      "screens": [
+        {
+          "index": 7,
+          "name": "BOOKING CONFIRMED"
+        }
+      ]
+    },
+    {
+      "assetId": "4b5df86e6c62",
+      "kind": "composed-svg",
+      "originalName": "Frame 1000003335",
+      "originalFileName": "Frame 1000003335.svg",
+      "fileName": "assets/composed/svg/frame_1000003335-4b5df86e6c62.svg",
+      "pngFileName": "assets/composed/png/frame_1000003335-4b5df86e6c62@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-2972_633"
+      ],
+      "screens": [
+        {
+          "index": 7,
+          "name": "BOOKING CONFIRMED"
+        }
+      ]
+    },
+    {
+      "assetId": "2d5961ffe75c",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-2d5961ffe75c.svg",
+      "pngFileName": "assets/png/vector-2d5961ffe75c@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2972_658"
+      ],
+      "screens": [
+        {
+          "index": 7,
+          "name": "BOOKING CONFIRMED"
+        }
+      ]
+    },
+    {
+      "assetId": "045ee2b18d27",
+      "kind": "svg",
+      "originalName": "Stroke 3",
+      "originalFileName": "Stroke 3.svg",
+      "fileName": "assets/svg/stroke_3-045ee2b18d27.svg",
+      "pngFileName": "assets/png/stroke_3-045ee2b18d27@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2972_2398"
+      ],
+      "screens": [
+        {
+          "index": 7,
+          "name": "BOOKING CONFIRMED"
+        }
+      ]
+    },
+    {
+      "assetId": "0e3e7e14de4f",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-0e3e7e14de4f.svg",
+      "pngFileName": "assets/png/vector-0e3e7e14de4f@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2973_2407"
+      ],
+      "screens": [
+        {
+          "index": 7,
+          "name": "BOOKING CONFIRMED"
+        }
+      ]
+    },
+    {
+      "assetId": "fa6c6af05993",
+      "kind": "svg",
+      "originalName": "Line 9",
+      "originalFileName": "Line 9.svg",
+      "fileName": "assets/svg/line_9-fa6c6af05993.svg",
+      "pngFileName": "assets/png/line_9-fa6c6af05993@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2972_2362"
+      ],
+      "screens": [
+        {
+          "index": 7,
+          "name": "BOOKING CONFIRMED"
+        }
+      ]
+    },
+    {
+      "assetId": "8481ca84da94",
+      "kind": "svg",
+      "originalName": "Line 8",
+      "originalFileName": "Line 8.svg",
+      "fileName": "assets/svg/line_8-8481ca84da94.svg",
+      "pngFileName": "assets/png/line_8-8481ca84da94@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2972_2366"
+      ],
+      "screens": [
+        {
+          "index": 7,
+          "name": "BOOKING CONFIRMED"
+        }
+      ]
+    }
+  ]
+}

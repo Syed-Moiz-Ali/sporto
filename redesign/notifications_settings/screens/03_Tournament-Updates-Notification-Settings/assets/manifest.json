@@ -1,0 +1,299 @@
+{
+  "schema": "dev-export-assets",
+  "schemaVersion": "1.1.0",
+  "generatedAt": "2026-11-16T10:29:07.912Z",
+  "screen": {
+    "id": "3172:7616",
+    "name": "Tournament Updates - Notification Settings"
+  },
+  "assets": [
+    {
+      "ref": "svg-I3172_7625_1661_919",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "assetId": "af8918001545",
+      "originalName": "Line 5 (Stroke)",
+      "originalFileName": "Line 5 (Stroke).svg",
+      "fileName": "assets/svg/line_5_stroke-af8918001545.svg",
+      "pngFileName": "assets/png/line_5_stroke-af8918001545@2x.png",
+      "pngScale": 2,
+      "formats": {
+        "svg": "assets/svg/line_5_stroke-af8918001545.svg",
+        "png": "assets/png/line_5_stroke-af8918001545@2x.png"
+      },
+      "nodeId": "I3172:7625;1661:919",
+      "nodeName": "Line 5 (Stroke)",
+      "nodeType": "VECTOR",
+      "width": 40,
+      "height": 20,
+      "byteLength": 1219,
+      "pngByteLength": 1184
+    },
+    {
+      "ref": "svg-I3172_7625_1661_920",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "assetId": "dc6835a33c51",
+      "originalName": "Ellipse 816",
+      "originalFileName": "Ellipse 816.svg",
+      "fileName": "assets/svg/ellipse_816-dc6835a33c51.svg",
+      "pngFileName": "assets/png/ellipse_816-dc6835a33c51@2x.png",
+      "pngScale": 2,
+      "formats": {
+        "svg": "assets/svg/ellipse_816-dc6835a33c51.svg",
+        "png": "assets/png/ellipse_816-dc6835a33c51@2x.png"
+      },
+      "nodeId": "I3172:7625;1661:920",
+      "nodeName": "Ellipse 816",
+      "nodeType": "ELLIPSE",
+      "width": 16,
+      "height": 16,
+      "byteLength": 919,
+      "pngByteLength": 1669
+    },
+    {
+      "ref": "svg-I3172_7630_1661_919",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "assetId": "35781ef52608",
+      "originalName": "Line 5 (Stroke)",
+      "originalFileName": "Line 5 (Stroke).svg",
+      "fileName": "assets/svg/line_5_stroke-35781ef52608.svg",
+      "pngFileName": "assets/png/line_5_stroke-35781ef52608@2x.png",
+      "pngScale": 2,
+      "formats": {
+        "svg": "assets/svg/line_5_stroke-35781ef52608.svg",
+        "png": "assets/png/line_5_stroke-35781ef52608@2x.png"
+      },
+      "nodeId": "I3172:7630;1661:919",
+      "nodeName": "Line 5 (Stroke)",
+      "nodeType": "VECTOR",
+      "width": 40,
+      "height": 20,
+      "byteLength": 1219,
+      "pngByteLength": 1184
+    },
+    {
+      "ref": "svg-I3172_7630_1661_920",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "assetId": "662279c607b9",
+      "originalName": "Ellipse 816",
+      "originalFileName": "Ellipse 816.svg",
+      "fileName": "assets/svg/ellipse_816-662279c607b9.svg",
+      "pngFileName": "assets/png/ellipse_816-662279c607b9@2x.png",
+      "pngScale": 2,
+      "formats": {
+        "svg": "assets/svg/ellipse_816-662279c607b9.svg",
+        "png": "assets/png/ellipse_816-662279c607b9@2x.png"
+      },
+      "nodeId": "I3172:7630;1661:920",
+      "nodeName": "Ellipse 816",
+      "nodeType": "ELLIPSE",
+      "width": 16,
+      "height": 16,
+      "byteLength": 919,
+      "pngByteLength": 1669
+    },
+    {
+      "ref": "svg-I3172_7635_1661_922",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "assetId": "7f7707b9298c",
+      "originalName": "Line 5 (Stroke)",
+      "originalFileName": "Line 5 (Stroke).svg",
+      "fileName": "assets/svg/line_5_stroke-7f7707b9298c.svg",
+      "pngFileName": "assets/png/line_5_stroke-7f7707b9298c@2x.png",
+      "pngScale": 2,
+      "formats": {
+        "svg": "assets/svg/line_5_stroke-7f7707b9298c.svg",
+        "png": "assets/png/line_5_stroke-7f7707b9298c@2x.png"
+      },
+      "nodeId": "I3172:7635;1661:922",
+      "nodeName": "Line 5 (Stroke)",
+      "nodeType": "VECTOR",
+      "width": 40,
+      "height": 20,
+      "byteLength": 1418,
+      "pngByteLength": 2294
+    },
+    {
+      "ref": "svg-I3172_7635_1661_923",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "assetId": "6e2d9937b749",
+      "originalName": "Ellipse 816",
+      "originalFileName": "Ellipse 816.svg",
+      "fileName": "assets/svg/ellipse_816-6e2d9937b749.svg",
+      "pngFileName": "assets/png/ellipse_816-6e2d9937b749@2x.png",
+      "pngScale": 2,
+      "formats": {
+        "svg": "assets/svg/ellipse_816-6e2d9937b749.svg",
+        "png": "assets/png/ellipse_816-6e2d9937b749@2x.png"
+      },
+      "nodeId": "I3172:7635;1661:923",
+      "nodeName": "Ellipse 816",
+      "nodeType": "ELLIPSE",
+      "width": 16,
+      "height": 16,
+      "byteLength": 1138,
+      "pngByteLength": 2308
+    },
+    {
+      "ref": "svg-3172_7662",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "assetId": "3ba6fdde839e",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-3ba6fdde839e.svg",
+      "pngFileName": "assets/png/vector-3ba6fdde839e@2x.png",
+      "pngScale": 2,
+      "formats": {
+        "svg": "assets/svg/vector-3ba6fdde839e.svg",
+        "png": "assets/png/vector-3ba6fdde839e@2x.png"
+      },
+      "nodeId": "3172:7662",
+      "nodeName": "Vector",
+      "nodeType": "VECTOR",
+      "width": 6,
+      "height": 12,
+      "byteLength": 990,
+      "pngByteLength": 694
+    }
+  ],
+  "sharedAssets": [
+    {
+      "id": "shared-310f004dc86a",
+      "file": "shared/assets/png/Vector-310f004d.png",
+      "relativeFromScreen": "../../shared/assets/png/Vector-310f004d.png",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "mime": "image/png",
+      "byteLength": 694,
+      "usedAt": [
+        {
+          "nodeId": "3172:7662",
+          "nodeName": "Vector",
+          "nodeType": "VECTOR",
+          "layerPath": "Tournament Updates - Notification Settings / Frame 1000003334 / Frame 1000003336 / Back / Vector",
+          "usage": "vector",
+          "x": 15,
+          "y": 12,
+          "width": 6,
+          "height": 12
+        }
+      ]
+    },
+    {
+      "id": "shared-1a6472f8d71d",
+      "file": "shared/assets/png/Line-5-Stroke-1a6472f8.png",
+      "relativeFromScreen": "../../shared/assets/png/Line-5-Stroke-1a6472f8.png",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "mime": "image/png",
+      "byteLength": 1184,
+      "usedAt": [
+        {
+          "nodeId": "I3172:7625;1661:919",
+          "nodeName": "Line 5 (Stroke)",
+          "nodeType": "VECTOR",
+          "layerPath": "Tournament Updates - Notification Settings / Frame 1261154190 / Frame 1261154500 / SIGNATURE: MATCH TICKET / Toggle / Line 5 (Stroke)",
+          "usage": "vector",
+          "x": 0,
+          "y": 0.000003496911176625872,
+          "width": 40,
+          "height": 20
+        },
+        {
+          "nodeId": "I3172:7630;1661:919",
+          "nodeName": "Line 5 (Stroke)",
+          "nodeType": "VECTOR",
+          "layerPath": "Tournament Updates - Notification Settings / Frame 1261154190 / Frame 1261154500 / SIGNATURE: MATCH TICKET / Toggle / Line 5 (Stroke)",
+          "usage": "vector",
+          "x": 0,
+          "y": 0.000003496911176625872,
+          "width": 40,
+          "height": 20
+        }
+      ]
+    },
+    {
+      "id": "shared-d8dbaa94e991",
+      "file": "shared/assets/png/Ellipse-816-d8dbaa94.png",
+      "relativeFromScreen": "../../shared/assets/png/Ellipse-816-d8dbaa94.png",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "mime": "image/png",
+      "byteLength": 1669,
+      "usedAt": [
+        {
+          "nodeId": "I3172:7625;1661:920",
+          "nodeName": "Ellipse 816",
+          "nodeType": "ELLIPSE",
+          "layerPath": "Tournament Updates - Notification Settings / Frame 1261154190 / Frame 1261154500 / SIGNATURE: MATCH TICKET / Toggle / Ellipse 816",
+          "usage": "vector",
+          "x": 2.0000009536743164,
+          "y": 18.000001907348633,
+          "width": 16,
+          "height": 16
+        },
+        {
+          "nodeId": "I3172:7630;1661:920",
+          "nodeName": "Ellipse 816",
+          "nodeType": "ELLIPSE",
+          "layerPath": "Tournament Updates - Notification Settings / Frame 1261154190 / Frame 1261154500 / SIGNATURE: MATCH TICKET / Toggle / Ellipse 816",
+          "usage": "vector",
+          "x": 2.0000009536743164,
+          "y": 18.000001907348633,
+          "width": 16,
+          "height": 16
+        }
+      ]
+    },
+    {
+      "id": "shared-e26b7e8e2792",
+      "file": "shared/assets/png/Line-5-Stroke-e26b7e8e.png",
+      "relativeFromScreen": "../../shared/assets/png/Line-5-Stroke-e26b7e8e.png",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "mime": "image/png",
+      "byteLength": 2294,
+      "usedAt": [
+        {
+          "nodeId": "I3172:7635;1661:922",
+          "nodeName": "Line 5 (Stroke)",
+          "nodeType": "VECTOR",
+          "layerPath": "Tournament Updates - Notification Settings / Frame 1261154190 / Frame 1261154500 / SIGNATURE: MATCH TICKET / Toggle / Line 5 (Stroke)",
+          "usage": "vector",
+          "x": 0,
+          "y": 0.000003496911176625872,
+          "width": 40,
+          "height": 20
+        }
+      ]
+    },
+    {
+      "id": "shared-2766cdd71790",
+      "file": "shared/assets/png/Ellipse-816-2766cdd7.png",
+      "relativeFromScreen": "../../shared/assets/png/Ellipse-816-2766cdd7.png",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "mime": "image/png",
+      "byteLength": 2308,
+      "usedAt": [
+        {
+          "nodeId": "I3172:7635;1661:923",
+          "nodeName": "Ellipse 816",
+          "nodeType": "ELLIPSE",
+          "layerPath": "Tournament Updates - Notification Settings / Frame 1261154190 / Frame 1261154500 / SIGNATURE: MATCH TICKET / Toggle / Ellipse 816",
+          "usage": "vector",
+          "x": 22,
+          "y": 18.000001907348633,
+          "width": 16,
+          "height": 16
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,255 @@
+{
+  "schema": "dev-export-fonts",
+  "schemaVersion": "1.1.0",
+  "generatedAt": "2026-11-16T10:28:36.907Z",
+  "familyCount": 2,
+  "fonts": [
+    {
+      "family": "Quicksand",
+      "source": "system",
+      "license": "system-font",
+      "fallbackStack": [
+        "Quicksand",
+        "Noto Sans",
+        "Noto Sans Arabic",
+        "Noto Color Emoji",
+        "Apple Color Emoji",
+        "Segoe UI Emoji",
+        "ui-sans-serif",
+        "system-ui",
+        "sans-serif"
+      ],
+      "substitute": "Inter",
+      "isIconFont": false,
+      "iconLigatures": false,
+      "mixed": true,
+      "weights": {
+        "400": "Regular",
+        "500": "Medium",
+        "600": "SemiBold",
+        "700": "Bold"
+      },
+      "allWeights": [
+        400,
+        500,
+        600,
+        700
+      ],
+      "usageCount": 43,
+      "styles": [
+        {
+          "style": "Regular",
+          "count": 6,
+          "weights": [
+            400,
+            500
+          ],
+          "availableOnClient": true
+        },
+        {
+          "style": "Medium",
+          "count": 25,
+          "weights": [
+            500
+          ],
+          "availableOnClient": true
+        },
+        {
+          "style": "SemiBold",
+          "count": 4,
+          "weights": [
+            600
+          ],
+          "availableOnClient": true
+        },
+        {
+          "style": "Bold",
+          "count": 8,
+          "weights": [
+            700
+          ],
+          "availableOnClient": true
+        }
+      ],
+      "sizes": [
+        {
+          "value": 14,
+          "count": 18
+        },
+        {
+          "value": 12,
+          "count": 17
+        },
+        {
+          "value": 18,
+          "count": 4
+        },
+        {
+          "value": 16,
+          "count": 3
+        },
+        {
+          "value": 10,
+          "count": 1
+        }
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "On-boarding Screen"
+        },
+        {
+          "index": 2,
+          "name": "Add Bank Account"
+        },
+        {
+          "index": 3,
+          "name": "Back Account"
+        },
+        {
+          "index": 4,
+          "name": "Bank Account Details"
+        }
+      ],
+      "samples": [
+        {
+          "screenIndex": 1,
+          "screenName": "On-boarding Screen",
+          "nodeId": "3172:6907",
+          "path": "On-boarding Screen / Frame 1000003334 / Frame 1000003337 / Frame 1000003337 / Back Account",
+          "characters": "Back Account",
+          "fontSize": 18,
+          "fontWeight": 700
+        },
+        {
+          "screenIndex": 1,
+          "screenName": "On-boarding Screen",
+          "nodeId": "3172:6922",
+          "path": "On-boarding Screen / Frame 1261154190 / Frame 1171275339 / Frame 1171275271 / Frame 1171275285 / Frame 1171275340 / Frame 1171275339 / Amount",
+          "characters": "No Bank Found! Please add your bank account.",
+          "fontSize": 14,
+          "fontWeight": 500
+        },
+        {
+          "screenIndex": 1,
+          "screenName": "On-boarding Screen",
+          "nodeId": "3172:6926",
+          "path": "On-boarding Screen / Frame 1261154190 / Section / Frame 1261154330 / Dark Gray Wingback C",
+          "characters": "No Bank Account",
+          "fontSize": 16,
+          "fontWeight": 600
+        },
+        {
+          "screenIndex": 1,
+          "screenName": "On-boarding Screen",
+          "nodeId": "3172:6927",
+          "path": "On-boarding Screen / Frame 1261154190 / Section / Frame 1261154330 / Dark Gray Wingback C",
+          "characters": "Please Add Your Bank Account",
+          "fontSize": 14,
+          "fontWeight": 600
+        },
+        {
+          "screenIndex": 1,
+          "screenName": "On-boarding Screen",
+          "nodeId": "3172:6930",
+          "path": "On-boarding Screen / Frame 1261154190 / Primary Button / Save Team",
+          "characters": "Add Bank",
+          "fontSize": 16,
+          "fontWeight": 700
+        }
+      ],
+      "notes": "System font. Confirm redistribution/licensing before packaging binaries."
+    },
+    {
+      "family": "Mulish",
+      "source": "system",
+      "license": "system-font",
+      "fallbackStack": [
+        "Mulish",
+        "Noto Sans",
+        "Noto Sans Arabic",
+        "Noto Color Emoji",
+        "Apple Color Emoji",
+        "Segoe UI Emoji",
+        "ui-sans-serif",
+        "system-ui",
+        "sans-serif"
+      ],
+      "substitute": "Inter",
+      "isIconFont": false,
+      "iconLigatures": false,
+      "mixed": false,
+      "weights": {
+        "500": "Medium",
+        "800": "ExtraBold"
+      },
+      "allWeights": [
+        500,
+        800
+      ],
+      "usageCount": 2,
+      "styles": [
+        {
+          "style": "Medium",
+          "count": 1,
+          "weights": [
+            500
+          ],
+          "availableOnClient": true
+        },
+        {
+          "style": "ExtraBold",
+          "count": 1,
+          "weights": [
+            800
+          ],
+          "availableOnClient": true
+        }
+      ],
+      "sizes": [
+        {
+          "value": 22,
+          "count": 1
+        },
+        {
+          "value": 16,
+          "count": 1
+        }
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Add Bank Account"
+        }
+      ],
+      "samples": [
+        {
+          "screenIndex": 2,
+          "screenName": "Add Bank Account",
+          "nodeId": "3172:7024",
+          "path": "Add Bank Account / Frame 1261154190 / Frame 1171275339 / Amount",
+          "characters": "🔐",
+          "fontSize": 22,
+          "fontWeight": 500
+        },
+        {
+          "screenIndex": 2,
+          "screenName": "Add Bank Account",
+          "nodeId": "3172:7054",
+          "path": "Add Bank Account / Frame 1261154190 / Controls / SCAN ANY QR",
+          "characters": "Save Bank",
+          "fontSize": 16,
+          "fontWeight": 800
+        }
+      ],
+      "notes": "System font. Confirm redistribution/licensing before packaging binaries."
+    }
+  ],
+  "warnings": [
+    {
+      "code": "MIXED_FONT_WEIGHT",
+      "family": "Quicksand",
+      "message": "Font Quicksand has mixed weights across text runs. Resolve weights from styledSegments when rendering."
+    }
+  ]
+}

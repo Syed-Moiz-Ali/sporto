@@ -1,0 +1,1327 @@
+{
+  "schema": "dev-export-assets",
+  "schemaVersion": "1.1.0",
+  "generatedAt": "2026-11-16T10:25:52.972Z",
+  "screen": {
+    "id": "3087:11447",
+    "name": "Cricket Match"
+  },
+  "assets": [
+    {
+      "ref": "svg-3087_11464",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "assetId": "59ee755e7e81",
+      "originalName": "Ellipse 1",
+      "originalFileName": "Ellipse 1.svg",
+      "fileName": "assets/svg/ellipse_1-59ee755e7e81.svg",
+      "pngFileName": "assets/png/ellipse_1-59ee755e7e81@2x.png",
+      "pngScale": 2,
+      "formats": {
+        "svg": "assets/svg/ellipse_1-59ee755e7e81.svg",
+        "png": "assets/png/ellipse_1-59ee755e7e81@2x.png"
+      },
+      "nodeId": "3087:11464",
+      "nodeName": "Ellipse 1",
+      "nodeType": "ELLIPSE",
+      "width": 3,
+      "height": 3,
+      "byteLength": 165,
+      "pngByteLength": 229
+    },
+    {
+      "ref": "svg-3087_11467",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "assetId": "32bfb36f0844",
+      "originalName": "Icon",
+      "originalFileName": "Icon.svg",
+      "fileName": "assets/svg/icon-32bfb36f0844.svg",
+      "pngFileName": "assets/png/icon-32bfb36f0844@2x.png",
+      "pngScale": 2,
+      "formats": {
+        "svg": "assets/svg/icon-32bfb36f0844.svg",
+        "png": "assets/png/icon-32bfb36f0844@2x.png"
+      },
+      "nodeId": "3087:11467",
+      "nodeName": "Icon",
+      "nodeType": "VECTOR",
+      "width": 5.833333492279053,
+      "height": 9.625,
+      "byteLength": 706,
+      "pngByteLength": 650
+    },
+    {
+      "ref": "svg-3087_11488",
+      "kind": "svg",
+      "semanticRole": "vector",
+      "assetId": "b25b8d6ded00",
+      "originalName": "Line 7",
+      "originalFileName": "Line 7.svg",
+      "fileName": "assets/svg/line_7-b25b8d6ded00.svg",
+      "pngFileName": "assets/png/line_7-b25b8d6ded00@2x.png",
+      "pngScale": 2,
+      "formats": {
+        "svg": "assets/svg/line_7-b25b8d6ded00.svg",
+        "png": "assets/png/line_7-b25b8d6ded00@2x.png"
+      },
+      "nodeId": "3087:11488",
+      "nodeName": "Line 7",
+      "nodeType": "LINE",
+      "width": 326,
+      "height": 0,
+      "byteLength": 587,
+      "pngByteLength": 350
+    },
+    {
+      "ref": "svg-3087_11491",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "assetId": "59ee755e7e81",
+      "originalName": "Ellipse 1",
+      "originalFileName": "Ellipse 1.svg",
+      "fileName": "assets/svg/ellipse_1-59ee755e7e81.svg",
+      "pngFileName": "assets/png/ellipse_1-59ee755e7e81@2x.png",
+      "pngScale": 2,
+      "formats": {
+        "svg": "assets/svg/ellipse_1-59ee755e7e81.svg",
+        "png": "assets/png/ellipse_1-59ee755e7e81@2x.png"
+      },
+      "nodeId": "3087:11491",
+      "nodeName": "Ellipse 1",
+      "nodeType": "ELLIPSE",
+      "width": 3,
+      "height": 3,
+      "byteLength": 165,
+      "pngByteLength": 229
+    },
+    {
+      "ref": "svg-3087_11498",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "assetId": "293ad4afe8b2",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-293ad4afe8b2.svg",
+      "pngFileName": "assets/png/vector-293ad4afe8b2@2x.png",
+      "pngScale": 2,
+      "formats": {
+        "svg": "assets/svg/vector-293ad4afe8b2.svg",
+        "png": "assets/png/vector-293ad4afe8b2@2x.png"
+      },
+      "nodeId": "3087:11498",
+      "nodeName": "Vector",
+      "nodeType": "VECTOR",
+      "width": 0,
+      "height": 3,
+      "byteLength": 481,
+      "pngByteLength": 219
+    },
+    {
+      "ref": "svg-3087_11499",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "assetId": "2ffd0071232b",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-2ffd0071232b.svg",
+      "pngFileName": "assets/png/vector-2ffd0071232b@2x.png",
+      "pngScale": 2,
+      "formats": {
+        "svg": "assets/svg/vector-2ffd0071232b.svg",
+        "png": "assets/png/vector-2ffd0071232b@2x.png"
+      },
+      "nodeId": "3087:11499",
+      "nodeName": "Vector",
+      "nodeType": "VECTOR",
+      "width": 3,
+      "height": 5.25,
+      "byteLength": 531,
+      "pngByteLength": 406
+    },
+    {
+      "ref": "svg-3087_11500",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "assetId": "13d77932871e",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-13d77932871e.svg",
+      "pngFileName": "assets/png/vector-13d77932871e@2x.png",
+      "pngScale": 2,
+      "formats": {
+        "svg": "assets/svg/vector-13d77932871e.svg",
+        "png": "assets/png/vector-13d77932871e@2x.png"
+      },
+      "nodeId": "3087:11500",
+      "nodeName": "Vector",
+      "nodeType": "VECTOR",
+      "width": 3,
+      "height": 5.25,
+      "byteLength": 531,
+      "pngByteLength": 401
+    },
+    {
+      "ref": "svg-3087_11501",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "assetId": "7479edd31b06",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-7479edd31b06.svg",
+      "pngFileName": "assets/png/vector-7479edd31b06@2x.png",
+      "pngScale": 2,
+      "formats": {
+        "svg": "assets/svg/vector-7479edd31b06.svg",
+        "png": "assets/png/vector-7479edd31b06@2x.png"
+      },
+      "nodeId": "3087:11501",
+      "nodeName": "Vector",
+      "nodeType": "VECTOR",
+      "width": 9,
+      "height": 9.75,
+      "byteLength": 822,
+      "pngByteLength": 668
+    },
+    {
+      "ref": "svg-3087_11502",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "assetId": "4bf500410d21",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-4bf500410d21.svg",
+      "pngFileName": "assets/png/vector-4bf500410d21@2x.png",
+      "pngScale": 2,
+      "formats": {
+        "svg": "assets/svg/vector-4bf500410d21.svg",
+        "png": "assets/png/vector-4bf500410d21@2x.png"
+      },
+      "nodeId": "3087:11502",
+      "nodeName": "Vector",
+      "nodeType": "VECTOR",
+      "width": 6.75,
+      "height": 2.25,
+      "byteLength": 747,
+      "pngByteLength": 341
+    },
+    {
+      "ref": "composed-3087_11497",
+      "kind": "composed-svg",
+      "semanticRole": "graphic",
+      "assetId": "16d70567679f",
+      "originalName": "Group",
+      "originalFileName": "Group.svg",
+      "fileName": "assets/composed/svg/group-16d70567679f.svg",
+      "pngFileName": "assets/composed/png/group-16d70567679f@2x.png",
+      "pngScale": 2,
+      "formats": {
+        "svg": "assets/composed/svg/group-16d70567679f.svg",
+        "png": "assets/composed/png/group-16d70567679f@2x.png"
+      },
+      "nodeId": "3087:11497",
+      "nodeName": "Group",
+      "nodeType": "GROUP",
+      "width": 15,
+      "height": 15,
+      "byteLength": 2709,
+      "childVectorRefs": [
+        "svg-3087_11498",
+        "svg-3087_11499",
+        "svg-3087_11500",
+        "svg-3087_11501",
+        "svg-3087_11502"
+      ],
+      "compositionStats": {
+        "total": 5,
+        "vectors": 5,
+        "shapes": 5,
+        "text": 0,
+        "images": 0,
+        "otherLeaves": 0
+      },
+      "pngByteLength": 1393
+    },
+    {
+      "ref": "composed-3087_11496",
+      "kind": "composed-svg",
+      "semanticRole": "icon",
+      "assetId": "ecc9001d1fb9",
+      "originalName": "All Icons",
+      "originalFileName": "All Icons.svg",
+      "fileName": "assets/composed/svg/all_icons-ecc9001d1fb9.svg",
+      "pngFileName": "assets/composed/png/all_icons-ecc9001d1fb9@2x.png",
+      "pngScale": 2,
+      "formats": {
+        "svg": "assets/composed/svg/all_icons-ecc9001d1fb9.svg",
+        "png": "assets/composed/png/all_icons-ecc9001d1fb9@2x.png"
+      },
+      "nodeId": "3087:11496",
+      "nodeName": "All Icons",
+      "nodeType": "FRAME",
+      "width": 30,
+      "height": 30,
+      "byteLength": 3371,
+      "childVectorRefs": [
+        "svg-3087_11498",
+        "svg-3087_11499",
+        "svg-3087_11500",
+        "svg-3087_11501",
+        "svg-3087_11502"
+      ],
+      "compositionStats": {
+        "total": 6,
+        "vectors": 5,
+        "shapes": 5,
+        "text": 0,
+        "images": 0,
+        "otherLeaves": 0
+      },
+      "pngByteLength": 5716
+    },
+    {
+      "ref": "svg-3087_11612",
+      "kind": "svg",
+      "semanticRole": "vector",
+      "assetId": "161c67fe8da8",
+      "originalName": "Line 7",
+      "originalFileName": "Line 7.svg",
+      "fileName": "assets/svg/line_7-161c67fe8da8.svg",
+      "pngFileName": "assets/png/line_7-161c67fe8da8@2x.png",
+      "pngScale": 2,
+      "formats": {
+        "svg": "assets/svg/line_7-161c67fe8da8.svg",
+        "png": "assets/png/line_7-161c67fe8da8@2x.png"
+      },
+      "nodeId": "3087:11612",
+      "nodeName": "Line 7",
+      "nodeType": "LINE",
+      "width": 321,
+      "height": 0,
+      "byteLength": 587,
+      "pngByteLength": 354
+    },
+    {
+      "ref": "svg-3087_11622",
+      "kind": "svg",
+      "semanticRole": "vector",
+      "assetId": "51ed3e7f1ef7",
+      "originalName": "Line 7",
+      "originalFileName": "Line 7.svg",
+      "fileName": "assets/svg/line_7-51ed3e7f1ef7.svg",
+      "pngFileName": "assets/png/line_7-51ed3e7f1ef7@2x.png",
+      "pngScale": 2,
+      "formats": {
+        "svg": "assets/svg/line_7-51ed3e7f1ef7.svg",
+        "png": "assets/png/line_7-51ed3e7f1ef7@2x.png"
+      },
+      "nodeId": "3087:11622",
+      "nodeName": "Line 7",
+      "nodeType": "LINE",
+      "width": 322,
+      "height": 0,
+      "byteLength": 587,
+      "pngByteLength": 346
+    },
+    {
+      "ref": "svg-3087_11690",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "assetId": "6ef63fc50b1e",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-6ef63fc50b1e.svg",
+      "pngFileName": "assets/png/vector-6ef63fc50b1e@2x.png",
+      "pngScale": 2,
+      "formats": {
+        "svg": "assets/svg/vector-6ef63fc50b1e.svg",
+        "png": "assets/png/vector-6ef63fc50b1e@2x.png"
+      },
+      "nodeId": "3087:11690",
+      "nodeName": "Vector",
+      "nodeType": "VECTOR",
+      "width": 0,
+      "height": 3,
+      "byteLength": 481,
+      "pngByteLength": 219
+    },
+    {
+      "ref": "svg-3087_11691",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "assetId": "828a009bdc59",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-828a009bdc59.svg",
+      "pngFileName": "assets/png/vector-828a009bdc59@2x.png",
+      "pngScale": 2,
+      "formats": {
+        "svg": "assets/svg/vector-828a009bdc59.svg",
+        "png": "assets/png/vector-828a009bdc59@2x.png"
+      },
+      "nodeId": "3087:11691",
+      "nodeName": "Vector",
+      "nodeType": "VECTOR",
+      "width": 3,
+      "height": 5.25,
+      "byteLength": 531,
+      "pngByteLength": 406
+    },
+    {
+      "ref": "svg-3087_11692",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "assetId": "7aed322ce5fd",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-7aed322ce5fd.svg",
+      "pngFileName": "assets/png/vector-7aed322ce5fd@2x.png",
+      "pngScale": 2,
+      "formats": {
+        "svg": "assets/svg/vector-7aed322ce5fd.svg",
+        "png": "assets/png/vector-7aed322ce5fd@2x.png"
+      },
+      "nodeId": "3087:11692",
+      "nodeName": "Vector",
+      "nodeType": "VECTOR",
+      "width": 3,
+      "height": 5.25,
+      "byteLength": 531,
+      "pngByteLength": 401
+    },
+    {
+      "ref": "svg-3087_11693",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "assetId": "d710a6936e03",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-d710a6936e03.svg",
+      "pngFileName": "assets/png/vector-d710a6936e03@2x.png",
+      "pngScale": 2,
+      "formats": {
+        "svg": "assets/svg/vector-d710a6936e03.svg",
+        "png": "assets/png/vector-d710a6936e03@2x.png"
+      },
+      "nodeId": "3087:11693",
+      "nodeName": "Vector",
+      "nodeType": "VECTOR",
+      "width": 9,
+      "height": 9.75,
+      "byteLength": 822,
+      "pngByteLength": 668
+    },
+    {
+      "ref": "svg-3087_11694",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "assetId": "d2d7bc99212f",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-d2d7bc99212f.svg",
+      "pngFileName": "assets/png/vector-d2d7bc99212f@2x.png",
+      "pngScale": 2,
+      "formats": {
+        "svg": "assets/svg/vector-d2d7bc99212f.svg",
+        "png": "assets/png/vector-d2d7bc99212f@2x.png"
+      },
+      "nodeId": "3087:11694",
+      "nodeName": "Vector",
+      "nodeType": "VECTOR",
+      "width": 6.75,
+      "height": 2.25,
+      "byteLength": 747,
+      "pngByteLength": 341
+    },
+    {
+      "ref": "composed-3087_11689",
+      "kind": "composed-svg",
+      "semanticRole": "graphic",
+      "assetId": "651f26d61b7c",
+      "originalName": "Group",
+      "originalFileName": "Group.svg",
+      "fileName": "assets/composed/svg/group-651f26d61b7c.svg",
+      "pngFileName": "assets/composed/png/group-651f26d61b7c@2x.png",
+      "pngScale": 2,
+      "formats": {
+        "svg": "assets/composed/svg/group-651f26d61b7c.svg",
+        "png": "assets/composed/png/group-651f26d61b7c@2x.png"
+      },
+      "nodeId": "3087:11689",
+      "nodeName": "Group",
+      "nodeType": "GROUP",
+      "width": 15,
+      "height": 15,
+      "byteLength": 2709,
+      "childVectorRefs": [
+        "svg-3087_11690",
+        "svg-3087_11691",
+        "svg-3087_11692",
+        "svg-3087_11693",
+        "svg-3087_11694"
+      ],
+      "compositionStats": {
+        "total": 5,
+        "vectors": 5,
+        "shapes": 5,
+        "text": 0,
+        "images": 0,
+        "otherLeaves": 0
+      },
+      "pngByteLength": 1393
+    },
+    {
+      "ref": "composed-3087_11688",
+      "kind": "composed-svg",
+      "semanticRole": "icon",
+      "assetId": "f6e4759d7ea1",
+      "originalName": "All Icons",
+      "originalFileName": "All Icons.svg",
+      "fileName": "assets/composed/svg/all_icons-f6e4759d7ea1.svg",
+      "pngFileName": "assets/composed/png/all_icons-f6e4759d7ea1@2x.png",
+      "pngScale": 2,
+      "formats": {
+        "svg": "assets/composed/svg/all_icons-f6e4759d7ea1.svg",
+        "png": "assets/composed/png/all_icons-f6e4759d7ea1@2x.png"
+      },
+      "nodeId": "3087:11688",
+      "nodeName": "All Icons",
+      "nodeType": "FRAME",
+      "width": 30,
+      "height": 30,
+      "byteLength": 2888,
+      "childVectorRefs": [
+        "svg-3087_11690",
+        "svg-3087_11691",
+        "svg-3087_11692",
+        "svg-3087_11693",
+        "svg-3087_11694"
+      ],
+      "compositionStats": {
+        "total": 6,
+        "vectors": 5,
+        "shapes": 5,
+        "text": 0,
+        "images": 0,
+        "otherLeaves": 0
+      },
+      "pngByteLength": 5186
+    },
+    {
+      "ref": "svg-3087_11699",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "assetId": "59ee755e7e81",
+      "originalName": "Ellipse 1",
+      "originalFileName": "Ellipse 1.svg",
+      "fileName": "assets/svg/ellipse_1-59ee755e7e81.svg",
+      "pngFileName": "assets/png/ellipse_1-59ee755e7e81@2x.png",
+      "pngScale": 2,
+      "formats": {
+        "svg": "assets/svg/ellipse_1-59ee755e7e81.svg",
+        "png": "assets/png/ellipse_1-59ee755e7e81@2x.png"
+      },
+      "nodeId": "3087:11699",
+      "nodeName": "Ellipse 1",
+      "nodeType": "ELLIPSE",
+      "width": 3,
+      "height": 3,
+      "byteLength": 165,
+      "pngByteLength": 229
+    },
+    {
+      "ref": "svg-3087_11727",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "assetId": "a17859786d33",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-a17859786d33.svg",
+      "pngFileName": "assets/png/vector-a17859786d33@2x.png",
+      "pngScale": 2,
+      "formats": {
+        "svg": "assets/svg/vector-a17859786d33.svg",
+        "png": "assets/png/vector-a17859786d33@2x.png"
+      },
+      "nodeId": "3087:11727",
+      "nodeName": "Vector",
+      "nodeType": "VECTOR",
+      "width": 6,
+      "height": 12,
+      "byteLength": 994,
+      "pngByteLength": 694
+    },
+    {
+      "ref": "svg-3087_11733",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "assetId": "907416f54df0",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-907416f54df0.svg",
+      "pngFileName": "assets/png/vector-907416f54df0@2x.png",
+      "pngScale": 2,
+      "formats": {
+        "svg": "assets/svg/vector-907416f54df0.svg",
+        "png": "assets/png/vector-907416f54df0@2x.png"
+      },
+      "nodeId": "3087:11733",
+      "nodeName": "Vector",
+      "nodeType": "VECTOR",
+      "width": 7.411764621734619,
+      "height": 8.399999618530273,
+      "byteLength": 1723,
+      "pngByteLength": 566
+    },
+    {
+      "ref": "svg-3087_11735",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "assetId": "59ee755e7e81",
+      "originalName": "Ellipse 1",
+      "originalFileName": "Ellipse 1.svg",
+      "fileName": "assets/svg/ellipse_1-59ee755e7e81.svg",
+      "pngFileName": "assets/png/ellipse_1-59ee755e7e81@2x.png",
+      "pngScale": 2,
+      "formats": {
+        "svg": "assets/svg/ellipse_1-59ee755e7e81.svg",
+        "png": "assets/png/ellipse_1-59ee755e7e81@2x.png"
+      },
+      "nodeId": "3087:11735",
+      "nodeName": "Ellipse 1",
+      "nodeType": "ELLIPSE",
+      "width": 3,
+      "height": 3,
+      "byteLength": 165,
+      "pngByteLength": 229
+    }
+  ],
+  "sharedAssets": [
+    {
+      "id": "shared-59ee755e7e81",
+      "file": "shared/assets/svg/Ellipse-1-59ee755e.svg",
+      "relativeFromScreen": "../../shared/assets/svg/Ellipse-1-59ee755e.svg",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "mime": "image/svg+xml",
+      "byteLength": 165,
+      "usedAt": [
+        {
+          "nodeId": "3087:11464",
+          "nodeName": "Ellipse 1",
+          "nodeType": "ELLIPSE",
+          "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154401 / SIGNATURE: MATCH TICKET / Frame 1261154579 / Frame 1000006156 / Frame 1261154298 / Ellipse 1",
+          "usage": "vector",
+          "x": 45,
+          "y": 6,
+          "width": 3,
+          "height": 3
+        },
+        {
+          "nodeId": "3087:11491",
+          "nodeName": "Ellipse 1",
+          "nodeType": "ELLIPSE",
+          "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154401 / Frame 1261154797 / SIGNATURE: MATCH TICKET / Frame 1261154298 / Ellipse 1",
+          "usage": "vector",
+          "x": 132,
+          "y": 6,
+          "width": 3,
+          "height": 3
+        },
+        {
+          "nodeId": "3087:11699",
+          "nodeName": "Ellipse 1",
+          "nodeType": "ELLIPSE",
+          "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154796 / Frame 1261154482 / SIGNATURE: MATCH TICKET / Frame 1261154364 / Frame 1261154798 / Ellipse 1",
+          "usage": "vector",
+          "x": 48,
+          "y": 6,
+          "width": 3,
+          "height": 3
+        },
+        {
+          "nodeId": "3087:11735",
+          "nodeName": "Ellipse 1",
+          "nodeType": "ELLIPSE",
+          "layerPath": "Cricket Match / Frame 1000003334 / Frame 1000003336 / Frame 1000003337 / Frame 1261154297 / Ellipse 1",
+          "usage": "vector",
+          "x": 76,
+          "y": 5,
+          "width": 3,
+          "height": 3
+        },
+        {
+          "nodeId": "3087:11464",
+          "nodeName": "Ellipse 1",
+          "nodeType": "ELLIPSE",
+          "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154401 / SIGNATURE: MATCH TICKET / Frame 1261154579 / Frame 1000006156 / Frame 1261154298 / Ellipse 1",
+          "usage": "vector",
+          "x": 45,
+          "y": 6,
+          "width": 3,
+          "height": 3
+        },
+        {
+          "nodeId": "3087:11491",
+          "nodeName": "Ellipse 1",
+          "nodeType": "ELLIPSE",
+          "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154401 / Frame 1261154797 / SIGNATURE: MATCH TICKET / Frame 1261154298 / Ellipse 1",
+          "usage": "vector",
+          "x": 132,
+          "y": 6,
+          "width": 3,
+          "height": 3
+        },
+        {
+          "nodeId": "3087:11699",
+          "nodeName": "Ellipse 1",
+          "nodeType": "ELLIPSE",
+          "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154796 / Frame 1261154482 / SIGNATURE: MATCH TICKET / Frame 1261154364 / Frame 1261154798 / Ellipse 1",
+          "usage": "vector",
+          "x": 48,
+          "y": 6,
+          "width": 3,
+          "height": 3
+        },
+        {
+          "nodeId": "3087:11735",
+          "nodeName": "Ellipse 1",
+          "nodeType": "ELLIPSE",
+          "layerPath": "Cricket Match / Frame 1000003334 / Frame 1000003336 / Frame 1000003337 / Frame 1261154297 / Ellipse 1",
+          "usage": "vector",
+          "x": 76,
+          "y": 5,
+          "width": 3,
+          "height": 3
+        },
+        {
+          "nodeId": "3087:11464",
+          "nodeName": "Ellipse 1",
+          "nodeType": "ELLIPSE",
+          "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154401 / SIGNATURE: MATCH TICKET / Frame 1261154579 / Frame 1000006156 / Frame 1261154298 / Ellipse 1",
+          "usage": "vector",
+          "x": 45,
+          "y": 6,
+          "width": 3,
+          "height": 3
+        },
+        {
+          "nodeId": "3087:11491",
+          "nodeName": "Ellipse 1",
+          "nodeType": "ELLIPSE",
+          "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154401 / Frame 1261154797 / SIGNATURE: MATCH TICKET / Frame 1261154298 / Ellipse 1",
+          "usage": "vector",
+          "x": 132,
+          "y": 6,
+          "width": 3,
+          "height": 3
+        },
+        {
+          "nodeId": "3087:11699",
+          "nodeName": "Ellipse 1",
+          "nodeType": "ELLIPSE",
+          "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154796 / Frame 1261154482 / SIGNATURE: MATCH TICKET / Frame 1261154364 / Frame 1261154798 / Ellipse 1",
+          "usage": "vector",
+          "x": 48,
+          "y": 6,
+          "width": 3,
+          "height": 3
+        },
+        {
+          "nodeId": "3087:11735",
+          "nodeName": "Ellipse 1",
+          "nodeType": "ELLIPSE",
+          "layerPath": "Cricket Match / Frame 1000003334 / Frame 1000003336 / Frame 1000003337 / Frame 1261154297 / Ellipse 1",
+          "usage": "vector",
+          "x": 76,
+          "y": 5,
+          "width": 3,
+          "height": 3
+        },
+        {
+          "nodeId": "3087:11464",
+          "nodeName": "Ellipse 1",
+          "nodeType": "ELLIPSE",
+          "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154401 / SIGNATURE: MATCH TICKET / Frame 1261154579 / Frame 1000006156 / Frame 1261154298 / Ellipse 1",
+          "usage": "vector",
+          "x": 45,
+          "y": 6,
+          "width": 3,
+          "height": 3
+        },
+        {
+          "nodeId": "3087:11491",
+          "nodeName": "Ellipse 1",
+          "nodeType": "ELLIPSE",
+          "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154401 / Frame 1261154797 / SIGNATURE: MATCH TICKET / Frame 1261154298 / Ellipse 1",
+          "usage": "vector",
+          "x": 132,
+          "y": 6,
+          "width": 3,
+          "height": 3
+        },
+        {
+          "nodeId": "3087:11699",
+          "nodeName": "Ellipse 1",
+          "nodeType": "ELLIPSE",
+          "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154796 / Frame 1261154482 / SIGNATURE: MATCH TICKET / Frame 1261154364 / Frame 1261154798 / Ellipse 1",
+          "usage": "vector",
+          "x": 48,
+          "y": 6,
+          "width": 3,
+          "height": 3
+        },
+        {
+          "nodeId": "3087:11735",
+          "nodeName": "Ellipse 1",
+          "nodeType": "ELLIPSE",
+          "layerPath": "Cricket Match / Frame 1000003334 / Frame 1000003336 / Frame 1000003337 / Frame 1261154297 / Ellipse 1",
+          "usage": "vector",
+          "x": 76,
+          "y": 5,
+          "width": 3,
+          "height": 3
+        }
+      ]
+    },
+    {
+      "id": "shared-a41ca622aff9",
+      "file": "shared/assets/png/Ellipse-1-a41ca622.png",
+      "relativeFromScreen": "../../shared/assets/png/Ellipse-1-a41ca622.png",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "mime": "image/png",
+      "byteLength": 229,
+      "usedAt": [
+        {
+          "nodeId": "3087:11464",
+          "nodeName": "Ellipse 1",
+          "nodeType": "ELLIPSE",
+          "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154401 / SIGNATURE: MATCH TICKET / Frame 1261154579 / Frame 1000006156 / Frame 1261154298 / Ellipse 1",
+          "usage": "vector",
+          "x": 45,
+          "y": 6,
+          "width": 3,
+          "height": 3
+        },
+        {
+          "nodeId": "3087:11491",
+          "nodeName": "Ellipse 1",
+          "nodeType": "ELLIPSE",
+          "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154401 / Frame 1261154797 / SIGNATURE: MATCH TICKET / Frame 1261154298 / Ellipse 1",
+          "usage": "vector",
+          "x": 132,
+          "y": 6,
+          "width": 3,
+          "height": 3
+        },
+        {
+          "nodeId": "3087:11699",
+          "nodeName": "Ellipse 1",
+          "nodeType": "ELLIPSE",
+          "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154796 / Frame 1261154482 / SIGNATURE: MATCH TICKET / Frame 1261154364 / Frame 1261154798 / Ellipse 1",
+          "usage": "vector",
+          "x": 48,
+          "y": 6,
+          "width": 3,
+          "height": 3
+        },
+        {
+          "nodeId": "3087:11735",
+          "nodeName": "Ellipse 1",
+          "nodeType": "ELLIPSE",
+          "layerPath": "Cricket Match / Frame 1000003334 / Frame 1000003336 / Frame 1000003337 / Frame 1261154297 / Ellipse 1",
+          "usage": "vector",
+          "x": 76,
+          "y": 5,
+          "width": 3,
+          "height": 3
+        },
+        {
+          "nodeId": "3087:11464",
+          "nodeName": "Ellipse 1",
+          "nodeType": "ELLIPSE",
+          "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154401 / SIGNATURE: MATCH TICKET / Frame 1261154579 / Frame 1000006156 / Frame 1261154298 / Ellipse 1",
+          "usage": "vector",
+          "x": 45,
+          "y": 6,
+          "width": 3,
+          "height": 3
+        },
+        {
+          "nodeId": "3087:11491",
+          "nodeName": "Ellipse 1",
+          "nodeType": "ELLIPSE",
+          "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154401 / Frame 1261154797 / SIGNATURE: MATCH TICKET / Frame 1261154298 / Ellipse 1",
+          "usage": "vector",
+          "x": 132,
+          "y": 6,
+          "width": 3,
+          "height": 3
+        },
+        {
+          "nodeId": "3087:11699",
+          "nodeName": "Ellipse 1",
+          "nodeType": "ELLIPSE",
+          "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154796 / Frame 1261154482 / SIGNATURE: MATCH TICKET / Frame 1261154364 / Frame 1261154798 / Ellipse 1",
+          "usage": "vector",
+          "x": 48,
+          "y": 6,
+          "width": 3,
+          "height": 3
+        },
+        {
+          "nodeId": "3087:11735",
+          "nodeName": "Ellipse 1",
+          "nodeType": "ELLIPSE",
+          "layerPath": "Cricket Match / Frame 1000003334 / Frame 1000003336 / Frame 1000003337 / Frame 1261154297 / Ellipse 1",
+          "usage": "vector",
+          "x": 76,
+          "y": 5,
+          "width": 3,
+          "height": 3
+        },
+        {
+          "nodeId": "3087:11464",
+          "nodeName": "Ellipse 1",
+          "nodeType": "ELLIPSE",
+          "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154401 / SIGNATURE: MATCH TICKET / Frame 1261154579 / Frame 1000006156 / Frame 1261154298 / Ellipse 1",
+          "usage": "vector",
+          "x": 45,
+          "y": 6,
+          "width": 3,
+          "height": 3
+        },
+        {
+          "nodeId": "3087:11491",
+          "nodeName": "Ellipse 1",
+          "nodeType": "ELLIPSE",
+          "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154401 / Frame 1261154797 / SIGNATURE: MATCH TICKET / Frame 1261154298 / Ellipse 1",
+          "usage": "vector",
+          "x": 132,
+          "y": 6,
+          "width": 3,
+          "height": 3
+        },
+        {
+          "nodeId": "3087:11699",
+          "nodeName": "Ellipse 1",
+          "nodeType": "ELLIPSE",
+          "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154796 / Frame 1261154482 / SIGNATURE: MATCH TICKET / Frame 1261154364 / Frame 1261154798 / Ellipse 1",
+          "usage": "vector",
+          "x": 48,
+          "y": 6,
+          "width": 3,
+          "height": 3
+        },
+        {
+          "nodeId": "3087:11735",
+          "nodeName": "Ellipse 1",
+          "nodeType": "ELLIPSE",
+          "layerPath": "Cricket Match / Frame 1000003334 / Frame 1000003336 / Frame 1000003337 / Frame 1261154297 / Ellipse 1",
+          "usage": "vector",
+          "x": 76,
+          "y": 5,
+          "width": 3,
+          "height": 3
+        },
+        {
+          "nodeId": "3087:11464",
+          "nodeName": "Ellipse 1",
+          "nodeType": "ELLIPSE",
+          "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154401 / SIGNATURE: MATCH TICKET / Frame 1261154579 / Frame 1000006156 / Frame 1261154298 / Ellipse 1",
+          "usage": "vector",
+          "x": 45,
+          "y": 6,
+          "width": 3,
+          "height": 3
+        },
+        {
+          "nodeId": "3087:11491",
+          "nodeName": "Ellipse 1",
+          "nodeType": "ELLIPSE",
+          "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154401 / Frame 1261154797 / SIGNATURE: MATCH TICKET / Frame 1261154298 / Ellipse 1",
+          "usage": "vector",
+          "x": 132,
+          "y": 6,
+          "width": 3,
+          "height": 3
+        },
+        {
+          "nodeId": "3087:11699",
+          "nodeName": "Ellipse 1",
+          "nodeType": "ELLIPSE",
+          "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154796 / Frame 1261154482 / SIGNATURE: MATCH TICKET / Frame 1261154364 / Frame 1261154798 / Ellipse 1",
+          "usage": "vector",
+          "x": 48,
+          "y": 6,
+          "width": 3,
+          "height": 3
+        },
+        {
+          "nodeId": "3087:11735",
+          "nodeName": "Ellipse 1",
+          "nodeType": "ELLIPSE",
+          "layerPath": "Cricket Match / Frame 1000003334 / Frame 1000003336 / Frame 1000003337 / Frame 1261154297 / Ellipse 1",
+          "usage": "vector",
+          "x": 76,
+          "y": 5,
+          "width": 3,
+          "height": 3
+        }
+      ]
+    },
+    {
+      "id": "shared-0837d835567b",
+      "file": "shared/assets/png/Icon-0837d835.png",
+      "relativeFromScreen": "../../shared/assets/png/Icon-0837d835.png",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "mime": "image/png",
+      "byteLength": 650,
+      "usedAt": [
+        {
+          "nodeId": "3087:11467",
+          "nodeName": "Icon",
+          "nodeType": "VECTOR",
+          "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154401 / SIGNATURE: MATCH TICKET / Frame 1261154579 / Frame 1000006156 / Frame 1261154298 / Frame 1261154300 / Frame 1261154292 / Icon",
+          "usage": "vector",
+          "x": 1.0833332538604736,
+          "y": 2.1875,
+          "width": 5.833333492279053,
+          "height": 9.625
+        }
+      ]
+    },
+    {
+      "id": "shared-b8bb63a40943",
+      "file": "shared/assets/png/Vector-b8bb63a4.png",
+      "relativeFromScreen": "../../shared/assets/png/Vector-b8bb63a4.png",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "mime": "image/png",
+      "byteLength": 219,
+      "usedAt": [
+        {
+          "nodeId": "3087:11498",
+          "nodeName": "Vector",
+          "nodeType": "VECTOR",
+          "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154401 / Frame 1261154797 / Frame 1261154793 / SIGNATURE: MATCH TICKET / All Icons / Group / Vector",
+          "usage": "vector",
+          "x": 15,
+          "y": 17.25,
+          "width": 0,
+          "height": 3
+        },
+        {
+          "nodeId": "3087:11690",
+          "nodeName": "Vector",
+          "nodeType": "VECTOR",
+          "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154796 / Frame 1261154482 / SIGNATURE: MATCH TICKET / All Icons / Group / Vector",
+          "usage": "vector",
+          "x": 15,
+          "y": 17.25,
+          "width": 0,
+          "height": 3
+        }
+      ]
+    },
+    {
+      "id": "shared-4b4e213240b6",
+      "file": "shared/assets/png/Vector-4b4e2132.png",
+      "relativeFromScreen": "../../shared/assets/png/Vector-4b4e2132.png",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "mime": "image/png",
+      "byteLength": 406,
+      "usedAt": [
+        {
+          "nodeId": "3087:11499",
+          "nodeName": "Vector",
+          "nodeType": "VECTOR",
+          "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154401 / Frame 1261154797 / Frame 1261154793 / SIGNATURE: MATCH TICKET / All Icons / Group / Vector",
+          "usage": "vector",
+          "x": 7.5,
+          "y": 9.375,
+          "width": 3,
+          "height": 5.25
+        },
+        {
+          "nodeId": "3087:11691",
+          "nodeName": "Vector",
+          "nodeType": "VECTOR",
+          "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154796 / Frame 1261154482 / SIGNATURE: MATCH TICKET / All Icons / Group / Vector",
+          "usage": "vector",
+          "x": 7.5,
+          "y": 9.375,
+          "width": 3,
+          "height": 5.25
+        }
+      ]
+    },
+    {
+      "id": "shared-0d8977fc3e15",
+      "file": "shared/assets/png/Vector-0d8977fc.png",
+      "relativeFromScreen": "../../shared/assets/png/Vector-0d8977fc.png",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "mime": "image/png",
+      "byteLength": 401,
+      "usedAt": [
+        {
+          "nodeId": "3087:11500",
+          "nodeName": "Vector",
+          "nodeType": "VECTOR",
+          "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154401 / Frame 1261154797 / Frame 1261154793 / SIGNATURE: MATCH TICKET / All Icons / Group / Vector",
+          "usage": "vector",
+          "x": 19.5,
+          "y": 9.375,
+          "width": 3,
+          "height": 5.25
+        },
+        {
+          "nodeId": "3087:11692",
+          "nodeName": "Vector",
+          "nodeType": "VECTOR",
+          "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154796 / Frame 1261154482 / SIGNATURE: MATCH TICKET / All Icons / Group / Vector",
+          "usage": "vector",
+          "x": 19.5,
+          "y": 9.375,
+          "width": 3,
+          "height": 5.25
+        }
+      ]
+    },
+    {
+      "id": "shared-c1c3d5151545",
+      "file": "shared/assets/png/Vector-c1c3d515.png",
+      "relativeFromScreen": "../../shared/assets/png/Vector-c1c3d515.png",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "mime": "image/png",
+      "byteLength": 668,
+      "usedAt": [
+        {
+          "nodeId": "3087:11501",
+          "nodeName": "Vector",
+          "nodeType": "VECTOR",
+          "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154401 / Frame 1261154797 / Frame 1261154793 / SIGNATURE: MATCH TICKET / All Icons / Group / Vector",
+          "usage": "vector",
+          "x": 10.5,
+          "y": 7.5,
+          "width": 9,
+          "height": 9.75
+        },
+        {
+          "nodeId": "3087:11693",
+          "nodeName": "Vector",
+          "nodeType": "VECTOR",
+          "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154796 / Frame 1261154482 / SIGNATURE: MATCH TICKET / All Icons / Group / Vector",
+          "usage": "vector",
+          "x": 10.5,
+          "y": 7.5,
+          "width": 9,
+          "height": 9.75
+        }
+      ]
+    },
+    {
+      "id": "shared-de8b89c91fb2",
+      "file": "shared/assets/png/Vector-de8b89c9.png",
+      "relativeFromScreen": "../../shared/assets/png/Vector-de8b89c9.png",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "mime": "image/png",
+      "byteLength": 341,
+      "usedAt": [
+        {
+          "nodeId": "3087:11502",
+          "nodeName": "Vector",
+          "nodeType": "VECTOR",
+          "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154401 / Frame 1261154797 / Frame 1261154793 / SIGNATURE: MATCH TICKET / All Icons / Group / Vector",
+          "usage": "vector",
+          "x": 11.625,
+          "y": 20.25,
+          "width": 6.75,
+          "height": 2.25
+        },
+        {
+          "nodeId": "3087:11694",
+          "nodeName": "Vector",
+          "nodeType": "VECTOR",
+          "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154796 / Frame 1261154482 / SIGNATURE: MATCH TICKET / All Icons / Group / Vector",
+          "usage": "vector",
+          "x": 11.625,
+          "y": 20.25,
+          "width": 6.75,
+          "height": 2.25
+        }
+      ]
+    },
+    {
+      "id": "shared-8be21fc53fbb",
+      "file": "shared/assets/png/Group-8be21fc5.png",
+      "relativeFromScreen": "../../shared/assets/png/Group-8be21fc5.png",
+      "kind": "composed-svg",
+      "semanticRole": "graphic",
+      "mime": "image/png",
+      "byteLength": 1393,
+      "usedAt": [
+        {
+          "nodeId": "3087:11497",
+          "nodeName": "Group",
+          "nodeType": "GROUP",
+          "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154401 / Frame 1261154797 / Frame 1261154793 / SIGNATURE: MATCH TICKET / All Icons / Group",
+          "usage": "composed-graphic",
+          "x": 7.5,
+          "y": 7.5,
+          "width": 15,
+          "height": 15
+        },
+        {
+          "nodeId": "3087:11689",
+          "nodeName": "Group",
+          "nodeType": "GROUP",
+          "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154796 / Frame 1261154482 / SIGNATURE: MATCH TICKET / All Icons / Group",
+          "usage": "composed-graphic",
+          "x": 7.5,
+          "y": 7.5,
+          "width": 15,
+          "height": 15
+        }
+      ]
+    },
+    {
+      "id": "shared-d1fb9c006735",
+      "file": "shared/assets/png/All-Icons-d1fb9c00.png",
+      "relativeFromScreen": "../../shared/assets/png/All-Icons-d1fb9c00.png",
+      "kind": "composed-svg",
+      "semanticRole": "icon",
+      "mime": "image/png",
+      "byteLength": 5186,
+      "usedAt": [
+        {
+          "nodeId": "3087:11688",
+          "nodeName": "All Icons",
+          "nodeType": "FRAME",
+          "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154796 / Frame 1261154482 / SIGNATURE: MATCH TICKET / All Icons",
+          "usage": "composed-graphic",
+          "x": 8,
+          "y": 6,
+          "width": 30,
+          "height": 30
+        }
+      ]
+    },
+    {
+      "id": "shared-25acf15ebb97",
+      "file": "shared/assets/png/All-Icons-25acf15e.png",
+      "relativeFromScreen": "../../shared/assets/png/All-Icons-25acf15e.png",
+      "kind": "composed-svg",
+      "semanticRole": "icon",
+      "mime": "image/png",
+      "byteLength": 5716,
+      "usedAt": [
+        {
+          "nodeId": "3087:11496",
+          "nodeName": "All Icons",
+          "nodeType": "FRAME",
+          "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154401 / Frame 1261154797 / Frame 1261154793 / SIGNATURE: MATCH TICKET / All Icons",
+          "usage": "composed-graphic",
+          "x": 7,
+          "y": 7,
+          "width": 30,
+          "height": 30
+        }
+      ]
+    },
+    {
+      "id": "shared-310f004dc86a",
+      "file": "shared/assets/png/Vector-310f004d.png",
+      "relativeFromScreen": "../../shared/assets/png/Vector-310f004d.png",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "mime": "image/png",
+      "byteLength": 694,
+      "usedAt": [
+        {
+          "nodeId": "3087:11727",
+          "nodeName": "Vector",
+          "nodeType": "VECTOR",
+          "layerPath": "Cricket Match / Frame 1000003334 / Frame 1000003336 / Back / Vector",
+          "usage": "vector",
+          "x": 15,
+          "y": 12,
+          "width": 6,
+          "height": 12
+        }
+      ]
+    },
+    {
+      "id": "shared-9ee43e56067a",
+      "file": "shared/assets/png/Line-7-9ee43e56.png",
+      "relativeFromScreen": "../../shared/assets/png/Line-7-9ee43e56.png",
+      "kind": "svg",
+      "semanticRole": "vector",
+      "mime": "image/png",
+      "byteLength": 350,
+      "usedAt": [
+        {
+          "nodeId": "3087:11488",
+          "nodeName": "Line 7",
+          "nodeType": "LINE",
+          "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154401 / Frame 1261154797 / SIGNATURE: MATCH TICKET / Line 7",
+          "usage": "vector",
+          "x": 12,
+          "y": 114.50003051757812,
+          "width": 326,
+          "height": 0
+        }
+      ]
+    },
+    {
+      "id": "shared-715c74e00bad",
+      "file": "shared/assets/png/Line-7-715c74e0.png",
+      "relativeFromScreen": "../../shared/assets/png/Line-7-715c74e0.png",
+      "kind": "svg",
+      "semanticRole": "vector",
+      "mime": "image/png",
+      "byteLength": 354,
+      "usedAt": [
+        {
+          "nodeId": "3087:11612",
+          "nodeName": "Line 7",
+          "nodeType": "LINE",
+          "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154796 / Frame 1261154479 / Frame 1261154481 / Frame 1261154799 / Section / Frame 1261154486 / Line 7",
+          "usage": "vector",
+          "x": 0,
+          "y": 0.000028062713681720197,
+          "width": 321,
+          "height": 0
+        }
+      ]
+    },
+    {
+      "id": "shared-34b736e31df3",
+      "file": "shared/assets/png/Line-7-34b736e3.png",
+      "relativeFromScreen": "../../shared/assets/png/Line-7-34b736e3.png",
+      "kind": "svg",
+      "semanticRole": "vector",
+      "mime": "image/png",
+      "byteLength": 346,
+      "usedAt": [
+        {
+          "nodeId": "3087:11622",
+          "nodeName": "Line 7",
+          "nodeType": "LINE",
+          "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154796 / Frame 1261154479 / Frame 1261154481 / Frame 1261154799 / Frame 1261154800 / Line 7",
+          "usage": "vector",
+          "x": 14,
+          "y": 29.00002670288086,
+          "width": 322,
+          "height": 0
+        }
+      ]
+    }
+  ]
+}

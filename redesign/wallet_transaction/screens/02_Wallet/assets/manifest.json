@@ -1,0 +1,367 @@
+{
+  "schema": "dev-export-assets",
+  "schemaVersion": "1.1.0",
+  "generatedAt": "2026-11-16T10:28:06.820Z",
+  "screen": {
+    "id": "3169:1623",
+    "name": "Wallet"
+  },
+  "assets": [
+    {
+      "ref": "svg-3169_1653",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "assetId": "5af69e49fbea",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-5af69e49fbea.svg",
+      "pngFileName": "assets/png/vector-5af69e49fbea@2x.png",
+      "pngScale": 2,
+      "formats": {
+        "svg": "assets/svg/vector-5af69e49fbea.svg",
+        "png": "assets/png/vector-5af69e49fbea@2x.png"
+      },
+      "nodeId": "3169:1653",
+      "nodeName": "Vector",
+      "nodeType": "VECTOR",
+      "width": 6,
+      "height": 8,
+      "byteLength": 555,
+      "pngByteLength": 513
+    },
+    {
+      "ref": "svg-3169_1654",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "assetId": "3b3489cff0dd",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-3b3489cff0dd.svg",
+      "pngFileName": "assets/png/vector-3b3489cff0dd@2x.png",
+      "pngScale": 2,
+      "formats": {
+        "svg": "assets/svg/vector-3b3489cff0dd.svg",
+        "png": "assets/png/vector-3b3489cff0dd@2x.png"
+      },
+      "nodeId": "3169:1654",
+      "nodeName": "Vector",
+      "nodeType": "VECTOR",
+      "width": 6,
+      "height": 14,
+      "byteLength": 386,
+      "pngByteLength": 314
+    },
+    {
+      "ref": "composed-3169_1652",
+      "kind": "composed-svg",
+      "semanticRole": "logo",
+      "assetId": "8c4eda5237c1",
+      "originalName": "logout",
+      "originalFileName": "logout.svg",
+      "fileName": "assets/composed/svg/logout-8c4eda5237c1.svg",
+      "pngFileName": "assets/composed/png/logout-8c4eda5237c1@2x.png",
+      "pngScale": 2,
+      "formats": {
+        "svg": "assets/composed/svg/logout-8c4eda5237c1.svg",
+        "png": "assets/composed/png/logout-8c4eda5237c1@2x.png"
+      },
+      "nodeId": "3169:1652",
+      "nodeName": "logout",
+      "nodeType": "GROUP",
+      "width": 11.998046875,
+      "height": 14,
+      "byteLength": 854,
+      "childVectorRefs": [
+        "svg-3169_1653",
+        "svg-3169_1654"
+      ],
+      "compositionStats": {
+        "total": 2,
+        "vectors": 2,
+        "shapes": 2,
+        "text": 0,
+        "images": 0,
+        "otherLeaves": 0
+      },
+      "pngByteLength": 691
+    },
+    {
+      "ref": "composed-3169_1651",
+      "kind": "composed-svg",
+      "semanticRole": "logo",
+      "assetId": "95a06f14e4a3",
+      "originalName": "vuesax/linear/logout",
+      "originalFileName": "vuesax/linear/logout.svg",
+      "fileName": "assets/composed/svg/vuesax_linear_logout-95a06f14e4a3.svg",
+      "pngFileName": "assets/composed/png/vuesax_linear_logout-95a06f14e4a3@2x.png",
+      "pngScale": 2,
+      "formats": {
+        "svg": "assets/composed/svg/vuesax_linear_logout-95a06f14e4a3.svg",
+        "png": "assets/composed/png/vuesax_linear_logout-95a06f14e4a3@2x.png"
+      },
+      "nodeId": "3169:1651",
+      "nodeName": "vuesax/linear/logout",
+      "nodeType": "FRAME",
+      "width": 20,
+      "height": 20,
+      "byteLength": 774,
+      "childVectorRefs": [
+        "svg-3169_1653",
+        "svg-3169_1654"
+      ],
+      "compositionStats": {
+        "total": 3,
+        "vectors": 2,
+        "shapes": 2,
+        "text": 0,
+        "images": 0,
+        "otherLeaves": 0
+      },
+      "pngByteLength": 778
+    },
+    {
+      "ref": "svg-3172_7924",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "assetId": "63b2d0c8247a",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-63b2d0c8247a.svg",
+      "pngFileName": "assets/png/vector-63b2d0c8247a@2x.png",
+      "pngScale": 2,
+      "formats": {
+        "svg": "assets/svg/vector-63b2d0c8247a.svg",
+        "png": "assets/png/vector-63b2d0c8247a@2x.png"
+      },
+      "nodeId": "3172:7924",
+      "nodeName": "Vector",
+      "nodeType": "VECTOR",
+      "width": 13,
+      "height": 8,
+      "byteLength": 1079,
+      "pngByteLength": 708
+    },
+    {
+      "ref": "svg-3172_7936",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "assetId": "95f9936b2bc1",
+      "originalName": "Ellipse 1",
+      "originalFileName": "Ellipse 1.svg",
+      "fileName": "assets/svg/ellipse_1-95f9936b2bc1.svg",
+      "pngFileName": "assets/png/ellipse_1-95f9936b2bc1@2x.png",
+      "pngScale": 2,
+      "formats": {
+        "svg": "assets/svg/ellipse_1-95f9936b2bc1.svg",
+        "png": "assets/png/ellipse_1-95f9936b2bc1@2x.png"
+      },
+      "nodeId": "3172:7936",
+      "nodeName": "Ellipse 1",
+      "nodeType": "ELLIPSE",
+      "width": 2,
+      "height": 2,
+      "byteLength": 159,
+      "pngByteLength": 193
+    },
+    {
+      "ref": "svg-3172_8051",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "assetId": "95f9936b2bc1",
+      "originalName": "Ellipse 1",
+      "originalFileName": "Ellipse 1.svg",
+      "fileName": "assets/svg/ellipse_1-95f9936b2bc1.svg",
+      "pngFileName": "assets/png/ellipse_1-95f9936b2bc1@2x.png",
+      "pngScale": 2,
+      "formats": {
+        "svg": "assets/svg/ellipse_1-95f9936b2bc1.svg",
+        "png": "assets/png/ellipse_1-95f9936b2bc1@2x.png"
+      },
+      "nodeId": "3172:8051",
+      "nodeName": "Ellipse 1",
+      "nodeType": "ELLIPSE",
+      "width": 2,
+      "height": 2,
+      "byteLength": 159,
+      "pngByteLength": 193
+    },
+    {
+      "ref": "svg-3169_1702",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "assetId": "71e861cd69ea",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-71e861cd69ea.svg",
+      "pngFileName": "assets/png/vector-71e861cd69ea@2x.png",
+      "pngScale": 2,
+      "formats": {
+        "svg": "assets/svg/vector-71e861cd69ea.svg",
+        "png": "assets/png/vector-71e861cd69ea@2x.png"
+      },
+      "nodeId": "3169:1702",
+      "nodeName": "Vector",
+      "nodeType": "VECTOR",
+      "width": 6,
+      "height": 12,
+      "byteLength": 990,
+      "pngByteLength": 694
+    },
+    {
+      "ref": "svg-3172_7916",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "assetId": "a4eb49850c93",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-a4eb49850c93.svg",
+      "pngFileName": "assets/png/vector-a4eb49850c93@2x.png",
+      "pngScale": 2,
+      "formats": {
+        "svg": "assets/svg/vector-a4eb49850c93.svg",
+        "png": "assets/png/vector-a4eb49850c93@2x.png"
+      },
+      "nodeId": "3172:7916",
+      "nodeName": "Vector",
+      "nodeType": "VECTOR",
+      "width": 12,
+      "height": 12,
+      "byteLength": 267,
+      "pngByteLength": 296
+    }
+  ],
+  "sharedAssets": [
+    {
+      "id": "shared-310f004dc86a",
+      "file": "shared/assets/png/Vector-310f004d.png",
+      "relativeFromScreen": "../../shared/assets/png/Vector-310f004d.png",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "mime": "image/png",
+      "byteLength": 694,
+      "usedAt": [
+        {
+          "nodeId": "3169:1702",
+          "nodeName": "Vector",
+          "nodeType": "VECTOR",
+          "layerPath": "Wallet / Frame 1261154402 / Frame 1000003336 / Back / Vector",
+          "usage": "vector",
+          "x": 15,
+          "y": 12,
+          "width": 6,
+          "height": 12
+        }
+      ]
+    },
+    {
+      "id": "shared-95f9936b2bc1",
+      "file": "shared/assets/svg/Ellipse-1-95f9936b.svg",
+      "relativeFromScreen": "../../shared/assets/svg/Ellipse-1-95f9936b.svg",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "mime": "image/svg+xml",
+      "byteLength": 159,
+      "usedAt": [
+        {
+          "nodeId": "3172:7936",
+          "nodeName": "Ellipse 1",
+          "nodeType": "ELLIPSE",
+          "layerPath": "Wallet / Frame 1261154190 / Frame 1261154431 / Frame 1261154193 / Frame 1261154431 / DocCard / Frame 1261154510 / Frame 1261154805 / Ellipse 1",
+          "usage": "vector",
+          "x": 66,
+          "y": 6.5,
+          "width": 2,
+          "height": 2
+        },
+        {
+          "nodeId": "3172:8051",
+          "nodeName": "Ellipse 1",
+          "nodeType": "ELLIPSE",
+          "layerPath": "Wallet / Frame 1261154190 / Frame 1261154431 / Frame 1261154193 / Frame 1261154431 / DocCard / Frame 1261154510 / Frame 1261154805 / Ellipse 1",
+          "usage": "vector",
+          "x": 31,
+          "y": 6.5,
+          "width": 2,
+          "height": 2
+        },
+        {
+          "nodeId": "3172:7936",
+          "nodeName": "Ellipse 1",
+          "nodeType": "ELLIPSE",
+          "layerPath": "Wallet / Frame 1261154190 / Frame 1261154431 / Frame 1261154193 / Frame 1261154431 / DocCard / Frame 1261154510 / Frame 1261154805 / Ellipse 1",
+          "usage": "vector",
+          "x": 66,
+          "y": 6.5,
+          "width": 2,
+          "height": 2
+        },
+        {
+          "nodeId": "3172:8051",
+          "nodeName": "Ellipse 1",
+          "nodeType": "ELLIPSE",
+          "layerPath": "Wallet / Frame 1261154190 / Frame 1261154431 / Frame 1261154193 / Frame 1261154431 / DocCard / Frame 1261154510 / Frame 1261154805 / Ellipse 1",
+          "usage": "vector",
+          "x": 31,
+          "y": 6.5,
+          "width": 2,
+          "height": 2
+        }
+      ]
+    },
+    {
+      "id": "shared-554f06b00d8a",
+      "file": "shared/assets/png/Ellipse-1-554f06b0.png",
+      "relativeFromScreen": "../../shared/assets/png/Ellipse-1-554f06b0.png",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "mime": "image/png",
+      "byteLength": 193,
+      "usedAt": [
+        {
+          "nodeId": "3172:7936",
+          "nodeName": "Ellipse 1",
+          "nodeType": "ELLIPSE",
+          "layerPath": "Wallet / Frame 1261154190 / Frame 1261154431 / Frame 1261154193 / Frame 1261154431 / DocCard / Frame 1261154510 / Frame 1261154805 / Ellipse 1",
+          "usage": "vector",
+          "x": 66,
+          "y": 6.5,
+          "width": 2,
+          "height": 2
+        },
+        {
+          "nodeId": "3172:8051",
+          "nodeName": "Ellipse 1",
+          "nodeType": "ELLIPSE",
+          "layerPath": "Wallet / Frame 1261154190 / Frame 1261154431 / Frame 1261154193 / Frame 1261154431 / DocCard / Frame 1261154510 / Frame 1261154805 / Ellipse 1",
+          "usage": "vector",
+          "x": 31,
+          "y": 6.5,
+          "width": 2,
+          "height": 2
+        },
+        {
+          "nodeId": "3172:7936",
+          "nodeName": "Ellipse 1",
+          "nodeType": "ELLIPSE",
+          "layerPath": "Wallet / Frame 1261154190 / Frame 1261154431 / Frame 1261154193 / Frame 1261154431 / DocCard / Frame 1261154510 / Frame 1261154805 / Ellipse 1",
+          "usage": "vector",
+          "x": 66,
+          "y": 6.5,
+          "width": 2,
+          "height": 2
+        },
+        {
+          "nodeId": "3172:8051",
+          "nodeName": "Ellipse 1",
+          "nodeType": "ELLIPSE",
+          "layerPath": "Wallet / Frame 1261154190 / Frame 1261154431 / Frame 1261154193 / Frame 1261154431 / DocCard / Frame 1261154510 / Frame 1261154805 / Ellipse 1",
+          "usage": "vector",
+          "x": 31,
+          "y": 6.5,
+          "width": 2,
+          "height": 2
+        }
+      ]
+    }
+  ]
+}

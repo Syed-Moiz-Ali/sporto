@@ -1,0 +1,94 @@
+{
+  "schema": "dev-export-screen-variants",
+  "schemaVersion": "1.1.0",
+  "generatedAt": "2026-11-16T10:25:39.322Z",
+  "note": "Screens that are states or tabs of the same logical screen are grouped here. Code generation creates one screen with variant handling instead of duplicate screens.",
+  "logicalScreenCount": 4,
+  "variantScreenCount": 4,
+  "screens": [
+    {
+      "id": "logical-3f5b295693",
+      "name": "Home - Schedule",
+      "width": 390,
+      "height": 844,
+      "variantTypes": [
+        "default"
+      ],
+      "variants": [
+        {
+          "screenIndex": 1,
+          "screenName": "Home - Schedule",
+          "variantType": "default",
+          "variantName": "Default",
+          "isDefault": true,
+          "folder": "screens/01_Home-Schedule",
+          "json": "screens/01_Home-Schedule/Home-Schedule.json",
+          "preview": "screens/01_Home-Schedule/Home-Schedule@2x.png"
+        }
+      ]
+    },
+    {
+      "id": "logical-21b1cb8521",
+      "name": "Cricket Match",
+      "width": 390,
+      "height": 844,
+      "variantTypes": [
+        "default"
+      ],
+      "variants": [
+        {
+          "screenIndex": 2,
+          "screenName": "Cricket Match",
+          "variantType": "default",
+          "variantName": "Default",
+          "isDefault": true,
+          "folder": "screens/02_Cricket-Match",
+          "json": "screens/02_Cricket-Match/Cricket-Match.json",
+          "preview": "screens/02_Cricket-Match/Cricket-Match@2x.png"
+        }
+      ]
+    },
+    {
+      "id": "logical-a19a9bc563",
+      "name": "Cricket Match",
+      "width": 390,
+      "height": 1391,
+      "variantTypes": [
+        "default"
+      ],
+      "variants": [
+        {
+          "screenIndex": 3,
+          "screenName": "Cricket Match",
+          "variantType": "default",
+          "variantName": "Default",
+          "isDefault": true,
+          "folder": "screens/03_Cricket-Match",
+          "json": "screens/03_Cricket-Match/Cricket-Match.json",
+          "preview": "screens/03_Cricket-Match/Cricket-Match@2x.png"
+        }
+      ]
+    },
+    {
+      "id": "logical-5e5b81993d",
+      "name": "Cricket Match",
+      "width": 390,
+      "height": 1643,
+      "variantTypes": [
+        "default"
+      ],
+      "variants": [
+        {
+          "screenIndex": 4,
+          "screenName": "Cricket Match",
+          "variantType": "default",
+          "variantName": "Default",
+          "isDefault": true,
+          "folder": "screens/04_Cricket-Match",
+          "json": "screens/04_Cricket-Match/Cricket-Match.json",
+          "preview": "screens/04_Cricket-Match/Cricket-Match@2x.png"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,84 @@
+{
+  "schema": "dev-export-screen-groups",
+  "schemaVersion": "1.1.0",
+  "generatedAt": "2026-11-16T10:25:39.322Z",
+  "note": "Groups are inferred from frame dimensions and screen names. Use them to plan breakpoints and variants.",
+  "suggestedBreakpoints": [
+    390
+  ],
+  "dimensions": [
+    {
+      "key": "390x844",
+      "width": 390,
+      "height": 844,
+      "device": "mobile",
+      "screens": [
+        {
+          "index": 1,
+          "name": "Home - Schedule",
+          "folder": "screens/01_Home-Schedule",
+          "json": "screens/01_Home-Schedule/Home-Schedule.json"
+        },
+        {
+          "index": 2,
+          "name": "Cricket Match",
+          "folder": "screens/02_Cricket-Match",
+          "json": "screens/02_Cricket-Match/Cricket-Match.json"
+        }
+      ]
+    },
+    {
+      "key": "390x1391",
+      "width": 390,
+      "height": 1391,
+      "device": "mobile",
+      "screens": [
+        {
+          "index": 3,
+          "name": "Cricket Match",
+          "folder": "screens/03_Cricket-Match",
+          "json": "screens/03_Cricket-Match/Cricket-Match.json"
+        }
+      ]
+    },
+    {
+      "key": "390x1643",
+      "width": 390,
+      "height": 1643,
+      "device": "mobile",
+      "screens": [
+        {
+          "index": 4,
+          "name": "Cricket Match",
+          "folder": "screens/04_Cricket-Match",
+          "json": "screens/04_Cricket-Match/Cricket-Match.json"
+        }
+      ]
+    }
+  ],
+  "byName": [
+    {
+      "key": "cricket match",
+      "screens": [
+        {
+          "index": 2,
+          "name": "Cricket Match",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "index": 3,
+          "name": "Cricket Match",
+          "width": 390,
+          "height": 1391
+        },
+        {
+          "index": 4,
+          "name": "Cricket Match",
+          "width": 390,
+          "height": 1643
+        }
+      ]
+    }
+  ]
+}

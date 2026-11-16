@@ -1,0 +1,174 @@
+{
+  "schema": "dev-export-fonts",
+  "schemaVersion": "1.1.0",
+  "generatedAt": "2026-11-16T10:28:02.496Z",
+  "familyCount": 1,
+  "fonts": [
+    {
+      "family": "Quicksand",
+      "source": "system",
+      "license": "system-font",
+      "fallbackStack": [
+        "Quicksand",
+        "Noto Sans",
+        "Noto Sans Arabic",
+        "Noto Color Emoji",
+        "Apple Color Emoji",
+        "Segoe UI Emoji",
+        "ui-sans-serif",
+        "system-ui",
+        "sans-serif"
+      ],
+      "substitute": "Inter",
+      "isIconFont": false,
+      "iconLigatures": false,
+      "mixed": true,
+      "weights": {
+        "400": "SemiBold",
+        "500": "Medium",
+        "600": "Medium",
+        "700": "Bold"
+      },
+      "allWeights": [
+        400,
+        500,
+        600,
+        700
+      ],
+      "usageCount": 83,
+      "styles": [
+        {
+          "style": "SemiBold",
+          "count": 9,
+          "weights": [
+            400,
+            500,
+            600
+          ],
+          "availableOnClient": true
+        },
+        {
+          "style": "Regular",
+          "count": 19,
+          "weights": [
+            400,
+            700
+          ],
+          "availableOnClient": true
+        },
+        {
+          "style": "Medium",
+          "count": 49,
+          "weights": [
+            500,
+            600
+          ],
+          "availableOnClient": true
+        },
+        {
+          "style": "Bold",
+          "count": 6,
+          "weights": [
+            700
+          ],
+          "availableOnClient": true
+        }
+      ],
+      "sizes": [
+        {
+          "value": 12,
+          "count": 44
+        },
+        {
+          "value": 14,
+          "count": 30
+        },
+        {
+          "value": 18,
+          "count": 4
+        },
+        {
+          "value": 20,
+          "count": 1
+        },
+        {
+          "value": 10,
+          "count": 1
+        }
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "My Tournaments"
+        },
+        {
+          "index": 2,
+          "name": "Wallet"
+        },
+        {
+          "index": 3,
+          "name": "Wallet"
+        },
+        {
+          "index": 4,
+          "name": "Transaction Details"
+        }
+      ],
+      "samples": [
+        {
+          "screenIndex": 1,
+          "screenName": "My Tournaments",
+          "nodeId": "3172:8074",
+          "path": "My Tournaments / Frame 1261154190 / Frame 1261154431 / Frame 1261154189 / Frame 1261154419 / Frame 1261154417 / Cashback History",
+          "characters": "Completed",
+          "fontSize": 12,
+          "fontWeight": 500
+        },
+        {
+          "screenIndex": 1,
+          "screenName": "My Tournaments",
+          "nodeId": "3172:8076",
+          "path": "My Tournaments / Frame 1261154190 / Frame 1261154431 / Frame 1261154189 / Frame 1261154419 / Frame 1261154419 / Cashback History",
+          "characters": "Cancelled",
+          "fontSize": 12,
+          "fontWeight": 500
+        },
+        {
+          "screenIndex": 1,
+          "screenName": "My Tournaments",
+          "nodeId": "3172:8085",
+          "path": "My Tournaments / Frame 1261154190 / Frame 1261154431 / Frame 1261154193 / DocCard / VerticalBorder / Frame 1261154572 / Local",
+          "characters": "Local",
+          "fontSize": 12,
+          "fontWeight": 500
+        },
+        {
+          "screenIndex": 1,
+          "screenName": "My Tournaments",
+          "nodeId": "3172:8087",
+          "path": "My Tournaments / Frame 1261154190 / Frame 1261154431 / Frame 1261154193 / DocCard / VerticalBorder / Frame 1261154573 / Approved",
+          "characters": "Approved",
+          "fontSize": 12,
+          "fontWeight": 500
+        },
+        {
+          "screenIndex": 1,
+          "screenName": "My Tournaments",
+          "nodeId": "3172:8089",
+          "path": "My Tournaments / Frame 1261154190 / Frame 1261154431 / Frame 1261154193 / DocCard / Frame 1261154510 / Hitech City Super Over Cup",
+          "characters": "Hitech City Super Over Cup",
+          "fontSize": 14,
+          "fontWeight": 600
+        }
+      ],
+      "notes": "System font. Confirm redistribution/licensing before packaging binaries."
+    }
+  ],
+  "warnings": [
+    {
+      "code": "MIXED_FONT_WEIGHT",
+      "family": "Quicksand",
+      "message": "Font Quicksand has mixed weights across text runs. Resolve weights from styledSegments when rendering."
+    }
+  ]
+}

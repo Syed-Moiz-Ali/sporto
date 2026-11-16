@@ -1,0 +1,494 @@
+{
+  "schema": "dev-export-coverage",
+  "schemaVersion": "1.1.0",
+  "generatedAt": "2026-11-16T10:25:39.322Z",
+  "summary": {
+    "CONSTRAINT_LAYOUT": 56,
+    "MULTIPLE_FILLS": 15,
+    "MISSING_FONT": 1,
+    "HEURISTIC_COMPONENTS": 1
+  },
+  "globalWarnings": [
+    {
+      "code": "MIXED_FONT_WEIGHT",
+      "family": "Quicksand",
+      "message": "Font Quicksand has mixed weights across text runs. Resolve weights from styledSegments when rendering."
+    },
+    {
+      "code": "HEURISTIC_COMPONENTS",
+      "message": "43 repeated structures were detected heuristically. Review their props and variants in central-ui.json."
+    }
+  ],
+  "screens": [
+    {
+      "index": 1,
+      "screen": "Home - Schedule",
+      "name": "Home - Schedule",
+      "folder": "screens/01_Home-Schedule",
+      "json": "screens/01_Home-Schedule/Home-Schedule.json",
+      "warningCount": 28,
+      "truncated": false,
+      "warnings": [
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "3087:9464",
+          "path": "Home - Schedule / Frame 1000003334 / Frame 1000003337 / Shape / search-normal / vuesax/twotone/search-normal / search-normal / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "3087:9465",
+          "path": "Home - Schedule / Frame 1000003334 / Frame 1000003337 / Shape / search-normal / vuesax/twotone/search-normal / search-normal / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "3087:9466",
+          "path": "Home - Schedule / Frame 1000003334 / Frame 1000003337 / Shape / search-normal / vuesax/twotone/search-normal / search-normal / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "3087:9472",
+          "path": "Home - Schedule / Frame 1000003334 / Frame 1000003337 / Shape / mic / ri-mic-2-line / Group / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "3087:9473",
+          "path": "Home - Schedule / Frame 1000003334 / Frame 1000003337 / Shape / mic / ri-mic-2-line / Group / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "3087:9474",
+          "path": "Home - Schedule / Frame 1000003334 / Frame 1000003337 / Shape / mic / ri-mic-2-line / Group / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "MULTIPLE_FILLS",
+          "nodeId": "3087:12012",
+          "path": "Home - Schedule / Frame 1261154190 / DocCard / SIGNATURE: MATCH TICKET",
+          "message": "Multiple fills are stacked; verify background layering."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "3087:12015",
+          "path": "Home - Schedule / Frame 1261154190 / DocCard / SIGNATURE: MATCH TICKET / All Icons / Group / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "3087:12016",
+          "path": "Home - Schedule / Frame 1261154190 / DocCard / SIGNATURE: MATCH TICKET / All Icons / Group / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "3087:12017",
+          "path": "Home - Schedule / Frame 1261154190 / DocCard / SIGNATURE: MATCH TICKET / All Icons / Group / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "3087:12018",
+          "path": "Home - Schedule / Frame 1261154190 / DocCard / SIGNATURE: MATCH TICKET / All Icons / Group / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "3087:12019",
+          "path": "Home - Schedule / Frame 1261154190 / DocCard / SIGNATURE: MATCH TICKET / All Icons / Group / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "MULTIPLE_FILLS",
+          "nodeId": "3087:12181",
+          "path": "Home - Schedule / Frame 1261154190 / DocCard / SIGNATURE: MATCH TICKET",
+          "message": "Multiple fills are stacked; verify background layering."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "3087:12184",
+          "path": "Home - Schedule / Frame 1261154190 / DocCard / SIGNATURE: MATCH TICKET / All Icons / Group / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "3087:12185",
+          "path": "Home - Schedule / Frame 1261154190 / DocCard / SIGNATURE: MATCH TICKET / All Icons / Group / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "3087:12186",
+          "path": "Home - Schedule / Frame 1261154190 / DocCard / SIGNATURE: MATCH TICKET / All Icons / Group / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "3087:12187",
+          "path": "Home - Schedule / Frame 1261154190 / DocCard / SIGNATURE: MATCH TICKET / All Icons / Group / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "3087:12188",
+          "path": "Home - Schedule / Frame 1261154190 / DocCard / SIGNATURE: MATCH TICKET / All Icons / Group / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "I3087:9610;26:467",
+          "path": "Home - Schedule / Navbar / Home / Home / Group 1000006146 / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "I3087:9610;26:468",
+          "path": "Home - Schedule / Navbar / Home / Home / Group 1000006146 / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "I3087:9613;185:276",
+          "path": "Home - Schedule / Navbar / Matches / Matches / Calendar / Line (Stroke)",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "I3087:9613;185:277",
+          "path": "Home - Schedule / Navbar / Matches / Matches / Calendar / Line (Stroke)",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "I3087:9613;186:334",
+          "path": "Home - Schedule / Navbar / Matches / Matches / Calendar / Subtract / Group 221 / Group 219 / Line (Stroke)",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "I3087:9613;186:335",
+          "path": "Home - Schedule / Navbar / Matches / Matches / Calendar / Subtract / Group 221 / Group 219 / Line (Stroke)",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "I3087:9613;186:337",
+          "path": "Home - Schedule / Navbar / Matches / Matches / Calendar / Subtract / Group 221 / Group 220 / Line (Stroke)",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "I3087:9613;186:338",
+          "path": "Home - Schedule / Navbar / Matches / Matches / Calendar / Subtract / Group 221 / Group 220 / Line (Stroke)",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "I3087:9613;186:339",
+          "path": "Home - Schedule / Navbar / Matches / Matches / Calendar / Subtract / Group 221 / Group 220 / Line (Stroke)",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "I3087:9615;189:262",
+          "path": "Home - Schedule / Navbar / Profile / Profile / Group 1000006151 / Selected Profile / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "screen": "Cricket Match",
+      "name": "Cricket Match",
+      "folder": "screens/02_Cricket-Match",
+      "json": "screens/02_Cricket-Match/Cricket-Match.json",
+      "warningCount": 13,
+      "truncated": false,
+      "warnings": [
+        {
+          "code": "MULTIPLE_FILLS",
+          "nodeId": "3087:11068",
+          "path": "Cricket Match / Frame 1261154190 / SIGNATURE: MATCH TICKET",
+          "message": "Multiple fills are stacked; verify background layering."
+        },
+        {
+          "code": "MULTIPLE_FILLS",
+          "nodeId": "3087:11100",
+          "path": "Cricket Match / Frame 1261154190 / Frame 1261154793 / SIGNATURE: MATCH TICKET",
+          "message": "Multiple fills are stacked; verify background layering."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "3087:11103",
+          "path": "Cricket Match / Frame 1261154190 / Frame 1261154793 / SIGNATURE: MATCH TICKET / All Icons / Group / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "3087:11104",
+          "path": "Cricket Match / Frame 1261154190 / Frame 1261154793 / SIGNATURE: MATCH TICKET / All Icons / Group / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "3087:11105",
+          "path": "Cricket Match / Frame 1261154190 / Frame 1261154793 / SIGNATURE: MATCH TICKET / All Icons / Group / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "3087:11106",
+          "path": "Cricket Match / Frame 1261154190 / Frame 1261154793 / SIGNATURE: MATCH TICKET / All Icons / Group / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "3087:11107",
+          "path": "Cricket Match / Frame 1261154190 / Frame 1261154793 / SIGNATURE: MATCH TICKET / All Icons / Group / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "I3087:11112;1:3251",
+          "path": "Cricket Match / Frame 1261154190 / Frame 1261154793 / SIGNATURE: MATCH TICKET / ranking / vuesax/linear/ranking / ranking / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "I3087:11112;1:3252",
+          "path": "Cricket Match / Frame 1261154190 / Frame 1261154793 / SIGNATURE: MATCH TICKET / ranking / vuesax/linear/ranking / ranking / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "I3087:11112;1:3253",
+          "path": "Cricket Match / Frame 1261154190 / Frame 1261154793 / SIGNATURE: MATCH TICKET / ranking / vuesax/linear/ranking / ranking / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "I3087:11112;1:3255",
+          "path": "Cricket Match / Frame 1261154190 / Frame 1261154793 / SIGNATURE: MATCH TICKET / ranking / vuesax/linear/ranking / ranking / Group / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "I3087:11112;1:3256",
+          "path": "Cricket Match / Frame 1261154190 / Frame 1261154793 / SIGNATURE: MATCH TICKET / ranking / vuesax/linear/ranking / ranking / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "MULTIPLE_FILLS",
+          "nodeId": "3087:12438",
+          "path": "Cricket Match / Frame 1261154190 / SIGNATURE: MATCH TICKET",
+          "message": "Multiple fills are stacked; verify background layering."
+        }
+      ]
+    },
+    {
+      "index": 3,
+      "screen": "Cricket Match",
+      "name": "Cricket Match",
+      "folder": "screens/03_Cricket-Match",
+      "json": "screens/03_Cricket-Match/Cricket-Match.json",
+      "warningCount": 15,
+      "truncated": false,
+      "warnings": [
+        {
+          "code": "MULTIPLE_FILLS",
+          "nodeId": "3087:11180",
+          "path": "Cricket Match / Frame 1261154190 / Frame 1261154401 / SIGNATURE: MATCH TICKET",
+          "message": "Multiple fills are stacked; verify background layering."
+        },
+        {
+          "code": "MULTIPLE_FILLS",
+          "nodeId": "3087:11199",
+          "path": "Cricket Match / Frame 1261154190 / Frame 1261154401 / Frame 1261154797",
+          "message": "Multiple fills are stacked; verify background layering."
+        },
+        {
+          "code": "MULTIPLE_FILLS",
+          "nodeId": "3087:11200",
+          "path": "Cricket Match / Frame 1261154190 / Frame 1261154401 / Frame 1261154797 / SIGNATURE: MATCH TICKET",
+          "message": "Multiple fills are stacked; verify background layering."
+        },
+        {
+          "code": "MULTIPLE_FILLS",
+          "nodeId": "3087:11225",
+          "path": "Cricket Match / Frame 1261154190 / Frame 1261154401 / Frame 1261154797 / Frame 1261154793 / SIGNATURE: MATCH TICKET",
+          "message": "Multiple fills are stacked; verify background layering."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "3087:11228",
+          "path": "Cricket Match / Frame 1261154190 / Frame 1261154401 / Frame 1261154797 / Frame 1261154793 / SIGNATURE: MATCH TICKET / All Icons / Group / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "3087:11229",
+          "path": "Cricket Match / Frame 1261154190 / Frame 1261154401 / Frame 1261154797 / Frame 1261154793 / SIGNATURE: MATCH TICKET / All Icons / Group / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "3087:11230",
+          "path": "Cricket Match / Frame 1261154190 / Frame 1261154401 / Frame 1261154797 / Frame 1261154793 / SIGNATURE: MATCH TICKET / All Icons / Group / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "3087:11231",
+          "path": "Cricket Match / Frame 1261154190 / Frame 1261154401 / Frame 1261154797 / Frame 1261154793 / SIGNATURE: MATCH TICKET / All Icons / Group / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "3087:11232",
+          "path": "Cricket Match / Frame 1261154190 / Frame 1261154401 / Frame 1261154797 / Frame 1261154793 / SIGNATURE: MATCH TICKET / All Icons / Group / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "MULTIPLE_FILLS",
+          "nodeId": "3087:11397",
+          "path": "Cricket Match / Frame 1261154190 / Frame 1261154796 / Frame 1261154482 / SIGNATURE: MATCH TICKET",
+          "message": "Multiple fills are stacked; verify background layering."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "3087:11400",
+          "path": "Cricket Match / Frame 1261154190 / Frame 1261154796 / Frame 1261154482 / SIGNATURE: MATCH TICKET / All Icons / Group / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "3087:11401",
+          "path": "Cricket Match / Frame 1261154190 / Frame 1261154796 / Frame 1261154482 / SIGNATURE: MATCH TICKET / All Icons / Group / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "3087:11402",
+          "path": "Cricket Match / Frame 1261154190 / Frame 1261154796 / Frame 1261154482 / SIGNATURE: MATCH TICKET / All Icons / Group / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "3087:11403",
+          "path": "Cricket Match / Frame 1261154190 / Frame 1261154796 / Frame 1261154482 / SIGNATURE: MATCH TICKET / All Icons / Group / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "3087:11404",
+          "path": "Cricket Match / Frame 1261154190 / Frame 1261154796 / Frame 1261154482 / SIGNATURE: MATCH TICKET / All Icons / Group / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        }
+      ]
+    },
+    {
+      "index": 4,
+      "screen": "Cricket Match",
+      "name": "Cricket Match",
+      "folder": "screens/04_Cricket-Match",
+      "json": "screens/04_Cricket-Match/Cricket-Match.json",
+      "warningCount": 15,
+      "truncated": false,
+      "warnings": [
+        {
+          "code": "MULTIPLE_FILLS",
+          "nodeId": "3087:11450",
+          "path": "Cricket Match / Frame 1261154190 / Frame 1261154401 / SIGNATURE: MATCH TICKET",
+          "message": "Multiple fills are stacked; verify background layering."
+        },
+        {
+          "code": "MULTIPLE_FILLS",
+          "nodeId": "3087:11469",
+          "path": "Cricket Match / Frame 1261154190 / Frame 1261154401 / Frame 1261154797",
+          "message": "Multiple fills are stacked; verify background layering."
+        },
+        {
+          "code": "MULTIPLE_FILLS",
+          "nodeId": "3087:11470",
+          "path": "Cricket Match / Frame 1261154190 / Frame 1261154401 / Frame 1261154797 / SIGNATURE: MATCH TICKET",
+          "message": "Multiple fills are stacked; verify background layering."
+        },
+        {
+          "code": "MULTIPLE_FILLS",
+          "nodeId": "3087:11495",
+          "path": "Cricket Match / Frame 1261154190 / Frame 1261154401 / Frame 1261154797 / Frame 1261154793 / SIGNATURE: MATCH TICKET",
+          "message": "Multiple fills are stacked; verify background layering."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "3087:11498",
+          "path": "Cricket Match / Frame 1261154190 / Frame 1261154401 / Frame 1261154797 / Frame 1261154793 / SIGNATURE: MATCH TICKET / All Icons / Group / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "3087:11499",
+          "path": "Cricket Match / Frame 1261154190 / Frame 1261154401 / Frame 1261154797 / Frame 1261154793 / SIGNATURE: MATCH TICKET / All Icons / Group / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "3087:11500",
+          "path": "Cricket Match / Frame 1261154190 / Frame 1261154401 / Frame 1261154797 / Frame 1261154793 / SIGNATURE: MATCH TICKET / All Icons / Group / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "3087:11501",
+          "path": "Cricket Match / Frame 1261154190 / Frame 1261154401 / Frame 1261154797 / Frame 1261154793 / SIGNATURE: MATCH TICKET / All Icons / Group / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "3087:11502",
+          "path": "Cricket Match / Frame 1261154190 / Frame 1261154401 / Frame 1261154797 / Frame 1261154793 / SIGNATURE: MATCH TICKET / All Icons / Group / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "MULTIPLE_FILLS",
+          "nodeId": "3087:11687",
+          "path": "Cricket Match / Frame 1261154190 / Frame 1261154796 / Frame 1261154482 / SIGNATURE: MATCH TICKET",
+          "message": "Multiple fills are stacked; verify background layering."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "3087:11690",
+          "path": "Cricket Match / Frame 1261154190 / Frame 1261154796 / Frame 1261154482 / SIGNATURE: MATCH TICKET / All Icons / Group / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "3087:11691",
+          "path": "Cricket Match / Frame 1261154190 / Frame 1261154796 / Frame 1261154482 / SIGNATURE: MATCH TICKET / All Icons / Group / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "3087:11692",
+          "path": "Cricket Match / Frame 1261154190 / Frame 1261154796 / Frame 1261154482 / SIGNATURE: MATCH TICKET / All Icons / Group / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "3087:11693",
+          "path": "Cricket Match / Frame 1261154190 / Frame 1261154796 / Frame 1261154482 / SIGNATURE: MATCH TICKET / All Icons / Group / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "3087:11694",
+          "path": "Cricket Match / Frame 1261154190 / Frame 1261154796 / Frame 1261154482 / SIGNATURE: MATCH TICKET / All Icons / Group / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        }
+      ]
+    }
+  ]
+}
