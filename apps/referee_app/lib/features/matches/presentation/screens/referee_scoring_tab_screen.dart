@@ -76,7 +76,9 @@ class _RefereeScoringTabScreenState extends State<RefereeScoringTabScreen> {
       path: AppRouter.liveScoringPath,
       queryParameters: {
         'matchId': match.id.toString(),
-        'matchCode': match.displayTournament,
+        'matchCode': match.raw['match_code']?.toString() ??
+            match.matchNumber ??
+            match.id.toString(),
       },
     ).toString();
 
@@ -108,8 +110,7 @@ class _RefereeScoringTabScreenState extends State<RefereeScoringTabScreen> {
                 final matches = snapshot.data ?? const [];
                 // Live matches only — pending matches have no score yet and
                 // belong on the Matches tab (verify → toss → start).
-                final displayMatches =
-                    matches.where((m) => m.isLive).toList();
+                final displayMatches = matches.where((m) => m.isLive).toList();
 
                 return RefreshIndicator(
                   color: const Color(0xFFED7B00),
@@ -325,389 +326,381 @@ class _FigmaSpotlightScoringCard extends StatelessWidget {
         final oversText =
             isLoading ? '…' : (liveOversText(score) ?? 'Over - —');
 
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color(0x33B40003), // 20% opacity #b40003
-        gradient: const LinearGradient(
-          colors: [
-            Color(0x0AED7B00),
-            Color(0x0ACF9E24),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(16 * scale),
-        border: Border.all(
-          color: const Color(0x4DF53E02),
-          width: 1.0,
-        ),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x80512813),
-            blurRadius: 8,
-            offset: Offset(0, 1),
+        return Container(
+          decoration: BoxDecoration(
+            color: const Color(0x33B40003), // 20% opacity #b40003
+            gradient: const LinearGradient(
+              colors: [
+                Color(0x0AED7B00),
+                Color(0x0ACF9E24),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(16 * scale),
+            border: Border.all(
+              color: const Color(0x4DF53E02),
+              width: 1.0,
+            ),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x80512813),
+                blurRadius: 8,
+                offset: Offset(0, 1),
+              ),
+            ],
           ),
-        ],
-      ),
-      padding: EdgeInsets.all(10 * scale),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 1. Header: Stage badge, Live Now badge, Overs badge (Frame 1261154267)
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            alignment: Alignment.centerLeft,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  mainAxisSize: MainAxisSize.min,
+          padding: EdgeInsets.all(10 * scale),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 1. Header: Stage badge, Live Now badge, Overs badge (Frame 1261154267)
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // Stage badge: Frame 4 (40x19, radius 10, green fill & border)
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Stage badge: Frame 4 (40x19, radius 10, green fill & border)
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 6 * scale,
+                            vertical: 2 * scale,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF2BB673),
+                            borderRadius: BorderRadius.circular(10 * scale),
+                            border: Border.all(
+                              color: const Color(0xFF2BB673),
+                              width: 1.0,
+                            ),
+                          ),
+                          child: Text(
+                            match.displayRound.isNotEmpty
+                                ? match.displayRound
+                                : 'Final',
+                            style: TextStyle(
+                              fontSize: 11 * scale,
+                              fontWeight: FontWeight.w600,
+                              color: const Color(0xFFFFFFFF),
+                              height: 1.0,
+                            ),
+                          ),
+                        ),
+
+                        SizedBox(width: 6 * scale),
+
+                        // Live Now badge: Frame 2 (radius 10, fill #ffffffcc, red gradient border)
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 6 * scale,
+                            vertical: 2 * scale,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xCCFFFFFF),
+                            borderRadius: BorderRadius.circular(10 * scale),
+                            border: Border.all(
+                              color: const Color(0x4DFE595C),
+                              width: 1.0,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              _PulsingDot(
+                                scale: scale,
+                                color: const Color(0xFFFE464B),
+                              ),
+                              SizedBox(width: 4 * scale),
+                              Text(
+                                'Live Now',
+                                style: TextStyle(
+                                  fontSize: 11 * scale,
+                                  fontWeight: FontWeight.w700,
+                                  color: const Color(0xFFFE464B),
+                                  height: 1.0,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    SizedBox(width: 10 * scale),
+
+                    // Overs badge: Frame 3 (fill #1b233566, radius 8, white text)
                     Container(
                       padding: EdgeInsets.symmetric(
-                        horizontal: 6 * scale,
+                        horizontal: 8 * scale,
                         vertical: 2 * scale,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF2BB673),
-                        borderRadius: BorderRadius.circular(10 * scale),
-                        border: Border.all(
-                          color: const Color(0xFF2BB673),
-                          width: 1.0,
-                        ),
+                        color: const Color(0x661B2335),
+                        borderRadius: BorderRadius.circular(8 * scale),
                       ),
                       child: Text(
-                        match.displayRound.isNotEmpty
-                            ? match.displayRound
-                            : 'Final',
+                        oversText,
                         style: TextStyle(
-                          fontSize: 11 * scale,
+                          fontSize: 14 * scale,
                           fontWeight: FontWeight.w600,
                           color: const Color(0xFFFFFFFF),
                           height: 1.0,
                         ),
                       ),
                     ),
-
-                    SizedBox(width: 6 * scale),
-
-                    // Live Now badge: Frame 2 (radius 10, fill #ffffffcc, red gradient border)
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 6 * scale,
-                        vertical: 2 * scale,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xCCFFFFFF),
-                        borderRadius: BorderRadius.circular(10 * scale),
-                        border: Border.all(
-                          color: const Color(0x4DFE595C),
-                          width: 1.0,
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          _PulsingDot(
-                            scale: scale,
-                            color: const Color(0xFFFE464B),
-                          ),
-                          SizedBox(width: 4 * scale),
-                          Text(
-                            'Live Now',
-                            style: TextStyle(
-                              fontSize: 11 * scale,
-                              fontWeight: FontWeight.w700,
-                              color: const Color(0xFFFE464B),
-                              height: 1.0,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-
-                SizedBox(width: 10 * scale),
-
-                // Overs badge: Frame 3 (fill #1b233566, radius 8, white text)
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 8 * scale,
-                    vertical: 2 * scale,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0x661B2335),
-                    borderRadius: BorderRadius.circular(8 * scale),
-                  ),
-                  child: Text(
-                    oversText,
-                    style: TextStyle(
-                      fontSize: 14 * scale,
-                      fontWeight: FontWeight.w600,
-                      color: const Color(0xFFFFFFFF),
-                      height: 1.0,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          SizedBox(height: 8 * scale),
-
-          // 2. Tournament Name: Crisp white text (Quicksand 16px, FontWeight.w600)
-          Text(
-            match.displayTournament.isNotEmpty
-                ? match.displayTournament
-                : 'Jaipur Super Over',
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: 16 * scale,
-              fontWeight: FontWeight.w600,
-              color: const Color(0xFFFFFFFF),
-              height: 1.2,
-            ),
-          ),
-
-          SizedBox(height: 2 * scale),
-
-          // Venue Row: Frame 1261154297 (Location icon + text)
-          Row(
-            children: [
-              SportoAssetIcon(
-                SportoAssets.locationPin,
-                size: 13 * scale,
-                color: const Color(0xFFAAAAAA),
-              ),
-              SizedBox(width: 4 * scale),
-              Expanded(
-                child: Text(
-                  match.displayVenue.isNotEmpty
-                      ? match.displayVenue
-                      : 'Hyderabad',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 12 * scale,
-                    fontWeight: FontWeight.w500,
-                    color: const Color(0xFFAAAAAA),
-                  ),
-                ),
-              ),
-            ],
-          ),
-
-          SizedBox(height: 8 * scale),
-
-          // 3. Teams & Scores Matchup: Frame 1000006156 (Team A Score Vs Team B Score)
-          Row(
-            children: [
-              // Team A
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text(
-                      match.displayTeamA.isNotEmpty
-                          ? match.displayTeamA
-                          : 'Thunder Titans',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 14 * scale,
-                        fontWeight: FontWeight.w600,
-                        color: const Color(0xFFFFFFFF),
-                      ),
-                    ),
-                    SizedBox(height: 2 * scale),
-                    Text(
-                      teamAScore,
-                      style: TextStyle(
-                        fontSize: 14 * scale,
-                        fontWeight: FontWeight.w700,
-                        color: const Color(0xFFFFFFFF),
-                      ),
-                    ),
                   ],
                 ),
               ),
 
-              // "Vs" separator
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 10 * scale),
-                child: Text(
-                  'Vs',
-                  style: TextStyle(
-                    fontSize: 12 * scale,
-                    fontWeight: FontWeight.w700,
-                    color: const Color(0xFFAAAAAA),
-                  ),
+              SizedBox(height: 8 * scale),
+
+              // 2. Tournament Name: Crisp white text (Quicksand 16px, FontWeight.w600)
+              Text(
+                match.displayTournament,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 16 * scale,
+                  fontWeight: FontWeight.w600,
+                  color: const Color(0xFFFFFFFF),
+                  height: 1.2,
                 ),
               ),
 
-              // Team B
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text(
-                      match.displayTeamB.isNotEmpty
-                          ? match.displayTeamB
-                          : 'Royal Strikers',
+              SizedBox(height: 2 * scale),
+
+              // Venue Row: Frame 1261154297 (Location icon + text)
+              Row(
+                children: [
+                  SportoAssetIcon(
+                    SportoAssets.locationPin,
+                    size: 13 * scale,
+                    color: const Color(0xFFAAAAAA),
+                  ),
+                  SizedBox(width: 4 * scale),
+                  Expanded(
+                    child: Text(
+                      match.displayVenue,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 14 * scale,
-                        fontWeight: FontWeight.w600,
-                        color: const Color(0xFFFFFFFF),
-                      ),
-                    ),
-                    SizedBox(height: 2 * scale),
-                    Text(
-                      teamBScore,
                       style: TextStyle(
                         fontSize: 12 * scale,
                         fontWeight: FontWeight.w500,
                         color: const Color(0xFFAAAAAA),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
-          ),
 
-          SizedBox(height: 8 * scale),
+              SizedBox(height: 8 * scale),
 
-          // 4. Divider Line 7 (Line 7: 0.8px, #283040)
-          Container(
-            height: 0.8 * scale,
-            color: const Color(0xFF283040),
-          ),
-
-          SizedBox(height: 6 * scale),
-
-          // 5. Current Batter & Current Bowler: Frame 1261154327
-          Row(
-            children: [
-              Expanded(
-                child: Text.rich(
-                  TextSpan(
-                    style: TextStyle(
-                      fontSize: 12 * scale,
-                      color: const Color(0xFFAAAAAA),
-                    ),
-                    children: [
-                      const TextSpan(text: 'Current Batter: '),
-                      TextSpan(
-                        text: batterName,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFFFFFFFF),
-                        ),
-                      ),
-                    ],
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              SizedBox(width: 8 * scale),
-              Expanded(
-                child: Text.rich(
-                  TextSpan(
-                    style: TextStyle(
-                      fontSize: 12 * scale,
-                      color: const Color(0xFFAAAAAA),
-                    ),
-                    children: [
-                      const TextSpan(text: 'Current Bowler: '),
-                      TextSpan(
-                        text: bowlerLabel,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFFFFFFFF),
-                        ),
-                      ),
-                    ],
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.right,
-                ),
-              ),
-            ],
-          ),
-
-          SizedBox(height: 6 * scale),
-
-          // 6. Divider Line 8 (Line 8: 0.8px, #283040)
-          Container(
-            height: 0.8 * scale,
-            color: const Color(0xFF283040),
-          ),
-
-          SizedBox(height: 8 * scale),
-
-          // 7. Footer Row: "Continue Scoring" button (duration removed — no
-          // API source; a fake timer is worse than no timer)
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              // Button: Frame 1261154253 (134x30, radius 10, orange/red gradient)
-              Container(
-                height: 30 * scale,
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [
-                      Color(0xFFDF3F00),
-                      Color(0xFFF65800),
-                    ],
-                  ),
-                  borderRadius: BorderRadius.circular(10 * scale),
-                  border: Border.all(
-                    color: const Color(0x4DF53E02),
-                    width: 0.8,
-                  ),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Color(0x1A4F0E00),
-                      blurRadius: 6,
-                      offset: Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    key: const ValueKey('continue_scoring_btn'),
-                    onTap: onContinueScoring,
-                    borderRadius: BorderRadius.circular(10 * scale),
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 14 * scale,
-                      ),
-                      child: Center(
-                        child: Text(
-                          'Continue Scoring',
+              // 3. Teams & Scores Matchup: Frame 1000006156 (Team A Score Vs Team B Score)
+              Row(
+                children: [
+                  // Team A
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          match.displayTeamA,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            fontSize: 12 * scale,
+                            fontSize: 14 * scale,
                             fontWeight: FontWeight.w600,
                             color: const Color(0xFFFFFFFF),
-                            height: 1.0,
+                          ),
+                        ),
+                        SizedBox(height: 2 * scale),
+                        Text(
+                          teamAScore,
+                          style: TextStyle(
+                            fontSize: 14 * scale,
+                            fontWeight: FontWeight.w700,
+                            color: const Color(0xFFFFFFFF),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // "Vs" separator
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 10 * scale),
+                    child: Text(
+                      'Vs',
+                      style: TextStyle(
+                        fontSize: 12 * scale,
+                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFFAAAAAA),
+                      ),
+                    ),
+                  ),
+
+                  // Team B
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          match.displayTeamB,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 14 * scale,
+                            fontWeight: FontWeight.w600,
+                            color: const Color(0xFFFFFFFF),
+                          ),
+                        ),
+                        SizedBox(height: 2 * scale),
+                        Text(
+                          teamBScore,
+                          style: TextStyle(
+                            fontSize: 12 * scale,
+                            fontWeight: FontWeight.w500,
+                            color: const Color(0xFFAAAAAA),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+
+              SizedBox(height: 8 * scale),
+
+              // 4. Divider Line 7 (Line 7: 0.8px, #283040)
+              Container(
+                height: 0.8 * scale,
+                color: const Color(0xFF283040),
+              ),
+
+              SizedBox(height: 6 * scale),
+
+              // 5. Current Batter & Current Bowler: Frame 1261154327
+              Row(
+                children: [
+                  Expanded(
+                    child: Text.rich(
+                      TextSpan(
+                        style: TextStyle(
+                          fontSize: 12 * scale,
+                          color: const Color(0xFFAAAAAA),
+                        ),
+                        children: [
+                          const TextSpan(text: 'Current Batter: '),
+                          TextSpan(
+                            text: batterName,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFFFFFFFF),
+                            ),
+                          ),
+                        ],
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  SizedBox(width: 8 * scale),
+                  Expanded(
+                    child: Text.rich(
+                      TextSpan(
+                        style: TextStyle(
+                          fontSize: 12 * scale,
+                          color: const Color(0xFFAAAAAA),
+                        ),
+                        children: [
+                          const TextSpan(text: 'Current Bowler: '),
+                          TextSpan(
+                            text: bowlerLabel,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFFFFFFFF),
+                            ),
+                          ),
+                        ],
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.right,
+                    ),
+                  ),
+                ],
+              ),
+
+              SizedBox(height: 6 * scale),
+
+              // 6. Divider Line 8 (Line 8: 0.8px, #283040)
+              Container(
+                height: 0.8 * scale,
+                color: const Color(0xFF283040),
+              ),
+
+              SizedBox(height: 8 * scale),
+
+              // 7. Footer Row: "Continue Scoring" button (duration removed — no
+              // API source; a fake timer is worse than no timer)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  // Button: Frame 1261154253 (134x30, radius 10, orange/red gradient)
+                  Container(
+                    height: 30 * scale,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [
+                          Color(0xFFDF3F00),
+                          Color(0xFFF65800),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(10 * scale),
+                      border: Border.all(
+                        color: const Color(0x4DF53E02),
+                        width: 0.8,
+                      ),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Color(0x1A4F0E00),
+                          blurRadius: 6,
+                          offset: Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        key: const ValueKey('continue_scoring_btn'),
+                        onTap: onContinueScoring,
+                        borderRadius: BorderRadius.circular(10 * scale),
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 14 * scale,
+                          ),
+                          child: Center(
+                            child: Text(
+                              'Continue Scoring',
+                              style: TextStyle(
+                                fontSize: 12 * scale,
+                                fontWeight: FontWeight.w600,
+                                color: const Color(0xFFFFFFFF),
+                                height: 1.0,
+                              ),
+                            ),
                           ),
                         ),
                       ),
                     ),
                   ),
-                ),
+                ],
               ),
             ],
           ),
-        ],
-      ),
-    );
+        );
       },
     );
   }
@@ -1055,4 +1048,3 @@ class _GradientText extends StatelessWidget {
     );
   }
 }
-
