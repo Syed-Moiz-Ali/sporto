@@ -1,0 +1,17 @@
+- generic [ref=f23e5] [cursor=pointer]:
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - button "Back" [active] [ref=f23e90]
+          - generic [ref=f23e91]: Wallet Transaction
+          - group:
+            - button "All All" [ref=f23e92]
+            - button "Earnings Earnings" [ref=f23e93]
+            - button "Withdrawals Withdrawals" [ref=f23e94]
+          - button "Sort" [ref=f23e95]
+          - generic:
+            - group:
+              - button "Match Fee - SP-10245, Hyderabad Corporate Cricket Tournament, Paid, 14 Nov 2026, 6:30 PM, +₹ 1,500 Match Fee - SP-10245 Hyderabad Corporate Cricket Tournament Paid 14 Nov 2026, 6:30 PM +₹ 1,500" [ref=f23e96]
+              - button "Withdrawal to HDFC Bank, Bank payout request, Processing, 12 Nov 2026, 10:15 AM, -₹ 2,500 Withdrawal to HDFC Bank Bank payout request Processing 12 Nov 2026, 10:15 AM -₹ 2,500" [ref=f23e98]
+              - button "Match Fee - SP-4197, 1017 T Cricket League, Paid, 08 Nov 2026, 8:05 PM, +₹ 2,000 Match Fee - SP-4197 1017 T Cricket League Paid 08 Nov 2026, 8:05 PM +₹ 2,000" [ref=f23e100]

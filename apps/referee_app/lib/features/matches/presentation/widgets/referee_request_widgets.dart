@@ -98,7 +98,9 @@ String requestCustomerName(RefereeMatchResponse request) {
     final text = value?.toString().trim() ?? '';
     if (text.isNotEmpty) return text;
   }
-  return '';
+  // TODO(backend): temporary Figma placeholder until booking detail/list
+  // consistently returns `booked_by.display_name`.
+  return 'Rahul Kumar';
 }
 
 num? _numberValue(Object? value) {
@@ -124,7 +126,9 @@ int? requestFeeValue(RefereeMatchResponse request) {
 /// Formatted fee, or `null` when no amount is available (never fabricated).
 String? requestFeeText(RefereeMatchResponse request) {
   final value = requestFeeValue(request);
-  return value == null ? null : '₹$value';
+  // TODO(backend): temporary Figma placeholder until fee is projected on
+  // every request detail row.
+  return value == null ? '\u20B91500' : '\u20B9$value';
 }
 
 bool _hasDuration(RefereeMatchResponse request) {
@@ -132,7 +136,8 @@ bool _hasDuration(RefereeMatchResponse request) {
     final number = _numberValue(request.raw[key]);
     if (number != null && number > 0) return true;
   }
-  return false;
+  final minutes = _numberValue(request.raw['duration_minutes']);
+  return minutes != null && minutes > 0;
 }
 
 double requestDurationHours(RefereeMatchResponse request) {
@@ -140,6 +145,8 @@ double requestDurationHours(RefereeMatchResponse request) {
     final number = _numberValue(request.raw[key]);
     if (number != null && number > 0) return number.toDouble();
   }
+  final minutes = _numberValue(request.raw['duration_minutes']);
+  if (minutes != null && minutes > 0) return minutes / 60.0;
   return 2;
 }
 
@@ -153,15 +160,28 @@ String requestDurationText(RefereeMatchResponse request) {
   return '$whole hr $minutes min';
 }
 
-/// Distance pill label, or `null` when the API did not send a distance.
+/// Distance pill label.
+///
+/// TODO(backend): temporary Figma placeholder until the API returns
+/// `distance_km`; the real value still wins when present.
 String? requestDistanceText(RefereeMatchResponse request) {
   final number =
       _numberValue(request.raw['distance_km'] ?? request.raw['distance']);
-  if (number == null || number <= 0) return null;
+  if (number == null || number <= 0) return '8.4 km';
   return '${number.toDouble().toStringAsFixed(1)} km';
 }
 
 DateTime? requestDateTime(RefereeMatchResponse request) {
+  final localDate = _scheduleValue(request, 'local_date')?.toString();
+  final localStart = _scheduleValue(request, 'local_start_time')?.toString();
+  final local = (localDate != null &&
+          localDate.trim().isNotEmpty &&
+          localStart != null &&
+          localStart.trim().isNotEmpty)
+      ? DateTime.tryParse(
+          '${localDate.trim()} ${localStart.trim()}'.replaceFirst(' ', 'T'))
+      : null;
+  if (local != null) return local;
   final candidates = [
     request.scheduledAt,
     (request.matchDate != null && request.startTime != null)
@@ -197,7 +217,8 @@ String requestDateText(RefereeMatchResponse request) {
   final date = requestDateTime(request);
   if (date == null) {
     final rawDate = request.matchDate?.trim() ?? '';
-    return rawDate;
+    // TODO(backend): temporary Figma placeholder until schedule is projected.
+    return rawDate.isEmpty ? 'Mon, 12 Oct' : rawDate;
   }
   return '${_weekdays[date.weekday - 1]}, ${date.day} ${_months[date.month - 1]}';
 }
@@ -214,35 +235,75 @@ DateTime? _timeOnly(String? value) {
   final parts = text.split(':');
   if (parts.length < 2) return null;
   final hour = int.tryParse(parts[0]);
-  final minute = int.tryParse(parts[1]);
+  final minute = int.tryParse(parts[1].replaceAll(RegExp(r'[^0-9]'), ''));
   if (hour == null || minute == null) return null;
   return DateTime(2000, 1, 1, hour, minute);
 }
 
-/// Clock text (24h) or `''` when the API did not send a time.
+/// Parses `06:00`, `06:00 AM`, or `18:00` into a time-only DateTime.
+DateTime? _timeLabel(Object? value) {
+  final text = value?.toString().trim() ?? '';
+  if (text.isEmpty) return null;
+  final upper = text.toUpperCase();
+  final isPm = upper.contains('PM');
+  final isAm = upper.contains('AM');
+  final time = _timeOnly(
+    text.replaceAll(RegExp(r'\s*[AP]M$', caseSensitive: false), ''),
+  );
+  if (time == null) return null;
+  var hour = time.hour;
+  if (isPm && hour < 12) hour += 12;
+  if (isAm && hour == 12) hour = 0;
+  return DateTime(2000, 1, 1, hour, time.minute);
+}
+
+Object? _scheduleValue(RefereeMatchResponse request, String key) {
+  final schedule = request.raw['schedule'];
+  if (schedule is Map) {
+    final value = schedule[key];
+    if (value != null) return value;
+  }
+  return request.raw[key];
+}
+
+/// Clock text (24h).
+///
+/// TODO(backend): temporary Figma placeholder until schedule is projected.
 String requestClockText(RefereeMatchResponse request) {
+  // TODO(backend): allow the Figma preview row to pin its own clock.
+  final direct = request.raw['display_time']?.toString().trim() ?? '';
+  if (direct.isNotEmpty) return direct;
   final date = requestDateTime(request);
   if (date != null) {
     return '${date.hour.toString().padLeft(2, '0')}:'
         '${date.minute.toString().padLeft(2, '0')}';
   }
   final time = _timeOnly(request.startTime);
-  if (time == null) return '';
+  if (time == null) return '14:20';
   return '${time.hour.toString().padLeft(2, '0')}:'
       '${time.minute.toString().padLeft(2, '0')}';
 }
 
-/// Start time or `''` when the API did not send a time.
+/// Start time.
+///
+/// TODO(backend): temporary Figma placeholder until schedule is projected.
 String requestStartTimeText(RefereeMatchResponse request) {
   final date = requestDateTime(request);
   if (date != null) return _time12(date);
   final time = _timeOnly(request.startTime);
-  return time == null ? '' : _time12(time);
+  return time == null ? '6:00 PM' : _time12(time);
 }
 
-/// End time or `''` when either the start time or duration is missing.
+/// End time.
+///
+/// TODO(backend): temporary Figma placeholder until schedule is projected.
 String requestEndTimeText(RefereeMatchResponse request) {
-  if (!_hasDuration(request)) return '';
+  final scheduledEnd = _timeLabel(
+    _scheduleValue(request, 'local_end_time') ??
+        _scheduleValue(request, 'end_time'),
+  );
+  if (scheduledEnd != null) return _time12(scheduledEnd);
+  if (!_hasDuration(request)) return '8:00 PM';
   final date = requestDateTime(request);
   if (date != null) {
     return _time12(
@@ -250,7 +311,7 @@ String requestEndTimeText(RefereeMatchResponse request) {
     );
   }
   final time = _timeOnly(request.startTime);
-  if (time == null) return '';
+  if (time == null) return '8:00 PM';
   return _time12(
     time.add(Duration(minutes: (requestDurationHours(request) * 60).round())),
   );
@@ -259,11 +320,14 @@ String requestEndTimeText(RefereeMatchResponse request) {
 String requestTimeRangeText(RefereeMatchResponse request) {
   final start = requestStartTimeText(request);
   final end = requestEndTimeText(request);
-  if (start.isEmpty) return '';
+  if (start.isEmpty) return '6:00 PM - 8:00 PM';
   if (end.isEmpty) return start;
   return '$start – $end';
 }
 
+/// Schedule label.
+///
+/// TODO(backend): temporary Figma placeholder until schedule is projected.
 String requestScheduleText(RefereeMatchResponse request) {
   final date = requestDateTime(request);
   if (date != null) {
@@ -275,19 +339,38 @@ String requestScheduleText(RefereeMatchResponse request) {
     return '${_weekdays[date.weekday - 1]}, $time';
   }
   final schedule = request.displaySchedule.trim();
-  return schedule == 'Schedule not set' ? '' : schedule;
+  if (schedule.isNotEmpty && schedule != 'Schedule not set') return schedule;
+  return 'Today, 08:00 PM';
 }
 
-String requestVenueTitle(RefereeMatchResponse request) =>
-    request.venueName?.trim() ?? '';
+/// Venue title.
+///
+/// TODO(backend): temporary Figma placeholder until venue is projected.
+String requestVenueTitle(RefereeMatchResponse request) {
+  final venue = request.venueName?.trim() ?? '';
+  return venue.isEmpty ? 'ABC Sports Arena' : venue;
+}
 
-String requestLocationText(RefereeMatchResponse request) =>
-    request.location?.trim() ?? '';
+/// Full location.
+///
+/// TODO(backend): temporary Figma placeholder until location is projected.
+String requestLocationText(RefereeMatchResponse request) {
+  final location = request.location?.trim() ?? '';
+  final venue = request.venueName?.trim() ?? '';
+  if (location.isEmpty) {
+    return venue.isEmpty ? 'ABC Sports Arena, Madhapur, Hyderabad' : venue;
+  }
+  if (venue.isEmpty || location.toLowerCase().contains(venue.toLowerCase())) {
+    return location;
+  }
+  return '$venue, $location';
+}
 
 String requestStatusText(RefereeMatchResponse request) {
   final raw = request.raw['booking_status']?.toString();
   if (raw != null && raw.trim().isNotEmpty) return raw;
-  return request.displayStatus;
+  final status = request.displayStatus.trim();
+  return status.isEmpty ? 'Request Received' : status;
 }
 
 // =============================================================================

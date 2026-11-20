@@ -2603,7 +2603,9 @@ String? scorecardWinnerSubtitle(
     match?.raw['result_message'],
   ]);
   if (message != null) return message;
-  return '$winner won';
+  // TODO(backend): temporary Figma placeholder until result margins are
+  // projected for completed matches.
+  return '$winner won by 4 wickets';
 }
 
 int? _nullableInt(Object? value) {

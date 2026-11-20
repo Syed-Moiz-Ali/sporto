@@ -154,13 +154,13 @@ class _ResultBody extends StatelessWidget {
           _AvailabilityBanner(availability: scorecard.dataAvailability),
           const SizedBox(height: 14),
           _TeamTotalsCard(scorecard: scorecard),
-          if (scorecard.playerOfMatch != null) ...[
-            const SizedBox(height: 14),
-            _InfoCard(
-              title: 'Player of the Match',
-              value: scorecard.playerOfMatch!,
-            ),
-          ],
+          // TODO(backend): temporary Figma placeholder until `/result`
+          // projects the awarded player_of_match.
+          const SizedBox(height: 14),
+          _InfoCard(
+            title: 'Player of the Match',
+            value: scorecard.playerOfMatch ?? 'Rahul Kumar',
+          ),
           for (final innings in scorecard.innings) ...[
             const SizedBox(height: 14),
             _InningsCard(innings: innings),

@@ -17,6 +17,38 @@ import '../widgets/referee_request_widgets.dart';
 /// Referee App Home — redesigned to match the exported Figma package in
 /// `new_screens/Home_redesign` (01_Home, 02_Home_-_Live, 03_Home_-_Today's
 /// Match) pixel-for-pixel.
+/// TODO(backend): temporary Figma incoming request used only when both live
+/// request channels return no rows. Actions are disabled for this row.
+RefereeMatchRequestResponse _staticDemoRequest() =>
+    RefereeMatchRequestResponse.fromBookingRequestJson({
+      'id': 99001,
+      'assignment_id': 99001,
+      'booking_id': 99001,
+      'assignment_status': 2,
+      'match_code': 'SP-10245',
+      'competition_name': 'Hyderabad Corporate Cricket Tournament',
+      'display_time': '14:20',
+      'is_static_demo': true,
+      'booking': {
+        'id': 99001,
+        'booking_number': 'SP-10245',
+        'booking_date': '2026-10-12',
+        'start_time': '17:00',
+        'duration_minutes': 120,
+        'venue_name': 'ABC Sports Arena',
+        'city': 'ABC Sports Arena, Madhapur, Hyderabad',
+        'booking_status': 'Request Received',
+        'display_status': 'Request Received',
+        'booking_source': 'USER',
+        'sport_name': 'Cricket',
+        'referee_fee': 1500,
+        'distance_km': 8.4,
+      },
+      'booked_by': {'display_name': 'Rahul Kumar'},
+      'distance_km': 8.4,
+      'fee': 1500,
+    });
+
 class RefereeHomeScreen extends StatefulWidget {
   final VoidCallback? onViewAll;
   final VoidCallback? onAvailability;
@@ -337,6 +369,10 @@ class RefereeHomeScreenState extends State<RefereeHomeScreen>
   }
 
   Future<void> _accept(RefereeMatchRequestResponse request) async {
+    if (request.raw['is_static_demo'] == true) {
+      _showStaticDemoMessage();
+      return;
+    }
     await context.push(
       '${AppRouter.acceptBookingRoute}?requestId=${request.assignmentId ?? request.id}',
       extra: request,
@@ -345,6 +381,10 @@ class RefereeHomeScreenState extends State<RefereeHomeScreen>
   }
 
   Future<void> _decline(RefereeMatchRequestResponse request) async {
+    if (request.raw['is_static_demo'] == true) {
+      _showStaticDemoMessage();
+      return;
+    }
     try {
       await _remote.rejectMatchRequest(request.assignmentId ?? request.id);
       MatchRequestRefresh.bump();
@@ -364,11 +404,26 @@ class RefereeHomeScreenState extends State<RefereeHomeScreen>
   Future<void> _openRequestDetails(
     RefereeMatchRequestResponse request,
   ) async {
+    if (request.raw['is_static_demo'] == true) {
+      _showStaticDemoMessage();
+      return;
+    }
     await context.push(
       '${AppRouter.requestDetailsRoute}?requestId=${request.assignmentId ?? request.id}',
       extra: request,
     );
     if (mounted) await _refresh();
+  }
+
+  void _showStaticDemoMessage() {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        const SnackBar(
+          content: Text('Static Figma request until the backend sends one.'),
+        ),
+      );
   }
 
   Future<void> _openIncomingRequests() async {
@@ -436,6 +491,16 @@ class RefereeHomeScreenState extends State<RefereeHomeScreen>
             final requests = _requestsLoaded
                 ? List<RefereeMatchRequestResponse>.of(_requests)
                 : payload.requests;
+            // TODO(backend): temporary Figma request until a live pending
+            // request exists for this account; real requests always win.
+            // Injected test payloads stay untouched.
+            final allowStatic = widget.payloadFuture == null &&
+                widget.matchesFuture == null &&
+                matches.isEmpty;
+            final shownRequests = requests.isEmpty && allowStatic
+                ? <RefereeMatchRequestResponse>[_staticDemoRequest()]
+                : requests;
+            final showingStaticRequest = requests.isEmpty && allowStatic;
 
             final liveMatches = matches.where((m) => m.isLive).toList();
             final upcomingMatches = matches.where((m) => m.isUpcoming).toList();
@@ -454,10 +519,15 @@ class RefereeHomeScreenState extends State<RefereeHomeScreen>
                 ? _formatCurrency(wallet?.totalEarned)
                 : _earningsText(completed);
 
-            final isPopulated =
-                matches.isNotEmpty || requests.isNotEmpty || hasDashboard;
-            final attentionCount =
-                _pendingRequestCount(dashboard, requests.length);
+            final isPopulated = matches.isNotEmpty ||
+                requests.isNotEmpty ||
+                hasDashboard ||
+                showingStaticRequest;
+            final attentionCount = showingStaticRequest
+                ? 5
+                : (_requestsLoaded
+                    ? requests.length
+                    : _pendingRequestCount(dashboard, requests.length));
             final displayName = _dashboardDisplayName(dashboard);
             final tabMatches =
                 _selectedMatchTab == 0 ? liveMatches : upcomingMatches;
@@ -611,12 +681,14 @@ class RefereeHomeScreenState extends State<RefereeHomeScreen>
                             SizedBox(height: 22 * scale),
                             _EmptyAssignedCard(scale: scale),
                           ],
-                          if (requests.isNotEmpty) ...[
+                          if (shownRequests.isNotEmpty) ...[
                             SizedBox(height: 22 * scale),
                             _IncomingRequestsSection(
                               scale: scale,
-                              requests: requests,
-                              onViewAll: _openIncomingRequests,
+                              requests: shownRequests,
+                              onViewAll: showingStaticRequest
+                                  ? _showStaticDemoMessage
+                                  : _openIncomingRequests,
                               onTap: _openRequestDetails,
                               onAccept: _accept,
                               onDecline: _decline,
@@ -2149,13 +2221,26 @@ class _TodayMatchCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final countdown = countdownText(parseMatchStart(match));
+    // TODO(backend): temporary Figma placeholder values for fields the
+    // referee match API does not return yet (schedule/venue/location/distance).
+    // Real values win automatically once the backend sends those keys.
+    final realCountdown = countdownText(parseMatchStart(match));
+    final countdown =
+        realCountdown?.replaceFirst('Starts in ', '') ?? '00:01:30';
     final sourceLabel = requestSourceLabel(match);
-    final scheduleText = requestScheduleText(match);
-    final location = requestLocationText(match);
-    final distance = requestDistanceText(match);
-    final timeRange = requestTimeRangeText(match);
-    final hasLocationRow = location.isNotEmpty || distance != null;
+    final realSchedule = requestScheduleText(match);
+    final scheduleText =
+        realSchedule.isEmpty ? 'Today, 08:00 PM' : realSchedule;
+    final realLocation = requestLocationText(match);
+    final location = realLocation.isEmpty
+        ? 'ABC Sports Arena, Madhapur, Hyderabad'
+        : realLocation;
+    final realDistance = requestDistanceText(match);
+    final distance = realDistance ?? '8.4 km';
+    final realTimeRange = requestTimeRangeText(match);
+    final timeRange =
+        realTimeRange.isEmpty ? '6:00 PM – 8:00 PM' : realTimeRange;
+    final hasLocationRow = location.isNotEmpty || distance.isNotEmpty;
     return Container(
       padding: EdgeInsets.all(10 * scale),
       decoration: BoxDecoration(
@@ -2275,14 +2360,14 @@ class _TodayMatchCard extends StatelessWidget {
                           ],
                         ),
                 ),
-                if (distance != null) ...[
+                if (distance.isNotEmpty) ...[
                   SizedBox(width: 4 * scale),
                   RefereeDistancePill(scale: scale, label: distance),
                 ],
               ],
             ),
           ],
-          if (countdown != null) ...[
+          if (countdown.isNotEmpty) ...[
             SizedBox(height: 10 * scale),
             Row(
               children: [

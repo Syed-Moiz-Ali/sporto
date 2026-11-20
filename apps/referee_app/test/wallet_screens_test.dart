@@ -622,7 +622,8 @@ void main() {
       expect(find.text('Retry'), findsOneWidget);
     });
 
-    testWidgets('renders only the fields supplied by the API', (tester) async {
+    testWidgets('fills Figma fields the API does not supply yet',
+        (tester) async {
       setSurface(tester);
       await pumpScreen(
         tester,
@@ -652,8 +653,12 @@ void main() {
       expect(find.text('T-1001'), findsOneWidget);
       expect(find.text('INR'), findsOneWidget);
       expect(find.text('Cancelled Cup'), findsNothing);
-      expect(find.textContaining('Teams'), findsNothing);
-      expect(find.textContaining('Venue'), findsNothing);
+      // TODO(backend): remove when tournament rows expose these fields.
+      expect(find.textContaining('Teams'), findsWidgets);
+      expect(find.text('Venue'), findsOneWidget);
+      expect(find.text('Date'), findsOneWidget);
+      expect(find.text('Level'), findsOneWidget);
+      expect(find.text('Earnings'), findsWidgets);
 
       await tester.tap(find.text('Cancelled'));
       await tester.pump();

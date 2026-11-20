@@ -1,0 +1,47 @@
+- generic [ref=f25e5]:
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - group [active]:
+            - generic [ref=f25e6]: Good Morning
+            - generic [ref=f25e7]: Test Partner
+            - button "Wallet 0" [ref=f25e8]
+            - button "Notification settings" [ref=f25e11]
+            - generic [ref=f25e13]: Search cricket, football..
+            - generic [ref=f25e15]: Referee Status
+            - generic [ref=f25e16]: "On"
+            - switch "Referee availability" [checked] [ref=f25e17]
+            - generic [ref=f25e18]: Ready for your next match
+            - generic [ref=f25e19]: New referee requests can reach you.
+            - button "Availability" [ref=f25e20]
+            - button "Needs Your Attention 5 pending requests" [ref=f25e21]
+            - generic [ref=f25e22]: Wallet Balance
+            - button "Withdraw from wallet Withdraw" [ref=f25e23]
+            - generic [ref=f25e24]: ₹0
+            - generic [ref=f25e25]: ₹0 Total earned
+            - generic [ref=f25e26]: ₹0 Pending
+            - generic [ref=f25e27]: "0"
+            - generic [ref=f25e28]: "2"
+            - generic [ref=f25e29]: "2"
+            - generic [ref=f25e30]: ₹0
+            - generic [ref=f25e31]: Live Now
+            - generic [ref=f25e32]: Upcoming
+            - generic [ref=f25e33]: Completed
+            - generic [ref=f25e34]: Earnings
+            - button "Live Now" [ref=f25e35]
+            - button "Today's Match" [ref=f25e36]
+            - generic:
+              - group:
+                - group "Upcoming By Partner Today, 08:00 PM Cricket SP-4197 1017 T Cricket League ABC Sports Arena, Madhapur, Hyderabad 8.4 km Starts in 00:01:30 At 6:00 PM – 8:00 PM START SESSION" [ref=f25e37]
+                - group "Upcoming By Partner Today, 08:00 PM Cricket SP-4195 1017 T Cricket League ABC Sports Arena, Madhapur, Hyderabad 8.4 km Starts in 00:01:30 At 6:00 PM – 8:00 PM START SESSION" [ref=f25e41]
+            - generic [ref=f25e44]: Incoming Requests (1)
+            - button "View All" [ref=f25e45]
+            - group "Cricket SP-10245 by User 14:20 Rahul Kumar Hyderabad Corporate Cricket Tournament Mon, 12 Oct 5:00 PM – 7:00 PM ABC Sports Arena, Madhapur, Hyderabad 8.4 km ₹1500" [ref=f25e46]:
+              - button "Accept" [ref=f25e50]
+              - button "Decline" [ref=f25e51]
+            - generic [ref=f25e52]: Ads Banner
+          - button "Home Home" [ref=f25e54]
+          - button "Matches Matches" [ref=f25e55]
+          - button "Scoring Scoring" [ref=f25e56]
+          - button "Profile Profile" [ref=f25e57]

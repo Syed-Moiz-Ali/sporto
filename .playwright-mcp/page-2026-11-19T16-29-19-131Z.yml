@@ -1,0 +1,47 @@
+- generic [active] [ref=e5]:
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - group:
+            - generic [ref=e6]: Good Evening
+            - generic [ref=e7]: Test Partner
+            - button "Wallet 0" [ref=e8]
+            - button "Notification settings" [ref=e11]
+            - generic [ref=e13]: Search cricket, football..
+            - generic [ref=e15]: Referee Status
+            - generic [ref=e16]: "On"
+            - switch "Referee availability" [checked] [ref=e17]
+            - generic [ref=e18]: Ready for your next match
+            - generic [ref=e19]: New referee requests can reach you.
+            - button "Availability" [ref=e20]
+            - button "Needs Your Attention 5 pending requests" [ref=e21]
+            - generic [ref=e22]: Wallet Balance
+            - button "Withdraw from wallet Withdraw" [ref=e23]
+            - generic [ref=e24]: ₹0
+            - generic [ref=e25]: ₹0 Total earned
+            - generic [ref=e26]: ₹0 Pending
+            - generic [ref=e27]: "0"
+            - generic [ref=e28]: "5"
+            - generic [ref=e29]: "2"
+            - generic [ref=e30]: ₹0
+            - generic [ref=e31]: Live Now
+            - generic [ref=e32]: Upcoming
+            - generic [ref=e33]: Completed
+            - generic [ref=e34]: Earnings
+            - button "Live Now" [ref=e35]
+            - button "Today's Match" [ref=e36]
+            - generic:
+              - group:
+                - group "Upcoming By Partner Wed, 7:00 AM Cricket SP-4206 SPORTO Referee Submit QA 2026-11-19 Kukatpally, Hyderabad 8.4 km Starts in Starts in 5d At 7:00 AM – 8:00 PM START SESSION" [ref=e37]
+                - group "Upcoming By Partner Wed, 5:15 AM Cricket SP-4205 SPORTO Referee Submit QA 2026-11-19 Kukatpally, Hyderabad 8.4 km Starts in Starts in 5d At 5:15 AM – 8:00 PM START SESSION" [ref=e41]
+            - generic [ref=e43]: Incoming Requests (1)
+            - button "View All" [ref=e44]
+            - group "Cricket SP-10245 by User 14:20 Rahul Kumar Hyderabad Corporate Cricket Tournament Mon, 12 Oct 5:00 PM – 7:00 PM ABC Sports Arena, Madhapur, Hyderabad 8.4 km ₹1500" [ref=e45]:
+              - button "Accept" [ref=e49]
+              - button "Decline" [ref=e50]
+            - generic [ref=e51]: Ads Banner
+          - button "Home Home" [ref=e53]
+          - button "Matches Matches" [ref=e54]
+          - button "Scoring Scoring" [ref=e55]
+          - button "Profile Profile" [ref=e56]

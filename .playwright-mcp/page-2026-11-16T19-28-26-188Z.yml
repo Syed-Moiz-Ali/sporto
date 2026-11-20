@@ -1,0 +1,16 @@
+- generic [ref=f23e5]:
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - button "Back" [active] [ref=f23e79]
+          - generic [ref=f23e80]: Wallet Transaction
+          - button "Add bank Add bank" [ref=f23e81]
+          - generic:
+            - group:
+              - button "Wallet balance ₹ 0 Withdraw Withdraw" [ref=f23e82]
+              - generic [ref=f23e84]: ₹ 0 Pending Settlement ₹ 0 Total Earnings
+              - generic:
+                - button "Transaction History Transaction History" [ref=f23e86]
+                - button "Download Statement Download Statement" [ref=f23e87]
+              - generic [ref=f23e89]: Wallet not set up yet Wallet not set up yet

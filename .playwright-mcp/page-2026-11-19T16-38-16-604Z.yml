@@ -1,0 +1,41 @@
+- generic [ref=f2e5]:
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - group [active]:
+            - generic [ref=f2e6]: Good Evening
+            - generic [ref=f2e7]: Test Partner
+            - button "Wallet 0" [ref=f2e8]
+            - button "Notification settings" [ref=f2e11]
+            - generic [ref=f2e13]: Search cricket, football..
+            - generic [ref=f2e15]: Referee Status
+            - generic [ref=f2e16]: "On"
+            - switch "Referee availability" [checked] [ref=f2e17]
+            - generic [ref=f2e18]: Ready for your next match
+            - generic [ref=f2e19]: New referee requests can reach you.
+            - button "Availability" [ref=f2e20]
+            - generic [ref=f2e21]: Wallet Balance
+            - button "Withdraw from wallet Withdraw" [ref=f2e22]
+            - generic [ref=f2e23]: ₹0
+            - generic [ref=f2e24]: ₹0 Total earned
+            - generic [ref=f2e25]: ₹0 Pending
+            - generic [ref=f2e26]: "0"
+            - generic [ref=f2e27]: "5"
+            - generic [ref=f2e28]: "2"
+            - generic [ref=f2e29]: ₹0
+            - generic [ref=f2e30]: Live Now
+            - generic [ref=f2e31]: Upcoming
+            - generic [ref=f2e32]: Completed
+            - generic [ref=f2e33]: Earnings
+            - button "Live Now" [ref=f2e34]
+            - button "Today's Match" [ref=f2e35]
+            - generic:
+              - group:
+                - group "Upcoming By Partner Wed, 7:00 AM Cricket SP-4206 SPORTO Referee Submit QA 2026-11-19 SPORTO QA Ground 2, Kukatpally, Hyderabad 8.4 km Starts in 5d At 7:00 AM – 8:30 AM START SESSION" [ref=f2e36]
+                - group "Upcoming By Partner Wed, 5:15 AM Cricket SP-4205 SPORTO Referee Submit QA 2026-11-19 SPORTO QA Ground 2, Kukatpally, Hyderabad 8.4 km Starts in 5d At 5:15 AM – 6:45 AM START SESSION" [ref=f2e40]
+            - generic [ref=f2e42]: Ads Banner
+          - button "Home Home" [ref=f2e44]
+          - button "Matches Matches" [ref=f2e45]
+          - button "Scoring Scoring" [ref=f2e46]
+          - button "Profile Profile" [ref=f2e47]

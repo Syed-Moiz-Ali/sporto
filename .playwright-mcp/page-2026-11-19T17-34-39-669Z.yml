@@ -1,0 +1,53 @@
+- generic [active] [ref=f6e5] [cursor=pointer]:
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - group:
+            - generic [ref=f6e46]: Good Evening
+            - generic [ref=f6e47]: Test Partner
+            - button "Wallet 0" [ref=f6e48]
+            - button "Notification settings" [ref=f6e51]
+            - generic [ref=f6e53]: Search cricket, football..
+            - generic [ref=f6e55]: Referee Status
+            - generic [ref=f6e56]: "On"
+            - switch "Referee availability" [checked] [ref=f6e57]
+            - generic [ref=f6e58]: Ready for your next match
+            - generic [ref=f6e59]: New referee requests can reach you.
+            - button "Availability" [ref=f6e60]
+            - button "Needs Your Attention 3 pending requests" [ref=f6e61]
+            - generic [ref=f6e62]: Wallet Balance
+            - button "Withdraw from wallet Withdraw" [ref=f6e63]
+            - generic [ref=f6e64]: ₹0
+            - generic [ref=f6e65]: ₹0 Total earned
+            - generic [ref=f6e66]: ₹0 Pending
+            - generic [ref=f6e67]: "0"
+            - generic [ref=f6e68]: "5"
+            - generic [ref=f6e69]: "2"
+            - generic [ref=f6e70]: ₹0
+            - generic [ref=f6e71]: Live Now
+            - generic [ref=f6e72]: Upcoming
+            - generic [ref=f6e73]: Completed
+            - generic [ref=f6e74]: Earnings
+            - button "Live Now" [ref=f6e75]
+            - button "Today's Match" [ref=f6e76]
+            - generic:
+              - group:
+                - group "Upcoming By Partner Wed, 12:30 PM Cricket SP-4206 SPORTO Referee Submit QA 2026-11-19 SPORTO QA Ground 2, Kukatpally, Hyderabad 8.4 km Starts in 5d At 12:30 PM – 2:00 PM START SESSION" [ref=f6e77]
+                - group "Upcoming By Partner Wed, 10:45 AM Cricket SP-4205 SPORTO Referee Submit QA 2026-11-19 SPORTO QA Ground 2, Kukatpally, Hyderabad 8.4 km Starts in 5d At 10:45 AM – 12:15 PM START SESSION" [ref=f6e81]
+            - generic [ref=f6e83]: Incoming Requests (3)
+            - button "View All" [ref=f6e84]
+            - group "Cricket SP-4209 by Partner 12:30 Rahul Kumar SPORTO Referee Fresh QA 2026-11-19 Sat, 28 Nov 12:30 PM – 2:00 PM SPORTO QA Ground 3, Kukatpally, Hyderabad 8.4 km ₹1500" [ref=f6e85]:
+              - button "Accept" [ref=f6e89]
+              - button "Decline" [ref=f6e90]
+            - group "Cricket SP-4208 by Partner 10:45 Rahul Kumar SPORTO Referee Fresh QA 2026-11-19 Sat, 28 Nov 10:45 AM – 12:15 PM SPORTO QA Ground 3, Kukatpally, Hyderabad 8.4 km ₹1500" [ref=f6e91]:
+              - button "Accept" [ref=f6e95]
+              - button "Decline" [ref=f6e96]
+            - group "Cricket SP-4207 by Partner 09:00 Rahul Kumar SPORTO Referee Fresh QA 2026-11-19 Sat, 28 Nov 9:00 AM – 10:30 AM SPORTO QA Ground 3, Kukatpally, Hyderabad 8.4 km ₹1500" [ref=f6e97]:
+              - button "Accept" [ref=f6e101]
+              - button "Decline" [ref=f6e102]
+            - generic [ref=f6e103]: Ads Banner
+          - button "Home Home" [ref=f6e105]
+          - button "Matches Matches" [ref=f6e106]
+          - button "Scoring Scoring" [ref=f6e107]
+          - button "Profile Profile" [ref=f6e108]

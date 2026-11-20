@@ -1,0 +1,30 @@
+- generic [active] [ref=f6e5]:
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - button [ref=f6e125]
+          - group:
+            - generic [ref=f6e127]: BOOKING CONFIRMED
+            - generic [ref=f6e128]: Booking confirmed. It is now in your Upcoming bookings.
+            - generic [ref=f6e129]: Cricket
+            - generic [ref=f6e130]: SP-4207
+            - generic [ref=f6e131]: by Partner
+            - generic [ref=f6e133]: Booked by
+            - generic [ref=f6e134]: Rahul Kumar
+            - generic [ref=f6e135]: Tournament
+            - generic [ref=f6e136]: SPORTO Referee Fresh QA 2026-11-19
+            - generic [ref=f6e137]: Venue
+            - generic [ref=f6e138]: SPORTO QA Ground 3
+            - generic [ref=f6e139]: Location
+            - generic [ref=f6e140]: SPORTO QA Ground 3, Kukatpally, Hyderabad
+            - generic [ref=f6e142]: 8.4 km
+            - generic [ref=f6e144]: Date
+            - generic [ref=f6e145]: Time
+            - generic [ref=f6e146]: Duration
+            - generic [ref=f6e147]: Sat, 28 Nov
+            - generic [ref=f6e148]: 9:00 AM – 10:30 AM
+            - generic [ref=f6e149]: 1 Hours 3
+            - generic [ref=f6e150]: Fee
+            - generic [ref=f6e151]: ₹1500
+            - button "View Upcoming" [ref=f6e152]

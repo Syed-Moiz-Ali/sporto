@@ -1,0 +1,20 @@
+- generic [ref=f1e5] [cursor=pointer]:
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - generic [ref=f1e48]: Schedule
+          - group "Search cricket, football.." [ref=f1e49]
+          - button "Live Live" [ref=f1e52]
+          - button "Upcoming Upcoming" [ref=f1e53]
+          - button "Completed Completed" [ref=f1e54]
+          - generic:
+            - group:
+              - button "Final Wed, 7:00 AM Upcoming SPORTO Referee Submit QA 2026-11-19 SPORTO QA Ground 2 Winner of Match 4204 Vs Winner of Match 4205 Teams Verified Ground Ready Toss Pending Starts in 128:55:56 Unavailable" [ref=f1e55]
+              - button "Semi-Final Wed, 5:15 AM Upcoming SPORTO Referee Submit QA 2026-11-19 SPORTO QA Ground 2 Demo T431 Team 2 Vs Demo T431 Team 3 Teams Verified Ground Ready Toss Pending Starts in 127:10:56 Verify Teams" [ref=f1e56]
+              - button "Semi-Final Wed, 3:30 AM Upcoming SPORTO Referee Submit QA 2026-11-19 SPORTO QA Ground 2 Demo T431 Team 1 Vs Demo T431 Team 4 Teams Verified Ground Ready Toss Pending Starts in 125:25:56 Verify Teams" [ref=f1e57]
+              - button "Final Today, 08:00 PM Upcoming 1017 T Cricket League ABC Sports Arena, Madhapur, Hyderabad Winner of Match 4195 Vs Winner of Match 4196 Teams Verified Ground Ready Toss Pending Starts in 00:01:30 Unavailable" [ref=f1e58]
+          - button "Home Home" [ref=f1e44]
+          - button "Matches Matches" [active] [ref=f1e45]
+          - button "Scoring Scoring" [ref=f1e46]
+          - button "Profile Profile" [ref=f1e47]

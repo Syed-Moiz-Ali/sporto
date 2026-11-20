@@ -1,0 +1,41 @@
+- generic [active] [ref=f1e5]:
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - group:
+            - generic [ref=f1e6]: Good Evening
+            - generic [ref=f1e7]: Test Partner
+            - button "Wallet 0" [ref=f1e8]
+            - button "Notification settings" [ref=f1e11]
+            - generic [ref=f1e13]: Search cricket, football..
+            - generic [ref=f1e15]: Referee Status
+            - generic [ref=f1e16]: "On"
+            - switch "Referee availability" [checked] [ref=f1e17]
+            - generic [ref=f1e18]: Ready for your next match
+            - generic [ref=f1e19]: New referee requests can reach you.
+            - button "Availability" [ref=f1e20]
+            - generic [ref=f1e21]: Wallet Balance
+            - button "Withdraw from wallet Withdraw" [ref=f1e22]
+            - generic [ref=f1e23]: ₹0
+            - generic [ref=f1e24]: ₹0 Total earned
+            - generic [ref=f1e25]: ₹0 Pending
+            - generic [ref=f1e26]: "0"
+            - generic [ref=f1e27]: "5"
+            - generic [ref=f1e28]: "2"
+            - generic [ref=f1e29]: ₹0
+            - generic [ref=f1e30]: Live Now
+            - generic [ref=f1e31]: Upcoming
+            - generic [ref=f1e32]: Completed
+            - generic [ref=f1e33]: Earnings
+            - button "Live Now" [ref=f1e34]
+            - button "Today's Match" [ref=f1e35]
+            - generic:
+              - group:
+                - group "Upcoming By Partner Wed, 7:00 AM Cricket SP-4206 SPORTO Referee Submit QA 2026-11-19 Kukatpally, Hyderabad 8.4 km Starts in 5d At 7:00 AM – 8:30 AM START SESSION" [ref=f1e36]
+                - group "Upcoming By Partner Wed, 5:15 AM Cricket SP-4205 SPORTO Referee Submit QA 2026-11-19 Kukatpally, Hyderabad 8.4 km Starts in 5d At 5:15 AM – 6:45 AM START SESSION" [ref=f1e40]
+            - generic [ref=f1e42]: Ads Banner
+          - button "Home Home" [ref=f1e44]
+          - button "Matches Matches" [ref=f1e45]
+          - button "Scoring Scoring" [ref=f1e46]
+          - button "Profile Profile" [ref=f1e47]

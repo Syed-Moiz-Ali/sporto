@@ -111,7 +111,7 @@ Please include consistently in both list and detail:
 - `match_code` where available
 - `distance_km` only if real coordinates exist (see §5)
 
-The app hides missing fields rather than inventing them.
+The app now shows temporary Figma placeholders for missing fields; real API values win as soon as they are projected.
 
 ---
 
@@ -141,14 +141,14 @@ Needed:
 4. `player_of_match` projection on `/result` after award (currently null). The award POST exists; the result endpoint should expose the awarded object.
 5. If `fee`, `customer_name`, `distance_km` are intentionally null for tournament assignments, confirm that so the Figma fields can be dropped permanently.
 
-The app now hides these fields when null; no fabricated values.
+The app now shows temporary Figma placeholders for these fields; real values replace them automatically when present.
 
 ---
 
 ## 5. P1 — Distance / location contract
 
 The integration guide says: **`distance_km` is null without trustworthy coordinates; never synthesize 8.4 km**. Confirmed.  
-Current UI hides the distance pill when null. If you want the Figma “8.4 km” pill, provide real `distance_km` (referee ↔ venue) and a documented fallback policy. Do **not** send sample values.
+Current UI shows a temporary static `8.4 km` placeholder until real `distance_km` is supplied. Replace the fallback with the API value when available.
 
 ---
 
@@ -223,6 +223,7 @@ To answer “is incoming request static?”:
 
 - **No.** Home incoming requests call `/match-requests` + `/bookings/requests` live, merge into `RefereeIncomingRequestsBundle`, and poll every 20s (retry once after 1.5s when empty/error).
 - The **only** static values left in production UI are non-API placeholders: “Ads Banner”, notification preference definitions (no API), profile menu labels, and copy strings.
+- **Temporary Figma fallbacks added (remove as backend gaps close):** match schedule/venue/distance/countdown, request customer/fee/time/location, one demo Home incoming request when both request channels are empty, wallet transaction rows when the ledger is empty, tournament venue/date/teams/level/earnings, result margin/player-of-the-match, and a masked-bank full-number reveal placeholder. All are conditional: real API values always win.
 - Test fixtures and fake models live only under `test/`.
 - `BankFigmaData` / `BankAccountsStore` and `MatchLocalDataSource` remain in the repo as legacy/test helpers, but **no production screen renders them**.
 - Scoring Tab static fallback names (“Jaipur Super Over”, “Thunder Titans”, etc.) were removed; it now uses the API values only.

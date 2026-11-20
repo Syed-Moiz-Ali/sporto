@@ -53,7 +53,8 @@ class _BankAccountDetailsScreenState extends State<BankAccountDetailsScreen>
 
   void _toggleReveal() {
     final details = widget.details;
-    final fullNumber = details == null ? null : bankFullAccountNumber(details);
+    final fullNumber =
+        details == null ? null : bankRevealAccountNumber(details);
     if (fullNumber == null) {
       _hideTimer?.cancel();
       if (_revealed) setState(() => _revealed = false);
@@ -143,7 +144,7 @@ class _BankAccountDetailsScreenState extends State<BankAccountDetailsScreen>
       );
     }
 
-    final fullNumber = bankFullAccountNumber(details);
+    final fullNumber = bankRevealAccountNumber(details);
     final maskedNumber = bankMaskedAccountLabel(details);
     final canReveal = fullNumber != null;
     final number = _revealed && fullNumber != null ? fullNumber : maskedNumber;
@@ -272,7 +273,7 @@ class _DetailsCard extends StatelessWidget {
 
   String _value(String? value) {
     final trimmed = value?.trim() ?? '';
-    return trimmed.isEmpty ? '—' : trimmed;
+    return trimmed.isEmpty ? 'â€”' : trimmed;
   }
 
   @override

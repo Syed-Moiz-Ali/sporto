@@ -1,0 +1,18 @@
+- generic [active] [ref=f6e5] [cursor=pointer]:
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - group:
+            - generic [ref=f6e20]: SPORTO
+            - generic [ref=f6e21]: Referee Console
+            - generic [ref=f6e22]: Welcome!
+            - generic [ref=f6e23]: Sign up with your mobile number.
+            - group "+91" [ref=f6e24]:
+              - textbox "Mobile number" [ref=f6e26]
+            - generic [ref=f6e27]: You'll receive an OTP on the number above.
+            - button "Continue" [ref=f6e28]
+            - generic [ref=f6e29]: Already have an account?
+            - generic [ref=f6e30]: Login
+            - generic [ref=f6e31]: Need Help?
+            - generic [ref=f6e32]: By continuing, you agree to our Terms of Service and Privacy Policy.

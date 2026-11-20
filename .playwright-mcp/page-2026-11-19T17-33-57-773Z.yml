@@ -1,0 +1,14 @@
+- generic [active] [ref=f6e5]:
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - button [ref=f6e33]
+          - generic [ref=f6e34]: Verify Your Number
+          - generic [ref=f6e35]: Enter 4-digit OTP
+          - textbox [ref=f6e37]
+          - textbox [ref=f6e39]
+          - textbox [ref=f6e41]
+          - textbox [ref=f6e43]
+          - generic [ref=f6e44]: Resend code 00:30
+          - button "Verify OTP" [ref=f6e45]

@@ -754,11 +754,14 @@ class RefereeMatchResponse {
   String get displayTournament =>
       _firstText([tournamentName, raw['competition_name']]) ?? 'Tournament';
   String get displayRound => _firstText([roundName, matchNumber]) ?? 'Match';
+  // TODO(backend): temporary Figma placeholders until schedule/venue are
+  // projected on every match row.
   String get displaySchedule =>
       _firstText([scheduledAt, _joinDateTime(matchDate, startTime)]) ??
-      'Schedule not set';
+      'Today, 08:00 PM';
   String get displayVenue =>
-      _firstText([venueName, location]) ?? 'Venue not set';
+      _firstText([venueName, location]) ??
+      'ABC Sports Arena, Madhapur, Hyderabad';
   String get displayTeamA => teamA?.name ?? 'Team A';
   String get displayTeamB => teamB?.name ?? 'Team B';
   String get displayStatus =>

@@ -1,0 +1,22 @@
+- generic [ref=f23e5]:
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - button "Back" [active] [ref=f23e138]
+          - generic [ref=f23e139]: Tournaments History
+          - button "Create Create" [ref=f23e140]
+          - group:
+            - button "Completed Completed" [ref=f23e141]
+            - button "Cancelled Cancelled" [ref=f23e142]
+          - button "Sort" [ref=f23e143]
+          - generic:
+            - group:
+              - group "Completed 1019 T Cricket League Code ITA5TPTBJ3 Currency INR Venue SPORTO Arena, Hyderabad Date 12 Oct - 14 Oct 2026 Teams 41/64 Teams Level Local · Approved Earnings ₹8,500":
+                - button "View View" [ref=f23e144]
+                - button "Manage Manage" [ref=f23e145]
+                - button "Earnings Earnings" [ref=f23e146]
+              - group "Completed 1018 T Cricket League Code AUYPT5IXFV Currency INR Venue SPORTO Arena, Hyderabad Date 12 Oct - 14 Oct 2026 Teams 41/64 Teams Level Local · Approved Earnings ₹8,500":
+                - button "View View" [ref=f23e148]
+                - button "Manage Manage" [ref=f23e149]
+                - button "Earnings Earnings" [ref=f23e150]

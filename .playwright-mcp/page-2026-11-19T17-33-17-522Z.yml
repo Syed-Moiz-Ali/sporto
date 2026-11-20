@@ -1,0 +1,22 @@
+- generic [ref=f6e5]:
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - group "OFFICIAL REFEREE NETWORK STEP ONTO THE PITCH. GET PAID FOR IT. Every match needs a referee who shows up ready. Spoto puts real bookings, real organisers and real pay in your hands. SPOTO · LIVE REFEREE":
+                - button "GET STARTED" [active] [ref=f6e6]
+                - button "LOGIN" [ref=f6e7]
+          - generic [ref=f6e8]: SPOTO
+          - button "SKIP" [ref=f6e9]
+          - button [ref=f6e10]
+          - button [ref=f6e11]
+          - button [ref=f6e12]
+          - button [ref=f6e13]
+          - button [ref=f6e14]
+          - button [ref=f6e15]
+          - button [ref=f6e16]
+          - button [disabled] [ref=f6e17]
+          - button [ref=f6e18]
+          - button "NEXT ›" [ref=f6e19]

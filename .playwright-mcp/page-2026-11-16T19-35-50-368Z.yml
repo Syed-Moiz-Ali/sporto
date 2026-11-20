@@ -1,0 +1,18 @@
+- generic [ref=f25e5] [cursor=pointer]:
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - generic [ref=f25e58]: Schedule
+          - group "Search cricket, football.." [ref=f25e59]
+          - button "Live Live" [ref=f25e62]
+          - button "Upcoming Upcoming" [ref=f25e63]
+          - button "Completed Completed" [ref=f25e64]
+          - generic:
+            - group:
+              - button "Final Today, 08:00 PM Upcoming 1017 T Cricket League ABC Sports Arena, Madhapur, Hyderabad Winner of Match 4195 Vs Winner of Match 4196 Teams Verified Ground Ready Toss Pending Starts in --:--:-- Unavailable" [ref=f25e65]
+              - button "Semi-Final Today, 08:00 PM Upcoming 1017 T Cricket League ABC Sports Arena, Madhapur, Hyderabad Khairathabad Kings Vs Miyapur Masters Teams Verified Ground Ready Toss Pending Starts in --:--:-- Verify Teams" [ref=f25e66]
+          - button "Home Home" [ref=f25e54]
+          - button "Matches Matches" [active] [ref=f25e55]
+          - button "Scoring Scoring" [ref=f25e56]
+          - button "Profile Profile" [ref=f25e57]

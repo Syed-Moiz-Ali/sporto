@@ -1,0 +1,21 @@
+- generic [active] [ref=f7e5]:
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - button [ref=f7e63]
+          - group:
+            - generic [ref=f7e64]: ACCEPT BOOKING?
+            - generic [ref=f7e65]: "You are accepting:"
+            - generic [ref=f7e66]: Cricket
+            - generic [ref=f7e67]: SP-4208
+            - generic [ref=f7e68]: by Partner
+            - generic [ref=f7e69]: 10:45
+            - generic [ref=f7e70]: SPORTO Referee Fresh QA 2026-11-19
+            - generic [ref=f7e71]: SPORTO QA Ground 3
+            - generic [ref=f7e72]: Sat, 28 Nov · 10:45 AM – 12:15 PM
+            - generic [ref=f7e73]: ₹1500
+            - generic [ref=f7e74]: SPORTO QA Ground 3
+            - generic [ref=f7e76]: SPORTO QA Ground 3, Kukatpally, Hyderabad
+            - button "Confirm Accept" [ref=f7e77]
+            - button "Cancel" [ref=f7e78]

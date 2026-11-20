@@ -247,7 +247,8 @@ void main() {
       expect(find.text('START SESSION'), findsOneWidget);
     });
 
-    testWidgets('does not fake a countdown when the schedule is missing',
+    testWidgets(
+        'shows temporary Figma placeholders when schedule keys are missing',
         (tester) async {
       final match = RefereeMatchResponse.fromJson({
         'id': 4197,
@@ -270,8 +271,13 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('1017 T Cricket League'), findsOneWidget);
-      expect(find.textContaining('--:--'), findsNothing);
-      expect(find.textContaining('Starts in'), findsNothing);
+      // TODO(backend): remove these assertions when the API sends the keys.
+      expect(find.text('Today, 08:00 PM'), findsOneWidget);
+      expect(
+          find.text('ABC Sports Arena, Madhapur, Hyderabad'), findsOneWidget);
+      expect(find.text('8.4 km'), findsOneWidget);
+      expect(find.textContaining('00:01:30'), findsOneWidget);
+      expect(find.textContaining('At 6:00 PM'), findsOneWidget);
       expect(find.text('START SESSION'), findsOneWidget);
     });
 
@@ -294,7 +300,7 @@ void main() {
       expect(find.text('₹1500'), findsOneWidget);
     });
 
-    testWidgets('Does not invent distance or fee for tournament match requests',
+    testWidgets('shows temporary Figma placeholders for missing request fields',
         (tester) async {
       await tester.pumpWidget(
         createTestWidget(
@@ -306,11 +312,11 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Accept'), findsOneWidget);
-      expect(find.text('₹1500'), findsNothing);
-      expect(find.textContaining('8.4 km'), findsNothing);
-      expect(find.textContaining('km'), findsNothing);
-      expect(find.textContaining('5:00 PM'), findsNothing);
-      expect(find.textContaining('7:00 PM'), findsNothing);
+      // TODO(backend): remove when fee/distance/schedule are projected.
+      expect(find.textContaining('1500'), findsOneWidget);
+      expect(find.textContaining('8.4 km'), findsOneWidget);
+      expect(find.textContaining('6:00 PM'), findsOneWidget);
+      expect(find.textContaining('8:00 PM'), findsOneWidget);
       expect(find.text('by Tournament'), findsOneWidget);
     });
 

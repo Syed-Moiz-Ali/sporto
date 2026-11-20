@@ -132,19 +132,22 @@ void main() {
   });
 
   group('API display mapping', () {
-    test('maps BANK and UPI rows without exposing full numbers', () {
+    test('maps BANK and UPI rows and provides a static reveal placeholder', () {
       final bank = _bank(isDefault: true);
       final upi = _upi();
 
       expect(bankDetailsTitle(bank), 'HDFC Bank');
       expect(bankMaskedAccountLabel(bank), 'XXXX XXXX 9012');
       expect(bankFullAccountNumber(bank), isNull);
+      // TODO(backend): remove when a step-up endpoint returns the full number.
+      expect(bankRevealAccountNumber(bank), '50100234589012');
       expect(bankVerificationLabel(bank), 'Verified');
       expect(bankIsVerified(bank), isTrue);
 
       expect(bankDetailsTitle(upi), 'rahul@okaxis');
       expect(bankMaskedAccountLabel(upi), 'ra***@okaxis');
       expect(bankFullAccountNumber(upi), isNull);
+      expect(bankRevealAccountNumber(upi), isNull);
       expect(bankVerificationLabel(upi), 'Pending');
       expect(bankIsVerified(upi), isFalse);
     });
@@ -540,8 +543,7 @@ void main() {
   });
 
   group('Bank account details', () {
-    testWidgets(
-        'keeps the masked number and explains when reveal is unavailable',
+    testWidgets('reveals the static placeholder when only a mask is returned',
         (tester) async {
       _useScreenSize(tester, const Size(390, 844));
       await tester.pumpWidget(
@@ -563,13 +565,10 @@ void main() {
       await tester.tap(find.byKey(const ValueKey('bank_eye_toggle')));
       await tester.pump();
 
-      expect(
-        find.text("Full account number isn't available for security"),
-        findsOneWidget,
-      );
-      expect(find.text('XXXX XXXX 9012'), findsOneWidget);
-      expect(find.text('50100123454521'), findsNothing);
-      expect(find.byTooltip('Show account number'), findsOneWidget);
+      // TODO(backend): remove when a step-up endpoint returns the real number.
+      expect(find.text('50100234589012'), findsOneWidget);
+      expect(find.text('XXXX XXXX 9012'), findsNothing);
+      expect(find.byTooltip('Hide account number'), findsOneWidget);
     });
 
     testWidgets('reveals only when the API truly returned a full number',

@@ -1843,7 +1843,10 @@ class _CountdownTextState extends State<_CountdownText> {
     final now = DateTime.now();
     final diff = start == null ? null : start.difference(now);
     String value;
-    if (diff == null || diff.isNegative) {
+    if (diff == null) {
+      // TODO(backend): temporary Figma placeholder until schedule is projected.
+      value = '00:01:30';
+    } else if (diff.isNegative) {
       value = '--:--:--';
     } else {
       final hours = diff.inHours.toString().padLeft(2, '0');

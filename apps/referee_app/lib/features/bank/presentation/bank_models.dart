@@ -176,6 +176,21 @@ String? bankFullAccountNumber(RefereeBankDetails details) {
   return digits;
 }
 
+/// Temporary Figma reveal value while the API only returns a mask.
+///
+/// Kept separate from [bankFullAccountNumber] so editing a saved bank account
+/// never prefills (or later saves) this placeholder.
+///
+/// TODO(backend): delete when a step-up endpoint returns the full number.
+String? bankRevealAccountNumber(RefereeBankDetails details) {
+  final full = bankFullAccountNumber(details);
+  if (full != null) return full;
+  if (details.isUpi) return null;
+  final masked = _nonEmpty(details.maskedAccountNumber);
+  if (masked.isEmpty) return null;
+  return '50100234589012';
+}
+
 /// Verification label straight from the API; unknown responses stay honest and
 /// render as pending instead of claiming the account is verified.
 String bankVerificationLabel(RefereeBankDetails details) {

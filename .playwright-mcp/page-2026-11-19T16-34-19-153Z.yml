@@ -1,0 +1,32 @@
+- generic [ref=f1e5] [cursor=pointer]:
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - group:
+            - generic [ref=f1e59]: TP
+            - generic [ref=f1e60]: Test Partner
+            - generic [ref=f1e61]: "8977904104"
+            - generic [ref=f1e62]: Certified Referee
+            - generic [ref=f1e63]: Cricket
+            - generic [ref=f1e64]: "7"
+            - generic [ref=f1e65]: —
+            - generic [ref=f1e66]: —
+            - generic [ref=f1e67]: Matches
+            - generic [ref=f1e68]: Rating
+            - generic [ref=f1e69]: Disputes
+            - button "Weekly Availability" [ref=f1e70]
+            - generic [ref=f1e71]: Statistic
+            - button "My Tournaments" [ref=f1e72]
+            - button "Wallet Transaction" [ref=f1e73]
+            - button "Bank Account" [ref=f1e74]
+            - generic [ref=f1e75]: Add Customer Support
+            - generic [ref=f1e76]: About Us
+            - generic [ref=f1e77]: Terms & Condition
+            - generic [ref=f1e78]: Privacy Policy
+            - generic [ref=f1e79]: Customer Service
+            - button "Logout" [ref=f1e80]
+          - button "Home Home" [ref=f1e44]
+          - button "Matches Matches" [ref=f1e45]
+          - button "Scoring Scoring" [ref=f1e46]
+          - button "Profile Profile" [active] [ref=f1e47]

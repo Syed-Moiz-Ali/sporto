@@ -1,0 +1,41 @@
+- generic [active] [ref=f21e5]:
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - group:
+            - generic [ref=f21e6]: Good Morning
+            - generic [ref=f21e7]: Test Partner
+            - button "Wallet 0" [ref=f21e8]
+            - button "Notification settings" [ref=f21e11]
+            - generic [ref=f21e13]: Search cricket, football..
+            - generic [ref=f21e15]: Referee Status
+            - generic [ref=f21e16]: "On"
+            - switch "Referee availability" [checked] [ref=f21e17]
+            - generic [ref=f21e18]: Ready for your next match
+            - generic [ref=f21e19]: New referee requests can reach you.
+            - button "Availability" [ref=f21e20]
+            - generic [ref=f21e21]: Wallet Balance
+            - button "Withdraw from wallet Withdraw" [ref=f21e22]
+            - generic [ref=f21e23]: ₹0
+            - generic [ref=f21e24]: ₹0 Total earned
+            - generic [ref=f21e25]: ₹0 Pending
+            - generic [ref=f21e26]: "0"
+            - generic [ref=f21e27]: "2"
+            - generic [ref=f21e28]: "2"
+            - generic [ref=f21e29]: ₹0
+            - generic [ref=f21e30]: Live Now
+            - generic [ref=f21e31]: Upcoming
+            - generic [ref=f21e32]: Completed
+            - generic [ref=f21e33]: Earnings
+            - button "Live Now" [ref=f21e34]
+            - button "Today's Match" [ref=f21e35]
+            - generic:
+              - group:
+                - group "Upcoming By Partner Today, 08:00 PM Cricket SP-4197 1017 T Cricket League ABC Sports Arena, Madhapur, Hyderabad 8.4 km Starts in 00:01:30 At 6:00 PM – 8:00 PM START SESSION" [ref=f21e36]
+                - group "Upcoming By Partner Today, 08:00 PM Cricket SP-4195 1017 T Cricket League ABC Sports Arena, Madhapur, Hyderabad 8.4 km Starts in 00:01:30 At 6:00 PM – 8:00 PM START SESSION" [ref=f21e40]
+            - generic [ref=f21e43]: Ads Banner
+          - button "Home Home" [ref=f21e45]
+          - button "Matches Matches" [ref=f21e46]
+          - button "Scoring Scoring" [ref=f21e47]
+          - button "Profile Profile" [ref=f21e48]

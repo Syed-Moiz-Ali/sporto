@@ -5,6 +5,7 @@ import 'package:ui_kit/ui_kit.dart';
 
 import '../wallet_adapters.dart';
 import '../wallet_formatters.dart';
+import '../static_wallet_transactions.dart';
 import '../widgets/wallet_shared_widgets.dart';
 import 'transaction_details_screen.dart';
 
@@ -158,7 +159,14 @@ class _WalletTransactionsScreenState extends State<WalletTransactionsScreen> {
                       ),
                     );
                   }
-                  final visible = _visible(snapshot.data?.items ?? const []);
+                  final apiItems = snapshot.data?.items ?? const [];
+                  // TODO(backend): temporary Figma rows until the transaction
+                  // endpoint returns a populated, documented row schema.
+                  final items =
+                      apiItems.isEmpty && widget.transactionsFuture == null
+                          ? kStaticWalletTransactions
+                          : apiItems;
+                  final visible = _visible(items);
                   return ListView(
                     padding: EdgeInsets.fromLTRB(
                       20 * scale,

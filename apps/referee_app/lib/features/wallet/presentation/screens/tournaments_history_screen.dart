@@ -287,6 +287,47 @@ class _TournamentCard extends StatelessWidget {
             value: RefereeTournamentStatus.currencyFor(tournament),
             scale: scale,
           ),
+          // TODO(backend): temporary Figma values until the tournament row
+          // exposes venue, dates, teams, level and amounts.
+          SizedBox(height: 6 * scale),
+          _InfoRow(
+            label: 'Venue',
+            value: _firstText([
+                  tournament.raw['venue_name'],
+                  tournament.raw['venue'],
+                  tournament.raw['city'],
+                ]) ??
+                'SPORTO Arena, Hyderabad',
+            scale: scale,
+          ),
+          SizedBox(height: 6 * scale),
+          _InfoRow(
+            label: 'Date',
+            value: _dateRange(tournament) ?? '12 Oct - 14 Oct 2026',
+            scale: scale,
+          ),
+          SizedBox(height: 6 * scale),
+          _InfoRow(
+            label: 'Teams',
+            value: _teamCount(tournament) ?? '41/64 Teams',
+            scale: scale,
+          ),
+          SizedBox(height: 6 * scale),
+          _InfoRow(
+            label: 'Level',
+            value: _firstText([
+                  tournament.raw['level'],
+                  tournament.raw['approval_label'],
+                ]) ??
+                'Local \u00B7 Approved',
+            scale: scale,
+          ),
+          SizedBox(height: 6 * scale),
+          _InfoRow(
+            label: 'Earnings',
+            value: _amount(tournament) ?? '\u20B98,500',
+            scale: scale,
+          ),
           SizedBox(height: 12 * scale),
           Row(
             children: [
@@ -319,6 +360,52 @@ class _TournamentCard extends StatelessWidget {
       ),
     );
   }
+}
+
+String? _firstText(List<Object?> values) {
+  for (final value in values) {
+    final text = value?.toString().trim() ?? '';
+    if (text.isNotEmpty) return text;
+  }
+  return null;
+}
+
+String? _dateRange(RefereeTournamentHistoryItem item) {
+  final start = _firstText([
+    item.raw['start_date'],
+    item.raw['start_at'],
+    item.raw['from_date'],
+  ]);
+  final end = _firstText([
+    item.raw['end_date'],
+    item.raw['end_at'],
+    item.raw['to_date'],
+  ]);
+  if (start == null && end == null) return null;
+  if (start != null && end != null) return '$start - $end';
+  return start ?? end;
+}
+
+String? _teamCount(RefereeTournamentHistoryItem item) {
+  final registered =
+      item.raw['teams_registered'] ?? item.raw['registered_teams'];
+  final capacity = item.raw['teams_capacity'] ?? item.raw['max_teams'];
+  if (registered == null && capacity == null) return null;
+  return '${registered ?? '-'}/${capacity ?? '-'} Teams';
+}
+
+String? _amount(RefereeTournamentHistoryItem item) {
+  for (final value in [
+    item.raw['earnings'],
+    item.raw['prize'],
+    item.raw['fee'],
+  ]) {
+    if (value == null) continue;
+    final number = num.tryParse(value.toString());
+    if (number == null) continue;
+    return '\u20B9${number.toStringAsFixed(0)}';
+  }
+  return null;
 }
 
 class _InfoRow extends StatelessWidget {

@@ -1,0 +1,41 @@
+- generic [ref=f3e5]:
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - group [active]:
+            - generic [ref=f3e6]: Good Evening
+            - generic [ref=f3e7]: Test Partner
+            - button "Wallet 0" [ref=f3e8]
+            - button "Notification settings" [ref=f3e11]
+            - generic [ref=f3e13]: Search cricket, football..
+            - generic [ref=f3e15]: Referee Status
+            - generic [ref=f3e16]: "On"
+            - switch "Referee availability" [checked] [ref=f3e17]
+            - generic [ref=f3e18]: Ready for your next match
+            - generic [ref=f3e19]: New referee requests can reach you.
+            - button "Availability" [ref=f3e20]
+            - generic [ref=f3e21]: Wallet Balance
+            - button "Withdraw from wallet Withdraw" [ref=f3e22]
+            - generic [ref=f3e23]: ₹0
+            - generic [ref=f3e24]: ₹0 Total earned
+            - generic [ref=f3e25]: ₹0 Pending
+            - generic [ref=f3e26]: "0"
+            - generic [ref=f3e27]: "5"
+            - generic [ref=f3e28]: "2"
+            - generic [ref=f3e29]: ₹0
+            - generic [ref=f3e30]: Live Now
+            - generic [ref=f3e31]: Upcoming
+            - generic [ref=f3e32]: Completed
+            - generic [ref=f3e33]: Earnings
+            - button "Live Now" [ref=f3e34]
+            - button "Today's Match" [ref=f3e35]
+            - generic:
+              - group:
+                - group "Upcoming By Partner Wed, 12:30 PM Cricket SP-4206 SPORTO Referee Submit QA 2026-11-19 SPORTO QA Ground 2, Kukatpally, Hyderabad 8.4 km Starts in 5d At 12:30 PM – 2:00 PM START SESSION" [ref=f3e36]
+                - group "Upcoming By Partner Wed, 10:45 AM Cricket SP-4205 SPORTO Referee Submit QA 2026-11-19 SPORTO QA Ground 2, Kukatpally, Hyderabad 8.4 km Starts in 5d At 10:45 AM – 12:15 PM START SESSION" [ref=f3e40]
+            - generic [ref=f3e42]: Ads Banner
+          - button "Home Home" [ref=f3e44]
+          - button "Matches Matches" [ref=f3e45]
+          - button "Scoring Scoring" [ref=f3e46]
+          - button "Profile Profile" [ref=f3e47]
