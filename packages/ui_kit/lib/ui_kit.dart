@@ -17,6 +17,7 @@ export 'src/widgets/secondary_button.dart';
 export 'src/widgets/sporto_card.dart';
 export 'src/widgets/sporto_ambient_background.dart';
 export 'src/widgets/sporto_screen_shell.dart';
+export 'src/widgets/sporto_centered_app_frame.dart';
 export 'src/widgets/sporto_responsive_layout.dart';
 export 'src/widgets/sporto_bottom_tab_shell.dart';
 export 'src/widgets/sporto_text_field.dart';

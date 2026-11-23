@@ -33,10 +33,12 @@ class RefereeApp extends StatelessWidget {
             themeMode: themeState.themeMode,
             debugShowCheckedModeBanner: false,
             routerConfig: AppRouter.router,
-            builder: (context, child) => SportoAppTextScale(
-              child: SportoAppBackgroundScope(
-                background: SportoAppBackground.referee,
-                child: child ?? const SizedBox.shrink(),
+            builder: (context, child) => SportoCenteredAppFrame(
+              child: SportoAppTextScale(
+                child: SportoAppBackgroundScope(
+                  background: SportoAppBackground.referee,
+                  child: child ?? const SizedBox.shrink(),
+                ),
               ),
             ),
           );
