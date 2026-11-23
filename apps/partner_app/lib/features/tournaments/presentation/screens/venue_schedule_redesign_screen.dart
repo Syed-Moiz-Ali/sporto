@@ -10,10 +10,26 @@ import '../widgets/redesign/tournament_screen_parts.dart';
 import '../widgets/redesign/tournament_shimmer.dart';
 import '../widgets/redesign/tournament_visuals.dart';
 
+/// Venue & Schedule — Figma `Partner App / Venue & Schedule` (export 13).
+///
+/// Venue rows are real: `tournament_venues` carries `round_name`, `date`,
+/// `start_time`, `ground_type`; per-round match counts come from
+/// `getRounds(id)`.
 class VenueScheduleRedesignScreen extends StatefulWidget {
-  const VenueScheduleRedesignScreen({super.key, required this.tournamentId});
+  const VenueScheduleRedesignScreen({
+    super.key,
+    required this.tournamentId,
+    this.tournamentOverride,
+    this.roundsOverride,
+    this.isLoading,
+  });
 
   final String tournamentId;
+
+  /// Test injection.
+  final PartnerTournamentResponse? tournamentOverride;
+  final List<TournamentRound>? roundsOverride;
+  final bool? isLoading;
 
   @override
   State<VenueScheduleRedesignScreen> createState() =>
@@ -27,20 +43,32 @@ class _VenueScheduleRedesignScreenState
   );
 
   PartnerTournamentResponse? _tournament;
+  List<TournamentRound> _rounds = const [];
   bool _loading = true;
 
   @override
   void initState() {
     super.initState();
+    if (widget.tournamentOverride != null) {
+      _tournament = widget.tournamentOverride;
+      _rounds = widget.roundsOverride ?? const [];
+      _loading = false;
+      return;
+    }
     _load();
   }
 
   Future<void> _load() async {
     try {
       final tournament = await _api.showTournamentData(widget.tournamentId);
+      List<TournamentRound> rounds = const [];
+      try {
+        rounds = await _api.getRounds(widget.tournamentId);
+      } catch (_) {}
       if (!mounted) return;
       setState(() {
         _tournament = tournament;
+        _rounds = rounds;
         _loading = false;
       });
     } catch (_) {
@@ -52,194 +80,234 @@ class _VenueScheduleRedesignScreenState
   @override
   Widget build(BuildContext context) {
     final t = context.sportoTournament;
+    final scale = context.sportoScale;
     final tournament = _tournament;
+    final loading = widget.isLoading ?? (_loading && tournament == null);
+
     return Scaffold(
       backgroundColor: t.screenBase,
-      body: SafeArea(
-        child: Column(
-          children: [
-            TournamentScreenHeader(
-              title: 'Venue & Schedule',
-              subtitle: tournament == null
-                  ? 'SPT-${widget.tournamentId}'
-                  : '${tournamentCode(tournament)} · ${tournament.name}',
-              onBack: () => context.pop(),
+      body: Column(
+        children: [
+          TournamentScreenHeader(
+            title: 'Venue & Schedule',
+            subtitle: tournament == null
+                ? 'SPT-${widget.tournamentId}'
+                : '${tournamentCode(tournament)} · ${tournament.name}',
+            titleSize: SportoTextStyles.size16,
+            subtitleSize: SportoTextStyles.size11,
+            backSize: 36 * scale,
+            backGap: 10 * scale,
+            backBackground: t.white.withValues(alpha: .10),
+            padding: EdgeInsets.fromLTRB(
+              20 * scale,
+              MediaQuery.of(context).padding.top,
+              20 * scale,
+              6 * scale,
             ),
-            if (_loading)
-              const Expanded(child: VenueScheduleShimmer())
-            else if (tournament == null)
-              Expanded(
-                child: Center(
-                  child: Text(
-                    'Venue details could not be loaded.',
-                    style: SportoTextStyles.text(
-                      size: SportoTextStyles.size14,
-                      color: t.muted,
-                    ),
-                  ),
-                ),
-              )
-            else
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(20, 2, 20, 28),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      TournamentStatusBar(
-                        statusLabel: tournamentStatusLabel(tournament),
-                        statusColor: tournamentStatusColor(tournament, t),
-                        sport: tournamentSportLabel(tournament),
-                        dateText: formatTournamentDate(
-                          tournament.tournamentStartAt,
-                        ),
-                        live: tournament.status == 6,
-                      ),
-                      const SizedBox(height: 14),
-                      TournamentSurface(
-                        radius: t.r11,
-                        padding: const EdgeInsets.all(14),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              tournament.name,
-                              style: SportoTextStyles.text(
-                                size: SportoTextStyles.size16,
-                                weight: FontWeight.w600,
-                                color: t.white,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Row(
-                              children: [
-                                Icon(Icons.location_on_outlined,
-                                    size: 14, color: t.green),
-                                const SizedBox(width: 3),
-                                Expanded(
-                                  child: Text(
-                                    tournamentVenueLabel(tournament),
-                                    style: SportoTextStyles.text(
-                                      size: SportoTextStyles.size12,
-                                      color: t.green,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 14),
-                      TournamentSurface(
-                        radius: t.r11,
-                        padding: const EdgeInsets.all(14),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: TournamentSectionLabel(
-                                    'Venue & Schedule',
-                                    color: t.gold,
-                                  ),
-                                ),
-                                GestureDetector(
-                                  onTap: () => _editHint(context),
-                                  child: Row(
-                                    children: [
-                                      Text(
-                                        'Edit',
-                                        style: SportoTextStyles.text(
-                                          size: SportoTextStyles.size12,
-                                          color: t.blue,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 2),
-                                      Icon(Icons.arrow_forward_rounded,
-                                          size: 14, color: t.blue),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 10),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    'Number of Teams',
-                                    style: SportoTextStyles.text(
-                                      size: SportoTextStyles.size13,
-                                      color: t.muted,
-                                    ),
-                                  ),
-                                ),
-                                Text(
-                                  '${tournament.maximumTeams ?? 0} Teams',
-                                  style: SportoTextStyles.text(
-                                    size: SportoTextStyles.size13,
-                                    color: t.warm,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 10),
-                            const TournamentBracketStrip(isExpanded: true),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      if (tournament.tournamentVenues.isEmpty)
-                        Text(
-                          'No venues assigned yet.',
-                          style: SportoTextStyles.text(
-                            size: SportoTextStyles.size13,
-                            color: t.muted,
-                          ),
-                        )
-                      else
-                        for (var i = 0;
-                            i < tournament.tournamentVenues.length;
-                            i++) ...[
-                          TournamentVenueCard(
-                            index: i + 1,
-                            roundText:
-                                tournament.tournamentVenues[i].roundName ??
-                                    'Round of ${tournament.maximumTeams ?? 0}',
-                            matchesText:
-                                '${((tournament.maximumTeams ?? 0) ~/ 2)} Matches',
-                            name: tournament.tournamentVenues[i].venueName,
-                            location:
-                                tournament.tournamentVenues[i].location ?? '--',
-                            groundType:
-                                tournament.tournamentVenues[i].groundType ??
-                                    'Turf',
-                            matchDate: formatTournamentDay(
-                              tournament.tournamentVenues[i].date,
-                            ),
-                            startTime:
-                                tournament.tournamentVenues[i].startTime ??
-                                    '08:00 PM',
-                            onEdit: () => _editHint(context),
-                          ),
-                          if (i != tournament.tournamentVenues.length - 1)
-                            const SizedBox(height: 12),
-                        ],
-                    ],
+            rowHeight: 44 * scale,
+            onBack: () => context.pop(),
+          ),
+          if (loading)
+            const Expanded(child: VenueScheduleShimmer())
+          else if (tournament == null)
+            Expanded(
+              child: Center(
+                child: Text(
+                  'Venue details could not be loaded.',
+                  style: SportoTextStyles.text(
+                    size: SportoTextStyles.size14,
+                    color: t.muted,
                   ),
                 ),
               ),
-          ],
-        ),
+            )
+          else
+            Expanded(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.fromLTRB(
+                  20 * scale,
+                  10 * scale,
+                  20 * scale,
+                  28 * scale,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TournamentStatusStrip(
+                      tournament: tournament,
+                      dateText: tournament.status == 6
+                          ? formatTournamentStripDate(
+                              tournament.tournamentStartAt)
+                          : formatTournamentDay(
+                              tournament.tournamentStartAt),
+                    ),
+                    SizedBox(height: 16 * scale),
+                    TournamentIdentityCard(tournament: tournament),
+                    SizedBox(height: 16 * scale),
+                    _SchedulePanel(
+                      tournament: tournament,
+                      rounds: _rounds,
+                      onEdit: () => _editHint(context),
+                    ),
+                    for (final venue in _venues(tournament)) ...[
+                      SizedBox(height: 10 * scale),
+                      TournamentVenueCard(
+                        index: venue.$1,
+                        roundText:
+                            venue.$2 == null ? '' : venue.$2!.roundName ?? '',
+                        matchesText: _matchesLabel(venue.$2?.roundName),
+                        name: venue.$2?.venueName ?? '',
+                        location: venue.$2?.location ?? '--',
+                        groundType: venue.$2?.groundType ?? '--',
+                        matchDate: venue.$2?.date == null
+                            ? '--'
+                            : formatTournamentDay(venue.$2!.date),
+                        startTime: venue.$2?.startTime ?? '--',
+                        onEdit: () => _editHint(context),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+        ],
       ),
     );
+  }
+
+  List<(int, PartnerTournamentVenueResponse?)> _venues(
+    PartnerTournamentResponse tournament,
+  ) {
+    final venues = [
+      ...tournament.tournamentVenues
+    ]..sort((a, b) => (a.displayOrder ?? 999).compareTo(b.displayOrder ?? 999));
+    return [for (var i = 0; i < venues.length; i++) (i + 1, venues[i])];
+  }
+
+  String _matchesLabel(String? roundName) {
+    if (roundName == null || roundName.trim().isEmpty) return '';
+    final round = _rounds.where((r) => r.name == roundName).firstOrNull;
+    if (round == null) return '';
+    final count =
+        round.matchCount > 0 ? round.matchCount : round.expectedMatchCount;
+    if (count <= 0) return '';
+    return count == 1 ? '1 Match' : '$count Matches';
   }
 
   void _editHint(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Venue editing will open here.')),
+    );
+  }
+}
+
+/// `Venue & Schedule` panel: teams, bracket ladder (export: white hairline).
+class _SchedulePanel extends StatelessWidget {
+  const _SchedulePanel({
+    required this.tournament,
+    required this.rounds,
+    this.onEdit,
+  });
+
+  final PartnerTournamentResponse tournament;
+  final List<TournamentRound> rounds;
+  final VoidCallback? onEdit;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.sportoTournament;
+    final scale = context.sportoScale;
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(12 * scale),
+      decoration: BoxDecoration(
+        color: t.cardAlt,
+        borderRadius: BorderRadius.circular(t.r16),
+        border: GradientBorder.all(
+          gradient: t.whiteBorderGradient,
+          width: 1,
+          radius: t.r16,
+        ),
+        boxShadow: t.softCardShadow,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'Venue & Schedule',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: SportoTextStyles.text(
+                    size: SportoTextStyles.size14,
+                    weight: FontWeight.w500,
+                    color: t.gold,
+                  ),
+                ),
+              ),
+              if (onEdit != null)
+                GestureDetector(
+                  onTap: onEdit,
+                  behavior: HitTestBehavior.opaque,
+                  child: Row(
+                    children: [
+                      Text(
+                        'Edit',
+                        style: SportoTextStyles.text(
+                          size: SportoTextStyles.size11,
+                          color: t.blue,
+                        ),
+                      ),
+                      const SizedBox(width: 2),
+                      SportoSvgIcon(
+                        SportoHomeRedesignIcons.arrowRight,
+                        width: 11,
+                        height: 7,
+                        color: t.blue,
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+          SizedBox(height: 8 * scale),
+          TournamentDivider(
+            height: .8,
+            color: t.border.withValues(alpha: .5),
+          ),
+          SizedBox(height: 8 * scale),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'Number of Teams',
+                  style: SportoTextStyles.text(
+                    size: SportoTextStyles.size14,
+                    color: t.muted,
+                  ),
+                ),
+              ),
+              Flexible(
+                child: Text(
+                  '${tournament.maximumTeams ?? 0} Teams',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: SportoTextStyles.text(
+                    size: SportoTextStyles.size14,
+                    color: t.muted,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          if (rounds.isNotEmpty) ...[
+            SizedBox(height: 10 * scale),
+            TournamentBracketStrip(rounds: rounds),
+          ],
+        ],
+      ),
     );
   }
 }

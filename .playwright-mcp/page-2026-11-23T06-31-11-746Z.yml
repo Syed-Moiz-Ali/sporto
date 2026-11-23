@@ -1,0 +1,53 @@
+- generic [ref=f3e5]:
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - group [active]:
+            - generic [ref=f3e6]: Good Afternoon
+            - generic [ref=f3e7]: Test Partner
+            - button "Wallet 0" [ref=f3e8]
+            - button "Notification settings" [ref=f3e11]
+            - generic [ref=f3e13]: Search cricket, football..
+            - generic [ref=f3e15]: Referee Status
+            - generic [ref=f3e16]: "On"
+            - switch "Referee availability" [checked] [ref=f3e17]
+            - generic [ref=f3e18]: Ready for your next match
+            - generic [ref=f3e19]: New referee requests can reach you.
+            - button "Availability" [ref=f3e20]
+            - button "Needs Your Attention 3 pending requests" [ref=f3e21]
+            - generic [ref=f3e22]: Wallet Balance
+            - button "Withdraw from wallet Withdraw" [ref=f3e23]
+            - generic [ref=f3e24]: ₹0
+            - generic [ref=f3e25]: ₹0 Total earned
+            - generic [ref=f3e26]: ₹0 Pending
+            - generic [ref=f3e27]: "0"
+            - generic [ref=f3e28]: "8"
+            - generic [ref=f3e29]: "2"
+            - generic [ref=f3e30]: ₹0
+            - generic [ref=f3e31]: Live Now
+            - generic [ref=f3e32]: Upcoming
+            - generic [ref=f3e33]: Completed
+            - generic [ref=f3e34]: Earnings
+            - button "Live Now" [ref=f3e35]
+            - button "Today's Match" [ref=f3e36]
+            - generic:
+              - group:
+                - button "Upcoming By Partner Tue, 9:00 AM Cricket SP-4210 SPORTO Referee Metadata QA 2026-11-23 SPORTO QA Ground 4, Kukatpally, Hyderabad Starts in 7d At 9:00 AM – 10:30 AM START SESSION" [ref=f3e37]
+                - button "Upcoming By Partner Sat, 10:45 AM Cricket SP-4208 SPORTO Referee Fresh QA 2026-11-19 SPORTO QA Ground 3, Kukatpally, Hyderabad Starts in 4d At 10:45 AM – 12:15 PM START SESSION" [ref=f3e38]
+            - generic [ref=f3e39]: Incoming Requests (3)
+            - button "View All" [ref=f3e40]
+            - group "Cricket SP-4212 by Partner 12:30 Test Partner SPORTO Referee Metadata QA 2026-11-23 Tue, 1 Dec 12:30 PM – 2:00 PM SPORTO QA Ground 4, Kukatpally, Hyderabad" [ref=f3e41]:
+              - button "Accept" [ref=f3e42]
+              - button "Decline" [ref=f3e43]
+            - group "Cricket SP-4211 by Partner 10:45 Test Partner SPORTO Referee Metadata QA 2026-11-23 Tue, 1 Dec 10:45 AM – 12:15 PM SPORTO QA Ground 4, Kukatpally, Hyderabad" [ref=f3e44]:
+              - button "Accept" [ref=f3e45]
+              - button "Decline" [ref=f3e46]
+            - group "Cricket SP-4209 by Partner 12:30 Test Partner SPORTO Referee Fresh QA 2026-11-19 Sat, 28 Nov 12:30 PM – 2:00 PM SPORTO QA Ground 3, Kukatpally, Hyderabad" [ref=f3e47]:
+              - button "Accept" [ref=f3e48]
+              - button "Decline" [ref=f3e49]
+            - generic [ref=f3e50]: Ads Banner
+          - button "Home Home" [ref=f3e52]
+          - button "Matches Matches" [ref=f3e53]
+          - button "Scoring Scoring" [ref=f3e54]
+          - button "Profile Profile" [ref=f3e55]

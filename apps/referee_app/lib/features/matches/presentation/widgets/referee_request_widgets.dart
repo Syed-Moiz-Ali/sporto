@@ -98,9 +98,9 @@ String requestCustomerName(RefereeMatchResponse request) {
     final text = value?.toString().trim() ?? '';
     if (text.isNotEmpty) return text;
   }
-  // TODO(backend): temporary Figma placeholder until booking detail/list
-  // consistently returns `booked_by.display_name`.
-  return 'Rahul Kumar';
+  // No fabricated customer fallback: the API now projects a safe name or an
+  // explicit customer_name_unavailable_reason.
+  return '';
 }
 
 num? _numberValue(Object? value) {
@@ -123,12 +123,10 @@ int? requestFeeValue(RefereeMatchResponse request) {
   return null;
 }
 
-/// Formatted fee, or `null` when no amount is available (never fabricated).
+/// Formatted fee, or `null` when no frozen booking fee exists.
 String? requestFeeText(RefereeMatchResponse request) {
   final value = requestFeeValue(request);
-  // TODO(backend): temporary Figma placeholder until fee is projected on
-  // every request detail row.
-  return value == null ? '\u20B91500' : '\u20B9$value';
+  return value == null ? null : '\u20B9$value';
 }
 
 bool _hasDuration(RefereeMatchResponse request) {
@@ -160,14 +158,11 @@ String requestDurationText(RefereeMatchResponse request) {
   return '$whole hr $minutes min';
 }
 
-/// Distance pill label.
-///
-/// TODO(backend): temporary Figma placeholder until the API returns
-/// `distance_km`; the real value still wins when present.
+/// Distance pill label, or `null` when no real stored-location distance exists.
 String? requestDistanceText(RefereeMatchResponse request) {
   final number =
       _numberValue(request.raw['distance_km'] ?? request.raw['distance']);
-  if (number == null || number <= 0) return '8.4 km';
+  if (number == null) return null;
   return '${number.toDouble().toStringAsFixed(1)} km';
 }
 
@@ -343,23 +338,17 @@ String requestScheduleText(RefereeMatchResponse request) {
   return 'Today, 08:00 PM';
 }
 
-/// Venue title.
-///
-/// TODO(backend): temporary Figma placeholder until venue is projected.
+/// Venue title, or `''` when the API has no venue.
 String requestVenueTitle(RefereeMatchResponse request) {
   final venue = request.venueName?.trim() ?? '';
-  return venue.isEmpty ? 'ABC Sports Arena' : venue;
+  return venue;
 }
 
-/// Full location.
-///
-/// TODO(backend): temporary Figma placeholder until location is projected.
+/// Full location, combining venue and location when both exist.
 String requestLocationText(RefereeMatchResponse request) {
   final location = request.location?.trim() ?? '';
   final venue = request.venueName?.trim() ?? '';
-  if (location.isEmpty) {
-    return venue.isEmpty ? 'ABC Sports Arena, Madhapur, Hyderabad' : venue;
-  }
+  if (location.isEmpty) return venue;
   if (venue.isEmpty || location.toLowerCase().contains(venue.toLowerCase())) {
     return location;
   }

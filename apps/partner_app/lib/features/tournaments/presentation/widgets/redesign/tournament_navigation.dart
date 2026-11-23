@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:ui_kit/ui_kit.dart';
 
+import 'tournament_visuals.dart';
+
 /// Underlined text tabs used by the tournament detail screen.
 class TournamentUnderlineTabs extends StatelessWidget {
   const TournamentUnderlineTabs({
@@ -76,12 +78,32 @@ class TournamentDotTab extends StatelessWidget {
     required this.selected,
     required this.onTap,
     this.dotColor,
+    this.height,
+    this.radius,
+    this.borderGradient,
+    this.padding,
+    this.selectedWeight = FontWeight.w600,
+    this.unselectedWeight = FontWeight.w600,
   });
 
   final String label;
   final bool selected;
   final VoidCallback onTap;
   final Color? dotColor;
+
+  /// Height of the pill (export: 25).
+  final double? height;
+
+  /// Corner radius (export: 50; the default keeps the older 9 px look).
+  final double? radius;
+
+  /// Hairline border used by the tournament list pills.
+  final Gradient? borderGradient;
+  final EdgeInsetsGeometry? padding;
+
+  /// The export uses 700 on the selected pill and 500 on idle pills.
+  final FontWeight selectedWeight;
+  final FontWeight unselectedWeight;
 
   @override
   Widget build(BuildContext context) {
@@ -90,12 +112,23 @@ class TournamentDotTab extends StatelessWidget {
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        constraints: height == null ? null : BoxConstraints(minHeight: height!),
+        alignment: height == null ? null : Alignment.center,
+        padding: padding ??
+            EdgeInsets.symmetric(
+              horizontal: borderGradient == null ? 12 : 8,
+              vertical: 8,
+            ),
         decoration: BoxDecoration(
           gradient: selected ? t.greenPillGradient : null,
           color: selected ? null : t.card,
-          borderRadius: BorderRadius.circular(t.r9),
-          border: Border.all(color: selected ? t.green : t.border),
+          borderRadius: BorderRadius.circular(radius ?? t.r9),
+          border: borderGradient != null
+              ? GradientBorder.all(
+                  gradient:
+                      selected ? t.greenPillBorderGradient : borderGradient!,
+                )
+              : Border.all(color: selected ? t.green : t.border),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -113,7 +146,7 @@ class TournamentDotTab extends StatelessWidget {
               label,
               style: SportoTextStyles.text(
                 size: SportoTextStyles.size12,
-                weight: FontWeight.w600,
+                weight: selected ? selectedWeight : unselectedWeight,
                 color: selected ? t.screenBase : t.warm,
               ),
             ),

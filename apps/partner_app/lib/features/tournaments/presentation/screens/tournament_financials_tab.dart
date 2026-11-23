@@ -2,411 +2,276 @@ import 'package:flutter/material.dart';
 import 'package:partner_data/partner_data.dart';
 import 'package:ui_kit/ui_kit.dart';
 
-import '../widgets/redesign/tournament_cards.dart';
-import '../widgets/redesign/tournament_navigation.dart';
 import '../widgets/redesign/tournament_redesign_data.dart';
 import '../widgets/redesign/tournament_visuals.dart';
 
-class TournamentFinancialsTab extends StatefulWidget {
-  const TournamentFinancialsTab({
-    super.key,
-    this.review,
-  });
+/// Financials tab — Figma `Partner App / Financials` (export 29–34, 47).
+///
+/// Only the summary is backed by the API (`/review` → `financial_summary`)
+/// plus the tournament's sponsors. Income / expense ledgers have no endpoint,
+/// so those sub-tabs are not fabricated.
+class TournamentFinancialsTab extends StatelessWidget {
+  const TournamentFinancialsTab({super.key, this.review, this.tournament});
 
   final PartnerTournamentReviewData? review;
-
-  @override
-  State<TournamentFinancialsTab> createState() =>
-      _TournamentFinancialsTabState();
-}
-
-class _TournamentFinancialsTabState extends State<TournamentFinancialsTab> {
-  int _subTab = 0;
-
-  static const _labels = [
-    'Summary',
-    'Income',
-    'Sponsorship',
-    'Prize',
-    'Expenses',
-    'Profit',
-  ];
+  final PartnerTournamentResponse? tournament;
 
   @override
   Widget build(BuildContext context) {
     final t = context.sportoTournament;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        TournamentSubTabs(
-          labels: _labels,
-          selectedIndex: _subTab,
-          onChanged: (index) => setState(() => _subTab = index),
-          accentColor: t.gold,
-        ),
-        const SizedBox(height: 16),
-        TournamentSurface(
-          radius: t.r11,
-          padding: const EdgeInsets.all(14),
-          child: switch (_subTab) {
-            0 => _summary(context),
-            1 => _transactionList(
-                context,
-                'Income',
-                demoIncomeTransactions,
-              ),
-            2 => _transactionList(
-                context,
-                'Sponsorship',
-                demoSponsorshipTransactions,
-              ),
-            3 => _transactionList(
-                context,
-                'Prize',
-                demoPrizeTransactions,
-              ),
-            4 => _transactionList(
-                context,
-                'Expenses',
-                demoExpenseTransactions,
-              ),
-            _ => _profit(context),
-          },
-        ),
-      ],
+    final scale = context.sportoScale;
+    final summary = review?.financialSummary;
+    final sponsors = tournament?.tournamentSponsors ?? const [];
+    final sponsorTotal = sponsors.fold<int>(
+      0,
+      (sum, s) => sum + (int.tryParse(s.contributionAmount) ?? 0),
     );
-  }
 
-  Widget _summary(BuildContext context) {
-    final t = context.sportoTournament;
-    final summary = widget.review?.financialSummary;
-    final estimated = summary?.estimatedCollection ?? 40000;
-    final sponsorship = 18804;
-    final platformFee = summary?.platformFeeAmount ?? 2800;
-    final prize = summary?.totalPrizeMoney ?? '12000';
-    final referee = 9500;
-    final net = summary?.netEarnings ?? 23196;
+    if (summary == null && sponsors.isEmpty) {
+      return Container(
+        width: double.infinity,
+        padding: EdgeInsets.symmetric(
+          horizontal: 16 * scale,
+          vertical: 36 * scale,
+        ),
+        decoration: BoxDecoration(
+          color: t.cardAlt,
+          borderRadius: BorderRadius.circular(t.r16),
+          border: Border.all(color: t.border),
+        ),
+        child: Column(
+          children: [
+            Icon(Icons.receipt_long_outlined, size: 32, color: t.dim),
+            SizedBox(height: 10 * scale),
+            Text(
+              'No financial summary available',
+              textAlign: TextAlign.center,
+              style: SportoTextStyles.text(
+                size: SportoTextStyles.size14,
+                weight: FontWeight.w600,
+                color: t.white,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
 
+    final net = summary?.netEarnings ?? 0;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Financial Summary',
-          style: SportoTextStyles.text(
-            size: SportoTextStyles.size15,
-            color: t.muted,
-          ),
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: _summaryTile(
-                context,
-                '+${formatCurrencyValue(estimated)}',
+        _SummaryCard(
+          rows: [
+            if (summary != null)
+              _Row(
                 'Registration revenue',
+                formatCurrencyValue(summary.estimatedCollection),
                 t.green,
               ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: _summaryTile(
-                context,
-                formatCurrencyValue(sponsorship),
+            if (sponsorTotal > 0)
+              _Row(
                 'Sponsorship Received',
-                t.warm,
+                formatCurrencyValue(sponsorTotal),
+                t.green,
               ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 10),
-        Row(
-          children: [
-            Expanded(
-              child: _summaryTile(
-                context,
-                '-${formatCurrencyValue(platformFee)}',
+            if (summary != null)
+              _Row(
                 'SPOTO platform fee',
-                t.gold,
+                '-${formatCurrencyValue(summary.platformFeeAmount)}',
+                t.red,
               ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: _summaryTile(
-                context,
-                formatCurrency(prize),
+            if (summary != null)
+              _Row(
                 'Prize money paid',
-                t.warm,
+                '-${formatCurrency(summary.totalPrizeMoney)}',
+                t.red,
               ),
-            ),
           ],
+          netLabel: 'Net profit / loss',
+          netValue: formatCurrencyValue(net),
+          netPositive: net >= 0,
         ),
-        const SizedBox(height: 10),
-        Row(
-          children: [
-            Expanded(
-              child: _summaryTile(
-                context,
-                '-${formatCurrencyValue(referee)}',
-                'Referee Booking Paid',
-                t.green,
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: _summaryTile(
-                context,
-                '0',
-                'Refunds',
-                t.green,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        Center(
-          child: Container(
-            width: 190,
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            decoration: BoxDecoration(
-              color: t.cardAlt,
-              borderRadius: BorderRadius.circular(t.r11),
-              border: Border.all(color: t.green.withValues(alpha: .3)),
-            ),
-            child: Column(
-              children: [
-                Text(
-                  '+${formatCurrencyValue(net)}',
-                  style: SportoTextStyles.text(
-                    size: SportoTextStyles.size16,
-                    weight: FontWeight.w700,
-                    color: t.green,
-                  ),
-                ),
-                const SizedBox(height: 3),
-                Text(
-                  'Net profit / loss',
-                  style: SportoTextStyles.text(
-                    size: SportoTextStyles.size12,
-                    color: t.muted,
-                  ),
-                ),
-              ],
-            ),
+        if (sponsors.isNotEmpty) ...[
+          SizedBox(height: 10 * scale),
+          _SponsorBreakdown(sponsors: sponsors),
+        ],
+        SizedBox(height: 10 * scale),
+        Text(
+          'Income, prize and expense ledgers are not exposed by the partner '
+          'API yet, so only the summary is shown.',
+          style: SportoTextStyles.text(
+            size: SportoTextStyles.size10,
+            color: t.dim,
           ),
         ),
       ],
     );
   }
+}
 
-  Widget _summaryTile(
-    BuildContext context,
-    String value,
-    String label,
-    Color valueColor,
-  ) {
+class _Row {
+  const _Row(this.label, this.value, this.color);
+
+  final String label;
+  final String value;
+  final Color color;
+}
+
+class _SummaryCard extends StatelessWidget {
+  const _SummaryCard({
+    required this.rows,
+    required this.netLabel,
+    required this.netValue,
+    required this.netPositive,
+  });
+
+  final List<_Row> rows;
+  final String netLabel;
+  final String netValue;
+  final bool netPositive;
+
+  @override
+  Widget build(BuildContext context) {
     final t = context.sportoTournament;
+    final scale = context.sportoScale;
     return Container(
-      padding: const EdgeInsets.all(12),
+      width: double.infinity,
+      padding: EdgeInsets.all(12 * scale),
       decoration: BoxDecoration(
         color: t.cardAlt,
-        borderRadius: BorderRadius.circular(t.r9),
+        borderRadius: BorderRadius.circular(t.r16),
+        border: GradientBorder.all(
+          gradient: t.whiteBorderGradient,
+          width: 1,
+          radius: t.r16,
+        ),
+        boxShadow: t.softCardShadow,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Summary',
+            style: SportoTextStyles.text(
+              size: SportoTextStyles.size12,
+              weight: FontWeight.w500,
+              color: t.dim,
+            ),
+          ),
+          SizedBox(height: 10 * scale),
+          for (var i = 0; i < rows.length; i++) ...[
+            _Line(
+                label: rows[i].label,
+                value: rows[i].value,
+                color: rows[i].color),
+            SizedBox(height: 8 * scale),
+          ],
+          TournamentDivider(
+            height: .8,
+            color: t.border.withValues(alpha: .5),
+          ),
+          SizedBox(height: 10 * scale),
+          _Line(
+            label: netLabel,
+            value: netValue,
+            color: netPositive ? t.greenBright : t.red,
+            bold: true,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SponsorBreakdown extends StatelessWidget {
+  const _SponsorBreakdown({required this.sponsors});
+
+  final List<PartnerTournamentSponsorResponse> sponsors;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.sportoTournament;
+    final scale = context.sportoScale;
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(12 * scale),
+      decoration: BoxDecoration(
+        color: t.cardAlt,
+        borderRadius: BorderRadius.circular(t.r16),
         border: Border.all(color: t.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Icon(Icons.trending_up_rounded, size: 14, color: valueColor),
-              const SizedBox(width: 4),
-              Expanded(
-                child: Text(
-                  value,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: SportoTextStyles.text(
-                    size: SportoTextStyles.size15,
-                    weight: FontWeight.w600,
-                    color: valueColor,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 4),
           Text(
-            label,
+            'Sponsors',
             style: SportoTextStyles.text(
-              size: SportoTextStyles.size11,
-              color: t.muted,
+              size: SportoTextStyles.size12,
+              weight: FontWeight.w500,
+              color: t.dim,
             ),
           ),
+          SizedBox(height: 8 * scale),
+          for (var i = 0; i < sponsors.length; i++) ...[
+            _Line(
+              label: sponsors[i].name,
+              value: formatCurrency(sponsors[i].contributionAmount),
+              color: t.gold,
+            ),
+            if (i != sponsors.length - 1) SizedBox(height: 8 * scale),
+          ],
         ],
       ),
     );
   }
+}
 
-  Widget _transactionList(
-    BuildContext context,
-    String title,
-    List<DemoTransaction> items,
-  ) {
-    final t = context.sportoTournament;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: SportoTextStyles.text(
-            size: SportoTextStyles.size15,
-            color: t.muted,
-          ),
-        ),
-        const SizedBox(height: 12),
-        for (var i = 0; i < items.length; i++) ...[
-          TournamentTransactionRow(
-            title: items[i].title,
-            dateText: items[i].date,
-            code: items[i].code,
-            amount: items[i].amount,
-            positive: items[i].positive,
-          ),
-          if (i != items.length - 1) const SizedBox(height: 8),
-        ],
-      ],
-    );
-  }
+class _Line extends StatelessWidget {
+  const _Line({
+    required this.label,
+    required this.value,
+    required this.color,
+    this.bold = false,
+  });
 
-  Widget _profit(BuildContext context) {
+  final String label;
+  final String value;
+  final Color color;
+  final bool bold;
+
+  @override
+  Widget build(BuildContext context) {
     final t = context.sportoTournament;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          'Profit Calculation',
-          style: SportoTextStyles.text(
-            size: SportoTextStyles.size15,
-            color: t.muted,
-          ),
-        ),
-        const SizedBox(height: 12),
-        Container(
-          decoration: BoxDecoration(
-            color: t.card,
-            borderRadius: BorderRadius.circular(t.r11),
-            border: Border.all(color: t.gold.withValues(alpha: .25)),
-          ),
-          child: Column(
-            children: [
-              for (var i = 0; i < demoProfitRows.length; i++)
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 9,
-                  ),
-                  decoration: BoxDecoration(
-                    border: i == demoProfitRows.length - 1
-                        ? null
-                        : Border(
-                            bottom: BorderSide(color: t.border),
-                          ),
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          demoProfitRows[i].label,
-                          style: SportoTextStyles.text(
-                            size: SportoTextStyles.size13,
-                            color:
-                                demoProfitRows[i].emphasis ? t.warm : t.muted,
-                          ),
-                        ),
-                      ),
-                      Text(
-                        demoProfitRows[i].amount,
-                        style: SportoTextStyles.text(
-                          size: SportoTextStyles.size13,
-                          weight: FontWeight.w600,
-                          color: demoProfitRows[i].amount.startsWith('-')
-                              ? t.red
-                              : t.green,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 18),
-        Text(
-          'Settlement',
-          style: SportoTextStyles.text(
-            size: SportoTextStyles.size15,
-            color: t.muted,
-          ),
-        ),
-        const SizedBox(height: 12),
-        for (var i = 0; i < demoSettlements.length; i++) ...[
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            decoration: BoxDecoration(
-              color: t.cardAlt,
-              borderRadius: BorderRadius.circular(t.r9),
-              border: Border.all(color: t.border),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        demoSettlements[i].title,
-                        style: SportoTextStyles.text(
-                          size: SportoTextStyles.size14,
-                          color: t.warm,
-                        ),
-                      ),
-                      const SizedBox(height: 3),
-                      Text(
-                        demoSettlements[i].subtitle,
-                        style: SportoTextStyles.text(
-                          size: SportoTextStyles.size11,
-                          color: t.dim,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      '16 Jul 2026, 10:45 am',
-                      style: SportoTextStyles.text(
-                        size: SportoTextStyles.size11,
-                        color: t.muted,
-                      ),
-                    ),
-                    const SizedBox(height: 3),
-                    Text(
-                      demoSettlements[i].amount,
-                      style: SportoTextStyles.text(
-                        size: SportoTextStyles.size14,
-                        weight: FontWeight.w600,
-                        color: t.green,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+        Flexible(
+          child: Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: SportoTextStyles.text(
+              size: SportoTextStyles.size12,
+              weight: bold ? FontWeight.w600 : FontWeight.w400,
+              color: bold ? t.white : t.muted,
             ),
           ),
-          if (i != demoSettlements.length - 1) const SizedBox(height: 8),
-        ],
+        ),
+        const SizedBox(width: 8),
+        Flexible(
+          child: Text(
+            value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.right,
+            style: SportoTextStyles.text(
+              size: SportoTextStyles.size12,
+              weight: bold ? FontWeight.w700 : FontWeight.w500,
+              color: color,
+            ),
+          ),
+        ),
       ],
     );
   }

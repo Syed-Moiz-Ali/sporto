@@ -937,12 +937,14 @@ class PartnerTournamentMatchResponse {
 
     final directTeamA = _readNestedName(json, const [
       'team_a',
+      'team_a_name',
       'team1',
       'home_team',
       'first_team',
     ]);
     final directTeamB = _readNestedName(json, const [
       'team_b',
+      'team_b_name',
       'team2',
       'away_team',
       'second_team',

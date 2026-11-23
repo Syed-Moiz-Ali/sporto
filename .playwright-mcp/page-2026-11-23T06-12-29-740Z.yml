@@ -1,0 +1,22 @@
+- generic [ref=f2e5]:
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - button "Back" [active] [ref=f2e72]
+          - generic [ref=f2e73]: Tournaments History
+          - button "Create Create" [ref=f2e74]
+          - group:
+            - button "Completed Completed" [ref=f2e75]
+            - button "Cancelled Cancelled" [ref=f2e76]
+          - button "Sort" [ref=f2e77]
+          - generic:
+            - group:
+              - group "Completed 1019 T Cricket League Code ITA5TPTBJ3 Currency INR Venue AD Venue Date 2026-11-01 Teams 2/2 Teams Level Not configured Earnings ₹0":
+                - button "View View" [ref=f2e78]
+                - button "Manage Manage" [ref=f2e79]
+                - button "Earnings Earnings" [ref=f2e80]
+              - group "Completed 1018 T Cricket League Code AUYPT5IXFV Currency INR Venue SF Grounds Date 2026-11-01 Teams 2/2 Teams Level Not configured Earnings ₹0":
+                - button "View View" [ref=f2e82]
+                - button "Manage Manage" [ref=f2e83]
+                - button "Earnings Earnings" [ref=f2e84]

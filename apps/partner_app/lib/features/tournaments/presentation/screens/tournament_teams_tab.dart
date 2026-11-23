@@ -4,7 +4,11 @@ import 'package:ui_kit/ui_kit.dart';
 
 import '../widgets/redesign/tournament_cards.dart';
 import '../widgets/redesign/tournament_navigation.dart';
+import '../widgets/redesign/tournament_visuals.dart';
 
+/// Teams tab — Figma `Partner App / Teams` (export 17).
+///
+/// Real data only: registrations carry team name, status and players.
 class TournamentTeamsTab extends StatefulWidget {
   const TournamentTeamsTab({
     super.key,
@@ -22,137 +26,166 @@ class TournamentTeamsTab extends StatefulWidget {
 class _TournamentTeamsTabState extends State<TournamentTeamsTab> {
   int _filter = 0;
 
+  bool _approved(TournamentRegistration r) {
+    final s = r.status.toLowerCase();
+    return s.contains('approv') ||
+        s.contains('confirm') ||
+        s.contains('accept');
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = context.sportoTournament;
-    final registrations = widget.registrations;
-    final demo = registrations.isEmpty;
+    final all = widget.registrations;
+    final approved = all.where(_approved).toList();
+    final filters = [
+      'All (${all.length})',
+      'Approved (${approved.length})',
+    ];
+    final index = _filter.clamp(0, filters.length - 1);
+    final list = index == 0 ? all : approved;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(
           height: 34,
-          child: ListView(
+          child: ListView.separated(
             scrollDirection: Axis.horizontal,
-            children: [
-              TournamentFilterChip(
-                label: demo ? 'All (64)' : 'All (${registrations.length})',
-                selected: _filter == 0,
-                onTap: () => setState(() => _filter = 0),
-                selectedColor: t.green,
-                selectedForeground: t.screenBase,
-              ),
-              const SizedBox(width: 8),
-              TournamentFilterChip(
-                label: demo
-                    ? 'Participated (64)'
-                    : 'Participated (${registrations.length})',
-                selected: _filter == 1,
-                onTap: () => setState(() => _filter = 1),
-                selectedColor: t.green,
-                selectedForeground: t.screenBase,
-              ),
-              const SizedBox(width: 8),
-              TournamentFilterChip(
-                label: "Didn't Participate (0)",
-                selected: _filter == 2,
-                onTap: () => setState(() => _filter = 2),
-                selectedColor: t.green,
-                selectedForeground: t.screenBase,
-              ),
-            ],
+            itemCount: filters.length,
+            separatorBuilder: (_, __) => const SizedBox(width: 8),
+            itemBuilder: (_, i) => TournamentFilterChip(
+              label: filters[i],
+              selected: index == i,
+              onTap: () => setState(() => _filter = i),
+              selectedColor: t.green,
+              selectedForeground: t.screenBase,
+            ),
           ),
         ),
         const SizedBox(height: 14),
-        if (demo)
-          for (var i = 0; i < _demoTeams.length; i++) ...[
-            _demoTeams[i],
-            if (i != _demoTeams.length - 1) const SizedBox(height: 12),
-          ]
+        if (list.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 40),
+            child: Center(
+              child: Text(
+                'No teams registered yet.',
+                style: SportoTextStyles.text(
+                  size: SportoTextStyles.size14,
+                  color: t.muted,
+                ),
+              ),
+            ),
+          )
         else
-          for (var i = 0; i < registrations.length; i++) ...[
-            TournamentTeamRankCard(
+          for (var i = 0; i < list.length; i++) ...[
+            _TeamCard(
               rank: i + 1,
-              name: registrations[i].name,
-              captain: registrations[i].players.isNotEmpty
-                  ? registrations[i].players.first.name
-                  : '--',
-              played: '6',
-              wins: '6',
-              prizes: '2',
-              rankLabel: i == 0
-                  ? 'Winner'
-                  : i == 1
-                      ? 'Runner-up'
-                      : i < 4
-                          ? 'Semi-finalist'
-                          : 'Quarter-finalist',
-              rankColor: i == 0
-                  ? t.gold
-                  : i == 1
-                      ? t.dim
-                      : t.orange,
+              registration: list[i],
               onView: widget.onViewTeam == null
                   ? null
-                  : () => widget.onViewTeam!(registrations[i]),
+                  : () => widget.onViewTeam!(list[i]),
             ),
-            if (i != registrations.length - 1) const SizedBox(height: 12),
+            if (i != list.length - 1) const SizedBox(height: 10),
           ],
       ],
     );
   }
+}
 
-  List<Widget> get _demoTeams => const [
-        TournamentTeamRankCard(
-          rank: 1,
-          name: 'Hyd Highlanders',
-          captain: 'Teja Nair',
-          played: '6',
-          wins: '6',
-          prizes: '10',
-          rankLabel: 'Winner',
-          rankColor: Color(0xFFF4B41A),
-        ),
-        TournamentTeamRankCard(
-          rank: 2,
-          name: 'Delhi Warriors',
-          captain: 'Teja Nair',
-          played: '6',
-          wins: '6',
-          prizes: '2',
-          rankLabel: 'Runner-up',
-          rankColor: Color(0xFFAAAAAA),
-        ),
-        TournamentTeamRankCard(
-          rank: 3,
-          name: 'Falcons XI',
-          captain: 'Teja Nair',
-          played: '6',
-          wins: '6',
-          prizes: '2',
-          rankLabel: 'Semi-finalist',
-          rankColor: Color(0xFFF9794C),
-        ),
-        TournamentTeamRankCard(
-          rank: 4,
-          name: 'Hitech Hurricanes',
-          captain: 'Teja Nair',
-          played: '6',
-          wins: '6',
-          prizes: '2',
-          rankLabel: 'Semi-finalist',
-          rankColor: Color(0xFFF9794C),
-        ),
-        TournamentTeamRankCard(
-          rank: 5,
-          name: 'Habsiguda Hawks',
-          captain: 'Teja Nair',
-          played: '6',
-          wins: '6',
-          prizes: '2',
-          rankLabel: 'Quarter-finalist',
-          rankColor: Color(0xFFAAAAAA),
-        ),
-      ];
+class _TeamCard extends StatelessWidget {
+  const _TeamCard({
+    required this.rank,
+    required this.registration,
+    this.onView,
+  });
+
+  final int rank;
+  final TournamentRegistration registration;
+  final VoidCallback? onView;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.sportoTournament;
+    final scale = context.sportoScale;
+    final players = registration.players.length;
+    final initials = _initials(registration.name);
+    return TournamentSurface(
+      radius: t.r12,
+      padding: EdgeInsets.all(12 * scale),
+      color: t.cardAlt,
+      borderColor: t.border,
+      onTap: onView,
+      child: Row(
+        children: [
+          TournamentAvatar(
+            label: initials,
+            size: 42 * scale,
+            radius: t.r10,
+            color: t.greenDeep,
+            background: t.greenDeep.withValues(alpha: .10),
+            fontSize: SportoTextStyles.size16,
+            showBorder: false,
+          ),
+          SizedBox(width: 10 * scale),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      '#$rank Team',
+                      style: SportoTextStyles.text(
+                        size: SportoTextStyles.size11,
+                        weight: FontWeight.w600,
+                        color: t.gold,
+                      ),
+                    ),
+                    const Spacer(),
+                    if (registration.status.trim().isNotEmpty)
+                      Text(
+                        registration.status,
+                        style: SportoTextStyles.text(
+                          size: SportoTextStyles.size11,
+                          color: t.muted,
+                        ),
+                      ),
+                  ],
+                ),
+                SizedBox(height: 2 * scale),
+                Text(
+                  registration.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: SportoTextStyles.text(
+                    size: SportoTextStyles.size14,
+                    weight: FontWeight.w600,
+                    color: t.white,
+                  ),
+                ),
+                SizedBox(height: 2 * scale),
+                Text(
+                  players == 1 ? '1 player' : '$players players',
+                  style: SportoTextStyles.text(
+                    size: SportoTextStyles.size12,
+                    color: t.muted,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  static String _initials(String name) {
+    final words =
+        name.trim().split(RegExp(r'\s+')).where((w) => w.isNotEmpty).toList();
+    if (words.length >= 2) {
+      return (words[0][0] + words[1][0]).toUpperCase();
+    }
+    return name.isEmpty ? '--' : name.substring(0, 1).toUpperCase();
+  }
 }

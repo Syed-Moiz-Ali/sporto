@@ -30,6 +30,7 @@ class SportoTournamentTokens extends ThemeExtension<SportoTournamentTokens> {
     required this.draft,
     required this.green,
     required this.greenBright,
+    required this.greenDeep,
     required this.gold,
     required this.goldBright,
     required this.blue,
@@ -45,6 +46,12 @@ class SportoTournamentTokens extends ThemeExtension<SportoTournamentTokens> {
     required this.bluePillGradient,
     required this.goldPillGradient,
     required this.greenPillGradient,
+    required this.greenPillBorderGradient,
+    required this.bluePillBorderGradient,
+    required this.whiteBorderGradient,
+    required this.blueEdgeGradient,
+    required this.amberPillGradient,
+    required this.liveDotGradient,
     required this.orangePillGradient,
     required this.redPillGradient,
     required this.bracketPanelGradient,
@@ -67,7 +74,9 @@ class SportoTournamentTokens extends ThemeExtension<SportoTournamentTokens> {
     required this.r9_07,
     required this.r10,
     required this.r11,
+    required this.r12,
     required this.r14,
+    required this.r16,
     required this.r18,
     required this.r44,
     required this.r50,
@@ -98,6 +107,10 @@ class SportoTournamentTokens extends ThemeExtension<SportoTournamentTokens> {
   final Color draft;
   final Color green;
   final Color greenBright;
+
+  /// Deep green from the tournament export (`color/accent-green/18`, `#28A166`).
+  /// Used for card avatars and their 10% tint.
+  final Color greenDeep;
   final Color gold;
   final Color goldBright;
   final Color blue;
@@ -114,6 +127,28 @@ class SportoTournamentTokens extends ThemeExtension<SportoTournamentTokens> {
   final LinearGradient bluePillGradient;
   final LinearGradient goldPillGradient;
   final LinearGradient greenPillGradient;
+
+  /// Hairline border of the selected tournament-list pill
+  /// (`#2BB6730F → #2BB67333 → #2BB6730F`, export node 3711:5774).
+  final LinearGradient greenPillBorderGradient;
+
+  /// Hairline border of an idle tournament-list pill
+  /// (`#7BD0FA1A → #7BD0FA4D → #7BD0FA1A`, export node 3711:5774 siblings).
+  final LinearGradient bluePillBorderGradient;
+
+  /// White hairline of the prize-pool panel
+  /// (`#FFFFFF0F → #FFFFFF4D → #FFFFFF0F`, vertical).
+  final LinearGradient whiteBorderGradient;
+
+  /// Blue hairline of the tournament identity card
+  /// (`#7BD0FA00 → #7BD0FA4D → #7BD0FA00`, vertical).
+  final LinearGradient blueEdgeGradient;
+
+  /// Amber gradient used by the champion ticket medal (`#ED7B00 → #CF9E24`).
+  final LinearGradient amberPillGradient;
+
+  /// Live status dot (`#FF4444 → #FF1919`).
+  final LinearGradient liveDotGradient;
   final LinearGradient orangePillGradient;
   final LinearGradient redPillGradient;
   final LinearGradient bracketPanelGradient;
@@ -138,7 +173,9 @@ class SportoTournamentTokens extends ThemeExtension<SportoTournamentTokens> {
   final double r9_07;
   final double r10;
   final double r11;
+  final double r12;
   final double r14;
+  final double r16;
   final double r18;
   final double r44;
   final double r50;
@@ -169,6 +206,7 @@ class SportoTournamentTokens extends ThemeExtension<SportoTournamentTokens> {
     draft: Color(0xFFAAAAAA),
     green: Color(0xFF2BB673),
     greenBright: Color(0xFF81F78C),
+    greenDeep: Color(0xFF28A166),
     gold: Color(0xFFF4B41A),
     goldBright: Color(0xFFFEC955),
     blue: Color(0xFF4FBAF0),
@@ -203,6 +241,36 @@ class SportoTournamentTokens extends ThemeExtension<SportoTournamentTokens> {
       begin: Alignment.topCenter,
       end: Alignment.bottomCenter,
       colors: [Color(0xFF99FFA3), Color(0xFF68EE76)],
+    ),
+    greenPillBorderGradient: LinearGradient(
+      colors: [Color(0x0F2BB673), Color(0x332BB673), Color(0x0F2BB673)],
+      stops: [0, 0.52, 1],
+    ),
+    bluePillBorderGradient: LinearGradient(
+      colors: [Color(0x1A7BD0FA), Color(0x4D7BD0FA), Color(0x1A7BD0FA)],
+      stops: [0, 0.52, 1],
+    ),
+    whiteBorderGradient: LinearGradient(
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      colors: [Color(0x0FFFFFFF), Color(0x4DFFFFFF), Color(0x0FFFFFFF)],
+      stops: [0, 0.52, 1],
+    ),
+    blueEdgeGradient: LinearGradient(
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      colors: [Color(0x007BD0FA), Color(0x4D7BD0FA), Color(0x007BD0FA)],
+      stops: [0, 0.52, 1],
+    ),
+    amberPillGradient: LinearGradient(
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      colors: [Color(0xFFED7B00), Color(0xFFCF9E24)],
+    ),
+    liveDotGradient: LinearGradient(
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      colors: [Color(0xFFFF4444), Color(0xFFFF1919)],
     ),
     orangePillGradient: LinearGradient(
       begin: Alignment.topCenter,
@@ -304,7 +372,9 @@ class SportoTournamentTokens extends ThemeExtension<SportoTournamentTokens> {
     r9_07: 9.07,
     r10: 10,
     r11: 11,
+    r12: 12,
     r14: 14,
+    r16: 16,
     r18: 18,
     r44: 44,
     r50: 50,
@@ -337,6 +407,7 @@ class SportoTournamentTokens extends ThemeExtension<SportoTournamentTokens> {
     Color? draft,
     Color? green,
     Color? greenBright,
+    Color? greenDeep,
     Color? gold,
     Color? goldBright,
     Color? blue,
@@ -352,6 +423,12 @@ class SportoTournamentTokens extends ThemeExtension<SportoTournamentTokens> {
     LinearGradient? bluePillGradient,
     LinearGradient? goldPillGradient,
     LinearGradient? greenPillGradient,
+    LinearGradient? greenPillBorderGradient,
+    LinearGradient? bluePillBorderGradient,
+    LinearGradient? whiteBorderGradient,
+    LinearGradient? blueEdgeGradient,
+    LinearGradient? amberPillGradient,
+    LinearGradient? liveDotGradient,
     LinearGradient? orangePillGradient,
     LinearGradient? redPillGradient,
     LinearGradient? bracketPanelGradient,
@@ -374,7 +451,9 @@ class SportoTournamentTokens extends ThemeExtension<SportoTournamentTokens> {
     double? r9_07,
     double? r10,
     double? r11,
+    double? r12,
     double? r14,
+    double? r16,
     double? r18,
     double? r44,
     double? r50,
@@ -405,6 +484,7 @@ class SportoTournamentTokens extends ThemeExtension<SportoTournamentTokens> {
       draft: draft ?? this.draft,
       green: green ?? this.green,
       greenBright: greenBright ?? this.greenBright,
+      greenDeep: greenDeep ?? this.greenDeep,
       gold: gold ?? this.gold,
       goldBright: goldBright ?? this.goldBright,
       blue: blue ?? this.blue,
@@ -421,6 +501,14 @@ class SportoTournamentTokens extends ThemeExtension<SportoTournamentTokens> {
       bluePillGradient: bluePillGradient ?? this.bluePillGradient,
       goldPillGradient: goldPillGradient ?? this.goldPillGradient,
       greenPillGradient: greenPillGradient ?? this.greenPillGradient,
+      greenPillBorderGradient:
+          greenPillBorderGradient ?? this.greenPillBorderGradient,
+      bluePillBorderGradient:
+          bluePillBorderGradient ?? this.bluePillBorderGradient,
+      whiteBorderGradient: whiteBorderGradient ?? this.whiteBorderGradient,
+      blueEdgeGradient: blueEdgeGradient ?? this.blueEdgeGradient,
+      amberPillGradient: amberPillGradient ?? this.amberPillGradient,
+      liveDotGradient: liveDotGradient ?? this.liveDotGradient,
       orangePillGradient: orangePillGradient ?? this.orangePillGradient,
       redPillGradient: redPillGradient ?? this.redPillGradient,
       bracketPanelGradient: bracketPanelGradient ?? this.bracketPanelGradient,
@@ -445,7 +533,9 @@ class SportoTournamentTokens extends ThemeExtension<SportoTournamentTokens> {
       r9_07: r9_07 ?? this.r9_07,
       r10: r10 ?? this.r10,
       r11: r11 ?? this.r11,
+      r12: r12 ?? this.r12,
       r14: r14 ?? this.r14,
+      r16: r16 ?? this.r16,
       r18: r18 ?? this.r18,
       r44: r44 ?? this.r44,
       r50: r50 ?? this.r50,

@@ -3,6 +3,19 @@ import 'package:ui_kit/ui_kit.dart';
 
 import 'tournament_visuals.dart';
 
+/// Badge fill from the export: the status gradient at ~6 % over the card.
+Gradient? _fadedGradient(Gradient? gradient, {double alpha = .06}) {
+  if (gradient is LinearGradient) {
+    return LinearGradient(
+      begin: gradient.begin,
+      end: gradient.end,
+      stops: gradient.stops,
+      colors: [for (final c in gradient.colors) c.withValues(alpha: alpha)],
+    );
+  }
+  return gradient;
+}
+
 String tournamentInitials(String name) {
   final words =
       name.trim().split(RegExp(r'\s+')).where((w) => w.isNotEmpty).toList();
@@ -23,6 +36,7 @@ class TournamentAvatar extends StatelessWidget {
     this.background,
     this.radius,
     this.fontSize,
+    this.showBorder = true,
   });
 
   final String label;
@@ -31,6 +45,7 @@ class TournamentAvatar extends StatelessWidget {
   final Color? background;
   final double? radius;
   final double? fontSize;
+  final bool showBorder;
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +66,9 @@ class TournamentAvatar extends StatelessWidget {
             : null,
         color: background,
         borderRadius: BorderRadius.circular(radius ?? t.r11),
-        border: Border.all(color: (color ?? t.green).withValues(alpha: .25)),
+        border: showBorder
+            ? Border.all(color: (color ?? t.green).withValues(alpha: .25))
+            : null,
       ),
       alignment: Alignment.center,
       child: Text(
@@ -115,12 +132,15 @@ class LiveTournamentCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              TournamentStatusChip(
-                label: 'Live Now',
-                color: t.live,
-                background: t.live.withValues(alpha: .12),
-                border: t.live.withValues(alpha: .35),
-                dot: true,
+              Flexible(
+                fit: FlexFit.loose,
+                child: TournamentStatusChip(
+                  label: 'Live Now',
+                  color: t.live,
+                  background: t.live.withValues(alpha: .12),
+                  border: t.live.withValues(alpha: .35),
+                  dot: true,
+                ),
               ),
               const SizedBox(width: 10),
               Expanded(
@@ -134,11 +154,16 @@ class LiveTournamentCard extends StatelessWidget {
                   ),
                 ),
               ),
-              Text(
-                dateText,
-                style: SportoTextStyles.text(
-                  size: SportoTextStyles.size12,
-                  color: t.warm,
+              Flexible(
+                child: Text(
+                  dateText,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.right,
+                  style: SportoTextStyles.text(
+                    size: SportoTextStyles.size12,
+                    color: t.warm,
+                  ),
                 ),
               ),
             ],
@@ -311,6 +336,7 @@ class TournamentListCard extends StatelessWidget {
     required this.venue,
     required this.statusLabel,
     required this.statusColor,
+    this.statusGradient,
     this.code,
     this.dateText,
     this.location,
@@ -322,15 +348,21 @@ class TournamentListCard extends StatelessWidget {
     this.matchesScheduled,
     this.progress,
     this.champions,
+    this.noteTitle,
     this.noteText,
     this.noteColor,
+    this.submittedText,
     this.actionLabel,
     this.actionIcon,
     this.onAction,
     this.onTap,
+    this.onEdit,
     this.secondaryActionLabel,
     this.onSecondaryAction,
     this.avatarColor,
+    this.avatarBackground,
+    this.entryFee,
+    this.prize,
   });
 
   final String name;
@@ -338,6 +370,9 @@ class TournamentListCard extends StatelessWidget {
   final String venue;
   final String statusLabel;
   final Color statusColor;
+
+  /// Gradient of the status badge (export paints each state with its own).
+  final Gradient? statusGradient;
   final String? code;
   final String? dateText;
   final String? location;
@@ -349,68 +384,136 @@ class TournamentListCard extends StatelessWidget {
   final int? matchesScheduled;
   final double? progress;
   final String? champions;
+  final String? noteTitle;
   final String? noteText;
   final Color? noteColor;
+  final String? submittedText;
   final String? actionLabel;
   final Widget? actionIcon;
   final VoidCallback? onAction;
   final VoidCallback? onTap;
+
+  /// Renders the `Edit` pill of the draft / under-review / rejected states.
+  final VoidCallback? onEdit;
   final String? secondaryActionLabel;
   final VoidCallback? onSecondaryAction;
   final Color? avatarColor;
+  final Color? avatarBackground;
+  final String? entryFee;
+  final String? prize;
+
+  bool get _hasProgress => teamsRegistered != null && maxTeams != null;
+  bool get _hasMeta => dateRange != null || entryFee != null || prize != null;
 
   @override
   Widget build(BuildContext context) {
     final t = context.sportoTournament;
-    final showProgress = teamsRegistered != null && maxTeams != null;
+    final meta = <String>[
+      if (dateRange != null) dateRange!,
+      if (entryFee != null) entryFee!,
+      if (prize != null) prize!,
+    ];
+
     return TournamentSurface(
-      radius: t.r11,
-      padding: const EdgeInsets.all(12),
-      borderColor: statusColor.withValues(alpha: .22),
+      radius: t.r16,
+      padding: const EdgeInsets.all(10),
+      color: t.card,
+      showBorder: false,
       onTap: onTap,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              TournamentStatusChip(
-                label: statusLabel,
-                color: statusColor,
-                background: statusColor.withValues(alpha: .10),
-                border: statusColor.withValues(alpha: .26),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  code ?? '',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: SportoTextStyles.text(
-                    size: SportoTextStyles.size11,
-                    color: t.dim,
-                  ),
+          // Status row: badge · code · date (export 23 px high).
+          LayoutBuilder(
+            builder: (context, constraints) {
+              return ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: 23),
+                child: Row(
+                  children: [
+                    ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxWidth: constraints.maxWidth * .48,
+                      ),
+                      child: TournamentStatusChip(
+                        label: statusLabel,
+                        color: statusColor,
+                        gradient: _fadedGradient(statusGradient),
+                        textGradient: statusGradient,
+                        height: 23,
+                        fontSize: SportoTextStyles.size12,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Flexible(
+                            child: Text(
+                              code ?? '',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: SportoTextStyles.text(
+                                size: SportoTextStyles.size10,
+                                weight: FontWeight.w500,
+                                color: t.dim,
+                              ),
+                            ),
+                          ),
+                          if (dateText != null) ...[
+                            const SizedBox(width: 8),
+                            Flexible(
+                              child: Text(
+                                dateText!,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                textAlign: TextAlign.right,
+                                style: SportoTextStyles.text(
+                                  size: SportoTextStyles.size10,
+                                  weight: FontWeight.w500,
+                                  color: t.muted,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              if (dateText != null)
-                Text(
-                  dateText!,
-                  style: SportoTextStyles.text(
-                    size: SportoTextStyles.size11,
-                    color: t.muted,
-                  ),
-                ),
-            ],
+              );
+            },
           ),
-          const SizedBox(height: 12),
+          // Fade divider present on the registration and rejected variants.
+          if (_hasProgress || _hasMeta) ...[
+            const SizedBox(height: 8),
+            TournamentDivider(
+              height: .8,
+              gradient: LinearGradient(
+                colors: [
+                  t.dim.withValues(alpha: 0),
+                  t.dim.withValues(alpha: .3),
+                  t.dim.withValues(alpha: 0),
+                ],
+                stops: const [0, .5, 1],
+              ),
+            ),
+          ],
+          const SizedBox(height: 8),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               TournamentAvatar(
                 label: tournamentInitials(name),
-                color: avatarColor ?? t.green,
-                size: 54,
+                size: 50,
+                radius: t.r10,
+                color: avatarColor ?? t.greenDeep,
+                background:
+                    avatarBackground ?? t.greenDeep.withValues(alpha: .10),
+                fontSize: SportoTextStyles.size24,
+                showBorder: false,
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 10),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -420,42 +523,63 @@ class TournamentListCard extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: SportoTextStyles.text(
-                        size: SportoTextStyles.size16,
+                        size: SportoTextStyles.size14,
                         weight: FontWeight.w600,
                         color: t.white,
                       ),
                     ),
-                    const SizedBox(height: 3),
-                    Text.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(
-                            text: sport,
-                            style: SportoTextStyles.text(
-                              size: SportoTextStyles.size13,
-                              weight: FontWeight.w500,
-                              color: t.gold,
-                            ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Text(
+                          sport,
+                          style: SportoTextStyles.text(
+                            size: SportoTextStyles.size12,
+                            weight: FontWeight.w600,
+                            color: t.gold,
                           ),
-                          TextSpan(
-                            text: '  •  $venue',
+                        ),
+                        const SizedBox(width: 6),
+                        Container(
+                          width: 3,
+                          height: 3,
+                          decoration: BoxDecoration(
+                            color: t.dim,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            venue,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             style: SportoTextStyles.text(
-                              size: SportoTextStyles.size13,
+                              size: SportoTextStyles.size12,
+                              weight: FontWeight.w500,
                               color: t.muted,
                             ),
                           ),
-                        ],
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
                     ),
-                    if (location != null) ...[
-                      const SizedBox(height: 3),
+                    if (location != null && location!.isNotEmpty) ...[
+                      const SizedBox(height: 4),
                       Row(
                         children: [
-                          Icon(Icons.location_on_outlined,
-                              size: 13, color: t.muted),
-                          const SizedBox(width: 3),
+                          SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: Center(
+                              child: SportoSvgIcon(
+                                SportoTournamentIcons.mapPin,
+                                width: 10,
+                                height: 11,
+                                color: t.muted,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 2),
                           Expanded(
                             child: Text(
                               location!,
@@ -463,6 +587,7 @@ class TournamentListCard extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                               style: SportoTextStyles.text(
                                 size: SportoTextStyles.size12,
+                                weight: FontWeight.w500,
                                 color: t.muted,
                               ),
                             ),
@@ -475,147 +600,67 @@ class TournamentListCard extends StatelessWidget {
               ),
             ],
           ),
-          if (dateRange != null) ...[
-            const SizedBox(height: 10),
-            Text(
-              dateRange!,
-              style: SportoTextStyles.text(
-                size: SportoTextStyles.size12,
-                color: t.warm,
-              ),
+          if (_hasProgress) ...[
+            const SizedBox(height: 8),
+            _ProgressBlock(
+              registrationOpen: registrationOpen,
+              teamsRegistered: teamsRegistered!,
+              maxTeams: maxTeams!,
+              slotsLeft: slotsLeft,
+              matchesScheduled: matchesScheduled,
+              progress: progress,
             ),
           ],
-          if (showProgress) ...[
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Text(
-                  registrationOpen ? 'Registration Open' : 'Teams Registered',
-                  style: SportoTextStyles.text(
-                    size: SportoTextStyles.size12,
-                    weight: FontWeight.w500,
-                    color: registrationOpen ? t.green : t.muted,
-                  ),
-                ),
-                const Spacer(),
-                Text.rich(
-                  TextSpan(
-                    children: [
-                      TextSpan(
-                        text: '$teamsRegistered/$maxTeams',
-                        style: SportoTextStyles.text(
-                          size: SportoTextStyles.size12,
-                          weight: FontWeight.w700,
-                          color: t.white,
-                        ),
-                      ),
-                      TextSpan(
-                        text: ' Teams Registered',
-                        style: SportoTextStyles.text(
-                          size: SportoTextStyles.size12,
-                          color: t.muted,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 6),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(99),
-              child: LinearProgressIndicator(
-                minHeight: 4,
-                value: progress ??
-                    ((teamsRegistered ?? 0) /
-                            ((maxTeams ?? 0) == 0 ? 1 : (maxTeams ?? 1)))
-                        .clamp(0.0, 1.0),
-                backgroundColor: t.border,
-                valueColor: AlwaysStoppedAnimation<Color>(
-                  registrationOpen ? t.green : t.completed,
-                ),
+          if (!_hasProgress && meta.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            TournamentMetaStrip(items: meta),
+          ],
+          if (!_hasProgress && noteText != null) ...[
+            const SizedBox(height: 8),
+            TournamentDivider(
+              height: .8,
+              gradient: LinearGradient(
+                colors: [
+                  t.dim.withValues(alpha: 0),
+                  t.dim.withValues(alpha: .3),
+                  t.dim.withValues(alpha: 0),
+                ],
+                stops: const [0, .5, 1],
               ),
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: 8),
+            TournamentCardNote(
+              title: noteTitle,
+              message: noteText!,
+              color: noteColor,
+              onEdit: onEdit,
+            ),
+          ] else if (!_hasProgress && submittedText != null) ...[
+            const SizedBox(height: 8),
             Row(
               children: [
-                if (matchesScheduled != null)
-                  Text(
-                    '$matchesScheduled matches scheduled',
+                Expanded(
+                  child: Text(
+                    submittedText!,
                     style: SportoTextStyles.text(
-                      size: SportoTextStyles.size11,
-                      color: t.muted,
+                      size: SportoTextStyles.size10,
+                      color: t.warm.withValues(alpha: .98),
                     ),
                   ),
-                const Spacer(),
-                if (slotsLeft != null)
-                  Text(
-                    '$slotsLeft slots left',
-                    style: SportoTextStyles.text(
-                      size: SportoTextStyles.size11,
-                      color: t.muted,
-                    ),
-                  ),
+                ),
+                if (onEdit != null) _EditPill(onTap: onEdit!),
               ],
+            ),
+          ] else if (!_hasProgress && onEdit != null) ...[
+            const SizedBox(height: 8),
+            Align(
+              alignment: Alignment.centerRight,
+              child: _EditPill(onTap: onEdit!),
             ),
           ],
           if (champions != null) ...[
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    t.gold.withValues(alpha: .12),
-                    t.gold.withValues(alpha: .02),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(t.r9),
-                border: Border.all(color: t.gold.withValues(alpha: .22)),
-              ),
-              child: Row(
-                children: [
-                  Icon(Icons.emoji_events_rounded, size: 16, color: t.gold),
-                  const SizedBox(width: 6),
-                  Text(
-                    'Champions',
-                    style: SportoTextStyles.text(
-                      size: SportoTextStyles.size12,
-                      color: t.gold,
-                    ),
-                  ),
-                  const Spacer(),
-                  Text(
-                    champions!,
-                    style: SportoTextStyles.text(
-                      size: SportoTextStyles.size13,
-                      weight: FontWeight.w600,
-                      color: t.white,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-          if (noteText != null) ...[
-            const SizedBox(height: 10),
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: (noteColor ?? t.orange).withValues(alpha: .08),
-                borderRadius: BorderRadius.circular(t.r9),
-                border: Border.all(
-                  color: (noteColor ?? t.orange).withValues(alpha: .26),
-                ),
-              ),
-              child: Text(
-                noteText!,
-                style: SportoTextStyles.text(
-                  size: SportoTextStyles.size12,
-                  color: noteColor ?? t.orange,
-                ),
-              ),
-            ),
+            const SizedBox(height: 8),
+            TournamentChampionTicket(champion: champions!),
           ],
           if (actionLabel != null || secondaryActionLabel != null) ...[
             const SizedBox(height: 12),
@@ -649,6 +694,342 @@ class TournamentListCard extends StatelessWidget {
             ),
           ],
         ],
+      ),
+    );
+  }
+}
+
+/// Registration block of the tournament list card: status + ratio + track.
+class _ProgressBlock extends StatelessWidget {
+  const _ProgressBlock({
+    required this.registrationOpen,
+    required this.teamsRegistered,
+    required this.maxTeams,
+    this.slotsLeft,
+    this.matchesScheduled,
+    this.progress,
+  });
+
+  final bool registrationOpen;
+  final int teamsRegistered;
+  final int maxTeams;
+  final int? slotsLeft;
+  final int? matchesScheduled;
+  final double? progress;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.sportoTournament;
+    final ratio = progress ??
+        (maxTeams == 0 ? 0.0 : teamsRegistered / maxTeams).clamp(0.0, 1.0);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Flexible(
+              child: Text(
+                registrationOpen ? 'Registration Open' : 'Teams Registered',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: SportoTextStyles.text(
+                  size: SportoTextStyles.size10,
+                  weight: FontWeight.w500,
+                  color: registrationOpen ? t.green : t.muted,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            const Spacer(),
+            Flexible(
+              child: Text.rich(
+                TextSpan(
+                  children: [
+                    TextSpan(
+                      text: '$teamsRegistered/$maxTeams',
+                      style: SportoTextStyles.text(
+                        size: SportoTextStyles.size10,
+                        weight: FontWeight.w600,
+                        color: t.white,
+                      ),
+                    ),
+                    TextSpan(
+                      text: ' Teams Registered',
+                      style: SportoTextStyles.text(
+                        size: SportoTextStyles.size10,
+                        weight: FontWeight.w500,
+                        color: t.muted,
+                      ),
+                    ),
+                  ],
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.right,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 3),
+        TournamentProgressTrack(
+          value: ratio,
+          radius: t.r10,
+          color: registrationOpen ? t.green : t.completed,
+        ),
+        const SizedBox(height: 3),
+        Row(
+          children: [
+            if (matchesScheduled != null)
+              Text(
+                '$matchesScheduled matches scheduled',
+                style: SportoTextStyles.text(
+                  size: SportoTextStyles.size10,
+                  weight: FontWeight.w600,
+                  color: t.muted.withValues(alpha: .98),
+                ),
+              ),
+            const Spacer(),
+            if (slotsLeft != null)
+              Text(
+                '$slotsLeft slots left',
+                style: SportoTextStyles.text(
+                  size: SportoTextStyles.size10,
+                  weight: FontWeight.w600,
+                  color: t.muted.withValues(alpha: .98),
+                ),
+              ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+/// `Edit` action of the draft / under-review / rejected cards.
+class _EditPill extends StatelessWidget {
+  const _EditPill({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.sportoTournament;
+    return TournamentActionPill(
+      label: 'Edit',
+      onTap: onTap,
+      background: t.screenBase.withValues(alpha: .50),
+      foreground: t.blue,
+      radius: t.r10,
+      height: 31,
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      icon: SportoSvgIcon(SportoTournamentIcons.edit, size: 14),
+    );
+  }
+}
+
+/// `date · ₹entry · ₹prize` strip under the card identity row.
+class TournamentMetaStrip extends StatelessWidget {
+  const TournamentMetaStrip({super.key, required this.items});
+
+  final List<String> items;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.sportoTournament;
+    return ConstrainedBox(
+      constraints: const BoxConstraints(minHeight: 13),
+      child: Wrap(
+        crossAxisAlignment: WrapCrossAlignment.center,
+        spacing: 6,
+        runSpacing: 2,
+        children: [
+          for (var i = 0; i < items.length; i++) ...[
+            if (i > 0)
+              Container(
+                width: 2,
+                height: 2,
+                decoration: BoxDecoration(
+                  color: t.muted,
+                  shape: BoxShape.circle,
+                ),
+              ),
+            Text(
+              items[i],
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: SportoTextStyles.text(
+                size: SportoTextStyles.size10,
+                color: t.white,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// Inline admin note with the optional `Edit` action (rejected/review states).
+class TournamentCardNote extends StatelessWidget {
+  const TournamentCardNote({
+    super.key,
+    required this.message,
+    this.title,
+    this.color,
+    this.onEdit,
+  });
+
+  final String? title;
+  final String message;
+  final Color? color;
+  final VoidCallback? onEdit;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.sportoTournament;
+    final c = color ?? t.red;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (title != null) ...[
+                Text(
+                  title!,
+                  style: SportoTextStyles.text(
+                    size: SportoTextStyles.size11,
+                    weight: FontWeight.w500,
+                    color: c.withValues(alpha: .98),
+                  ),
+                ),
+                const SizedBox(height: 2),
+              ],
+              Text(
+                message,
+                style: SportoTextStyles.text(
+                  size: title == null
+                      ? SportoTextStyles.size12
+                      : SportoTextStyles.size10,
+                  color: (title == null ? c : t.white).withValues(alpha: .98),
+                ),
+              ),
+            ],
+          ),
+        ),
+        if (onEdit != null) ...[
+          const SizedBox(width: 4),
+          _EditPill(onTap: onEdit!),
+        ],
+      ],
+    );
+  }
+}
+
+/// `Champions — <team>` ticket of the completed card (export 32 px high).
+class TournamentChampionTicket extends StatelessWidget {
+  const TournamentChampionTicket({
+    super.key,
+    required this.champion,
+    this.label = 'Champions',
+  });
+
+  final String champion;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.sportoTournament;
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(t.r10),
+      child: SizedBox(
+        height: 32,
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: ColoredBox(color: t.red.withValues(alpha: .06)),
+            ),
+            Positioned.fill(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      const Color(0xFF173824),
+                      const Color(0xFF0E2418).withValues(alpha: .7),
+                    ],
+                    stops: const [0, .7],
+                  ),
+                ),
+              ),
+            ),
+            Positioned.fill(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: RadialGradient(
+                    center: const Alignment(-.35, -.6),
+                    radius: .9,
+                    colors: [
+                      t.gold.withValues(alpha: .18),
+                      t.gold.withValues(alpha: 0),
+                    ],
+                    stops: const [0, .5],
+                  ),
+                ),
+              ),
+            ),
+            Positioned.fill(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: RadialGradient(
+                    center: const Alignment(-.35, -.6),
+                    radius: 1,
+                    colors: [
+                      t.red.withValues(alpha: .35),
+                      t.red.withValues(alpha: 0),
+                    ],
+                    stops: const [0, .55],
+                  ),
+                  border: Border.all(
+                    color: t.warm.withValues(alpha: .04),
+                    width: .8,
+                  ),
+                  borderRadius: BorderRadius.circular(t.r10),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              child: Row(
+                children: [
+                  SportoSvgIcon(
+                    SportoTournamentIcons.medal,
+                    width: 17,
+                    height: 17,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    label,
+                    style: SportoTextStyles.text(
+                      size: SportoTextStyles.size12,
+                      weight: FontWeight.w500,
+                      color: t.gold,
+                    ),
+                  ),
+                  const Spacer(),
+                  Text(
+                    champion,
+                    style: SportoTextStyles.text(
+                      size: SportoTextStyles.size12,
+                      weight: FontWeight.w600,
+                      color: t.white,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -936,24 +1317,33 @@ class TournamentMatchCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Text(
-                roundText,
-                style: SportoTextStyles.text(
-                  size: SportoTextStyles.size12,
-                  color: color,
+              Flexible(
+                child: Text(
+                  roundText,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: SportoTextStyles.text(
+                    size: SportoTextStyles.size12,
+                    color: color,
+                  ),
                 ),
               ),
               const SizedBox(width: 6),
-              Text(
-                '• $matchCode',
-                style: SportoTextStyles.text(
-                  size: SportoTextStyles.size10,
-                  color: t.dim,
+              Flexible(
+                child: Text(
+                  '• $matchCode',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: SportoTextStyles.text(
+                    size: SportoTextStyles.size10,
+                    color: t.dim,
+                  ),
                 ),
               ),
               const Spacer(),
               Text(
                 dateText,
+                maxLines: 1,
                 style: SportoTextStyles.text(
                   size: SportoTextStyles.size11,
                   color: t.muted,
@@ -1076,36 +1466,41 @@ class TournamentMatchCard extends StatelessWidget {
                 Expanded(
                   child: Row(
                     children: [
-                      if (referee == null)
-                        Text(
-                          'No Referee yet',
-                          style: SportoTextStyles.text(
-                            size: SportoTextStyles.size12,
-                            color: t.live,
-                          ),
-                        )
-                      else
-                        Text.rich(
-                          TextSpan(
-                            children: [
-                              TextSpan(
-                                text: 'Referee\n',
-                                style: SportoTextStyles.text(
-                                  size: SportoTextStyles.size11,
-                                  color: t.muted,
-                                ),
-                              ),
-                              TextSpan(
-                                text: referee!,
+                      Flexible(
+                        child: referee == null
+                            ? Text(
+                                'No Referee yet',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                                 style: SportoTextStyles.text(
                                   size: SportoTextStyles.size12,
-                                  weight: FontWeight.w600,
-                                  color: t.pink,
+                                  color: t.live,
+                                ),
+                              )
+                            : Text.rich(
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text: 'Referee\n',
+                                      style: SportoTextStyles.text(
+                                        size: SportoTextStyles.size11,
+                                        color: t.muted,
+                                      ),
+                                    ),
+                                    TextSpan(
+                                      text: referee!,
+                                      style: SportoTextStyles.text(
+                                        size: SportoTextStyles.size12,
+                                        weight: FontWeight.w600,
+                                        color: t.pink,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                            ],
-                          ),
-                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -1540,83 +1935,167 @@ class TournamentVenueCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.sportoTournament;
-    return TournamentSurface(
-      radius: t.r11,
-      padding: const EdgeInsets.all(14),
+    final scale = context.sportoScale;
+    final fade = LinearGradient(
+      colors: [
+        t.dim.withValues(alpha: 0),
+        t.dim.withValues(alpha: .3),
+        t.dim.withValues(alpha: 0),
+      ],
+      stops: const [0, .5, 1],
+    );
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(10 * scale),
+      decoration: BoxDecoration(
+        color: t.border.withValues(alpha: .30),
+        borderRadius: BorderRadius.circular(t.r12),
+        boxShadow: t.softCardShadow,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Text(
-                'Venue $index',
-                style: SportoTextStyles.text(
-                  size: SportoTextStyles.size14,
-                  color: t.blue,
+              Expanded(
+                child: Text(
+                  'Venue $index',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: SportoTextStyles.text(
+                    size: SportoTextStyles.size14,
+                    color: t.blue,
+                  ),
                 ),
               ),
-              const Spacer(),
               if (onEdit != null)
                 GestureDetector(
                   onTap: onEdit,
+                  behavior: HitTestBehavior.opaque,
                   child: Row(
                     children: [
                       Text(
                         'Edit',
                         style: SportoTextStyles.text(
-                          size: SportoTextStyles.size12,
+                          size: SportoTextStyles.size11,
                           color: t.blue,
                         ),
                       ),
                       const SizedBox(width: 2),
-                      Icon(Icons.arrow_forward_rounded,
-                          size: 14, color: t.blue),
+                      SportoSvgIcon(
+                        SportoHomeRedesignIcons.arrowRight,
+                        width: 11,
+                        height: 7,
+                        color: t.blue,
+                      ),
                     ],
                   ),
                 ),
             ],
           ),
-          const SizedBox(height: 2),
-          Text(
-            '$roundText  •  $matchesText',
-            style: SportoTextStyles.text(
-              size: SportoTextStyles.size11,
-              color: t.muted,
+          if (roundText.isNotEmpty) ...[
+            SizedBox(height: 2 * scale),
+            Text(
+              matchesText.isEmpty
+                  ? roundText
+                  : '$roundText  ·  $matchesText',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: SportoTextStyles.text(
+                size: SportoTextStyles.size12,
+                weight: FontWeight.w500,
+                color: t.muted,
+              ),
             ),
-          ),
-          const SizedBox(height: 10),
+          ],
+          SizedBox(height: 8 * scale),
+          TournamentDivider(height: .8, gradient: fade),
+          SizedBox(height: 8 * scale),
           Text(
             name,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: SportoTextStyles.text(
-              size: SportoTextStyles.size15,
-              weight: FontWeight.w600,
+              size: SportoTextStyles.size14,
+              weight: FontWeight.w500,
               color: t.white,
             ),
           ),
-          const SizedBox(height: 3),
+          SizedBox(height: 2 * scale),
           Row(
             children: [
-              Icon(Icons.location_on_outlined, size: 14, color: t.green),
-              const SizedBox(width: 3),
+              SportoSvgIcon(
+                SportoTournamentIcons.mapPin,
+                width: 10,
+                height: 11,
+                color: t.green,
+              ),
+              SizedBox(width: 4 * scale),
               Expanded(
                 child: Text(
                   location,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: SportoTextStyles.text(
                     size: SportoTextStyles.size12,
+                    weight: FontWeight.w500,
                     color: t.green,
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 10),
-          TournamentDivider(color: t.border),
-          const SizedBox(height: 6),
-          TournamentInfoRow(label: 'Ground Type', value: groundType),
-          TournamentInfoRow(label: 'Match Date', value: matchDate),
-          TournamentInfoRow(label: 'Start Time', value: startTime),
+          SizedBox(height: 8 * scale),
+          TournamentDivider(height: .8, gradient: fade),
+          SizedBox(height: 8 * scale),
+          _VenueInfoRow(label: 'Ground Type', value: groundType),
+          SizedBox(height: 4 * scale),
+          _VenueInfoRow(label: 'Match Date', value: matchDate),
+          SizedBox(height: 4 * scale),
+          _VenueInfoRow(label: 'Start Time', value: startTime),
         ],
       ),
+    );
+  }
+}
+
+class _VenueInfoRow extends StatelessWidget {
+  const _VenueInfoRow({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.sportoTournament;
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Flexible(
+          child: Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: SportoTextStyles.text(
+              size: SportoTextStyles.size14,
+              color: t.muted,
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Flexible(
+          child: Text(
+            value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.right,
+            style: SportoTextStyles.text(
+              size: SportoTextStyles.size14,
+              color: t.muted,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -1640,54 +2119,84 @@ class TournamentPrizeRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.sportoTournament;
-    final color = mutedRank ? t.dim : (rankColor ?? t.gold);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
-      decoration: BoxDecoration(
-        color: t.cardAlt,
-        borderRadius: BorderRadius.circular(t.r9),
-        border: Border.all(color: t.border),
+    final Gradient? grad = switch (rank) {
+      '1' => t.goldPillGradient,
+      '2' => t.greenPillGradient,
+      '3' => t.orangePillGradient,
+      _ => null,
+    };
+    final highlighted = grad != null && !mutedRank;
+    final rankStyle = SportoTextStyles.text(
+      size: highlighted ? SportoTextStyles.size10 : SportoTextStyles.size11,
+      weight: highlighted ? FontWeight.w600 : FontWeight.w700,
+      color: highlighted ? t.white : t.muted,
+    );
+    final rankText = Text(rank, style: rankStyle);
+    final amountText = Text(
+      amount,
+      style: SportoTextStyles.text(
+        size: SportoTextStyles.size12,
+        color: highlighted ? t.white : t.white,
       ),
-      child: Row(
-        children: [
-          Container(
-            width: 26,
-            height: 26,
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: .08),
-              borderRadius: BorderRadius.circular(t.r6),
-              border: Border.all(color: color.withValues(alpha: .55)),
+    );
+
+    return Container(
+      constraints: const BoxConstraints(minHeight: 31),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        child: Row(
+          children: [
+            Container(
+              width: 18,
+              height: 18,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(t.r6),
+                border: GradientBorder.all(
+                  gradient: highlighted
+                      ? grad
+                      : LinearGradient(
+                          colors: [
+                            (rankColor ?? t.warm).withValues(alpha: .2),
+                            (rankColor ?? t.warm).withValues(alpha: .2),
+                          ],
+                        ),
+                  width: .6,
+                  radius: t.r6,
+                ),
+              ),
+              alignment: Alignment.center,
+              child: highlighted
+                  ? ShaderMask(
+                      blendMode: BlendMode.srcIn,
+                      shaderCallback: (rect) => grad.createShader(rect),
+                      child: rankText,
+                    )
+                  : rankText,
             ),
-            alignment: Alignment.center,
-            child: Text(
-              rank,
-              style: SportoTextStyles.text(
-                size: SportoTextStyles.size11,
-                weight: FontWeight.w600,
-                color: color,
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: SportoTextStyles.text(
+                  size: SportoTextStyles.size12,
+                  color: highlighted ? t.white : t.muted,
+                ),
               ),
             ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              label,
-              style: SportoTextStyles.text(
-                size: SportoTextStyles.size14,
-                color: mutedRank ? t.dim : t.warm,
-              ),
-            ),
-          ),
-          Text(
-            amount,
-            style: SportoTextStyles.text(
-              size: SportoTextStyles.size14,
-              weight: FontWeight.w600,
-              color: mutedRank ? t.warm : t.gold,
-            ),
-          ),
-        ],
+            if (highlighted)
+              ShaderMask(
+                blendMode: BlendMode.srcIn,
+                shaderCallback: (rect) => t.goldPillGradient.createShader(rect),
+                child: amountText,
+              )
+            else
+              amountText,
+          ],
+        ),
       ),
     );
   }
 }
+

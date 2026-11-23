@@ -27,6 +27,10 @@ class TournamentDetailRedesignScreen extends StatefulWidget {
     this.isLoading,
     this.remoteDataSource,
     this.initialTournament,
+    this.initialRounds = const [],
+    this.initialReview,
+    this.initialMatches = const [],
+    this.initialRegistrations = const [],
   });
 
   final String? tournamentId;
@@ -34,6 +38,16 @@ class TournamentDetailRedesignScreen extends StatefulWidget {
   final bool? isLoading;
   final PartnerRemoteDataSource? remoteDataSource;
   final PartnerTournamentResponse? initialTournament;
+
+  /// Rounds from the workflow API (bracket ladder); injectable for tests.
+  final List<TournamentRound> initialRounds;
+
+  /// Review payload (financial summary); injectable for tests.
+  final PartnerTournamentReviewData? initialReview;
+
+  /// Test seams for the tab captures.
+  final List<PartnerTournamentMatchResponse> initialMatches;
+  final List<TournamentRegistration> initialRegistrations;
 
   @override
   State<TournamentDetailRedesignScreen> createState() =>
@@ -56,6 +70,7 @@ class _TournamentDetailRedesignScreenState
   PartnerTournamentResponse? _tournament;
   List<PartnerTournamentMatchResponse> _matches = const [];
   List<TournamentRegistration> _registrations = const [];
+  List<TournamentRound> _rounds = const [];
   PartnerTournamentReviewData? _review;
   bool _isLoading = false;
   String? _error;
@@ -65,6 +80,10 @@ class _TournamentDetailRedesignScreenState
     super.initState();
     _tabIndex = widget.initialTabIndex.clamp(0, _tabs.length - 1);
     _tournament = widget.initialTournament;
+    _rounds = widget.initialRounds;
+    _review = widget.initialReview;
+    _matches = widget.initialMatches;
+    _registrations = widget.initialRegistrations;
     final id = widget.tournamentId;
     if (widget.isLoading != true && id != null && id.isNotEmpty) {
       _load(id);
@@ -90,12 +109,17 @@ class _TournamentDetailRedesignScreenState
       try {
         review = await _remoteDataSource.reviewTournamentData(id);
       } catch (_) {}
+      List<TournamentRound> rounds = const [];
+      try {
+        rounds = await _remoteDataSource.getRounds(id);
+      } catch (_) {}
       if (!mounted) return;
       setState(() {
         _tournament = tournament;
         _matches = matches;
         _registrations = registrations;
         _review = review;
+        _rounds = rounds;
         _isLoading = false;
       });
     } catch (error) {
@@ -110,111 +134,128 @@ class _TournamentDetailRedesignScreenState
   @override
   Widget build(BuildContext context) {
     final t = context.sportoTournament;
+    final scale = context.sportoScale;
     final tournament = _tournament;
     final loading = widget.isLoading ?? (_isLoading && tournament == null);
 
     return Scaffold(
       backgroundColor: t.screenBase,
-      body: SafeArea(
-        child: Column(
-          children: [
-            TournamentScreenHeader(
-              title: tournament?.name ?? 'Tournament Details',
-              subtitle: tournament == null
-                  ? (widget.tournamentId == null
-                      ? null
-                      : 'SPT-${widget.tournamentId}')
-                  : '${tournamentCode(tournament)} · ${tournamentVenueLabel(tournament)}',
-              onBack: () => context.pop(),
-              trailing: TournamentActionPill(
-                label: 'Edit',
-                icon: Icon(Icons.edit_outlined, size: 14, color: t.blue),
-                background: t.card,
-                foreground: t.blue,
-                border: t.border,
-                height: 34,
-                onTap: () => _showEditHint(context),
-              ),
+      body: Column(
+        children: [
+          TournamentScreenHeader(
+            title: tournament?.name ?? 'Tournament Details',
+            subtitle: tournament == null
+                ? (widget.tournamentId == null
+                    ? null
+                    : 'SPT-${widget.tournamentId}')
+                : tournamentCode(tournament),
+            titleSize: SportoTextStyles.size16,
+            subtitleSize: SportoTextStyles.size11,
+            backSize: 36 * scale,
+            backGap: 10 * scale,
+            backBackground: t.white.withValues(alpha: .10),
+            padding: EdgeInsets.fromLTRB(
+              20 * scale,
+              MediaQuery.of(context).padding.top,
+              20 * scale,
+              6 * scale,
             ),
-            if (loading)
-              const Expanded(child: TournamentDetailScreenShimmer())
-            else if (tournament == null)
-              Expanded(
-                child: Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          'Tournament details could not be loaded.',
-                          style: SportoTextStyles.text(
-                            size: SportoTextStyles.size15,
-                            color: t.white,
-                          ),
+            rowHeight: 44 * scale,
+            onBack: () => context.pop(),
+            trailing: TournamentActionPill(
+              label: 'Edit',
+              icon: SportoSvgIcon(SportoTournamentIcons.edit, size: 14),
+              gradient: t.bluePillGradient,
+              foreground: t.screenBase,
+              fontWeight: FontWeight.w600,
+              height: 27 * scale,
+              radius: t.r10,
+              padding: EdgeInsets.symmetric(horizontal: 10 * scale),
+              onTap: () => _showEditHint(context),
+            ),
+          ),
+          if (loading)
+            const Expanded(child: TournamentDetailScreenShimmer())
+          else if (tournament == null)
+            Expanded(
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Tournament details could not be loaded.',
+                        textAlign: TextAlign.center,
+                        style: SportoTextStyles.text(
+                          size: SportoTextStyles.size15,
+                          color: t.white,
                         ),
-                        if (_error != null) ...[
-                          const SizedBox(height: 6),
-                          Text(
-                            _error!,
-                            textAlign: TextAlign.center,
-                            style: SportoTextStyles.text(
-                              size: SportoTextStyles.size11,
-                              color: t.muted,
-                            ),
+                      ),
+                      if (_error != null) ...[
+                        const SizedBox(height: 6),
+                        Text(
+                          _error!,
+                          textAlign: TextAlign.center,
+                          style: SportoTextStyles.text(
+                            size: SportoTextStyles.size11,
+                            color: t.muted,
                           ),
-                        ],
-                        const SizedBox(height: 16),
-                        TournamentActionPill(
-                          label: 'Try Again',
-                          gradient: t.bluePillGradient,
-                          foreground: t.screenBase,
-                          onTap: () {
-                            final id = widget.tournamentId;
-                            if (id != null && id.isNotEmpty) _load(id);
-                          },
                         ),
                       ],
-                    ),
-                  ),
-                ),
-              )
-            else
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(20, 2, 20, 28),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      TournamentStatusBar(
-                        statusLabel: tournamentStatusLabel(tournament),
-                        statusColor: tournamentStatusColor(tournament, t),
-                        sport: tournamentSportLabel(tournament),
-                        dateText: formatTournamentDate(
-                          tournament.tournamentStartAt,
-                        ),
-                        live: tournament.status == 6,
-                      ),
                       const SizedBox(height: 16),
-                      TournamentUnderlineTabs(
-                        labels: _tabs,
-                        selectedIndex: _tabIndex,
-                        onChanged: (index) => setState(() => _tabIndex = index),
-                      ),
-                      const SizedBox(height: 18),
-                      AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 180),
-                        child: KeyedSubtree(
-                          key: ValueKey(_tabIndex),
-                          child: _tabContent(context, tournament),
-                        ),
+                      TournamentActionPill(
+                        label: 'Try Again',
+                        gradient: t.bluePillGradient,
+                        foreground: t.screenBase,
+                        onTap: () {
+                          final id = widget.tournamentId;
+                          if (id != null && id.isNotEmpty) _load(id);
+                        },
                       ),
                     ],
                   ),
                 ),
               ),
-          ],
-        ),
+            )
+          else
+            Expanded(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.fromLTRB(
+                  20 * scale,
+                  10 * scale,
+                  20 * scale,
+                  28 * scale,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TournamentStatusStrip(
+                      tournament: tournament,
+                      dateText: tournament.status == 6
+                          ? formatTournamentStripDate(
+                              tournament.tournamentStartAt)
+                          : formatTournamentDay(tournament.tournamentStartAt),
+                    ),
+                    SizedBox(height: 10 * scale),
+                    TournamentUnderlineTabs(
+                      labels: _tabs,
+                      selectedIndex: _tabIndex,
+                      onChanged: (index) => setState(() => _tabIndex = index),
+                    ),
+                    SizedBox(height: 14 * scale),
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 180),
+                      child: KeyedSubtree(
+                        key: ValueKey(_tabIndex),
+                        child: _tabContent(context, tournament),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -228,6 +269,7 @@ class _TournamentDetailRedesignScreenState
           tournament: tournament,
           matches: _matches,
           review: _review,
+          rounds: _rounds,
           onOpenVenue: () => context.push(
             AppRouter.venueScheduleRoute('${tournament.id}'),
           ),
@@ -239,6 +281,7 @@ class _TournamentDetailRedesignScreenState
       1 => TournamentMatchesTab(
           tournament: tournament,
           matches: _matches,
+          rounds: _rounds,
           onAssignReferee: (match) => _openReferee(context, tournament, match),
           onScorecard: (_) => _showScorecardHint(context),
         ),
@@ -251,17 +294,22 @@ class _TournamentDetailRedesignScreenState
           ),
         ),
       3 => TournamentStatsTab(
-          onViewPlayer: (entry) => Navigator.of(context).push(
+          registrations: _registrations,
+          onViewPlayer: (name, team) => Navigator.of(context).push(
             MaterialPageRoute<void>(
               builder: (_) => PlayerDetailsRedesignScreen(
-                playerName: entry.name,
-                teamName: entry.team,
+                playerName: name,
+                teamName: team,
                 tournamentName: tournament.name,
+                tournamentCode: tournamentCode(tournament),
               ),
             ),
           ),
         ),
-      _ => TournamentFinancialsTab(review: _review),
+      _ => TournamentFinancialsTab(
+          review: _review,
+          tournament: tournament,
+        ),
     };
   }
 

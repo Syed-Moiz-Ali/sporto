@@ -2,110 +2,143 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ui_kit/ui_kit.dart';
 
-import '../widgets/redesign/tournament_redesign_data.dart';
+import '../widgets/redesign/tournament_cards.dart';
 import '../widgets/redesign/tournament_screen_parts.dart';
+import '../widgets/redesign/tournament_visuals.dart';
 
+/// Player details — Figma `Partner App / Player Details` (export 19).
+///
+/// Identity comes from the real registration roster; performance blocks need a
+/// stats endpoint the partner API does not expose yet, so they are stated as
+/// unavailable instead of hard-coded numbers.
 class PlayerDetailsRedesignScreen extends StatelessWidget {
   const PlayerDetailsRedesignScreen({
     super.key,
     required this.playerName,
     required this.teamName,
     required this.tournamentName,
+    this.tournamentCode,
   });
 
   final String playerName;
   final String teamName;
   final String tournamentName;
+  final String? tournamentCode;
 
   @override
   Widget build(BuildContext context) {
     final t = context.sportoTournament;
+    final scale = context.sportoScale;
     return Scaffold(
       backgroundColor: t.screenBase,
-      body: SafeArea(
-        child: Column(
-          children: [
-            TournamentScreenHeader(
-              title: playerName,
-              subtitle: 'TA-2026-0104 · $tournamentName',
-              onBack: () => context.pop(),
+      body: Column(
+        children: [
+          TournamentScreenHeader(
+            title: playerName,
+            subtitle: tournamentCode == null
+                ? tournamentName
+                : '$tournamentCode · $tournamentName',
+            titleSize: SportoTextStyles.size16,
+            subtitleSize: SportoTextStyles.size11,
+            backSize: 36 * scale,
+            backGap: 10 * scale,
+            backBackground: t.white.withValues(alpha: .10),
+            padding: EdgeInsets.fromLTRB(
+              20 * scale,
+              MediaQuery.of(context).padding.top,
+              20 * scale,
+              6 * scale,
             ),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(20, 2, 20, 28),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    TournamentPlayerProfileHeader(
-                      name: playerName,
-                      team: teamName,
-                      role: 'Captain · Batter',
-                      playerCode: '#P-0101',
-                      matches: '6',
-                      mvpPoints: '204',
-                      wins: '6',
-                      avatarAsset: 'assets/images/tournament_player.jpg',
-                    ),
-                    const SizedBox(height: 18),
-                    _sectionTitle(context, 'Batting'),
-                    const SizedBox(height: 10),
-                    _statGrid(context, [
-                      ('6', 'Innings', null),
-                      ('77', 'Runs', null),
-                      ('58', 'Balls Faced', null),
-                      ('132.76', 'Strike Rate', t.green),
-                      ('23', 'Highest Score', t.gold),
-                      ('5/4', 'Fours/Sixes', t.pink),
-                    ]),
-                    const SizedBox(height: 18),
-                    _sectionTitle(context, 'Bowling & Fielding'),
-                    const SizedBox(height: 10),
-                    _statGrid(context, [
-                      ('2', 'Overs', null),
-                      ('2', 'Wickets', t.live),
-                      ('8', 'Runs Conceded', null),
-                      ('4.0', 'Economy', null),
-                      ('2/8', 'Best Figures', t.green),
-                      ('8', 'Dot Balls', t.blue),
-                    ]),
-                    const SizedBox(height: 10),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      decoration: BoxDecoration(
-                        color: t.cardAlt,
-                        borderRadius: BorderRadius.circular(t.r9),
-                        border: Border.all(color: t.border),
+            rowHeight: 44 * scale,
+            onBack: () => context.pop(),
+          ),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.fromLTRB(
+                20 * scale,
+                16 * scale,
+                20 * scale,
+                28 * scale,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      TournamentAvatar(
+                        label: _initials(playerName),
+                        size: 56 * scale,
+                        radius: t.r14,
+                        color: t.greenDeep,
+                        background: t.greenDeep.withValues(alpha: .10),
+                        fontSize: SportoTextStyles.size20,
+                        showBorder: false,
                       ),
-                      child: Text.rich(
-                        TextSpan(
+                      SizedBox(width: 12 * scale),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            TextSpan(
-                              text: 'Catches / Run-outs  ',
+                            Text(
+                              playerName,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                               style: SportoTextStyles.text(
-                                size: SportoTextStyles.size13,
-                                color: t.muted,
+                                size: SportoTextStyles.size20,
+                                weight: FontWeight.w800,
+                                color: t.white,
                               ),
                             ),
-                            TextSpan(
-                              text: '2/1',
+                            SizedBox(height: 2 * scale),
+                            Text(
+                              teamName,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                               style: SportoTextStyles.text(
                                 size: SportoTextStyles.size14,
                                 weight: FontWeight.w600,
-                                color: t.pink,
+                                color: t.gold,
                               ),
                             ),
                           ],
                         ),
-                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 16 * scale),
+                  Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 16 * scale,
+                      vertical: 24 * scale,
+                    ),
+                    decoration: BoxDecoration(
+                      color: t.cardAlt,
+                      borderRadius: BorderRadius.circular(t.r16),
+                      border: GradientBorder.all(
+                        gradient: t.whiteBorderGradient,
+                        width: 1,
+                        radius: t.r16,
                       ),
                     ),
-                    const SizedBox(height: 18),
-                    Row(
+                    child: Column(
                       children: [
-                        Expanded(child: _sectionTitle(context, 'Innings Log')),
+                        Icon(Icons.insights_outlined, size: 30, color: t.dim),
+                        SizedBox(height: 10 * scale),
                         Text(
-                          'R&B   4s   6s',
+                          'Player statistics are not available yet',
+                          textAlign: TextAlign.center,
+                          style: SportoTextStyles.text(
+                            size: SportoTextStyles.size13,
+                            weight: FontWeight.w600,
+                            color: t.white,
+                          ),
+                        ),
+                        SizedBox(height: 4 * scale),
+                        Text(
+                          'Batting, bowling and fielding figures appear once '
+                          'this player has a synced scorecard.',
+                          textAlign: TextAlign.center,
                           style: SportoTextStyles.text(
                             size: SportoTextStyles.size11,
                             color: t.muted,
@@ -113,104 +146,22 @@ class PlayerDetailsRedesignScreen extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 6),
-                    Text(
-                      'Batting',
-                      style: SportoTextStyles.text(
-                        size: SportoTextStyles.size13,
-                        color: t.muted,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    for (var i = 0; i < demoInnings.length; i++) ...[
-                      TournamentInningsRow(
-                        opponent: demoInnings[i].opponent,
-                        round: demoInnings[i].round,
-                        runs: demoInnings[i].runs,
-                        fours: demoInnings[i].fours,
-                        sixes: demoInnings[i].sixes,
-                      ),
-                      if (i != demoInnings.length - 1)
-                        const SizedBox(height: 8),
-                    ],
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _sectionTitle(BuildContext context, String label) {
-    final t = context.sportoTournament;
-    return Text(
-      label,
-      style: SportoTextStyles.text(
-        size: SportoTextStyles.size16,
-        color: t.muted,
-      ),
-    );
-  }
-
-  Widget _statGrid(
-    BuildContext context,
-    List<(String, String, Color?)> entries,
-  ) {
-    final t = context.sportoTournament;
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      decoration: BoxDecoration(
-        color: t.card,
-        borderRadius: BorderRadius.circular(t.r11),
-        border: Border.all(color: t.border),
-      ),
-      child: Column(
-        children: [
-          for (var row = 0; row < entries.length; row += 3)
-            Row(
-              children: [
-                for (var i = row; i < row + 3 && i < entries.length; i++)
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      decoration: BoxDecoration(
-                        border: Border(
-                          left: i == row
-                              ? BorderSide.none
-                              : BorderSide(color: t.border),
-                          bottom: row + 3 < entries.length
-                              ? BorderSide(color: t.border)
-                              : BorderSide.none,
-                        ),
-                      ),
-                      child: Column(
-                        children: [
-                          Text(
-                            entries[i].$1,
-                            style: SportoTextStyles.text(
-                              size: SportoTextStyles.size16,
-                              weight: FontWeight.w600,
-                              color: entries[i].$3 ?? t.white,
-                            ),
-                          ),
-                          const SizedBox(height: 3),
-                          Text(
-                            entries[i].$2,
-                            style: SportoTextStyles.text(
-                              size: SportoTextStyles.size11,
-                              color: t.muted,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-              ],
-            ),
+          ),
         ],
       ),
     );
+  }
+
+  static String _initials(String name) {
+    final words =
+        name.trim().split(RegExp(r'\s+')).where((w) => w.isNotEmpty).toList();
+    if (words.length >= 2) {
+      return (words[0][0] + words[1][0]).toUpperCase();
+    }
+    return name.isEmpty ? '--' : name.substring(0, 1).toUpperCase();
   }
 }

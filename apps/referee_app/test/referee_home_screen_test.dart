@@ -247,8 +247,7 @@ void main() {
       expect(find.text('START SESSION'), findsOneWidget);
     });
 
-    testWidgets(
-        'shows temporary Figma placeholders when schedule keys are missing',
+    testWidgets('hides unavailable venue and distance when keys are missing',
         (tester) async {
       final match = RefereeMatchResponse.fromJson({
         'id': 4197,
@@ -271,12 +270,10 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('1017 T Cricket League'), findsOneWidget);
-      // TODO(backend): remove these assertions when the API sends the keys.
-      expect(find.text('Today, 08:00 PM'), findsOneWidget);
-      expect(
-          find.text('ABC Sports Arena, Madhapur, Hyderabad'), findsOneWidget);
-      expect(find.text('8.4 km'), findsOneWidget);
-      expect(find.textContaining('00:01:30'), findsOneWidget);
+      // The API now returns explicit unavailable states instead of sample
+      // venue/distance values.
+      expect(find.text('ABC Sports Arena, Madhapur, Hyderabad'), findsNothing);
+      expect(find.text('8.4 km'), findsNothing);
       expect(find.textContaining('At 6:00 PM'), findsOneWidget);
       expect(find.text('START SESSION'), findsOneWidget);
     });
@@ -300,7 +297,7 @@ void main() {
       expect(find.text('₹1500'), findsOneWidget);
     });
 
-    testWidgets('shows temporary Figma placeholders for missing request fields',
+    testWidgets('hides missing customer, fee and distance on requests',
         (tester) async {
       await tester.pumpWidget(
         createTestWidget(
@@ -312,9 +309,9 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Accept'), findsOneWidget);
-      // TODO(backend): remove when fee/distance/schedule are projected.
-      expect(find.textContaining('1500'), findsOneWidget);
-      expect(find.textContaining('8.4 km'), findsOneWidget);
+      expect(find.textContaining('1500'), findsNothing);
+      expect(find.textContaining('8.4 km'), findsNothing);
+      expect(find.text('Rahul Kumar'), findsNothing);
       expect(find.textContaining('6:00 PM'), findsOneWidget);
       expect(find.textContaining('8:00 PM'), findsOneWidget);
       expect(find.text('by Tournament'), findsOneWidget);

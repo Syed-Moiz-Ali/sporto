@@ -102,6 +102,84 @@ Color tournamentStatusColor(
   };
 }
 
+/// Gradient of the status badge on the tournament list card.
+///
+/// Values come from the export (screens 09/14/36): pending = orange,
+/// under review = gold, live/rejected = red, completed = blue.
+Gradient tournamentStatusGradient(
+  SportoTournamentTokens t,
+  PartnerTournamentResponse tournament,
+) {
+  final approval = tournament.approvalStatus;
+  if (approval == 5 || tournament.status == 8 || tournament.status == 9) {
+    return t.redPillGradient;
+  }
+  if (approval == 2) {
+    return _hasChangesRequested(tournament)
+        ? t.orangePillGradient
+        : t.goldPillGradient;
+  }
+  return switch (tournament.status) {
+    6 => t.redPillGradient,
+    7 => t.bluePillGradient,
+    8 || 9 => t.redPillGradient,
+    _ => t.orangePillGradient,
+  };
+}
+
+/// Short badge label of the tournament list card (export 09/14/36).
+///
+/// The badge carries the coarse state (`Upcoming`, `Live Now`, `Completed`,
+/// `Rejected`, `Cancelled`, `Draft`, `Under Review`) while the card body shows
+/// the finer status (`Registration Open`, `Registration Closed`, ...).
+String tournamentBadgeLabel(PartnerTournamentResponse t) {
+  final approval = t.approvalStatus;
+  if (approval == 5) return 'Rejected';
+  if (approval == 2) return 'Under Review';
+  return switch (t.status) {
+    1 => 'Draft',
+    6 => 'Live Now',
+    7 => 'Completed',
+    8 => 'Cancelled',
+    9 => 'Cancelled',
+    _ => 'Upcoming',
+  };
+}
+
+/// `₹400 entry` from `registration_fee`; null when the API has no fee.
+String? tournamentEntryLabel(PartnerTournamentResponse tournament) {
+  final fee = tournament.registrationFee?.trim();
+  if (fee == null || fee.isEmpty) return null;
+  return '${formatCurrency(fee)} entry';
+}
+
+/// `₹25,000 prize` from `total_prize_money`; null when the API has none.
+String? tournamentPrizeLabel(PartnerTournamentResponse tournament) {
+  final prize = tournament.totalPrizeMoney?.trim();
+  if (prize == null || prize.isEmpty) return null;
+  return '${formatCurrency(prize)} prize';
+}
+
+/// Strip date used by the detail/venue headers: `05 Aug 2026, 9:00 AM`
+/// (export 06/13; the hour is not zero-padded).
+String formatTournamentStripDate(String? raw, {String fallback = '--'}) {
+  if (raw == null || raw.isEmpty) return fallback;
+  try {
+    final dt = DateTime.parse(raw).toLocal();
+    const months = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+    ];
+    final hour = dt.hour == 0 ? 12 : (dt.hour > 12 ? dt.hour - 12 : dt.hour);
+    final period = dt.hour >= 12 ? 'PM' : 'AM';
+    final minute = dt.minute.toString().padLeft(2, '0');
+    return '${dt.day.toString().padLeft(2, '0')} '
+        '${months[dt.month - 1]} ${dt.year}, $hour:$minute $period';
+  } catch (_) {
+    return raw;
+  }
+}
+
 String formatTournamentDate(String? raw, {String fallback = '--'}) {
   if (raw == null || raw.isEmpty) return fallback;
   try {
@@ -123,7 +201,7 @@ String formatTournamentDate(String? raw, {String fallback = '--'}) {
     final hour = dt.hour == 0 ? 12 : (dt.hour > 12 ? dt.hour - 12 : dt.hour);
     final period = dt.hour >= 12 ? 'PM' : 'AM';
     final minute = dt.minute.toString().padLeft(2, '0');
-    return '${dt.day} ${months[dt.month - 1]} ${dt.year}, '
+    return '${dt.day.toString().padLeft(2, '0')} ${months[dt.month - 1]} ${dt.year}, '
         '${hour.toString().padLeft(2, '0')}:$minute $period';
   } catch (_) {
     return raw;
@@ -148,7 +226,8 @@ String formatTournamentDay(String? raw, {String fallback = '--'}) {
       'Nov',
       'Dec',
     ];
-    return '${dt.day} ${months[dt.month - 1]} ${dt.year}';
+    return '${dt.day.toString().padLeft(2, '0')} '
+        '${months[dt.month - 1]} ${dt.year}';
   } catch (_) {
     return raw;
   }

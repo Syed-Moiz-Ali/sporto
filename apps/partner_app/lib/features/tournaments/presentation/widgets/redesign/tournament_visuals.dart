@@ -19,6 +19,7 @@ class TournamentSurface extends StatelessWidget {
     this.borderColor,
     this.borderGradient,
     this.borderWidth = 1,
+    this.showBorder = true,
     this.shadow,
     this.onTap,
     this.width,
@@ -33,6 +34,7 @@ class TournamentSurface extends StatelessWidget {
   final Color? borderColor;
   final Gradient? borderGradient;
   final double borderWidth;
+  final bool showBorder;
   final List<BoxShadow>? shadow;
   final VoidCallback? onTap;
   final double? width;
@@ -53,7 +55,12 @@ class TournamentSurface extends StatelessWidget {
         gradient: gradient,
         borderRadius: borderRadius,
         border: borderGradient == null
-            ? Border.all(color: borderColor ?? t.border, width: borderWidth)
+            ? (showBorder
+                ? Border.all(
+                    color: borderColor ?? t.border,
+                    width: borderWidth,
+                  )
+                : null)
             : null,
         boxShadow: shadow,
       ),
@@ -101,6 +108,11 @@ class TournamentStatusChip extends StatelessWidget {
     this.dot = false,
     this.height,
     this.fontSize,
+    this.gradient,
+    this.textGradient,
+    this.borderGradient,
+    this.padding,
+    this.radius,
   });
 
   final String label;
@@ -111,15 +123,56 @@ class TournamentStatusChip extends StatelessWidget {
   final double? height;
   final double? fontSize;
 
+  /// Gradient badge fill from the tournament export (e.g. `#FF9364 → #F25F33`).
+  final Gradient? gradient;
+
+  /// Same gradient applied to the label itself (the export paints badge text
+  /// with the pill gradient).
+  final Gradient? textGradient;
+
+  /// Optional gradient hairline (the prize-pool "Under Review" badge uses a
+  /// gold gradient border over a 6 % fill).
+  final Gradient? borderGradient;
+  final EdgeInsetsGeometry? padding;
+  final double? radius;
+
   @override
   Widget build(BuildContext context) {
+    final t = context.sportoTournament;
+    final style = SportoTextStyles.text(
+      size: fontSize ?? SportoTextStyles.size12,
+      weight: gradient != null ? FontWeight.w500 : FontWeight.w600,
+      color: color,
+      height: 1.1,
+    );
+    final labelWidget = Text(
+      label,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: textGradient == null ? style : style.copyWith(color: t.white),
+    );
     return Container(
-      height: height,
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+      constraints: height == null ? null : BoxConstraints(minHeight: height!),
+      padding: padding ??
+          EdgeInsets.symmetric(
+            horizontal: gradient != null ? 9 : 10,
+            vertical: gradient != null ? 4 : 3,
+          ),
       decoration: BoxDecoration(
-        color: background ?? color.withValues(alpha: .10),
-        borderRadius: BorderRadius.circular(100),
-        border: Border.all(color: border ?? color.withValues(alpha: .28)),
+        color: gradient == null
+            ? (background ?? color.withValues(alpha: .10))
+            : null,
+        gradient: gradient,
+        borderRadius:
+            BorderRadius.circular(radius ?? (gradient != null ? 80 : 100)),
+        border: borderGradient != null
+            ? GradientBorder.all(
+                gradient: borderGradient!,
+                radius: radius ?? 80,
+              )
+            : gradient != null
+                ? null
+                : Border.all(color: border ?? color.withValues(alpha: .28)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -132,15 +185,16 @@ class TournamentStatusChip extends StatelessWidget {
             ),
             const SizedBox(width: 6),
           ],
-          Text(
-            label,
-            style: SportoTextStyles.text(
-              size: fontSize ?? SportoTextStyles.size12,
-              weight: FontWeight.w600,
-              color: color,
-              height: 1.1,
+          if (textGradient == null)
+            Flexible(child: labelWidget)
+          else
+            Flexible(
+              child: ShaderMask(
+                blendMode: BlendMode.srcIn,
+                shaderCallback: (rect) => textGradient!.createShader(rect),
+                child: labelWidget,
+              ),
             ),
-          ),
         ],
       ),
     );
@@ -162,6 +216,7 @@ class TournamentActionPill extends StatelessWidget {
     this.fontSize = SportoTextStyles.size12,
     this.radius,
     this.width,
+    this.fontWeight = FontWeight.w600,
   });
 
   final String label;
@@ -176,6 +231,7 @@ class TournamentActionPill extends StatelessWidget {
   final double fontSize;
   final double? radius;
   final double? width;
+  final FontWeight fontWeight;
 
   @override
   Widget build(BuildContext context) {
@@ -206,7 +262,7 @@ class TournamentActionPill extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: SportoTextStyles.text(
                   size: fontSize,
-                  weight: FontWeight.w600,
+                  weight: fontWeight,
                   color: fg,
                   height: 1.1,
                 ),
@@ -463,17 +519,137 @@ class TournamentSectionLabel extends StatelessWidget {
 }
 
 class TournamentDivider extends StatelessWidget {
-  const TournamentDivider({super.key, this.height = 1, this.color});
+  const TournamentDivider(
+      {super.key, this.height = 1, this.color, this.gradient});
 
   final double height;
   final Color? color;
+
+  /// Optional fade used by the tournament list cards
+  /// (`#66666600 → #666666 → #66666600`, 0.8 px).
+  final Gradient? gradient;
 
   @override
   Widget build(BuildContext context) {
     final t = context.sportoTournament;
     return Container(
       height: height,
-      color: color ?? t.border.withValues(alpha: .7),
+      decoration: gradient == null
+          ? BoxDecoration(color: color ?? t.border.withValues(alpha: .7))
+          : BoxDecoration(gradient: gradient),
     );
   }
+}
+
+/// Progress bar of the tournament list card.
+///
+/// The export draws a 2 px `#283040` track with a 3 px green fill on top
+/// (node 3711:5778 siblings), which [LinearProgressIndicator] cannot express.
+class TournamentProgressTrack extends StatelessWidget {
+  const TournamentProgressTrack({
+    super.key,
+    required this.value,
+    this.color,
+    this.trackColor,
+    this.height = 3,
+    this.radius,
+  });
+
+  final double value;
+  final Color? color;
+  final Color? trackColor;
+  final double height;
+  final double? radius;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.sportoTournament;
+    final clamped = value.isNaN ? 0.0 : value.clamp(0.0, 1.0);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        return SizedBox(
+          height: height,
+          width: width,
+          child: Stack(
+            alignment: Alignment.centerLeft,
+            children: [
+              Container(
+                height: height - 1,
+                decoration: BoxDecoration(
+                  color: trackColor ?? t.border,
+                  borderRadius: BorderRadius.circular(radius ?? t.r10),
+                ),
+              ),
+              Container(
+                width: width * clamped,
+                height: height,
+                decoration: BoxDecoration(
+                  color: color ?? t.green,
+                  borderRadius: BorderRadius.circular(radius ?? 0),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// Hairline border painted with a gradient.
+///
+/// [BoxDecoration] has no gradient border, and the export uses a
+/// `#7BD0FA1A → #7BD0FA4D → #7BD0FA1A` hairline on idle filter pills.
+class GradientBorder extends BoxBorder {
+  const GradientBorder({
+    required this.gradient,
+    this.width = 1,
+    this.radius = 50,
+  });
+
+  static BoxBorder all({
+    required Gradient gradient,
+    double width = 1,
+    double radius = 50,
+  }) =>
+      GradientBorder(gradient: gradient, width: width, radius: radius);
+
+  final Gradient gradient;
+  final double width;
+  final double radius;
+
+  @override
+  BorderSide get top => BorderSide.none;
+  @override
+  BorderSide get bottom => BorderSide.none;
+  @override
+  bool get isUniform => true;
+
+  @override
+  EdgeInsetsGeometry get dimensions => EdgeInsets.all(width);
+
+  @override
+  void paint(
+    Canvas canvas,
+    Rect rect, {
+    TextDirection? textDirection,
+    BoxShape shape = BoxShape.rectangle,
+    BorderRadius? borderRadius,
+  }) {
+    final paint = Paint()
+      ..shader = gradient.createShader(rect)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = width;
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        rect.deflate(width / 2),
+        Radius.circular(radius),
+      ),
+      paint,
+    );
+  }
+
+  @override
+  ShapeBorder scale(double t) => this;
 }

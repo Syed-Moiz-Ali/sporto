@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:partner_data/partner_data.dart';
 import 'package:ui_kit/ui_kit.dart';
 
+import 'tournament_redesign_data.dart';
 import 'tournament_visuals.dart';
 
 class TournamentScreenHeader extends StatelessWidget {
@@ -11,6 +13,16 @@ class TournamentScreenHeader extends StatelessWidget {
     this.onBack,
     this.trailing,
     this.padding = const EdgeInsets.fromLTRB(20, 8, 20, 10),
+    this.backgroundColor,
+    this.background,
+    this.bottomRadius,
+    this.minHeight,
+    this.rowHeight,
+    this.titleSize = SportoTextStyles.size18,
+    this.subtitleSize = SportoTextStyles.size12,
+    this.backSize = 38,
+    this.backBackground,
+    this.backGap = 12,
   });
 
   final String title;
@@ -19,57 +31,101 @@ class TournamentScreenHeader extends StatelessWidget {
   final Widget? trailing;
   final EdgeInsetsGeometry padding;
 
+  /// Optional header plate used by the tournament list (export: `#0A0E12`
+  /// plus a `#6075FF0A → #274D4D0A` wash, rounded 20 at the bottom).
+  final Color? backgroundColor;
+  final Gradient? background;
+  final double? bottomRadius;
+  final double? minHeight;
+
+  /// Fixed height of the title row (export: 44).
+  final double? rowHeight;
+
+  /// Title / subtitle sizes (prize pool header: 16 / 11).
+  final double titleSize;
+  final double subtitleSize;
+
+  /// Back button size and background (prize pool: 36 px on 10 % white).
+  final double backSize;
+  final Color? backBackground;
+  final double backGap;
+
   @override
   Widget build(BuildContext context) {
     final t = context.sportoTournament;
-    return Padding(
-      padding: padding,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          if (onBack != null) ...[
-            TournamentIconButton(
-              icon: Icon(Icons.arrow_back_ios_new_rounded,
-                  size: 17, color: t.white),
-              onTap: onBack,
-              size: 38,
-              radius: t.r11,
-              background: t.cardElevated,
+    Widget content = Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        if (onBack != null) ...[
+          TournamentIconButton(
+            icon: Icon(
+              Icons.arrow_back_ios_new_rounded,
+              size: backSize * .45,
+              color: t.white,
             ),
-            const SizedBox(width: 12),
-          ],
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+            onTap: onBack,
+            size: backSize,
+            radius: t.r10,
+            background: backBackground ?? t.cardElevated,
+          ),
+          SizedBox(width: backGap),
+        ],
+        Expanded(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: SportoTextStyles.text(
+                  size: titleSize,
+                  weight: FontWeight.w700,
+                  color: t.white,
+                ),
+              ),
+              if (subtitle != null) ...[
+                const SizedBox(height: 2),
                 Text(
-                  title,
+                  subtitle!,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: SportoTextStyles.text(
-                    size: SportoTextStyles.size18,
-                    weight: FontWeight.w700,
-                    color: t.white,
+                    size: subtitleSize,
+                    color: t.muted,
                   ),
                 ),
-                if (subtitle != null) ...[
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitle!,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: SportoTextStyles.text(
-                      size: SportoTextStyles.size12,
-                      color: t.muted,
-                    ),
-                  ),
-                ],
               ],
-            ),
+            ],
           ),
-          if (trailing != null) ...[const SizedBox(width: 10), trailing!],
-        ],
+        ),
+        if (trailing != null) ...[const SizedBox(width: 10), trailing!],
+      ],
+    );
+
+    if (rowHeight != null) {
+      content = ConstrainedBox(
+        constraints: BoxConstraints(minHeight: rowHeight!),
+        child: content,
+      );
+    }
+    final row = Padding(padding: padding, child: content);
+
+    if (backgroundColor == null && background == null) return row;
+
+    return Container(
+      constraints:
+          minHeight == null ? null : BoxConstraints(minHeight: minHeight!),
+      alignment: Alignment.centerLeft,
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        gradient: background,
+        borderRadius: bottomRadius == null
+            ? null
+            : BorderRadius.vertical(bottom: Radius.circular(bottomRadius!)),
       ),
+      child: row,
     );
   }
 }
@@ -191,33 +247,35 @@ class TournamentBanner extends StatelessWidget {
 class TournamentBracketStrip extends StatelessWidget {
   const TournamentBracketStrip({
     super.key,
-    required this.isExpanded,
+    this.rounds = const [],
+    this.isExpanded = true,
     this.onToggle,
-    this.teams = '64 Teams',
   });
 
+  /// Rounds from `getRounds(id)` (workflow API), ordered by `sequence`.
+  final List<TournamentRound> rounds;
   final bool isExpanded;
   final VoidCallback? onToggle;
-  final String teams;
 
   @override
   Widget build(BuildContext context) {
     final t = context.sportoTournament;
-    final stages = [
-      teams,
-      '32 Teams',
-      '16 Teams',
-      'Quarter Finals',
-      'Semi Finals',
-      'Final'
-    ];
+    final scale = context.sportoScale;
+    final ordered = [...rounds]
+      ..sort((a, b) => a.sequence.compareTo(b.sequence));
+    final visible = ordered.where((r) => r.name.trim().isNotEmpty).toList();
+    if (visible.isEmpty) return const SizedBox.shrink();
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(12),
+      padding: EdgeInsets.all(10 * scale),
       decoration: BoxDecoration(
-        gradient: t.bracketPanelGradient,
-        borderRadius: BorderRadius.circular(t.r9),
-        border: Border.all(color: t.green.withValues(alpha: .35)),
+        color: t.green.withValues(alpha: .06),
+        borderRadius: BorderRadius.circular(t.r12),
+        border: GradientBorder.all(
+          gradient: t.greenPillBorderGradient,
+          width: 1,
+          radius: t.r12,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -229,6 +287,7 @@ class TournamentBracketStrip extends StatelessWidget {
                   'Tournament Bracket',
                   style: SportoTextStyles.text(
                     size: SportoTextStyles.size12,
+                    weight: FontWeight.w500,
                     color: t.green,
                   ),
                 ),
@@ -236,6 +295,7 @@ class TournamentBracketStrip extends StatelessWidget {
               if (onToggle != null)
                 GestureDetector(
                   onTap: onToggle,
+                  behavior: HitTestBehavior.opaque,
                   child: Icon(
                     isExpanded
                         ? Icons.keyboard_arrow_up_rounded
@@ -246,31 +306,34 @@ class TournamentBracketStrip extends StatelessWidget {
                 ),
             ],
           ),
-          const SizedBox(height: 8),
-          Text.rich(
-            TextSpan(
+          if (isExpanded) ...[
+            SizedBox(height: 6 * scale),
+            Wrap(
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: 6 * scale,
+              runSpacing: 4 * scale,
               children: [
-                for (var i = 0; i < stages.length; i++) ...[
-                  TextSpan(
-                    text: stages[i],
-                    style: SportoTextStyles.text(
-                      size: SportoTextStyles.size12,
-                      weight: FontWeight.w600,
-                      color: t.warm,
-                    ),
-                  ),
-                  if (i != stages.length - 1)
-                    TextSpan(
-                      text: '  →  ',
+                for (var i = 0; i < visible.length; i++) ...[
+                  if (i > 0)
+                    Text(
+                      '›',
                       style: SportoTextStyles.text(
                         size: SportoTextStyles.size12,
+                        weight: FontWeight.w700,
                         color: t.gold,
                       ),
                     ),
+                  Text(
+                    visible[i].name,
+                    style: SportoTextStyles.text(
+                      size: SportoTextStyles.size12,
+                      color: t.white,
+                    ),
+                  ),
                 ],
               ],
             ),
-          ),
+          ],
         ],
       ),
     );
@@ -512,6 +575,239 @@ class TournamentInningsRow extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Status strip shared by the tournament detail and prize-pool screens
+/// (export 06/07/03): tinted band, gradient badge, sport, date.
+class TournamentStatusStrip extends StatelessWidget {
+  const TournamentStatusStrip({
+    super.key,
+    required this.tournament,
+    this.dateText,
+  });
+
+  final PartnerTournamentResponse tournament;
+  final String? dateText;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.sportoTournament;
+    final scale = context.sportoScale;
+    final gradient = tournamentStatusGradient(t, tournament);
+    final statusColor = tournamentStatusColor(tournament, t);
+    return Container(
+      constraints: BoxConstraints(minHeight: 43 * scale),
+      padding: EdgeInsets.symmetric(horizontal: 12 * scale),
+      decoration: BoxDecoration(
+        gradient: washGradient(gradient, .05),
+        borderRadius: BorderRadius.circular(t.r14),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 3,
+            child: Row(
+              children: [
+                Flexible(
+                  fit: FlexFit.loose,
+                  child: TournamentStatusChip(
+                    label: tournamentStatusLabel(tournament),
+                    color: statusColor,
+                    gradient: washGradient(gradient, .06),
+                    borderGradient: gradient,
+                    textGradient: gradient,
+                    height: 23 * scale,
+                    fontSize: SportoTextStyles.size12,
+                  ),
+                ),
+                SizedBox(width: 6 * scale),
+                Flexible(
+                  child: Text(
+                    tournamentSportLabel(tournament),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: SportoTextStyles.text(
+                      size: SportoTextStyles.size12,
+                      weight: FontWeight.w600,
+                      color: statusColor,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(width: 8 * scale),
+          Flexible(
+            flex: 2,
+            child: Text(
+              dateText ?? formatTournamentDay(tournament.tournamentStartAt),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.right,
+              style: SportoTextStyles.text(
+                size: SportoTextStyles.size12,
+                weight: FontWeight.w500,
+                color: t.muted,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Low-alpha version of a gradient (status bands and badge fills).
+Gradient washGradient(Gradient gradient, double alpha) {
+  if (gradient is LinearGradient) {
+    return LinearGradient(
+      begin: gradient.begin,
+      end: gradient.end,
+      stops: gradient.stops,
+      colors: [for (final c in gradient.colors) c.withValues(alpha: alpha)],
+    );
+  }
+  return gradient;
+}
+
+/// Tournament identity card (export 03/07): name, venue, optional sponsor.
+/// Pink/blue wash over the card fill, vertical blue hairline.
+class TournamentIdentityCard extends StatelessWidget {
+  const TournamentIdentityCard({
+    super.key,
+    required this.tournament,
+    this.showSponsor = false,
+    this.onTap,
+  });
+
+  final PartnerTournamentResponse tournament;
+  final bool showSponsor;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.sportoTournament;
+    final scale = context.sportoScale;
+    final sponsor = showSponsor && tournament.tournamentSponsors.isNotEmpty
+        ? tournament.tournamentSponsors.first.name
+        : null;
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        width: double.infinity,
+        clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(
+          color: t.cardAlt.withValues(alpha: .20),
+          borderRadius: BorderRadius.circular(t.r14),
+          border: GradientBorder.all(
+            gradient: t.blueEdgeGradient,
+            width: 1,
+            radius: t.r14,
+          ),
+        ),
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      t.pink.withValues(alpha: .004),
+                      t.pink.withValues(alpha: .03),
+                      t.pink.withValues(alpha: .004),
+                    ],
+                    stops: const [0, .52, 1],
+                  ),
+                ),
+              ),
+            ),
+            Positioned.fill(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      t.blueBright.withValues(alpha: .006),
+                      t.blueBright.withValues(alpha: .03),
+                      t.blueBright.withValues(alpha: .006),
+                    ],
+                    stops: const [0, .52, 1],
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.all(12 * scale),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    tournament.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: SportoTextStyles.text(
+                      size: SportoTextStyles.size16,
+                      weight: FontWeight.w600,
+                      color: t.white,
+                    ),
+                  ),
+                  SizedBox(height: 4 * scale),
+                  Row(
+                    children: [
+                      SportoSvgIcon(
+                        SportoTournamentIcons.mapPin,
+                        width: 11,
+                        height: 12,
+                        color: t.green,
+                      ),
+                      SizedBox(width: 4 * scale),
+                      Expanded(
+                        child: Text(
+                          tournamentVenueLabel(tournament),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: SportoTextStyles.text(
+                            size: SportoTextStyles.size12,
+                            weight: FontWeight.w500,
+                            color: t.green,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (sponsor != null) ...[
+                    SizedBox(height: 8 * scale),
+                    TournamentDivider(
+                      height: .8,
+                      gradient: LinearGradient(
+                        colors: [
+                          t.dim.withValues(alpha: 0),
+                          t.dim.withValues(alpha: .3),
+                          t.dim.withValues(alpha: 0),
+                        ],
+                        stops: const [0, .5, 1],
+                      ),
+                    ),
+                    SizedBox(height: 6 * scale),
+                    Text(
+                      'Sponsor by: $sponsor',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: SportoTextStyles.text(
+                        size: SportoTextStyles.size12,
+                        weight: FontWeight.w500,
+                        color: t.warm,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

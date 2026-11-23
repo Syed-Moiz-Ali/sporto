@@ -143,6 +143,26 @@ abstract final class SportoHomeRedesignIcons {
   ];
 }
 
+/// Icons exported from the "Partner Tournament Redesign" Figma package
+/// (`spoto_partner_tournament_redesign`, screens 09/14/36).
+abstract final class SportoTournamentIcons {
+  static const _dir = 'assets/tournament_icons';
+
+  /// Card location pin (node 3711:5778, 9.88x11.2).
+  static const mapPin = '$_dir/ic_map_pin.svg';
+
+  /// "+" used by the Create pill (node 3711:5376, 8x8 inside a 10x10 box).
+  static const plus = '$_dir/ic_plus.svg';
+
+  /// Edit action icon (node 3486:5372, blue gradient).
+  static const edit = '$_dir/ic_edit.svg';
+
+  /// Champion ticket medal (node 3486:5265, amber gradient).
+  static const medal = '$_dir/ic_medal.svg';
+
+  static const List<String> all = [mapPin, plus, edit, medal];
+}
+
 class SportoAssetIcon extends StatelessWidget {
   final String asset;
   final double? size;

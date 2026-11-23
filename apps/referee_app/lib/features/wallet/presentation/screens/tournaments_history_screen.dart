@@ -287,45 +287,48 @@ class _TournamentCard extends StatelessWidget {
             value: RefereeTournamentStatus.currencyFor(tournament),
             scale: scale,
           ),
-          // TODO(backend): temporary Figma values until the tournament row
-          // exposes venue, dates, teams, level and amounts.
+          // Wire the fields supplied by the referee tournament projection.
           SizedBox(height: 6 * scale),
           _InfoRow(
             label: 'Venue',
             value: _firstText([
                   tournament.raw['venue_name'],
+                  tournament.raw['location'],
                   tournament.raw['venue'],
-                  tournament.raw['city'],
                 ]) ??
-                'SPORTO Arena, Hyderabad',
+                'Not configured',
             scale: scale,
           ),
+          if (_firstText([tournament.raw['city']]) != null) ...[
+            SizedBox(height: 6 * scale),
+            _InfoRow(
+              label: 'City',
+              value: _firstText([tournament.raw['city']])!,
+              scale: scale,
+            ),
+          ],
           SizedBox(height: 6 * scale),
           _InfoRow(
             label: 'Date',
-            value: _dateRange(tournament) ?? '12 Oct - 14 Oct 2026',
+            value: _dateRange(tournament) ?? 'Not configured',
             scale: scale,
           ),
           SizedBox(height: 6 * scale),
           _InfoRow(
             label: 'Teams',
-            value: _teamCount(tournament) ?? '41/64 Teams',
+            value: _teamCount(tournament) ?? 'Not configured',
             scale: scale,
           ),
           SizedBox(height: 6 * scale),
           _InfoRow(
             label: 'Level',
-            value: _firstText([
-                  tournament.raw['level'],
-                  tournament.raw['approval_label'],
-                ]) ??
-                'Local \u00B7 Approved',
+            value: _firstText([tournament.raw['level']]) ?? 'Not configured',
             scale: scale,
           ),
           SizedBox(height: 6 * scale),
           _InfoRow(
             label: 'Earnings',
-            value: _amount(tournament) ?? '\u20B98,500',
+            value: _earningsTotal(tournament) ?? 'Not available',
             scale: scale,
           ),
           SizedBox(height: 12 * scale),
@@ -394,18 +397,12 @@ String? _teamCount(RefereeTournamentHistoryItem item) {
   return '${registered ?? '-'}/${capacity ?? '-'} Teams';
 }
 
-String? _amount(RefereeTournamentHistoryItem item) {
-  for (final value in [
-    item.raw['earnings'],
-    item.raw['prize'],
-    item.raw['fee'],
-  ]) {
-    if (value == null) continue;
-    final number = num.tryParse(value.toString());
-    if (number == null) continue;
-    return '\u20B9${number.toStringAsFixed(0)}';
-  }
-  return null;
+String? _earningsTotal(RefereeTournamentHistoryItem item) {
+  final value = item.raw['earnings_total'];
+  if (value == null) return null;
+  final number = num.tryParse(value.toString());
+  if (number == null) return null;
+  return '\u20B9${number.toStringAsFixed(0)}';
 }
 
 class _InfoRow extends StatelessWidget {

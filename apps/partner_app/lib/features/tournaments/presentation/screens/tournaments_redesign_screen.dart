@@ -9,17 +9,31 @@ import '../../../partner_api/application/partner_api_bloc.dart';
 import '../widgets/redesign/tournament_cards.dart';
 import '../widgets/redesign/tournament_navigation.dart';
 import '../widgets/redesign/tournament_redesign_data.dart';
+import '../widgets/redesign/tournament_screen_parts.dart';
 import '../widgets/redesign/tournament_shimmer.dart';
 import '../widgets/redesign/tournament_visuals.dart';
 
+/// Tournaments tab — Figma `Partner App / Tournaments` (export screens
+/// 09, 10, 14, 36).
+///
+/// One page, five tab states (draft / live / upcoming / completed / rejected)
+/// plus the under-review and approved states the app already had.
 class TournamentsRedesignScreen extends StatefulWidget {
   final bool embedded;
   final bool? isLoading;
+
+  /// Test / preview injection: renders this list instead of reading the bloc.
+  final List<PartnerTournamentResponse>? tournamentsOverride;
+
+  /// Initial tab (used by golden captures of a specific state).
+  final TournamentListTab initialTab;
 
   const TournamentsRedesignScreen({
     super.key,
     this.embedded = false,
     this.isLoading,
+    this.tournamentsOverride,
+    this.initialTab = TournamentListTab.applications,
   });
 
   @override
@@ -28,11 +42,12 @@ class TournamentsRedesignScreen extends StatefulWidget {
 }
 
 class _TournamentsRedesignScreenState extends State<TournamentsRedesignScreen> {
-  TournamentListTab _selectedTab = TournamentListTab.applications;
+  late TournamentListTab _selectedTab = widget.initialTab;
 
   @override
   void initState() {
     super.initState();
+    if (widget.tournamentsOverride != null) return;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       try {
@@ -48,154 +63,137 @@ class _TournamentsRedesignScreenState extends State<TournamentsRedesignScreen> {
   Widget build(BuildContext context) {
     final t = context.sportoTournament;
     final scale = context.sportoScale;
+    final horizontal = 20 * scale;
 
     PartnerApiLoadedState? loaded;
     bool isApiLoading = false;
     String? apiError;
-    try {
-      final bloc = BlocProvider.of<PartnerApiBloc>(context, listen: true);
-      isApiLoading = bloc.state is PartnerApiLoadingState ||
-          bloc.state is PartnerApiInitialState;
-      if (bloc.state is PartnerApiLoadedState) {
-        loaded = bloc.state as PartnerApiLoadedState;
-      } else if (bloc.state is PartnerApiErrorState) {
-        apiError = (bloc.state as PartnerApiErrorState).message;
-      }
-    } catch (_) {}
+    if (widget.tournamentsOverride == null) {
+      try {
+        final bloc = BlocProvider.of<PartnerApiBloc>(context, listen: true);
+        isApiLoading = bloc.state is PartnerApiLoadingState ||
+            bloc.state is PartnerApiInitialState;
+        if (bloc.state is PartnerApiLoadedState) {
+          loaded = bloc.state as PartnerApiLoadedState;
+        } else if (bloc.state is PartnerApiErrorState) {
+          apiError = (bloc.state as PartnerApiErrorState).message;
+        }
+      } catch (_) {}
+    }
 
     final isLoading = widget.isLoading ?? (isApiLoading && loaded == null);
-    final tournaments =
-        loaded?.tournaments ?? const <PartnerTournamentResponse>[];
+    final tournaments = widget.tournamentsOverride ??
+        loaded?.tournaments ??
+        const <PartnerTournamentResponse>[];
+    final live = widget.tournamentsOverride != null
+        ? tournaments.where((t) => t.status == 6).toList()
+        : loaded?.liveTournaments ?? const <PartnerTournamentResponse>[];
     final filtered = tournaments
-        .where((tournament) => tournamentMatchesTab(tournament, _selectedTab))
+        .where((item) => tournamentMatchesTab(item, _selectedTab))
         .toList();
 
-    final content = SafeArea(
-      bottom: false,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: EdgeInsets.fromLTRB(20, 14 * scale, 20, 8 * scale),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    'Tournaments',
-                    style: SportoTextStyles.text(
-                      size: SportoTextStyles.size20,
-                      weight: FontWeight.w700,
-                      color: t.white,
-                    ),
-                  ),
-                ),
-                TournamentActionPill(
-                  label: 'Create',
-                  icon: Icon(Icons.add_rounded, size: 15, color: t.screenBase),
-                  gradient: t.bluePillGradient,
-                  foreground: t.screenBase,
-                  height: 34,
-                  fontSize: SportoTextStyles.size12,
-                  onTap: () async {
-                    final refreshed = await context
-                        .push<bool>(AppRouter.createTournamentRoute);
-                    if (refreshed == true && mounted) {
-                      context
-                          .read<PartnerApiBloc>()
-                          .add(const LoadPartnerApiBootstrapEvent());
-                    }
-                  },
-                ),
-              ],
-            ),
+    final content = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TournamentScreenHeader(
+          title: 'Tournaments',
+          padding: EdgeInsets.fromLTRB(
+            horizontal,
+            MediaQuery.of(context).padding.top,
+            horizontal,
+            10 * scale,
           ),
-          if (isLoading)
-            const Expanded(child: TournamentListScreenShimmer())
-          else if (apiError != null)
-            Expanded(
-              child: Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        'Tournaments could not be loaded.',
-                        style: SportoTextStyles.text(
-                          size: SportoTextStyles.size15,
-                          color: t.white,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        apiError,
-                        textAlign: TextAlign.center,
-                        style: SportoTextStyles.text(
-                          size: SportoTextStyles.size12,
-                          color: t.muted,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      TournamentActionPill(
-                        label: 'Try Again',
-                        gradient: t.bluePillGradient,
-                        foreground: t.screenBase,
-                        onTap: () => context
+          rowHeight: 44 * scale,
+          backgroundColor: t.screenHeader,
+          background: t.headerGradient,
+          bottomRadius: t.r18,
+          trailing: TournamentActionPill(
+            label: 'Create',
+            icon: SportoSvgIcon(SportoTournamentIcons.plus,
+                width: 10, height: 10),
+            gradient: t.bluePillGradient,
+            foreground: t.screenBase,
+            fontWeight: FontWeight.w700,
+            height: 27 * scale,
+            radius: t.r10,
+            padding: EdgeInsets.symmetric(horizontal: 10 * scale),
+            onTap: () async {
+              final refreshed =
+                  await context.push<bool>(AppRouter.createTournamentRoute);
+              if (refreshed == true && mounted) {
+                context
+                    .read<PartnerApiBloc>()
+                    .add(const LoadPartnerApiBootstrapEvent());
+              }
+            },
+          ),
+        ),
+        Expanded(
+          child: isLoading
+              ? const TournamentListScreenShimmer()
+              : apiError != null
+                  ? _ErrorState(
+                      message: apiError,
+                      onRetry: () => context
+                          .read<PartnerApiBloc>()
+                          .add(const LoadPartnerApiBootstrapEvent()),
+                    )
+                  : RefreshIndicator(
+                      color: t.green,
+                      onRefresh: () async {
+                        context
                             .read<PartnerApiBloc>()
-                            .add(const LoadPartnerApiBootstrapEvent()),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            )
-          else
-            Expanded(
-              child: RefreshIndicator(
-                color: t.green,
-                onRefresh: () async {
-                  context
-                      .read<PartnerApiBloc>()
-                      .add(const LoadPartnerApiBootstrapEvent());
-                  await Future<void>.delayed(const Duration(milliseconds: 450));
-                },
-                child: ListView(
-                  padding: EdgeInsets.fromLTRB(20, 0, 20, 24 * scale),
-                  children: [
-                    const SizedBox(height: 6),
-                    _LiveSection(
-                      live: loaded?.liveTournaments ?? const [],
-                      onViewAll: () =>
-                          context.push(AppRouter.liveTournamentsRoute),
-                      onOpen: (tournament) => context.push(
-                        AppRouter.tournamentDetailRoute('${tournament.id}'),
+                            .add(const LoadPartnerApiBootstrapEvent());
+                        await Future<void>.delayed(
+                          const Duration(milliseconds: 450),
+                        );
+                      },
+                      child: ListView(
+                        padding: EdgeInsets.fromLTRB(
+                          horizontal,
+                          10 * scale,
+                          horizontal,
+                          (widget.embedded
+                                  ? context.sportoResponsive
+                                      .bottomContentPadding(context)
+                                  : 0) +
+                              24 * scale,
+                        ),
+                        children: [
+                          if (live.isNotEmpty) ...[
+                            _LiveEntry(
+                              count: live.length,
+                              onTap: () =>
+                                  context.push(AppRouter.liveTournamentsRoute),
+                            ),
+                            SizedBox(height: 10 * scale),
+                          ],
+                          _TabRow(
+                            tournaments: tournaments,
+                            selected: _selectedTab,
+                            scale: scale,
+                            horizontalPadding: 0,
+                            onSelected: (tab) =>
+                                setState(() => _selectedTab = tab),
+                          ),
+                          SizedBox(height: 10 * scale),
+                          if (filtered.isEmpty)
+                            _EmptyState(label: _selectedTab.label)
+                          else
+                            for (var i = 0; i < filtered.length; i++) ...[
+                              _buildTournamentCard(context, filtered[i]),
+                              if (i != filtered.length - 1)
+                                SizedBox(height: 10 * scale),
+                            ],
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 18),
-                    _TabRow(
-                      tournaments: tournaments,
-                      selected: _selectedTab,
-                      onSelected: (tab) => setState(() => _selectedTab = tab),
-                    ),
-                    const SizedBox(height: 14),
-                    if (filtered.isEmpty)
-                      _EmptyState(label: _selectedTab.label)
-                    else
-                      for (var i = 0; i < filtered.length; i++) ...[
-                        _buildTournamentCard(context, filtered[i]),
-                        if (i != filtered.length - 1)
-                          const SizedBox(height: 14),
-                      ],
-                  ],
-                ),
-              ),
-            ),
-        ],
-      ),
+        ),
+      ],
     );
 
     return widget.embedded
-        ? content
+        ? Scaffold(backgroundColor: t.screenBase, body: content)
         : Scaffold(
             backgroundColor: t.screenBase,
             body: content,
@@ -207,53 +205,79 @@ class _TournamentsRedesignScreenState extends State<TournamentsRedesignScreen> {
     PartnerTournamentResponse tournament,
   ) {
     final t = context.sportoTournament;
-    final statusColor = tournamentStatusColor(tournament, t);
     final registered = tournament.registeredTeams ?? 0;
     final maxTeams = tournament.maximumTeams;
     final slots =
         maxTeams == null ? null : (maxTeams - registered).clamp(0, maxTeams);
     final detailRoute = AppRouter.tournamentDetailRoute('${tournament.id}');
-
-    final isLive = tournament.status == 6;
     final isCompleted = tournament.status == 7;
-    final isRejected = tournament.approvalStatus == 5 ||
+    final showProgress = tournament.status == 3 || tournament.status == 4;
+    final isRejectedOrCancelled = tournament.approvalStatus == 5 ||
         tournament.status == 8 ||
         tournament.status == 9;
-    final isUnderReview = tournament.approvalStatus == 2;
+    final isReview = tournament.approvalStatus == 2 || tournament.status == 1;
 
     return TournamentListCard(
       name: tournament.name,
       sport: tournamentSportLabel(tournament),
       venue: tournamentVenueLabel(tournament),
-      statusLabel: tournamentStatusLabel(tournament),
-      statusColor: statusColor,
+      statusLabel: tournamentBadgeLabel(tournament),
+      statusColor: tournamentStatusColor(tournament, t),
+      statusGradient: tournamentStatusGradient(t, tournament),
       code: tournamentCode(tournament),
-      dateText: formatTournamentDate(
-        tournament.tournamentStartAt,
-        fallback: '',
-      ),
+      dateText: _cardDate(tournament.tournamentStartAt),
       location: tournamentLocationLabel(tournament),
-      dateRange: _dateRange(tournament),
-      registrationOpen: tournament.status == 3,
-      teamsRegistered:
-          isLive || isCompleted || !isUnderReview ? registered : null,
-      maxTeams: isLive || isCompleted || !isUnderReview ? maxTeams : null,
-      slotsLeft: isLive ? slots : null,
-      matchesScheduled: isLive ? 63 : null,
-      champions: isCompleted ? 'Hyd Highlanders' : null,
-      noteText: isRejected
-          ? 'Venue could not be verified for the selected dates.'
-          : isUnderReview
-              ? 'Submitted for admin review.'
-              : null,
-      noteColor: isRejected ? t.red : t.underReview,
-      actionLabel: isUnderReview || isRejected ? 'Edit' : 'Open Tournament',
-      actionIcon: isUnderReview || isRejected
-          ? Icon(Icons.edit_outlined, size: 14, color: statusColor)
+      dateRange: (isCompleted || isRejectedOrCancelled)
+          ? _dateRange(tournament)
           : null,
-      onAction: () => context.push(detailRoute),
+      entryFee: tournamentEntryLabel(tournament),
+      prize: tournamentPrizeLabel(tournament),
+      registrationOpen: tournament.status == 3,
+      teamsRegistered: showProgress ? registered : null,
+      maxTeams: showProgress ? maxTeams : null,
+      slotsLeft: showProgress ? slots : null,
+      // `matches scheduled` is not part of the tournament payload — omitted
+      // instead of invented (see docs/figma/_coverage.md).
+      matchesScheduled: null,
+      // Completed cards show a real champion only when the API provides one.
+      champions: null,
+      submittedText: isReview && tournament.createdAt != null
+          ? '${formatTournamentDate(tournament.createdAt)} Submitted'
+          : null,
+      onEdit: (isReview || isRejectedOrCancelled)
+          ? () => context.push(detailRoute)
+          : null,
+      actionLabel: null,
       onTap: () => context.push(detailRoute),
     );
+  }
+
+  String? _cardDate(String? raw) {
+    if (raw == null || raw.isEmpty) return null;
+    try {
+      final dt = DateTime.parse(raw).toLocal();
+      const months = [
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec',
+      ];
+      final hour = dt.hour == 0 ? 12 : (dt.hour > 12 ? dt.hour - 12 : dt.hour);
+      final period = dt.hour >= 12 ? 'PM' : 'AM';
+      final minute = dt.minute.toString().padLeft(2, '0');
+      return '${dt.day.toString().padLeft(2, '0')} ${months[dt.month - 1]} '
+          '${dt.year} · $hour:$minute $period';
+    } catch (_) {
+      return raw;
+    }
   }
 
   String? _dateRange(PartnerTournamentResponse tournament) {
@@ -266,89 +290,31 @@ class _TournamentsRedesignScreenState extends State<TournamentsRedesignScreen> {
   }
 }
 
-class _LiveSection extends StatelessWidget {
-  const _LiveSection({
-    required this.live,
-    required this.onViewAll,
-    required this.onOpen,
-  });
+/// `Live Tournaments (n)` entry — the only route into `/tournaments/live`.
+class _LiveEntry extends StatelessWidget {
+  const _LiveEntry({required this.count, required this.onTap});
 
-  final List<PartnerTournamentResponse> live;
-  final VoidCallback onViewAll;
-  final ValueChanged<PartnerTournamentResponse> onOpen;
+  final int count;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final t = context.sportoTournament;
-    if (live.isEmpty) return const SizedBox.shrink();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Container(
-              width: 8,
-              height: 8,
-              decoration: BoxDecoration(color: t.live, shape: BoxShape.circle),
-            ),
-            const SizedBox(width: 6),
-            Text(
-              'Live Tournaments (${live.length})',
-              style: SportoTextStyles.text(
-                size: SportoTextStyles.size14,
-                weight: FontWeight.w600,
-                color: t.warm,
-              ),
-            ),
-            const Spacer(),
-            GestureDetector(
-              onTap: onViewAll,
-              child: Row(
-                children: [
-                  Text(
-                    'View All',
-                    style: SportoTextStyles.text(
-                      size: SportoTextStyles.size12,
-                      color: t.blue,
-                    ),
-                  ),
-                  const SizedBox(width: 2),
-                  Icon(Icons.arrow_forward_rounded, size: 14, color: t.blue),
-                ],
-              ),
-            ),
-          ],
+    return ConstrainedBox(
+      constraints: const BoxConstraints(minHeight: 29),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: TournamentDotTab(
+          label: 'Live Tournaments ($count)',
+          selected: false,
+          dotColor: t.live,
+          height: 25,
+          radius: t.r50,
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          borderGradient: t.bluePillBorderGradient,
+          onTap: onTap,
         ),
-        const SizedBox(height: 10),
-        SizedBox(
-          height: 282,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            itemCount: live.length,
-            clipBehavior: Clip.none,
-            separatorBuilder: (_, __) => const SizedBox(width: 12),
-            itemBuilder: (_, index) {
-              final tournament = live[index];
-              final registered = tournament.registeredTeams ?? 0;
-              final maxTeams = tournament.maximumTeams ?? 0;
-              return LiveTournamentCard(
-                width: 330,
-                name: tournament.name,
-                venue: tournamentVenueLabel(tournament),
-                code: tournamentCode(tournament),
-                dateText: formatTournamentDate(tournament.tournamentStartAt),
-                teamsText: '$registered/$maxTeams Teams',
-                slotsText:
-                    '${(maxTeams - registered).clamp(0, maxTeams)} slots left',
-                refereeText: '2 awaiting referee',
-                onOpen: () => onOpen(tournament),
-                onMonitor: () => onOpen(tournament),
-              );
-            },
-          ),
-        ),
-      ],
+      ),
     );
   }
 }
@@ -358,31 +324,50 @@ class _TabRow extends StatelessWidget {
     required this.tournaments,
     required this.selected,
     required this.onSelected,
+    required this.scale,
+    required this.horizontalPadding,
   });
 
   final List<PartnerTournamentResponse> tournaments;
   final TournamentListTab selected;
   final ValueChanged<TournamentListTab> onSelected;
+  final double scale;
+  final double horizontalPadding;
 
   @override
   Widget build(BuildContext context) {
     final t = context.sportoTournament;
-    return SizedBox(
-      height: 36,
-      child: ListView.separated(
+    return ConstrainedBox(
+      constraints: BoxConstraints(minHeight: 29 * scale),
+      child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
-        itemCount: TournamentListTab.values.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 8),
-        itemBuilder: (_, index) {
-          final tab = TournamentListTab.values[index];
-          final count = tournamentCountFor(tournaments, tab);
-          return TournamentDotTab(
-            label: '${tab.label} ($count)',
-            selected: selected == tab,
-            dotColor: tab == TournamentListTab.live ? t.live : null,
-            onTap: () => onSelected(tab),
-          );
-        },
+        clipBehavior: Clip.none,
+        padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+        child: Row(
+          children: [
+            for (var i = 0; i < TournamentListTab.values.length; i++) ...[
+              if (i > 0) SizedBox(width: 8 * scale),
+              Builder(
+                builder: (_) {
+                  final tab = TournamentListTab.values[i];
+                  final count = tournamentCountFor(tournaments, tab);
+                  return TournamentDotTab(
+                    label: '${tab.label} ($count)',
+                    selected: selected == tab,
+                    dotColor: tab == TournamentListTab.live ? t.live : null,
+                    height: 25 * scale,
+                    radius: t.r50,
+                    padding: EdgeInsets.symmetric(horizontal: 8 * scale),
+                    borderGradient: t.bluePillBorderGradient,
+                    selectedWeight: FontWeight.w700,
+                    unselectedWeight: FontWeight.w500,
+                    onTap: () => onSelected(tab),
+                  );
+                },
+              ),
+            ],
+          ],
+        ),
       ),
     );
   }
@@ -411,6 +396,51 @@ class _EmptyState extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _ErrorState extends StatelessWidget {
+  const _ErrorState({required this.message, required this.onRetry});
+
+  final String message;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.sportoTournament;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Tournaments could not be loaded.',
+              style: SportoTextStyles.text(
+                size: SportoTextStyles.size15,
+                color: t.white,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: SportoTextStyles.text(
+                size: SportoTextStyles.size12,
+                color: t.muted,
+              ),
+            ),
+            const SizedBox(height: 16),
+            TournamentActionPill(
+              label: 'Try Again',
+              gradient: t.bluePillGradient,
+              foreground: t.screenBase,
+              onTap: onRetry,
+            ),
+          ],
+        ),
       ),
     );
   }
