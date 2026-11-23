@@ -51,7 +51,31 @@ If manual publishing is intentional, document it clearly and expose `schedule_ve
 
 ---
 
-## P0 — Venue coordinates cannot be configured through the Partner venue API
+## P0 — Venue coordinates are not persisted by the Partner venue API
+
+### How the Partner app supplies coordinates
+
+The Partner does **not** normally type coordinates manually.
+
+When the Partner selects the venue through the map/search picker:
+
+```text
+Location picker → VenueLocationSelection(address, latitude, longitude)
+```
+
+the Partner app auto-fills **Latitude** and **Longitude** from the selected location.
+Both fields remain visible/editable for correction, but the normal source is the selected map location.
+
+The create/update payload now includes:
+
+```json
+{
+  "venue_name": "SPORTO QA Ground 4",
+  "location": "Kukatpally, Hyderabad",
+  "latitude": 17.494793,
+  "longitude": 78.399635
+}
+```
 
 ### Observed
 Referee profile coordinates were set successfully:
@@ -105,8 +129,10 @@ PUT /v1/partner/tournaments/434/venues/598
 ```
 
 ### Expected
-- Add `latitude` / `longitude` to Partner tournament venue create/update and return them in the venue payload.
+- Persist `latitude` / `longitude` from the Partner tournament venue create/update payload.
+- Return both fields in the venue response so edits reload correctly.
 - Validate that both are present together and within valid bounds.
+- Use the persisted venue coordinates when calculating `distance_km` from the referee profile coordinates.
 - Or document the actual admin-only path for venue coordinates.
 - Without this, `distance_km` can never be produced for these tournaments even when referee coordinates exist.
 

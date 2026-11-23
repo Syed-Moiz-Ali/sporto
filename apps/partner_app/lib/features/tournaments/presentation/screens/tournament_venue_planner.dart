@@ -23,6 +23,10 @@ class _VenuePlannerState extends State<TournamentVenuePlanner> {
   VenueRoundPlan? get previous => widget.initial?.allocations.firstOrNull;
   late final name = TextEditingController(text: widget.initial?.name);
   late final location = TextEditingController(text: widget.initial?.location);
+  late final latitude = TextEditingController(
+      text: widget.initial?.latitude?.toStringAsFixed(6) ?? '');
+  late final longitude = TextEditingController(
+      text: widget.initial?.longitude?.toStringAsFixed(6) ?? '');
   late final capacity =
       TextEditingController(text: widget.initial?.capacity.toString());
   late final date = TextEditingController(text: previous?.date);
@@ -39,7 +43,16 @@ class _VenuePlannerState extends State<TournamentVenuePlanner> {
       .toList();
   @override
   void dispose() {
-    for (final c in [name, location, capacity, date, start, end]) {
+    for (final c in [
+      name,
+      location,
+      latitude,
+      longitude,
+      capacity,
+      date,
+      start,
+      end
+    ]) {
       c.dispose();
     }
     super.dispose();
@@ -61,12 +74,24 @@ class _VenuePlannerState extends State<TournamentVenuePlanner> {
     if (saving) return;
     final c = int.tryParse(capacity.text);
     final d = DateTime.tryParse(date.text);
+    final lat = double.tryParse(latitude.text.trim());
+    final lng = double.tryParse(longitude.text.trim());
+    final hasLat = latitude.text.trim().isNotEmpty;
+    final hasLng = longitude.text.trim().isNotEmpty;
     errors.clear();
     if (roundId == null || !availableRounds.any((r) => r.id == roundId))
       errors['round'] = 'Select a tournament round.';
     if (name.text.trim().isEmpty) errors['name'] = 'Enter venue name.';
     if (location.text.trim().isEmpty)
       errors['location'] = 'Select venue location.';
+    if (hasLat != hasLng) {
+      errors['coordinates'] = 'Enter both latitude and longitude.';
+    } else if (hasLat) {
+      if (lat == null || lat < -90 || lat > 90)
+        errors['coordinates'] = 'Latitude must be between -90 and 90.';
+      else if (lng == null || lng < -180 || lng > 180)
+        errors['coordinates'] = 'Longitude must be between -180 and 180.';
+    }
     if (ground.isEmpty) errors['ground'] = 'Select ground type.';
     if (c == null || c < 1)
       errors['capacity'] = 'Enter a positive daily match capacity.';
@@ -102,6 +127,8 @@ class _VenuePlannerState extends State<TournamentVenuePlanner> {
           groundType: ground,
           capacity: c!,
           isPrimary: primary,
+          latitude: lat,
+          longitude: lng,
           allocations: [plan, ...?widget.initial?.allocations.skip(1)]));
       if (mounted) Navigator.pop(context, saved);
     } catch (e) {
@@ -175,17 +202,55 @@ class _VenuePlannerState extends State<TournamentVenuePlanner> {
                     onTap: saving
                         ? null
                         : () async {
-                            final selected =
-                                await Navigator.push<VenueLocationSelection>(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (_) =>
-                                            VenueLocationPickerScreen(
-                                                initialAddress:
-                                                    location.text)));
+                            final selected = await Navigator.push<
+                                    VenueLocationSelection>(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (_) => VenueLocationPickerScreen(
+                                        initialAddress: location.text,
+                                        initialLatitude:
+                                            double.tryParse(latitude.text),
+                                        initialLongitude:
+                                            double.tryParse(longitude.text))));
                             if (selected != null && mounted)
-                              setState(() => location.text = selected.address);
+                              setState(() {
+                                location.text = selected.address;
+                                latitude.text =
+                                    selected.latitude.toStringAsFixed(6);
+                                longitude.text =
+                                    selected.longitude.toStringAsFixed(6);
+                              });
                           }),
+                const SizedBox(height: 20),
+                Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Expanded(
+                      child: SportoTextField(
+                          label: 'Latitude',
+                          hint: 'e.g. 17.494793',
+                          controller: latitude,
+                          keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true, signed: true),
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(
+                                RegExp(r'[-0-9.]'))
+                          ],
+                          readOnly: saving,
+                          errorText: errors['coordinates'])),
+                  const SizedBox(width: 12),
+                  Expanded(
+                      child: SportoTextField(
+                          label: 'Longitude',
+                          hint: 'e.g. 78.399635',
+                          controller: longitude,
+                          keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true, signed: true),
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(
+                                RegExp(r'[-0-9.]'))
+                          ],
+                          readOnly: saving,
+                          errorText: errors['coordinates'])),
+                ]),
                 const SizedBox(height: 20),
                 SportoTextField(
                     label: 'Daily Match Capacity',

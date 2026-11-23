@@ -2,11 +2,22 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:partner_data/partner_data.dart';
 
 void main() {
-  test('round remains available until combined capacity meets required matches', () {
-    final partial = TournamentRound.fromJson({'id': 403, 'name': 'Round of 32', 'expected_match_count': 16, 'venue_summary': {'configured_capacity': 10}});
+  test('round remains available until combined capacity meets required matches',
+      () {
+    final partial = TournamentRound.fromJson({
+      'id': 403,
+      'name': 'Round of 32',
+      'expected_match_count': 16,
+      'venue_summary': {'configured_capacity': 10}
+    });
     expect(partial.remainingCapacity(), 6);
     expect(partial.capacityComplete, isFalse);
-    final full = TournamentRound.fromJson({'id': 403, 'name': 'Round of 32', 'expected_match_count': 16, 'venue_summary': {'configured_capacity': 32}});
+    final full = TournamentRound.fromJson({
+      'id': 403,
+      'name': 'Round of 32',
+      'expected_match_count': 16,
+      'venue_summary': {'configured_capacity': 32}
+    });
     expect(full.capacityComplete, isTrue);
     expect(full.remainingCapacity(editingCapacity: 32), 16);
   });
@@ -54,6 +65,28 @@ void main() {
     expect(
         (venue.toJson()['round_allocations'] as List).single['round_id'], 402);
   });
+  test('venue coordinates survive parsing and create/update payloads', () {
+    final venue = PlannedTournamentVenue.fromJson({
+      'id': 598,
+      'venue_name': 'SPORTO QA Ground 4',
+      'location': 'Kukatpally, Hyderabad',
+      'ground_type': 'Turf',
+      'daily_match_capacity': 4,
+      'is_primary': true,
+      'latitude': '17.494793',
+      'longitude': 78.399635,
+      'round_allocations': const [],
+    });
+    expect(venue.latitude, closeTo(17.494793, 0.000001));
+    expect(venue.longitude, closeTo(78.399635, 0.000001));
+    expect(venue.toJson()['latitude'], 17.494793);
+    expect(venue.toJson()['longitude'], 78.399635);
+    expect(
+      venue.withAllocations(const []).toJson().containsKey('latitude'),
+      isTrue,
+    );
+  });
+
   test('zero required matches stays backend authoritative', () {
     final round = TournamentRound.fromJson({
       'id': 402,

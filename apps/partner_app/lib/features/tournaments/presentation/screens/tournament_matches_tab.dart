@@ -14,6 +14,7 @@ class TournamentMatchesTab extends StatefulWidget {
     required this.tournament,
     required this.matches,
     this.rounds = const [],
+    this.scheduleIsPublished = true,
     this.onAssignReferee,
     this.onScorecard,
   });
@@ -21,6 +22,7 @@ class TournamentMatchesTab extends StatefulWidget {
   final PartnerTournamentResponse tournament;
   final List<PartnerTournamentMatchResponse> matches;
   final List<TournamentRound> rounds;
+  final bool scheduleIsPublished;
   final ValueChanged<PartnerTournamentMatchResponse>? onAssignReferee;
   final ValueChanged<PartnerTournamentMatchResponse>? onScorecard;
 
@@ -81,6 +83,25 @@ class _TournamentMatchesTabState extends State<TournamentMatchesTab> {
           const SizedBox(height: 14),
           TournamentBracketStrip(rounds: widget.rounds),
         ],
+        if (!widget.scheduleIsPublished) ...[
+          const SizedBox(height: 10),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            decoration: BoxDecoration(
+              color: t.gold.withValues(alpha: .10),
+              borderRadius: BorderRadius.circular(t.r10),
+              border: Border.all(color: t.gold.withValues(alpha: .30)),
+            ),
+            child: Text(
+              'Publish the schedule before assigning referees.',
+              style: SportoTextStyles.text(
+                size: SportoTextStyles.size11,
+                color: t.gold,
+              ),
+            ),
+          ),
+        ],
         const SizedBox(height: 14),
         if (widget.matches.isEmpty)
           Padding(
@@ -100,9 +121,10 @@ class _TournamentMatchesTabState extends State<TournamentMatchesTab> {
             _MatchCard(
               match: filtered[i],
               roundText: _roundOf(filtered[i]),
-              onReferee: widget.onAssignReferee == null
-                  ? null
-                  : () => widget.onAssignReferee!(filtered[i]),
+              onReferee:
+                  widget.onAssignReferee == null || !widget.scheduleIsPublished
+                      ? null
+                      : () => widget.onAssignReferee!(filtered[i]),
               onScorecard: widget.onScorecard == null
                   ? null
                   : () => widget.onScorecard!(filtered[i]),

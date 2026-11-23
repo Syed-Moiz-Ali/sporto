@@ -43,6 +43,25 @@ void main() {
     expect(allocation.venueId, 455);
   });
 
+  test('schedule publish state is parsed from publish metadata', () {
+    final draft = TournamentSchedule.fromJson({
+      'version_id': 134,
+      'status': 2,
+      'published_at': null,
+      'matches': const [],
+    });
+    expect(draft.isPublished, isFalse);
+
+    final published = TournamentSchedule.fromJson({
+      'version_id': 134,
+      'status': 3,
+      'published_at': '2026-11-23T06:30:17.000000Z',
+      'matches': const [],
+    });
+    expect(published.isPublished, isTrue);
+    expect(published.publishedAt, '2026-11-23T06:30:17.000000Z');
+  });
+
   test('schedule version and scheduled matches remain typed', () {
     final schedule = TournamentSchedule.fromJson({
       'version_id': 123,

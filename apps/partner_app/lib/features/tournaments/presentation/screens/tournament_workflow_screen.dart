@@ -242,12 +242,18 @@ class _WorkflowState extends State<TournamentWorkflowScreen> {
                         () => action('generate-schedule', 'schedule/generate'),
                         disabled: !approved || rounds.isEmpty),
                     Text('Version: ${schedule?.versionId ?? 'Not generated'}'),
+                    Text(
+                        'Schedule: ${schedule == null ? 'Not generated' : schedule?.isPublished == true ? 'Published' : 'Draft'}'),
                     button(
                         'publish',
-                        'Publish schedule',
+                        schedule?.isPublished == true
+                            ? 'Schedule published'
+                            : 'Publish schedule',
                         () => action('publish', 'schedule/publish',
                             body: {'version_id': schedule?.versionId}),
-                        disabled: !approved || schedule?.versionId == null),
+                        disabled: !approved ||
+                            schedule?.versionId == null ||
+                            schedule?.isPublished == true),
                   ],
                   if (tab == 0)
                     ...registrations.map((row) => Card(
@@ -468,5 +474,3 @@ class _AllocationState extends State<_AllocationScreen> {
                         : null)))),
       ]));
 }
-
-

@@ -95,6 +95,8 @@ class PlannedTournamentVenue {
           groundType: groundType,
           capacity: capacity,
           isPrimary: isPrimary,
+          latitude: latitude,
+          longitude: longitude,
           allocations: plans);
   const PlannedTournamentVenue(
       {this.id,
@@ -103,11 +105,14 @@ class PlannedTournamentVenue {
       required this.groundType,
       required this.capacity,
       required this.isPrimary,
+      this.latitude,
+      this.longitude,
       required this.allocations});
   final int? id;
   final String name, location, groundType;
   final int capacity;
   final bool isPrimary;
+  final double? latitude, longitude;
   final List<VenueRoundPlan> allocations;
   factory PlannedTournamentVenue.fromJson(Map<String, dynamic> json) =>
       PlannedTournamentVenue(
@@ -117,6 +122,8 @@ class PlannedTournamentVenue {
           groundType: json['ground_type'] as String? ?? '',
           capacity: int.parse('${json['daily_match_capacity']}'),
           isPrimary: json['is_primary'] == true || json['is_primary'] == 1,
+          latitude: _double(json['latitude']),
+          longitude: _double(json['longitude']),
           allocations: (json['round_allocations'] as List? ?? [])
               .map((e) =>
                   VenueRoundPlan.fromJson(Map<String, dynamic>.from(e as Map)))
@@ -127,6 +134,13 @@ class PlannedTournamentVenue {
         'ground_type': groundType,
         'daily_match_capacity': capacity,
         'is_primary': isPrimary,
+        if (latitude != null) 'latitude': latitude,
+        if (longitude != null) 'longitude': longitude,
         'round_allocations': allocations.map((e) => e.toJson()).toList()
       };
+}
+
+double? _double(Object? value) {
+  if (value is num) return value.toDouble();
+  return double.tryParse(value?.toString() ?? '');
 }

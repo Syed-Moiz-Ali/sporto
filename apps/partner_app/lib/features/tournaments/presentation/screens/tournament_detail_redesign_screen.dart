@@ -72,6 +72,7 @@ class _TournamentDetailRedesignScreenState
   List<TournamentRegistration> _registrations = const [];
   List<TournamentRound> _rounds = const [];
   PartnerTournamentReviewData? _review;
+  TournamentSchedule? _schedule;
   bool _isLoading = false;
   String? _error;
 
@@ -113,6 +114,10 @@ class _TournamentDetailRedesignScreenState
       try {
         rounds = await _remoteDataSource.getRounds(id);
       } catch (_) {}
+      TournamentSchedule? schedule;
+      try {
+        schedule = await _remoteDataSource.getSchedule(id);
+      } catch (_) {}
       if (!mounted) return;
       setState(() {
         _tournament = tournament;
@@ -120,6 +125,7 @@ class _TournamentDetailRedesignScreenState
         _registrations = registrations;
         _review = review;
         _rounds = rounds;
+        _schedule = schedule;
         _isLoading = false;
       });
     } catch (error) {
@@ -282,6 +288,7 @@ class _TournamentDetailRedesignScreenState
           tournament: tournament,
           matches: _matches,
           rounds: _rounds,
+          scheduleIsPublished: _schedule?.isPublished ?? false,
           onAssignReferee: (match) => _openReferee(context, tournament, match),
           onScorecard: (_) => _showScorecardHint(context),
         ),

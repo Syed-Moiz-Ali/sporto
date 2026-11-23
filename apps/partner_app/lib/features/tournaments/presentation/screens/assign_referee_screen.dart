@@ -172,8 +172,11 @@ class _AssignRefereeScreenState extends State<AssignRefereeScreen> {
         );
       } catch (error) {
         if (!mounted) return;
+        final message = error is SportoApiException && error.statusCode == 409
+            ? error.message
+            : 'Unable to assign referee: $error';
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Unable to assign referee: $error')),
+          SnackBar(content: Text(message)),
         );
         if (mounted) setState(() => _assigningRefereeId = null);
         return;
@@ -191,21 +194,21 @@ class _AssignRefereeScreenState extends State<AssignRefereeScreen> {
     final sourceReferees =
         _apiReferees ?? const <PartnerEligibleRefereeResponse>[];
 
-        var items = sourceReferees.map((api) {
-        final available = api.available != false &&
-            !api.displayStatus.toLowerCase().contains('busy');
-        return _AssignRefereeItem(
-          id: api.id,
-          name: api.displayName,
-          sportName: api.sportName,
-          level: api.level,
-          rating: api.rating,
-          matches: api.matches,
-          assignedMatches: api.assignedMatches,
-          status: available ? 'Available Now' : 'Busy',
-          conflict: api.conflict,
-        );
-      }).toList();
+    var items = sourceReferees.map((api) {
+      final available = api.available != false &&
+          !api.displayStatus.toLowerCase().contains('busy');
+      return _AssignRefereeItem(
+        id: api.id,
+        name: api.displayName,
+        sportName: api.sportName,
+        level: api.level,
+        rating: api.rating,
+        matches: api.matches,
+        assignedMatches: api.assignedMatches,
+        status: available ? 'Available Now' : 'Busy',
+        conflict: api.conflict,
+      );
+    }).toList();
 
     if (query.isNotEmpty) {
       items = items.where((r) => r.name.toLowerCase().contains(query)).toList();
@@ -264,13 +267,12 @@ class _AssignRefereeScreenState extends State<AssignRefereeScreen> {
                 const SizedBox(height: 12),
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 14, vertical: 10),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                   decoration: BoxDecoration(
                     color: const Color(0x1AFEBD38),
                     borderRadius: BorderRadius.circular(12),
-                    border:
-                        Border.all(color: const Color(0x4DFEBD38)),
+                    border: Border.all(color: const Color(0x4DFEBD38)),
                   ),
                   child: Row(
                     children: [
@@ -700,7 +702,7 @@ class _AssignRefereeScreenState extends State<AssignRefereeScreen> {
               const SizedBox(width: 5),
               Expanded(
                 child: Text(
-                    '${ref.sportLabel}  •  Level ${ref.levelLabel} referee',
+                  '${ref.sportLabel}  •  Level ${ref.levelLabel} referee',
                   style: const TextStyle(
                     color: Color(0xFF8E95A2),
                     fontSize: 12,
@@ -721,7 +723,7 @@ class _AssignRefereeScreenState extends State<AssignRefereeScreen> {
               const SizedBox(width: 4),
               Expanded(
                 child: Text(
-                    '${ref.ratingLabel}  •  ${ref.matchesLabel}',
+                  '${ref.ratingLabel}  •  ${ref.matchesLabel}',
                   style: const TextStyle(
                     color: Color(0xFF8E95A2),
                     fontSize: 11,
@@ -828,11 +830,9 @@ class _AssignRefereeItem {
   final String? conflict;
 
   String get levelLabel => level?.toString() ?? '—';
-  String get ratingLabel =>
-      rating != null ? rating!.toStringAsFixed(1) : '—';
+  String get ratingLabel => rating != null ? rating!.toStringAsFixed(1) : '—';
   String get matchesLabel => '${matches ?? '—'} matches';
-  String get assignedLabel =>
-      'Assigned to ${assignedMatches ?? '—'} matches';
+  String get assignedLabel => 'Assigned to ${assignedMatches ?? '—'} matches';
   String get sportLabel => sportName ?? '—';
 }
 

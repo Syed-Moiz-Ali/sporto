@@ -128,11 +128,22 @@ class TournamentSchedule {
             json['version_id'] ?? _object(json['schedule'])['version_id']),
         status =
             '${json['status'] ?? _object(json['schedule'])['status'] ?? ''}',
+        publishedAt =
+            (json['published_at'] ?? _object(json['schedule'])['published_at'])
+                ?.toString(),
+        isPublished = json['schedule_is_published'] == true ||
+            _object(json['schedule'])['schedule_is_published'] == true ||
+            json['published_at'] != null ||
+            _object(json['schedule'])['published_at'] != null ||
+            '${json['status'] ?? _object(json['schedule'])['status'] ?? ''}' ==
+                '3',
         matches = workflowList(
             json['matches'] ?? _object(json['schedule'])['matches'],
             TournamentScheduledMatch.fromJson);
   final int? versionId;
   final String status;
+  final String? publishedAt;
+  final bool isPublished;
   final List<TournamentScheduledMatch> matches;
 }
 

@@ -221,7 +221,8 @@ So there is currently no working way to store venue coordinates through the Part
 ### What our frontend will do
 
 **Partner app**
-- Add venue latitude / longitude inputs in the tournament venue planner.
+- Venue latitude / longitude inputs are auto-filled from the map/search location picker.
+- Fields remain visible and editable for correction.
 - Send both values in create/update venue payload.
 - Validate before submit.
 
