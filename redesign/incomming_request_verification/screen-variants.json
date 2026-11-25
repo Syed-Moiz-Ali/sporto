@@ -1,0 +1,62 @@
+{
+  "schema": "dev-export-screen-variants",
+  "schemaVersion": "1.1.0",
+  "generatedAt": "2026-11-25T06:57:37.855Z",
+  "note": "Screens that are states or tabs of the same logical screen are grouped here. Code generation creates one screen with variant handling instead of duplicate screens.",
+  "logicalScreenCount": 2,
+  "variantScreenCount": 3,
+  "screens": [
+    {
+      "id": "logical-b7d5910f1e",
+      "name": "Incoming Requests Details",
+      "width": 390,
+      "height": 844,
+      "variantTypes": [
+        "default"
+      ],
+      "variants": [
+        {
+          "screenIndex": 1,
+          "screenName": "Incoming Requests Details",
+          "variantType": "default",
+          "variantName": "Default",
+          "isDefault": true,
+          "folder": "screens/01_Incoming-Requests-Details",
+          "json": "screens/01_Incoming-Requests-Details/Incoming-Requests-Details.json",
+          "preview": "screens/01_Incoming-Requests-Details/Incoming-Requests-Details@2x.png"
+        }
+      ]
+    },
+    {
+      "id": "logical-6105b41d7e",
+      "name": "Incoming Requests Details",
+      "width": 390,
+      "height": 961,
+      "variantTypes": [
+        "default"
+      ],
+      "variants": [
+        {
+          "screenIndex": 2,
+          "screenName": "Incoming Requests Details",
+          "variantType": "default",
+          "variantName": "Default",
+          "isDefault": true,
+          "folder": "screens/02_Incoming-Requests-Details",
+          "json": "screens/02_Incoming-Requests-Details/Incoming-Requests-Details.json",
+          "preview": "screens/02_Incoming-Requests-Details/Incoming-Requests-Details@2x.png"
+        },
+        {
+          "screenIndex": 3,
+          "screenName": "Incoming Requests Details",
+          "variantType": "default",
+          "variantName": "Default",
+          "isDefault": false,
+          "folder": "screens/03_Incoming-Requests-Details",
+          "json": "screens/03_Incoming-Requests-Details/Incoming-Requests-Details.json",
+          "preview": "screens/03_Incoming-Requests-Details/Incoming-Requests-Details@2x.png"
+        }
+      ]
+    }
+  ]
+}

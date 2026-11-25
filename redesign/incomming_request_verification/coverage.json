@@ -1,0 +1,111 @@
+{
+  "schema": "dev-export-coverage",
+  "schemaVersion": "1.1.0",
+  "generatedAt": "2026-11-25T06:57:37.855Z",
+  "summary": {
+    "MULTIPLE_FILLS": 1,
+    "CONSTRAINT_LAYOUT": 8,
+    "MISSING_FONT": 1,
+    "HEURISTIC_COMPONENTS": 1
+  },
+  "globalWarnings": [
+    {
+      "code": "MIXED_FONT_WEIGHT",
+      "family": "Quicksand",
+      "message": "Font Quicksand has mixed weights across text runs. Resolve weights from styledSegments when rendering."
+    },
+    {
+      "code": "HEURISTIC_COMPONENTS",
+      "message": "23 repeated structures were detected heuristically. Review their props and variants in central-ui.json."
+    }
+  ],
+  "screens": [
+    {
+      "index": 1,
+      "screen": "Incoming Requests Details",
+      "name": "Incoming Requests Details",
+      "folder": "screens/01_Incoming-Requests-Details",
+      "json": "screens/01_Incoming-Requests-Details/Incoming-Requests-Details.json",
+      "warningCount": 1,
+      "truncated": false,
+      "warnings": [
+        {
+          "code": "MULTIPLE_FILLS",
+          "nodeId": "3027:2135",
+          "path": "Incoming Requests Details / Frame 1261154190 / Frame 1261154335 / Frame 1261154343 / Section",
+          "message": "Multiple fills are stacked; verify background layering."
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "screen": "Incoming Requests Details",
+      "name": "Incoming Requests Details",
+      "folder": "screens/02_Incoming-Requests-Details",
+      "json": "screens/02_Incoming-Requests-Details/Incoming-Requests-Details.json",
+      "warningCount": 4,
+      "truncated": false,
+      "warnings": [
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "I4109:12304;1:709",
+          "path": "Incoming Requests Details / Frame 1261154190 / Frame 1261154866 / info-circle / vuesax/linear/info-circle / info-circle / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "I4109:12304;1:710",
+          "path": "Incoming Requests Details / Frame 1261154190 / Frame 1261154866 / info-circle / vuesax/linear/info-circle / info-circle / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "I4109:12304;1:711",
+          "path": "Incoming Requests Details / Frame 1261154190 / Frame 1261154866 / info-circle / vuesax/linear/info-circle / info-circle / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "I4109:12304;1:712",
+          "path": "Incoming Requests Details / Frame 1261154190 / Frame 1261154866 / info-circle / vuesax/linear/info-circle / info-circle / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        }
+      ]
+    },
+    {
+      "index": 3,
+      "screen": "Incoming Requests Details",
+      "name": "Incoming Requests Details",
+      "folder": "screens/03_Incoming-Requests-Details",
+      "json": "screens/03_Incoming-Requests-Details/Incoming-Requests-Details.json",
+      "warningCount": 4,
+      "truncated": false,
+      "warnings": [
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "I4109:12413;1:709",
+          "path": "Incoming Requests Details / Frame 1261154190 / Frame 1261154866 / info-circle / vuesax/linear/info-circle / info-circle / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "I4109:12413;1:710",
+          "path": "Incoming Requests Details / Frame 1261154190 / Frame 1261154866 / info-circle / vuesax/linear/info-circle / info-circle / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "I4109:12413;1:711",
+          "path": "Incoming Requests Details / Frame 1261154190 / Frame 1261154866 / info-circle / vuesax/linear/info-circle / info-circle / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "I4109:12413;1:712",
+          "path": "Incoming Requests Details / Frame 1261154190 / Frame 1261154866 / info-circle / vuesax/linear/info-circle / info-circle / Vector",
+          "message": "Stretch/scale constraints need responsive checks."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,349 @@
+{
+  "schema": "dev-export-asset-path-map",
+  "schemaVersion": "1.1.0",
+  "generatedAt": "2026-11-25T06:57:37.855Z",
+  "note": "Original Figma layer/image names mapped to sanitized, content-addressed export filenames.",
+  "assets": [
+    {
+      "assetId": "ef1c45306fac",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-ef1c45306fac.svg",
+      "pngFileName": "assets/png/vector-ef1c45306fac@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2985_4598"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Incoming Requests Details"
+        }
+      ]
+    },
+    {
+      "assetId": "72ed81c08d17",
+      "kind": "svg",
+      "originalName": "Ellipse 1",
+      "originalFileName": "Ellipse 1.svg",
+      "fileName": "assets/svg/ellipse_1-72ed81c08d17.svg",
+      "pngFileName": "assets/png/ellipse_1-72ed81c08d17@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2985_4606",
+        "svg-3057_4055",
+        "svg-4109_12357"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 2,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 3,
+          "name": "Incoming Requests Details"
+        }
+      ]
+    },
+    {
+      "assetId": "599d75d577ad",
+      "kind": "svg",
+      "originalName": "Line 10",
+      "originalFileName": "Line 10.svg",
+      "fileName": "assets/svg/line_10-599d75d577ad.svg",
+      "pngFileName": "assets/png/line_10-599d75d577ad@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2997_1050"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Incoming Requests Details"
+        }
+      ]
+    },
+    {
+      "assetId": "766b293c7c44",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-766b293c7c44.svg",
+      "pngFileName": "assets/png/vector-766b293c7c44@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2997_1030"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Incoming Requests Details"
+        }
+      ]
+    },
+    {
+      "assetId": "c98c20d42c17",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-c98c20d42c17.svg",
+      "pngFileName": "assets/png/vector-c98c20d42c17@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-2997_1033"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Incoming Requests Details"
+        }
+      ]
+    },
+    {
+      "assetId": "d58e9820e881",
+      "kind": "svg",
+      "originalName": "Icon",
+      "originalFileName": "Icon.svg",
+      "fileName": "assets/svg/icon-d58e9820e881.svg",
+      "pngFileName": "assets/png/icon-d58e9820e881@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I3027_2137_150_923"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Incoming Requests Details"
+        }
+      ]
+    },
+    {
+      "assetId": "eed9766f2d36",
+      "kind": "svg",
+      "originalName": "Icon",
+      "originalFileName": "Icon.svg",
+      "fileName": "assets/svg/icon-eed9766f2d36.svg",
+      "pngFileName": "assets/png/icon-eed9766f2d36@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I3027_2140_150_923"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Incoming Requests Details"
+        }
+      ]
+    },
+    {
+      "assetId": "7fa367748148",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-7fa367748148.svg",
+      "pngFileName": "assets/png/vector-7fa367748148@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3057_4047"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Incoming Requests Details"
+        }
+      ]
+    },
+    {
+      "assetId": "a319f3bdc1ca",
+      "kind": "svg",
+      "originalName": "Line 10",
+      "originalFileName": "Line 10.svg",
+      "fileName": "assets/svg/line_10-a319f3bdc1ca.svg",
+      "pngFileName": "assets/png/line_10-a319f3bdc1ca@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-3057_4068"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Incoming Requests Details"
+        }
+      ]
+    },
+    {
+      "assetId": "9b9dc5a19941",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-9b9dc5a19941.svg",
+      "pngFileName": "assets/png/vector-9b9dc5a19941@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I4109_12304_1_709",
+        "svg-I4109_12413_1_709"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 3,
+          "name": "Incoming Requests Details"
+        }
+      ]
+    },
+    {
+      "assetId": "461f2fb33e85",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-461f2fb33e85.svg",
+      "pngFileName": "assets/png/vector-461f2fb33e85@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I4109_12304_1_710",
+        "svg-I4109_12413_1_710"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 3,
+          "name": "Incoming Requests Details"
+        }
+      ]
+    },
+    {
+      "assetId": "bd5e2c708e91",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-bd5e2c708e91.svg",
+      "pngFileName": "assets/png/vector-bd5e2c708e91@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I4109_12304_1_711",
+        "svg-I4109_12413_1_711"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 3,
+          "name": "Incoming Requests Details"
+        }
+      ]
+    },
+    {
+      "assetId": "2ee1123e9ce1",
+      "kind": "composed-svg",
+      "originalName": "info-circle",
+      "originalFileName": "info-circle.svg",
+      "fileName": "assets/composed/svg/info_circle-2ee1123e9ce1.svg",
+      "pngFileName": "assets/composed/png/info_circle-2ee1123e9ce1@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-I4109_12304_1_708",
+        "composed-I4109_12413_1_708"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 3,
+          "name": "Incoming Requests Details"
+        }
+      ]
+    },
+    {
+      "assetId": "a47887951bf0",
+      "kind": "composed-svg",
+      "originalName": "vuesax/linear/info-circle",
+      "originalFileName": "vuesax/linear/info-circle.svg",
+      "fileName": "assets/composed/svg/vuesax_linear_info_circle-a47887951bf0.svg",
+      "pngFileName": "assets/composed/png/vuesax_linear_info_circle-a47887951bf0@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "composed-I4109_12304_1_707",
+        "composed-I4109_12413_1_707"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 3,
+          "name": "Incoming Requests Details"
+        }
+      ]
+    },
+    {
+      "assetId": "efe086e67a5d",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-efe086e67a5d.svg",
+      "pngFileName": "assets/png/vector-efe086e67a5d@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-4109_12348"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Incoming Requests Details"
+        }
+      ]
+    },
+    {
+      "assetId": "7dbbb185f0aa",
+      "kind": "svg",
+      "originalName": "Line 10",
+      "originalFileName": "Line 10.svg",
+      "fileName": "assets/svg/line_10-7dbbb185f0aa.svg",
+      "pngFileName": "assets/png/line_10-7dbbb185f0aa@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-4109_12370"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Incoming Requests Details"
+        }
+      ]
+    },
+    {
+      "assetId": "ee6a4dd3440c",
+      "kind": "svg",
+      "originalName": "Icon",
+      "originalFileName": "Icon.svg",
+      "fileName": "assets/svg/icon-ee6a4dd3440c.svg",
+      "pngFileName": "assets/png/icon-ee6a4dd3440c@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-4109_12452"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Incoming Requests Details"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "schema": "dev-export-navigation-map",
+  "schemaVersion": "1.1.0",
+  "generatedAt": "2026-11-25T06:57:37.855Z",
+  "note": "Named-route stubs for every screen. Interactions are populated only when Figma prototype reactions exist.",
+  "manualRouteMapRequired": true,
+  "screens": [
+    {
+      "index": 1,
+      "name": "Incoming Requests Details",
+      "folder": "screens/01_Incoming-Requests-Details",
+      "route": "/incoming-requests-details"
+    },
+    {
+      "index": 2,
+      "name": "Incoming Requests Details",
+      "folder": "screens/02_Incoming-Requests-Details",
+      "route": "/incoming-requests-details"
+    },
+    {
+      "index": 3,
+      "name": "Incoming Requests Details",
+      "folder": "screens/03_Incoming-Requests-Details",
+      "route": "/incoming-requests-details"
+    }
+  ],
+  "interactions": []
+}

@@ -147,6 +147,11 @@ class _RefereeProfileScreenState extends State<RefereeProfileScreen> {
                         label: 'Weekly Availability',
                         onTap: () => context.push(AppRouter.availabilityPath),
                       ),
+                      _MenuItem(
+                        icon: Icons.sell_outlined,
+                        label: 'My Pricing',
+                        onTap: () => context.push(AppRouter.myPricingPath),
+                      ),
                       const _MenuItem(
                           icon: Icons.bar_chart_rounded, label: 'Statistic'),
                       _MenuItem(
@@ -154,6 +159,11 @@ class _RefereeProfileScreenState extends State<RefereeProfileScreen> {
                         label: 'My Tournaments',
                         onTap: () =>
                             context.push(AppRouter.tournamentsHistoryRoute),
+                      ),
+                      _MenuItem(
+                        icon: Icons.history_rounded,
+                        label: 'Match History',
+                        onTap: () => context.push(AppRouter.matchHistoryPath),
                       ),
                       _MenuItem(
                         icon: Icons.account_balance_wallet_outlined,

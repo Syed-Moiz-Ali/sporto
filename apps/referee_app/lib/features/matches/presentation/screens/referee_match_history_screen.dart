@@ -27,6 +27,8 @@ class RefereeMatchHistoryScreen extends StatefulWidget {
 
 class _RefereeMatchHistoryScreenState extends State<RefereeMatchHistoryScreen> {
   late int selected;
+  _HistorySort _sort = _HistorySort.popularity;
+  String? _tournamentFilter;
   late Future<List<RefereeMatchResponse>> _future;
 
   @override
@@ -63,25 +65,109 @@ class _RefereeMatchHistoryScreenState extends State<RefereeMatchHistoryScreen> {
 
   List<RefereeMatchResponse> _filtered(List<RefereeMatchResponse> matches) {
     DateTime? startedAt(RefereeMatchResponse m) => parseMatchStart(m);
+    List<RefereeMatchResponse> scoped;
     switch (selected) {
       case 0:
         final now = DateTime.now();
         final monday = DateTime(now.year, now.month, now.day)
             .subtract(Duration(days: now.weekday - 1));
-        return matches.where((m) {
+        scoped = matches.where((m) {
           final start = startedAt(m);
           return start != null && !start.isBefore(monday);
         }).toList();
+        break;
       case 1:
         final now = DateTime.now();
-        return matches.where((m) {
+        scoped = matches.where((m) {
           final start = startedAt(m);
           return start != null &&
               start.year == now.year &&
               start.month == now.month;
         }).toList();
+        break;
       default:
-        return matches;
+        scoped = List.of(matches);
+    }
+
+    if (_tournamentFilter != null) {
+      scoped = scoped
+          .where((m) => m.displayTournament == _tournamentFilter)
+          .toList();
+    }
+
+    if (selected != 2) return scoped;
+
+    final popularity = <String, int>{};
+    for (final match in matches) {
+      popularity.update(
+        match.displayTournament,
+        (value) => value + 1,
+        ifAbsent: () => 1,
+      );
+    }
+    scoped.sort((a, b) {
+      final aDate = startedAt(a);
+      final bDate = startedAt(b);
+      switch (_sort) {
+        case _HistorySort.newest:
+          if (aDate == null) return 1;
+          if (bDate == null) return -1;
+          return bDate.compareTo(aDate);
+        case _HistorySort.oldest:
+          if (aDate == null) return 1;
+          if (bDate == null) return -1;
+          return aDate.compareTo(bDate);
+        case _HistorySort.popularity:
+          final byPopularity = (popularity[b.displayTournament] ?? 0)
+              .compareTo(popularity[a.displayTournament] ?? 0);
+          if (byPopularity != 0) return byPopularity;
+          if (aDate == null) return 1;
+          if (bDate == null) return -1;
+          return bDate.compareTo(aDate);
+      }
+    });
+    return scoped;
+  }
+
+  Future<void> _pickSort() async {
+    final selectedSort = await showModalBottomSheet<_HistorySort>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      barrierColor: const Color(0xCC090C10),
+      builder: (context) => _ChoiceSheet<_HistorySort>(
+        title: 'Sort By',
+        options: const [
+          _SheetChoice(_HistorySort.popularity, 'Popularity'),
+          _SheetChoice(_HistorySort.newest, 'Newest first'),
+          _SheetChoice(_HistorySort.oldest, 'Oldest first'),
+        ],
+        selected: _sort,
+      ),
+    );
+    if (selectedSort != null && mounted) {
+      setState(() => _sort = selectedSort);
+    }
+  }
+
+  Future<void> _pickTournament(List<RefereeMatchResponse> matches) async {
+    final tournaments = matches.map((m) => m.displayTournament).toSet().toList()
+      ..sort();
+    final picked = await showModalBottomSheet<String>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      barrierColor: const Color(0xCC090C10),
+      builder: (context) => _ChoiceSheet<String>(
+        title: 'Filter',
+        options: [
+          const _SheetChoice('__all__', 'All tournaments'),
+          for (final tournament in tournaments)
+            _SheetChoice(tournament, tournament),
+        ],
+        selected: _tournamentFilter ?? '__all__',
+      ),
+    );
+    if (picked != null && mounted) {
+      setState(() => _tournamentFilter = picked == '__all__' ? null : picked);
     }
   }
 
@@ -151,6 +237,62 @@ class _RefereeMatchHistoryScreenState extends State<RefereeMatchHistoryScreen> {
               ),
             ),
           ),
+          if (selected == 2)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: InkWell(
+                      onTap: _pickSort,
+                      borderRadius: BorderRadius.circular(8),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        child: Text(
+                          'Sort By: ${_sort.label}',
+                          style: const TextStyle(
+                            color: Color(0xFFA0A0A0),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  InkWell(
+                    onTap: () async {
+                      final snapshot = await _future;
+                      if (mounted) await _pickTournament(snapshot);
+                    },
+                    borderRadius: BorderRadius.circular(8),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 4,
+                        vertical: 4,
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.tune_rounded,
+                            size: 16,
+                            color: Colors.white,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            _tournamentFilter == null ? 'Filter' : 'Filtered',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           Expanded(
             child: FutureBuilder<List<RefereeMatchResponse>>(
               future: _future,
@@ -308,8 +450,18 @@ class _RealHistoryCard extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(10, 12, 10, 11),
           decoration: BoxDecoration(
               gradient: const LinearGradient(
-                  colors: [Color(0xFF251C20), Color(0xFF1B292F)]),
-              borderRadius: BorderRadius.circular(15)),
+                begin: Alignment.bottomRight,
+                end: Alignment.topLeft,
+                colors: [
+                  Color(0xFF2A1522),
+                  Color(0xFF122027),
+                  Color(0xFF0A0E12),
+                ],
+                stops: [0, 0.55, 1],
+              ),
+              color: const Color(0xFF0A0E12),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0x14FFFFFF))),
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
@@ -338,9 +490,7 @@ class _RealHistoryCard extends StatelessWidget {
               const SizedBox(width: 2),
               Expanded(
                 child: Text(
-                  match.displayVenue.isNotEmpty
-                      ? match.displayVenue
-                      : 'Venue not set',
+                  match.displayVenue.isNotEmpty ? _cityLine() : 'Venue not set',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.bodySmall,
@@ -348,12 +498,7 @@ class _RealHistoryCard extends StatelessWidget {
               ),
             ]),
             const SizedBox(height: 8),
-            Divider(
-                height: 1,
-                color: Theme.of(context)
-                    .colorScheme
-                    .onSurfaceVariant
-                    .withValues(alpha: .22)),
+            const _DashedDivider(),
             const SizedBox(height: 8),
             Row(children: [
               Expanded(
@@ -387,12 +532,7 @@ class _RealHistoryCard extends StatelessWidget {
                   ])),
             ]),
             const SizedBox(height: 8),
-            Divider(
-                height: 1,
-                color: Theme.of(context)
-                    .colorScheme
-                    .onSurfaceVariant
-                    .withValues(alpha: .22)),
+            const _DashedDivider(),
             const SizedBox(height: 8),
             Center(
               child: Row(mainAxisSize: MainAxisSize.min, children: [
@@ -453,11 +593,160 @@ class _RealHistoryCard extends StatelessWidget {
       'Nov',
       'Dec'
     ];
-    final today = DateTime.now();
-    final isToday = start.year == today.year &&
-        start.month == today.month &&
-        start.day == today.day;
-    return '${start.day} ${months[start.month - 1]}'
-        '${isToday ? ', Today' : ''}';
+    final now = DateTime.now();
+    final time = _time12(start);
+    final today = DateTime(now.year, now.month, now.day);
+    final date = DateTime(start.year, start.month, start.day);
+    final dayDiff = today.difference(date).inDays;
+    if (dayDiff == 0) return 'Today, $time';
+    if (dayDiff == 1) return 'Yesterday, $time';
+    return '${start.day} ${months[start.month - 1]}, $time';
+  }
+
+  String _cityLine() {
+    final raw = match.location?.trim().isNotEmpty == true
+        ? match.location!.trim()
+        : match.displayVenue.trim();
+    if (raw.isEmpty) return 'Venue not set';
+    final parts = raw.split(',');
+    return parts.last.trim().isEmpty ? raw : parts.last.trim();
+  }
+
+  String _time12(DateTime value) {
+    final hour = value.hour % 12 == 0 ? 12 : value.hour % 12;
+    final minute = value.minute.toString().padLeft(2, '0');
+    final suffix = value.hour >= 12 ? 'PM' : 'AM';
+    return '${hour.toString().padLeft(2, '0')}:$minute $suffix';
+  }
+}
+
+class _DashedDivider extends StatelessWidget {
+  const _DashedDivider();
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomPaint(
+      size: const Size(double.infinity, 1),
+      painter: _DashedDividerPainter(),
+    );
+  }
+}
+
+class _DashedDividerPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = const Color(0x38FFFFFF)
+      ..strokeWidth = 1;
+    const dash = 4.0;
+    const gap = 3.0;
+    var x = 0.0;
+    while (x < size.width) {
+      canvas.drawLine(
+        Offset(x, 0),
+        Offset((x + dash).clamp(0, size.width), 0),
+        paint,
+      );
+      x += dash + gap;
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+enum _HistorySort {
+  popularity('Popularity'),
+  newest('Newest first'),
+  oldest('Oldest first');
+
+  const _HistorySort(this.label);
+  final String label;
+}
+
+class _SheetChoice<T> {
+  const _SheetChoice(this.value, this.label);
+  final T value;
+  final String label;
+}
+
+class _ChoiceSheet<T> extends StatelessWidget {
+  const _ChoiceSheet({
+    required this.title,
+    required this.options,
+    required this.selected,
+  });
+
+  final String title;
+  final List<_SheetChoice<T>> options;
+  final T selected;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
+      decoration: const BoxDecoration(
+        color: Color(0xFF1C2026),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    title,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                IconButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  icon: const Icon(Icons.close_rounded, color: Colors.white),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            for (final option in options)
+              InkWell(
+                onTap: () => Navigator.of(context).pop(option.value),
+                borderRadius: BorderRadius.circular(10),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          option.label,
+                          style: TextStyle(
+                            color: option.value == selected
+                                ? const Color(0xFF7AD3FF)
+                                : Colors.white,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                      if (option.value == selected)
+                        const Icon(
+                          Icons.check_rounded,
+                          color: Color(0xFF7AD3FF),
+                          size: 20,
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
   }
 }

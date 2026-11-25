@@ -1,0 +1,166 @@
+{
+  "schema": "dev-export-fonts",
+  "schemaVersion": "1.1.0",
+  "generatedAt": "2026-11-25T06:57:37.855Z",
+  "familyCount": 1,
+  "fonts": [
+    {
+      "family": "Quicksand",
+      "source": "system",
+      "license": "system-font",
+      "fallbackStack": [
+        "Quicksand",
+        "Noto Sans",
+        "Noto Sans Arabic",
+        "Noto Color Emoji",
+        "Apple Color Emoji",
+        "Segoe UI Emoji",
+        "ui-sans-serif",
+        "system-ui",
+        "sans-serif"
+      ],
+      "substitute": "Inter",
+      "isIconFont": false,
+      "iconLigatures": false,
+      "mixed": true,
+      "weights": {
+        "400": "Regular",
+        "500": "Medium",
+        "600": "SemiBold",
+        "700": "Bold"
+      },
+      "allWeights": [
+        400,
+        500,
+        600,
+        700
+      ],
+      "usageCount": 80,
+      "styles": [
+        {
+          "style": "Regular",
+          "count": 3,
+          "weights": [
+            400
+          ],
+          "availableOnClient": true
+        },
+        {
+          "style": "Medium",
+          "count": 35,
+          "weights": [
+            500
+          ],
+          "availableOnClient": true
+        },
+        {
+          "style": "SemiBold",
+          "count": 22,
+          "weights": [
+            600
+          ],
+          "availableOnClient": true
+        },
+        {
+          "style": "Bold",
+          "count": 20,
+          "weights": [
+            700
+          ],
+          "availableOnClient": true
+        }
+      ],
+      "sizes": [
+        {
+          "value": 14,
+          "count": 28
+        },
+        {
+          "value": 12,
+          "count": 27
+        },
+        {
+          "value": 16,
+          "count": 20
+        },
+        {
+          "value": 11,
+          "count": 3
+        },
+        {
+          "value": 18,
+          "count": 2
+        }
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 2,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 3,
+          "name": "Incoming Requests Details"
+        }
+      ],
+      "samples": [
+        {
+          "screenIndex": 1,
+          "screenName": "Incoming Requests Details",
+          "nodeId": "2985:4600",
+          "path": "Incoming Requests Details / Frame 1000003334 / Frame 1000003336 / Frame 1000003337 / Match Details",
+          "characters": "Match Details",
+          "fontSize": 16,
+          "fontWeight": 700
+        },
+        {
+          "screenIndex": 1,
+          "screenName": "Incoming Requests Details",
+          "nodeId": "2985:4605",
+          "path": "Incoming Requests Details / Frame 1261154190 / DocCard / Frame 1171275256 / Container / Dark Gray Wingback C",
+          "characters": "Cricket",
+          "fontSize": 14,
+          "fontWeight": 600
+        },
+        {
+          "screenIndex": 1,
+          "screenName": "Incoming Requests Details",
+          "nodeId": "2985:4607",
+          "path": "Incoming Requests Details / Frame 1261154190 / DocCard / Frame 1171275256 / Container / Dark Gray Wingback C",
+          "characters": "SP-10245",
+          "fontSize": 14,
+          "fontWeight": 500
+        },
+        {
+          "screenIndex": 1,
+          "screenName": "Incoming Requests Details",
+          "nodeId": "3069:4385",
+          "path": "Incoming Requests Details / Frame 1261154190 / DocCard / Frame 1171275256 / Frame 1261154770 / Frame 3 / Upto 3.5% Cashback",
+          "characters": "by Partner",
+          "fontSize": 12,
+          "fontWeight": 500
+        },
+        {
+          "screenIndex": 1,
+          "screenName": "Incoming Requests Details",
+          "nodeId": "3027:2152",
+          "path": "Incoming Requests Details / Frame 1261154190 / DocCard / Frame 1171275256 / Frame 4 / Upto 3.5% Cashback",
+          "characters": "Upcoming",
+          "fontSize": 12,
+          "fontWeight": 500
+        }
+      ],
+      "notes": "System font. Confirm redistribution/licensing before packaging binaries."
+    }
+  ],
+  "warnings": [
+    {
+      "code": "MIXED_FONT_WEIGHT",
+      "family": "Quicksand",
+      "message": "Font Quicksand has mixed weights across text runs. Resolve weights from styledSegments when rendering."
+    }
+  ]
+}

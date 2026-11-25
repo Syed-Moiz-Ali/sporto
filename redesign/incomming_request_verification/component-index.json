@@ -1,0 +1,721 @@
+{
+  "schema": "dev-export-component-index",
+  "schemaVersion": "1.1.0",
+  "generatedAt": "2026-11-25T06:57:37.855Z",
+  "stats": {
+    "screens": 3,
+    "components": 28,
+    "figmaComponents": 5,
+    "repeatedComponents": 23,
+    "tokens": {
+      "colors": 23,
+      "typography": 18,
+      "spacing": 14,
+      "radii": 6,
+      "shadows": 9,
+      "gradients": 8,
+      "namedStyles": 13,
+      "variables": 43
+    }
+  },
+  "bySource": {
+    "figma-component": [
+      "cmp-figma-29529c0f77",
+      "cmp-figma-ec3a3bd08b",
+      "cmp-figma-537b33d861",
+      "cmp-figma-6b1cfe312c",
+      "cmp-figma-e862f112db"
+    ],
+    "repeated-structure": [
+      "cmp-repeat-ae18391dbd",
+      "cmp-repeat-49c09b20c6",
+      "cmp-repeat-71824876f9",
+      "cmp-repeat-7a0cd3e451",
+      "cmp-repeat-beaa20eaca",
+      "cmp-repeat-ed02dca185",
+      "cmp-repeat-51dc3cff5f",
+      "cmp-repeat-8cf34f7494",
+      "cmp-repeat-3a8dc88f48",
+      "cmp-repeat-56182011f4",
+      "cmp-repeat-e6a365f7f8",
+      "cmp-repeat-3f3a8d8df0",
+      "cmp-repeat-916c0a9134",
+      "cmp-repeat-04030e339e",
+      "cmp-repeat-22a40274ab",
+      "cmp-repeat-81766cf0b0",
+      "cmp-repeat-d4f2674c4b",
+      "cmp-repeat-49261c4296",
+      "cmp-repeat-6be4ece4d0",
+      "cmp-repeat-65f67ea3a0",
+      "cmp-repeat-fe74e45b35",
+      "cmp-repeat-c2776deafb",
+      "cmp-repeat-92bd53b917"
+    ]
+  },
+  "byScreen": {
+    "1": {
+      "screen": {
+        "index": 1,
+        "name": "Incoming Requests Details"
+      },
+      "components": [
+        "cmp-repeat-49c09b20c6",
+        "cmp-repeat-71824876f9",
+        "cmp-repeat-7a0cd3e451",
+        "cmp-repeat-beaa20eaca",
+        "cmp-repeat-51dc3cff5f",
+        "cmp-repeat-8cf34f7494",
+        "cmp-repeat-3a8dc88f48",
+        "cmp-repeat-56182011f4",
+        "cmp-repeat-e6a365f7f8",
+        "cmp-figma-29529c0f77",
+        "cmp-figma-ec3a3bd08b",
+        "cmp-repeat-22a40274ab",
+        "cmp-figma-e862f112db"
+      ]
+    },
+    "2": {
+      "screen": {
+        "index": 2,
+        "name": "Incoming Requests Details"
+      },
+      "components": [
+        "cmp-repeat-ae18391dbd",
+        "cmp-repeat-49c09b20c6",
+        "cmp-repeat-71824876f9",
+        "cmp-repeat-7a0cd3e451",
+        "cmp-repeat-beaa20eaca",
+        "cmp-repeat-ed02dca185",
+        "cmp-repeat-51dc3cff5f",
+        "cmp-repeat-8cf34f7494",
+        "cmp-repeat-3a8dc88f48",
+        "cmp-repeat-56182011f4",
+        "cmp-repeat-e6a365f7f8",
+        "cmp-repeat-3f3a8d8df0",
+        "cmp-repeat-916c0a9134",
+        "cmp-repeat-04030e339e",
+        "cmp-repeat-81766cf0b0",
+        "cmp-repeat-d4f2674c4b",
+        "cmp-repeat-49261c4296",
+        "cmp-repeat-6be4ece4d0",
+        "cmp-repeat-65f67ea3a0",
+        "cmp-repeat-fe74e45b35",
+        "cmp-figma-537b33d861",
+        "cmp-repeat-c2776deafb",
+        "cmp-repeat-92bd53b917",
+        "cmp-figma-6b1cfe312c"
+      ]
+    },
+    "3": {
+      "screen": {
+        "index": 3,
+        "name": "Incoming Requests Details"
+      },
+      "components": [
+        "cmp-repeat-ae18391dbd",
+        "cmp-repeat-49c09b20c6",
+        "cmp-repeat-71824876f9",
+        "cmp-repeat-7a0cd3e451",
+        "cmp-repeat-beaa20eaca",
+        "cmp-repeat-ed02dca185",
+        "cmp-repeat-51dc3cff5f",
+        "cmp-repeat-8cf34f7494",
+        "cmp-repeat-3a8dc88f48",
+        "cmp-repeat-56182011f4",
+        "cmp-repeat-e6a365f7f8",
+        "cmp-repeat-3f3a8d8df0",
+        "cmp-repeat-916c0a9134",
+        "cmp-repeat-04030e339e",
+        "cmp-figma-ec3a3bd08b",
+        "cmp-repeat-22a40274ab",
+        "cmp-repeat-81766cf0b0",
+        "cmp-repeat-d4f2674c4b",
+        "cmp-repeat-49261c4296",
+        "cmp-repeat-6be4ece4d0",
+        "cmp-repeat-65f67ea3a0",
+        "cmp-repeat-fe74e45b35",
+        "cmp-figma-537b33d861",
+        "cmp-repeat-c2776deafb",
+        "cmp-repeat-92bd53b917"
+      ]
+    }
+  },
+  "components": [
+    {
+      "id": "cmp-repeat-ae18391dbd",
+      "name": "Card 16",
+      "source": "repeated-structure",
+      "confidence": "medium",
+      "usageCount": 4,
+      "screenCount": 2,
+      "screens": [
+        {
+          "index": 2,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 3,
+          "name": "Incoming Requests Details"
+        }
+      ],
+      "variantAxes": {}
+    },
+    {
+      "id": "cmp-repeat-49c09b20c6",
+      "name": "Card 3",
+      "source": "repeated-structure",
+      "confidence": "medium",
+      "usageCount": 3,
+      "screenCount": 3,
+      "screens": [
+        {
+          "index": 1,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 2,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 3,
+          "name": "Incoming Requests Details"
+        }
+      ],
+      "variantAxes": {}
+    },
+    {
+      "id": "cmp-repeat-71824876f9",
+      "name": "Card 6",
+      "source": "repeated-structure",
+      "confidence": "medium",
+      "usageCount": 3,
+      "screenCount": 3,
+      "screens": [
+        {
+          "index": 1,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 2,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 3,
+          "name": "Incoming Requests Details"
+        }
+      ],
+      "variantAxes": {}
+    },
+    {
+      "id": "cmp-repeat-7a0cd3e451",
+      "name": "Card 9",
+      "source": "repeated-structure",
+      "confidence": "medium",
+      "usageCount": 3,
+      "screenCount": 3,
+      "screens": [
+        {
+          "index": 1,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 2,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 3,
+          "name": "Incoming Requests Details"
+        }
+      ],
+      "variantAxes": {}
+    },
+    {
+      "id": "cmp-repeat-beaa20eaca",
+      "name": "DocCard",
+      "source": "repeated-structure",
+      "confidence": "medium",
+      "usageCount": 3,
+      "screenCount": 3,
+      "screens": [
+        {
+          "index": 1,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 2,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 3,
+          "name": "Incoming Requests Details"
+        }
+      ],
+      "variantAxes": {}
+    },
+    {
+      "id": "cmp-repeat-ed02dca185",
+      "name": "Repeated section 19",
+      "source": "repeated-structure",
+      "confidence": "medium",
+      "usageCount": 3,
+      "screenCount": 2,
+      "screens": [
+        {
+          "index": 2,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 3,
+          "name": "Incoming Requests Details"
+        }
+      ],
+      "variantAxes": {}
+    },
+    {
+      "id": "cmp-repeat-51dc3cff5f",
+      "name": "Repeated section 2",
+      "source": "repeated-structure",
+      "confidence": "medium",
+      "usageCount": 3,
+      "screenCount": 3,
+      "screens": [
+        {
+          "index": 1,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 2,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 3,
+          "name": "Incoming Requests Details"
+        }
+      ],
+      "variantAxes": {}
+    },
+    {
+      "id": "cmp-repeat-8cf34f7494",
+      "name": "Repeated section 4",
+      "source": "repeated-structure",
+      "confidence": "medium",
+      "usageCount": 3,
+      "screenCount": 3,
+      "screens": [
+        {
+          "index": 1,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 2,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 3,
+          "name": "Incoming Requests Details"
+        }
+      ],
+      "variantAxes": {}
+    },
+    {
+      "id": "cmp-repeat-3a8dc88f48",
+      "name": "Repeated section 7",
+      "source": "repeated-structure",
+      "confidence": "medium",
+      "usageCount": 3,
+      "screenCount": 3,
+      "screens": [
+        {
+          "index": 1,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 2,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 3,
+          "name": "Incoming Requests Details"
+        }
+      ],
+      "variantAxes": {}
+    },
+    {
+      "id": "cmp-repeat-56182011f4",
+      "name": "Repeated section 8",
+      "source": "repeated-structure",
+      "confidence": "medium",
+      "usageCount": 3,
+      "screenCount": 3,
+      "screens": [
+        {
+          "index": 1,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 2,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 3,
+          "name": "Incoming Requests Details"
+        }
+      ],
+      "variantAxes": {}
+    },
+    {
+      "id": "cmp-repeat-e6a365f7f8",
+      "name": "SIGNATURE: MATCH TICKET",
+      "source": "repeated-structure",
+      "confidence": "medium",
+      "usageCount": 3,
+      "screenCount": 3,
+      "screens": [
+        {
+          "index": 1,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 2,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 3,
+          "name": "Incoming Requests Details"
+        }
+      ],
+      "variantAxes": {}
+    },
+    {
+      "id": "cmp-repeat-3f3a8d8df0",
+      "name": "Card 13",
+      "source": "repeated-structure",
+      "confidence": "medium",
+      "usageCount": 2,
+      "screenCount": 2,
+      "screens": [
+        {
+          "index": 2,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 3,
+          "name": "Incoming Requests Details"
+        }
+      ],
+      "variantAxes": {}
+    },
+    {
+      "id": "cmp-repeat-916c0a9134",
+      "name": "Card 14",
+      "source": "repeated-structure",
+      "confidence": "medium",
+      "usageCount": 2,
+      "screenCount": 2,
+      "screens": [
+        {
+          "index": 2,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 3,
+          "name": "Incoming Requests Details"
+        }
+      ],
+      "variantAxes": {}
+    },
+    {
+      "id": "cmp-repeat-04030e339e",
+      "name": "Card 23",
+      "source": "repeated-structure",
+      "confidence": "medium",
+      "usageCount": 2,
+      "screenCount": 2,
+      "screens": [
+        {
+          "index": 2,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 3,
+          "name": "Incoming Requests Details"
+        }
+      ],
+      "variantAxes": {}
+    },
+    {
+      "id": "cmp-figma-29529c0f77",
+      "name": "Property 1=Checked",
+      "source": "figma-component",
+      "confidence": "high",
+      "usageCount": 2,
+      "screenCount": 1,
+      "screens": [
+        {
+          "index": 1,
+          "name": "Incoming Requests Details"
+        }
+      ],
+      "variantAxes": {
+        "Property 1": [
+          "Checked"
+        ]
+      }
+    },
+    {
+      "id": "cmp-figma-ec3a3bd08b",
+      "name": "Property 1=Ready",
+      "source": "figma-component",
+      "confidence": "high",
+      "usageCount": 2,
+      "screenCount": 2,
+      "screens": [
+        {
+          "index": 1,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 3,
+          "name": "Incoming Requests Details"
+        }
+      ],
+      "variantAxes": {
+        "Property 1": [
+          "Ready"
+        ]
+      }
+    },
+    {
+      "id": "cmp-repeat-22a40274ab",
+      "name": "Repeated section 10",
+      "source": "repeated-structure",
+      "confidence": "medium",
+      "usageCount": 2,
+      "screenCount": 2,
+      "screens": [
+        {
+          "index": 1,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 3,
+          "name": "Incoming Requests Details"
+        }
+      ],
+      "variantAxes": {}
+    },
+    {
+      "id": "cmp-repeat-81766cf0b0",
+      "name": "Repeated section 11",
+      "source": "repeated-structure",
+      "confidence": "medium",
+      "usageCount": 2,
+      "screenCount": 2,
+      "screens": [
+        {
+          "index": 2,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 3,
+          "name": "Incoming Requests Details"
+        }
+      ],
+      "variantAxes": {}
+    },
+    {
+      "id": "cmp-repeat-d4f2674c4b",
+      "name": "Repeated section 12",
+      "source": "repeated-structure",
+      "confidence": "medium",
+      "usageCount": 2,
+      "screenCount": 2,
+      "screens": [
+        {
+          "index": 2,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 3,
+          "name": "Incoming Requests Details"
+        }
+      ],
+      "variantAxes": {}
+    },
+    {
+      "id": "cmp-repeat-49261c4296",
+      "name": "Repeated section 17",
+      "source": "repeated-structure",
+      "confidence": "medium",
+      "usageCount": 2,
+      "screenCount": 2,
+      "screens": [
+        {
+          "index": 2,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 3,
+          "name": "Incoming Requests Details"
+        }
+      ],
+      "variantAxes": {}
+    },
+    {
+      "id": "cmp-repeat-6be4ece4d0",
+      "name": "Repeated section 18",
+      "source": "repeated-structure",
+      "confidence": "medium",
+      "usageCount": 2,
+      "screenCount": 2,
+      "screens": [
+        {
+          "index": 2,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 3,
+          "name": "Incoming Requests Details"
+        }
+      ],
+      "variantAxes": {}
+    },
+    {
+      "id": "cmp-repeat-65f67ea3a0",
+      "name": "Repeated section 20",
+      "source": "repeated-structure",
+      "confidence": "medium",
+      "usageCount": 2,
+      "screenCount": 2,
+      "screens": [
+        {
+          "index": 2,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 3,
+          "name": "Incoming Requests Details"
+        }
+      ],
+      "variantAxes": {}
+    },
+    {
+      "id": "cmp-repeat-fe74e45b35",
+      "name": "SIGNATURE: MATCH TICKET",
+      "source": "repeated-structure",
+      "confidence": "medium",
+      "usageCount": 2,
+      "screenCount": 2,
+      "screens": [
+        {
+          "index": 2,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 3,
+          "name": "Incoming Requests Details"
+        }
+      ],
+      "variantAxes": {}
+    },
+    {
+      "id": "cmp-figma-537b33d861",
+      "name": "Style=linear",
+      "source": "figma-component",
+      "confidence": "high",
+      "usageCount": 2,
+      "screenCount": 2,
+      "screens": [
+        {
+          "index": 2,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 3,
+          "name": "Incoming Requests Details"
+        }
+      ],
+      "variantAxes": {
+        "Style": [
+          "linear"
+        ]
+      }
+    },
+    {
+      "id": "cmp-repeat-c2776deafb",
+      "name": "info-circle",
+      "source": "repeated-structure",
+      "confidence": "medium",
+      "usageCount": 2,
+      "screenCount": 2,
+      "screens": [
+        {
+          "index": 2,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 3,
+          "name": "Incoming Requests Details"
+        }
+      ],
+      "variantAxes": {}
+    },
+    {
+      "id": "cmp-repeat-92bd53b917",
+      "name": "vuesax/linear/info-circle",
+      "source": "repeated-structure",
+      "confidence": "medium",
+      "usageCount": 2,
+      "screenCount": 2,
+      "screens": [
+        {
+          "index": 2,
+          "name": "Incoming Requests Details"
+        },
+        {
+          "index": 3,
+          "name": "Incoming Requests Details"
+        }
+      ],
+      "variantAxes": {}
+    },
+    {
+      "id": "cmp-figma-6b1cfe312c",
+      "name": "Property 1=Disable",
+      "source": "figma-component",
+      "confidence": "high",
+      "usageCount": 1,
+      "screenCount": 1,
+      "screens": [
+        {
+          "index": 2,
+          "name": "Incoming Requests Details"
+        }
+      ],
+      "variantAxes": {
+        "Property 1": [
+          "Disable"
+        ]
+      }
+    },
+    {
+      "id": "cmp-figma-e862f112db",
+      "name": "Property 1=Unchecked",
+      "source": "figma-component",
+      "confidence": "high",
+      "usageCount": 1,
+      "screenCount": 1,
+      "screens": [
+        {
+          "index": 1,
+          "name": "Incoming Requests Details"
+        }
+      ],
+      "variantAxes": {
+        "Property 1": [
+          "Unchecked"
+        ]
+      }
+    }
+  ]
+}

@@ -31,6 +31,7 @@ import '../../../features/matches/presentation/widgets/before_toss_widgets.dart'
 import '../../../features/notifications/presentation/notification_models.dart';
 import '../../../features/notifications/presentation/screens/notification_category_screen.dart';
 import '../../../features/notifications/presentation/screens/notification_settings_screen.dart';
+import '../../../features/pricing/presentation/screens/my_pricing_screen.dart';
 import '../../../features/wallet/presentation/screens/tournaments_history_screen.dart';
 import '../../../features/wallet/presentation/screens/transaction_details_screen.dart';
 import '../../../features/wallet/presentation/screens/wallet_screen.dart';
@@ -57,6 +58,7 @@ abstract final class AppRouter {
   static const String notificationSettingsPath = '/notification-settings';
   static const String notificationCategoryPath = '/notification-category';
   static const String tournamentsHistoryPath = '/tournaments-history';
+  static const String myPricingPath = '/my-pricing';
   static const String walletPath = '/wallet';
   static const String walletTransactionsPath = '/wallet-transactions';
   static const String transactionDetailsPath = '/transaction-details';
@@ -183,6 +185,11 @@ abstract final class AppRouter {
         path: tournamentsHistoryPath,
         name: 'tournamentsHistory',
         builder: (context, state) => const TournamentsHistoryScreen(),
+      ),
+      GoRoute(
+        path: myPricingPath,
+        name: 'myPricing',
+        builder: (context, state) => const MyPricingScreen(),
       ),
       GoRoute(
         path: walletPath,

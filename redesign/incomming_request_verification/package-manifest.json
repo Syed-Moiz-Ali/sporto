@@ -1,0 +1,217 @@
+{
+  "schema": "dev-export-multiscreen-package",
+  "schemaVersion": "1.1.0",
+  "generatedAt": "2026-11-25T06:57:37.855Z",
+  "source": {
+    "editorType": "figma",
+    "fileName": "🏏 SPOTO (Copy)",
+    "page": {
+      "id": "133:342",
+      "name": "Referee App"
+    }
+  },
+  "ordering": "Screens are ordered top-to-bottom, then left-to-right by their position on the Figma page.",
+  "nestedSelectionBehavior": "If both a selected screen and one of its descendants are selected, only the outermost selected node is packaged.",
+  "screenCount": 3,
+  "failedScreenCount": 0,
+  "failedScreens": [],
+  "totals": {
+    "serializedNodes": 247,
+    "assets": 24,
+    "individualSvg": 20,
+    "composedSvg": 4,
+    "raster": 0,
+    "pngAssetPreviews": 24,
+    "assetBytes": 30671,
+    "previewBytes": 1612728,
+    "sharedAssets": 13,
+    "sharedAssetBytes": 5938,
+    "centralComponents": 28,
+    "centralTokens": {
+      "colors": 23,
+      "typography": 18,
+      "spacing": 14,
+      "radii": 6,
+      "shadows": 9,
+      "gradients": 8,
+      "namedStyles": 13,
+      "variables": 43
+    }
+  },
+  "sharedAssets": {
+    "folder": "shared/assets",
+    "manifest": "shared/assets/manifest.json",
+    "guide": "shared/SHARED_ASSETS.md",
+    "assetCount": 13,
+    "totalBytes": 5938
+  },
+  "centralUi": {
+    "manifest": "central-ui/central-ui.json",
+    "readme": "central-ui/README.md",
+    "architecture": "centralized-ui",
+    "componentCount": 28,
+    "figmaComponents": 5,
+    "repeatedComponents": 23,
+    "tokenCounts": {
+      "colors": 23,
+      "typography": 18,
+      "spacing": 14,
+      "radii": 6,
+      "shadows": 9,
+      "gradients": 8,
+      "namedStyles": 13,
+      "variables": 43
+    }
+  },
+  "nodeIndex": "node-index.json",
+  "designTokens": {
+    "json": "tokens/tokens.json",
+    "css": "tokens/tokens.css",
+    "tailwind": "tokens/tailwind.config.js",
+    "counts": {
+      "colors": 23,
+      "typography": 18,
+      "spacing": 14,
+      "radii": 6,
+      "shadows": 9,
+      "gradients": 8,
+      "namedStyles": 13,
+      "variables": 43
+    }
+  },
+  "componentIndex": "component-index.json",
+  "assetPathMap": "asset-path-map.json",
+  "navigationMap": "navigation-map.json",
+  "screenGroups": "screen-groups.json",
+  "screenVariants": {
+    "manifest": "screen-variants.json",
+    "logicalScreenCount": 2,
+    "variantScreenCount": 3
+  },
+  "verification": {
+    "enabled": false
+  },
+  "output": {
+    "mode": "design",
+    "target": null,
+    "codeFolder": null
+  },
+  "codeGeneration": {
+    "enabled": false
+  },
+  "fonts": {
+    "manifest": "fonts.json",
+    "familyCount": 1,
+    "warningCount": 1
+  },
+  "coverage": {
+    "manifest": "coverage.json",
+    "warningCount": 11,
+    "summary": {
+      "MULTIPLE_FILLS": 1,
+      "CONSTRAINT_LAYOUT": 8,
+      "MISSING_FONT": 1,
+      "HEURISTIC_COMPONENTS": 1
+    }
+  },
+  "aiPrompt": "AI_AGENT_PROMPT.md",
+  "aiScreensFolder": "ai/",
+  "recommendedReadOrder": [
+    "package-manifest.json",
+    "central-ui/central-ui.json",
+    "FRONTEND_IMPLEMENTATION_GUIDE.md",
+    "AI_AGENT_PROMPT.md",
+    "fonts.json",
+    "coverage.json",
+    "node-index.json",
+    "tokens/tokens.json",
+    "tokens/tokens.css",
+    "tokens/tailwind.config.js",
+    "component-index.json",
+    "screen-groups.json",
+    "screen-variants.json",
+    "verify/README.md",
+    "verify/expected/manifest.json",
+    "code/<target>/README.md",
+    "screens/<screen>/<screen>.json -> developerSummary",
+    "screens/<screen>/<screen>.json -> assetIndex",
+    "screens/<screen>/<screen>.json -> centralUi",
+    "screens/<screen>/<screen>.json -> nodes",
+    "screens/<screen>/<screen>@2x.png",
+    "screens/<screen>/assets/ASSET_CATALOG.html",
+    "shared/assets/manifest.json",
+    "shared/SHARED_ASSETS.md",
+    "ai/<screen>.md"
+  ],
+  "screens": [
+    {
+      "index": 1,
+      "nodeId": "2985:4571",
+      "name": "Incoming Requests Details",
+      "nodeType": "FRAME",
+      "width": 390,
+      "height": 844,
+      "folder": "screens/01_Incoming-Requests-Details",
+      "json": "screens/01_Incoming-Requests-Details/Incoming-Requests-Details.json",
+      "preview": "screens/01_Incoming-Requests-Details/Incoming-Requests-Details@2x.png",
+      "preview1x": "screens/01_Incoming-Requests-Details/Incoming-Requests-Details@1x.png",
+      "assetsFolder": "screens/01_Incoming-Requests-Details/assets",
+      "assetsManifest": "screens/01_Incoming-Requests-Details/assets/manifest.json",
+      "serializedNodeCount": 73,
+      "assetCount": 7,
+      "individualSvgCount": 7,
+      "composedSvgCount": 0,
+      "rasterCount": 0,
+      "pngAssetPreviewCount": 7,
+      "assetCatalog": "screens/01_Incoming-Requests-Details/assets/ASSET_CATALOG.html",
+      "assetBytes": 11722,
+      "previewBytes": 393943
+    },
+    {
+      "index": 2,
+      "nodeId": "3057:4020",
+      "name": "Incoming Requests Details",
+      "nodeType": "FRAME",
+      "width": 390,
+      "height": 961,
+      "folder": "screens/02_Incoming-Requests-Details",
+      "json": "screens/02_Incoming-Requests-Details/Incoming-Requests-Details.json",
+      "preview": "screens/02_Incoming-Requests-Details/Incoming-Requests-Details@2x.png",
+      "preview1x": "screens/02_Incoming-Requests-Details/Incoming-Requests-Details@1x.png",
+      "assetsFolder": "screens/02_Incoming-Requests-Details/assets",
+      "assetsManifest": "screens/02_Incoming-Requests-Details/assets/manifest.json",
+      "serializedNodeCount": 83,
+      "assetCount": 8,
+      "individualSvgCount": 6,
+      "composedSvgCount": 2,
+      "rasterCount": 0,
+      "pngAssetPreviewCount": 8,
+      "assetCatalog": "screens/02_Incoming-Requests-Details/assets/ASSET_CATALOG.html",
+      "assetBytes": 8631,
+      "previewBytes": 590281
+    },
+    {
+      "index": 3,
+      "nodeId": "4109:12321",
+      "name": "Incoming Requests Details",
+      "nodeType": "FRAME",
+      "width": 390,
+      "height": 961,
+      "folder": "screens/03_Incoming-Requests-Details",
+      "json": "screens/03_Incoming-Requests-Details/Incoming-Requests-Details.json",
+      "preview": "screens/03_Incoming-Requests-Details/Incoming-Requests-Details@2x.png",
+      "preview1x": "screens/03_Incoming-Requests-Details/Incoming-Requests-Details@1x.png",
+      "assetsFolder": "screens/03_Incoming-Requests-Details/assets",
+      "assetsManifest": "screens/03_Incoming-Requests-Details/assets/manifest.json",
+      "serializedNodeCount": 91,
+      "assetCount": 9,
+      "individualSvgCount": 7,
+      "composedSvgCount": 2,
+      "rasterCount": 0,
+      "pngAssetPreviewCount": 9,
+      "assetCatalog": "screens/03_Incoming-Requests-Details/assets/ASSET_CATALOG.html",
+      "assetBytes": 10318,
+      "previewBytes": 628504
+    }
+  ]
+}
