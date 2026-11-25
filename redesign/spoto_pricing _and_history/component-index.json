@@ -1,0 +1,682 @@
+{
+  "schema": "dev-export-component-index",
+  "schemaVersion": "1.1.0",
+  "generatedAt": "2026-11-25T05:44:00.057Z",
+  "stats": {
+    "screens": 5,
+    "components": 24,
+    "figmaComponents": 2,
+    "repeatedComponents": 22,
+    "tokens": {
+      "colors": 18,
+      "typography": 19,
+      "spacing": 13,
+      "radii": 4,
+      "shadows": 9,
+      "gradients": 10,
+      "namedStyles": 14,
+      "variables": 35
+    }
+  },
+  "bySource": {
+    "figma-component": [
+      "cmp-figma-623f0e9bc6",
+      "cmp-figma-f38ebd018f"
+    ],
+    "repeated-structure": [
+      "cmp-repeat-8c47eda929",
+      "cmp-repeat-ac8ea6395b",
+      "cmp-repeat-8f56aa57ed",
+      "cmp-repeat-d0d82892b5",
+      "cmp-repeat-74cfc620ac",
+      "cmp-repeat-8fbf5dc313",
+      "cmp-repeat-77c2854460",
+      "cmp-repeat-f6aadabf74",
+      "cmp-repeat-58f28fd901",
+      "cmp-repeat-393f28f6ed",
+      "cmp-repeat-e37588ea04",
+      "cmp-repeat-4e16cc4b41",
+      "cmp-repeat-15654afcba",
+      "cmp-repeat-724cab6c32",
+      "cmp-repeat-cf78a46c15",
+      "cmp-repeat-c7f354970c",
+      "cmp-repeat-0757cc2252",
+      "cmp-repeat-d8e263b7ce",
+      "cmp-repeat-a7d83aec16",
+      "cmp-repeat-9b01fefc25",
+      "cmp-repeat-ef98635538",
+      "cmp-repeat-7b81ee8540"
+    ]
+  },
+  "byScreen": {
+    "1": {
+      "screen": {
+        "index": 1,
+        "name": "My Pricing"
+      },
+      "components": [
+        "cmp-figma-623f0e9bc6",
+        "cmp-repeat-77c2854460",
+        "cmp-repeat-393f28f6ed",
+        "cmp-repeat-4e16cc4b41",
+        "cmp-repeat-c7f354970c",
+        "cmp-repeat-0757cc2252",
+        "cmp-figma-f38ebd018f",
+        "cmp-repeat-d8e263b7ce",
+        "cmp-repeat-a7d83aec16",
+        "cmp-repeat-9b01fefc25",
+        "cmp-repeat-ef98635538",
+        "cmp-repeat-7b81ee8540"
+      ]
+    },
+    "2": {
+      "screen": {
+        "index": 2,
+        "name": "My Pricing"
+      },
+      "components": [
+        "cmp-figma-623f0e9bc6",
+        "cmp-repeat-77c2854460",
+        "cmp-repeat-393f28f6ed",
+        "cmp-repeat-4e16cc4b41",
+        "cmp-repeat-c7f354970c",
+        "cmp-repeat-0757cc2252",
+        "cmp-figma-f38ebd018f",
+        "cmp-repeat-d8e263b7ce",
+        "cmp-repeat-a7d83aec16",
+        "cmp-repeat-9b01fefc25",
+        "cmp-repeat-ef98635538",
+        "cmp-repeat-7b81ee8540"
+      ]
+    },
+    "3": {
+      "screen": {
+        "index": 3,
+        "name": "Cricket Match"
+      },
+      "components": [
+        "cmp-repeat-8c47eda929",
+        "cmp-repeat-ac8ea6395b",
+        "cmp-repeat-8f56aa57ed",
+        "cmp-repeat-d0d82892b5",
+        "cmp-repeat-74cfc620ac",
+        "cmp-repeat-8fbf5dc313",
+        "cmp-repeat-f6aadabf74",
+        "cmp-repeat-58f28fd901",
+        "cmp-repeat-e37588ea04",
+        "cmp-repeat-4e16cc4b41",
+        "cmp-repeat-15654afcba",
+        "cmp-repeat-724cab6c32",
+        "cmp-repeat-cf78a46c15"
+      ]
+    },
+    "4": {
+      "screen": {
+        "index": 4,
+        "name": "Cricket Match"
+      },
+      "components": [
+        "cmp-repeat-8c47eda929",
+        "cmp-repeat-ac8ea6395b",
+        "cmp-repeat-8f56aa57ed",
+        "cmp-repeat-d0d82892b5",
+        "cmp-repeat-74cfc620ac",
+        "cmp-repeat-8fbf5dc313",
+        "cmp-repeat-f6aadabf74",
+        "cmp-repeat-58f28fd901",
+        "cmp-repeat-e37588ea04",
+        "cmp-repeat-4e16cc4b41",
+        "cmp-repeat-15654afcba",
+        "cmp-repeat-724cab6c32",
+        "cmp-repeat-cf78a46c15"
+      ]
+    },
+    "5": {
+      "screen": {
+        "index": 5,
+        "name": "Cricket Match"
+      },
+      "components": [
+        "cmp-repeat-8c47eda929",
+        "cmp-repeat-ac8ea6395b",
+        "cmp-repeat-8f56aa57ed",
+        "cmp-repeat-d0d82892b5",
+        "cmp-repeat-74cfc620ac",
+        "cmp-repeat-8fbf5dc313",
+        "cmp-repeat-f6aadabf74",
+        "cmp-repeat-58f28fd901",
+        "cmp-repeat-e37588ea04",
+        "cmp-repeat-4e16cc4b41",
+        "cmp-repeat-15654afcba",
+        "cmp-repeat-724cab6c32",
+        "cmp-repeat-cf78a46c15"
+      ]
+    }
+  },
+  "components": [
+    {
+      "id": "cmp-figma-623f0e9bc6",
+      "name": "Property 1=On",
+      "source": "figma-component",
+      "confidence": "high",
+      "usageCount": 8,
+      "screenCount": 2,
+      "screens": [
+        {
+          "index": 1,
+          "name": "My Pricing"
+        },
+        {
+          "index": 2,
+          "name": "My Pricing"
+        }
+      ],
+      "variantAxes": {
+        "Property 1": [
+          "On"
+        ]
+      }
+    },
+    {
+      "id": "cmp-repeat-8c47eda929",
+      "name": "Card 16",
+      "source": "repeated-structure",
+      "confidence": "medium",
+      "usageCount": 6,
+      "screenCount": 3,
+      "screens": [
+        {
+          "index": 3,
+          "name": "Cricket Match"
+        },
+        {
+          "index": 4,
+          "name": "Cricket Match"
+        },
+        {
+          "index": 5,
+          "name": "Cricket Match"
+        }
+      ],
+      "variantAxes": {}
+    },
+    {
+      "id": "cmp-repeat-ac8ea6395b",
+      "name": "Card 17",
+      "source": "repeated-structure",
+      "confidence": "medium",
+      "usageCount": 6,
+      "screenCount": 3,
+      "screens": [
+        {
+          "index": 3,
+          "name": "Cricket Match"
+        },
+        {
+          "index": 4,
+          "name": "Cricket Match"
+        },
+        {
+          "index": 5,
+          "name": "Cricket Match"
+        }
+      ],
+      "variantAxes": {}
+    },
+    {
+      "id": "cmp-repeat-8f56aa57ed",
+      "name": "Card 19",
+      "source": "repeated-structure",
+      "confidence": "medium",
+      "usageCount": 6,
+      "screenCount": 3,
+      "screens": [
+        {
+          "index": 3,
+          "name": "Cricket Match"
+        },
+        {
+          "index": 4,
+          "name": "Cricket Match"
+        },
+        {
+          "index": 5,
+          "name": "Cricket Match"
+        }
+      ],
+      "variantAxes": {}
+    },
+    {
+      "id": "cmp-repeat-d0d82892b5",
+      "name": "Card 20",
+      "source": "repeated-structure",
+      "confidence": "medium",
+      "usageCount": 6,
+      "screenCount": 3,
+      "screens": [
+        {
+          "index": 3,
+          "name": "Cricket Match"
+        },
+        {
+          "index": 4,
+          "name": "Cricket Match"
+        },
+        {
+          "index": 5,
+          "name": "Cricket Match"
+        }
+      ],
+      "variantAxes": {}
+    },
+    {
+      "id": "cmp-repeat-74cfc620ac",
+      "name": "Card 21",
+      "source": "repeated-structure",
+      "confidence": "medium",
+      "usageCount": 6,
+      "screenCount": 3,
+      "screens": [
+        {
+          "index": 3,
+          "name": "Cricket Match"
+        },
+        {
+          "index": 4,
+          "name": "Cricket Match"
+        },
+        {
+          "index": 5,
+          "name": "Cricket Match"
+        }
+      ],
+      "variantAxes": {}
+    },
+    {
+      "id": "cmp-repeat-8fbf5dc313",
+      "name": "Card 22",
+      "source": "repeated-structure",
+      "confidence": "medium",
+      "usageCount": 6,
+      "screenCount": 3,
+      "screens": [
+        {
+          "index": 3,
+          "name": "Cricket Match"
+        },
+        {
+          "index": 4,
+          "name": "Cricket Match"
+        },
+        {
+          "index": 5,
+          "name": "Cricket Match"
+        }
+      ],
+      "variantAxes": {}
+    },
+    {
+      "id": "cmp-repeat-77c2854460",
+      "name": "Card 8",
+      "source": "repeated-structure",
+      "confidence": "medium",
+      "usageCount": 6,
+      "screenCount": 2,
+      "screens": [
+        {
+          "index": 1,
+          "name": "My Pricing"
+        },
+        {
+          "index": 2,
+          "name": "My Pricing"
+        }
+      ],
+      "variantAxes": {}
+    },
+    {
+      "id": "cmp-repeat-f6aadabf74",
+      "name": "Repeated section 15",
+      "source": "repeated-structure",
+      "confidence": "medium",
+      "usageCount": 6,
+      "screenCount": 3,
+      "screens": [
+        {
+          "index": 3,
+          "name": "Cricket Match"
+        },
+        {
+          "index": 4,
+          "name": "Cricket Match"
+        },
+        {
+          "index": 5,
+          "name": "Cricket Match"
+        }
+      ],
+      "variantAxes": {}
+    },
+    {
+      "id": "cmp-repeat-58f28fd901",
+      "name": "Repeated section 18",
+      "source": "repeated-structure",
+      "confidence": "medium",
+      "usageCount": 6,
+      "screenCount": 3,
+      "screens": [
+        {
+          "index": 3,
+          "name": "Cricket Match"
+        },
+        {
+          "index": 4,
+          "name": "Cricket Match"
+        },
+        {
+          "index": 5,
+          "name": "Cricket Match"
+        }
+      ],
+      "variantAxes": {}
+    },
+    {
+      "id": "cmp-repeat-393f28f6ed",
+      "name": "Repeated section 7",
+      "source": "repeated-structure",
+      "confidence": "medium",
+      "usageCount": 6,
+      "screenCount": 2,
+      "screens": [
+        {
+          "index": 1,
+          "name": "My Pricing"
+        },
+        {
+          "index": 2,
+          "name": "My Pricing"
+        }
+      ],
+      "variantAxes": {}
+    },
+    {
+      "id": "cmp-repeat-e37588ea04",
+      "name": "SIGNATURE: MATCH TICKET",
+      "source": "repeated-structure",
+      "confidence": "medium",
+      "usageCount": 6,
+      "screenCount": 3,
+      "screens": [
+        {
+          "index": 3,
+          "name": "Cricket Match"
+        },
+        {
+          "index": 4,
+          "name": "Cricket Match"
+        },
+        {
+          "index": 5,
+          "name": "Cricket Match"
+        }
+      ],
+      "variantAxes": {}
+    },
+    {
+      "id": "cmp-repeat-4e16cc4b41",
+      "name": "Repeated section 10",
+      "source": "repeated-structure",
+      "confidence": "medium",
+      "usageCount": 5,
+      "screenCount": 5,
+      "screens": [
+        {
+          "index": 1,
+          "name": "My Pricing"
+        },
+        {
+          "index": 2,
+          "name": "My Pricing"
+        },
+        {
+          "index": 3,
+          "name": "Cricket Match"
+        },
+        {
+          "index": 4,
+          "name": "Cricket Match"
+        },
+        {
+          "index": 5,
+          "name": "Cricket Match"
+        }
+      ],
+      "variantAxes": {}
+    },
+    {
+      "id": "cmp-repeat-15654afcba",
+      "name": "Repeated section 11",
+      "source": "repeated-structure",
+      "confidence": "medium",
+      "usageCount": 3,
+      "screenCount": 3,
+      "screens": [
+        {
+          "index": 3,
+          "name": "Cricket Match"
+        },
+        {
+          "index": 4,
+          "name": "Cricket Match"
+        },
+        {
+          "index": 5,
+          "name": "Cricket Match"
+        }
+      ],
+      "variantAxes": {}
+    },
+    {
+      "id": "cmp-repeat-724cab6c32",
+      "name": "Repeated section 12",
+      "source": "repeated-structure",
+      "confidence": "medium",
+      "usageCount": 3,
+      "screenCount": 3,
+      "screens": [
+        {
+          "index": 3,
+          "name": "Cricket Match"
+        },
+        {
+          "index": 4,
+          "name": "Cricket Match"
+        },
+        {
+          "index": 5,
+          "name": "Cricket Match"
+        }
+      ],
+      "variantAxes": {}
+    },
+    {
+      "id": "cmp-repeat-cf78a46c15",
+      "name": "Repeated section 13",
+      "source": "repeated-structure",
+      "confidence": "medium",
+      "usageCount": 3,
+      "screenCount": 3,
+      "screens": [
+        {
+          "index": 3,
+          "name": "Cricket Match"
+        },
+        {
+          "index": 4,
+          "name": "Cricket Match"
+        },
+        {
+          "index": 5,
+          "name": "Cricket Match"
+        }
+      ],
+      "variantAxes": {}
+    },
+    {
+      "id": "cmp-repeat-c7f354970c",
+      "name": "Card 4",
+      "source": "repeated-structure",
+      "confidence": "medium",
+      "usageCount": 2,
+      "screenCount": 2,
+      "screens": [
+        {
+          "index": 1,
+          "name": "My Pricing"
+        },
+        {
+          "index": 2,
+          "name": "My Pricing"
+        }
+      ],
+      "variantAxes": {}
+    },
+    {
+      "id": "cmp-repeat-0757cc2252",
+      "name": "Card 6",
+      "source": "repeated-structure",
+      "confidence": "medium",
+      "usageCount": 2,
+      "screenCount": 2,
+      "screens": [
+        {
+          "index": 1,
+          "name": "My Pricing"
+        },
+        {
+          "index": 2,
+          "name": "My Pricing"
+        }
+      ],
+      "variantAxes": {}
+    },
+    {
+      "id": "cmp-figma-f38ebd018f",
+      "name": "Property 1=Off",
+      "source": "figma-component",
+      "confidence": "high",
+      "usageCount": 2,
+      "screenCount": 2,
+      "screens": [
+        {
+          "index": 1,
+          "name": "My Pricing"
+        },
+        {
+          "index": 2,
+          "name": "My Pricing"
+        }
+      ],
+      "variantAxes": {
+        "Property 1": [
+          "Off"
+        ]
+      }
+    },
+    {
+      "id": "cmp-repeat-d8e263b7ce",
+      "name": "Repeated section 1",
+      "source": "repeated-structure",
+      "confidence": "medium",
+      "usageCount": 2,
+      "screenCount": 2,
+      "screens": [
+        {
+          "index": 1,
+          "name": "My Pricing"
+        },
+        {
+          "index": 2,
+          "name": "My Pricing"
+        }
+      ],
+      "variantAxes": {}
+    },
+    {
+      "id": "cmp-repeat-a7d83aec16",
+      "name": "Repeated section 2",
+      "source": "repeated-structure",
+      "confidence": "medium",
+      "usageCount": 2,
+      "screenCount": 2,
+      "screens": [
+        {
+          "index": 1,
+          "name": "My Pricing"
+        },
+        {
+          "index": 2,
+          "name": "My Pricing"
+        }
+      ],
+      "variantAxes": {}
+    },
+    {
+      "id": "cmp-repeat-9b01fefc25",
+      "name": "Repeated section 3",
+      "source": "repeated-structure",
+      "confidence": "medium",
+      "usageCount": 2,
+      "screenCount": 2,
+      "screens": [
+        {
+          "index": 1,
+          "name": "My Pricing"
+        },
+        {
+          "index": 2,
+          "name": "My Pricing"
+        }
+      ],
+      "variantAxes": {}
+    },
+    {
+      "id": "cmp-repeat-ef98635538",
+      "name": "Repeated section 5",
+      "source": "repeated-structure",
+      "confidence": "medium",
+      "usageCount": 2,
+      "screenCount": 2,
+      "screens": [
+        {
+          "index": 1,
+          "name": "My Pricing"
+        },
+        {
+          "index": 2,
+          "name": "My Pricing"
+        }
+      ],
+      "variantAxes": {}
+    },
+    {
+      "id": "cmp-repeat-7b81ee8540",
+      "name": "Repeated section 9",
+      "source": "repeated-structure",
+      "confidence": "medium",
+      "usageCount": 2,
+      "screenCount": 2,
+      "screens": [
+        {
+          "index": 1,
+          "name": "My Pricing"
+        },
+        {
+          "index": 2,
+          "name": "My Pricing"
+        }
+      ],
+      "variantAxes": {}
+    }
+  ]
+}

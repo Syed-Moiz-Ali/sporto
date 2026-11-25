@@ -1,0 +1,151 @@
+{
+  "schema": "dev-export-navigation-map",
+  "schemaVersion": "1.1.0",
+  "generatedAt": "2026-11-25T05:44:00.057Z",
+  "note": "Named-route stubs for every screen. Interactions are populated only when Figma prototype reactions exist.",
+  "manualRouteMapRequired": false,
+  "screens": [
+    {
+      "index": 1,
+      "name": "My Pricing",
+      "folder": "screens/01_My-Pricing",
+      "route": "/my-pricing"
+    },
+    {
+      "index": 2,
+      "name": "My Pricing",
+      "folder": "screens/02_My-Pricing",
+      "route": "/my-pricing"
+    },
+    {
+      "index": 3,
+      "name": "Cricket Match",
+      "folder": "screens/03_Cricket-Match",
+      "route": "/cricket-match"
+    },
+    {
+      "index": 4,
+      "name": "Cricket Match",
+      "folder": "screens/04_Cricket-Match",
+      "route": "/cricket-match"
+    },
+    {
+      "index": 5,
+      "name": "Cricket Match",
+      "folder": "screens/05_Cricket-Match",
+      "route": "/cricket-match"
+    }
+  ],
+  "interactions": [
+    {
+      "screenIndex": 1,
+      "screenName": "My Pricing",
+      "nodeId": "4005:32359",
+      "nodeName": "Toggle",
+      "sourceRoute": "/my-pricing",
+      "trigger": "ON_CLICK",
+      "action": "NODE",
+      "destinationId": "1661:918",
+      "navigation": "CHANGE_TO"
+    },
+    {
+      "screenIndex": 1,
+      "screenName": "My Pricing",
+      "nodeId": "4005:32688",
+      "nodeName": "Toggle",
+      "sourceRoute": "/my-pricing",
+      "trigger": "ON_CLICK",
+      "action": "NODE",
+      "destinationId": "1661:921",
+      "navigation": "CHANGE_TO"
+    },
+    {
+      "screenIndex": 1,
+      "screenName": "My Pricing",
+      "nodeId": "4005:32715",
+      "nodeName": "Toggle",
+      "sourceRoute": "/my-pricing",
+      "trigger": "ON_CLICK",
+      "action": "NODE",
+      "destinationId": "1661:918",
+      "navigation": "CHANGE_TO"
+    },
+    {
+      "screenIndex": 1,
+      "screenName": "My Pricing",
+      "nodeId": "4005:32697",
+      "nodeName": "Toggle",
+      "sourceRoute": "/my-pricing",
+      "trigger": "ON_CLICK",
+      "action": "NODE",
+      "destinationId": "1661:918",
+      "navigation": "CHANGE_TO"
+    },
+    {
+      "screenIndex": 1,
+      "screenName": "My Pricing",
+      "nodeId": "4005:32706",
+      "nodeName": "Toggle",
+      "sourceRoute": "/my-pricing",
+      "trigger": "ON_CLICK",
+      "action": "NODE",
+      "destinationId": "1661:918",
+      "navigation": "CHANGE_TO"
+    },
+    {
+      "screenIndex": 2,
+      "screenName": "My Pricing",
+      "nodeId": "4005:32751",
+      "nodeName": "Toggle",
+      "sourceRoute": "/my-pricing",
+      "trigger": "ON_CLICK",
+      "action": "NODE",
+      "destinationId": "1661:918",
+      "navigation": "CHANGE_TO"
+    },
+    {
+      "screenIndex": 2,
+      "screenName": "My Pricing",
+      "nodeId": "4005:32756",
+      "nodeName": "Toggle",
+      "sourceRoute": "/my-pricing",
+      "trigger": "ON_CLICK",
+      "action": "NODE",
+      "destinationId": "1661:921",
+      "navigation": "CHANGE_TO"
+    },
+    {
+      "screenIndex": 2,
+      "screenName": "My Pricing",
+      "nodeId": "4005:32761",
+      "nodeName": "Toggle",
+      "sourceRoute": "/my-pricing",
+      "trigger": "ON_CLICK",
+      "action": "NODE",
+      "destinationId": "1661:918",
+      "navigation": "CHANGE_TO"
+    },
+    {
+      "screenIndex": 2,
+      "screenName": "My Pricing",
+      "nodeId": "4005:32766",
+      "nodeName": "Toggle",
+      "sourceRoute": "/my-pricing",
+      "trigger": "ON_CLICK",
+      "action": "NODE",
+      "destinationId": "1661:918",
+      "navigation": "CHANGE_TO"
+    },
+    {
+      "screenIndex": 2,
+      "screenName": "My Pricing",
+      "nodeId": "4005:32771",
+      "nodeName": "Toggle",
+      "sourceRoute": "/my-pricing",
+      "trigger": "ON_CLICK",
+      "action": "NODE",
+      "destinationId": "1661:918",
+      "navigation": "CHANGE_TO"
+    }
+  ]
+}

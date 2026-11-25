@@ -1,0 +1,1501 @@
+{
+  "schema": "dev-export-shared-assets",
+  "schemaVersion": "1.1.0",
+  "generatedAt": "2026-11-25T05:44:00.057Z",
+  "folder": "shared/assets",
+  "note": "Identical asset files used by two or more screens. Per-screen copies remain inside each screen assets folder so a screen stays portable on its own.",
+  "pathConventions": {
+    "packageRoot": "The `file` field is relative to the package root.",
+    "fromScreenJson": "The `relativeFromScreen` field works from inside screens/<screen>/<screen>.json."
+  },
+  "assetCount": 11,
+  "totalBytes": 1108258,
+  "assets": [
+    {
+      "id": "shared-5dbf5224b377",
+      "hash": "5dbf5224b3778840",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "mime": "image/png",
+      "file": "shared/assets/png/Line-5-Stroke-5dbf5224.png",
+      "byteLength": 1180,
+      "screenCount": 2,
+      "usageCount": 8,
+      "screens": [
+        {
+          "index": 1,
+          "name": "My Pricing",
+          "folder": "screens/01_My-Pricing",
+          "json": "screens/01_My-Pricing/My-Pricing.json",
+          "uses": [
+            {
+              "nodeId": "I4005:32359;1661:922",
+              "nodeName": "Line 5 (Stroke)",
+              "nodeType": "VECTOR",
+              "layerPath": "My Pricing / Frame 1261154190 / Frame 1261154192 / Frame 1261154425 / Toggle / Line 5 (Stroke)",
+              "usage": "vector",
+              "x": 0,
+              "y": 0.000003496911176625872,
+              "width": 40,
+              "height": 20
+            },
+            {
+              "nodeId": "I4005:32715;1661:922",
+              "nodeName": "Line 5 (Stroke)",
+              "nodeType": "VECTOR",
+              "layerPath": "My Pricing / Frame 1261154190 / Frame 1261154192 / Frame 1261154441 / Toggle / Line 5 (Stroke)",
+              "usage": "vector",
+              "x": 0,
+              "y": 0.000003496911176625872,
+              "width": 40,
+              "height": 20
+            },
+            {
+              "nodeId": "I4005:32697;1661:922",
+              "nodeName": "Line 5 (Stroke)",
+              "nodeType": "VECTOR",
+              "layerPath": "My Pricing / Frame 1261154190 / Frame 1261154192 / Frame 1261154439 / Toggle / Line 5 (Stroke)",
+              "usage": "vector",
+              "x": 0,
+              "y": 0.000003496911176625872,
+              "width": 40,
+              "height": 20
+            },
+            {
+              "nodeId": "I4005:32706;1661:922",
+              "nodeName": "Line 5 (Stroke)",
+              "nodeType": "VECTOR",
+              "layerPath": "My Pricing / Frame 1261154190 / Frame 1261154192 / Frame 1261154440 / Toggle / Line 5 (Stroke)",
+              "usage": "vector",
+              "x": 0,
+              "y": 0.000003496911176625872,
+              "width": 40,
+              "height": 20
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "name": "My Pricing",
+          "folder": "screens/02_My-Pricing",
+          "json": "screens/02_My-Pricing/My-Pricing.json",
+          "uses": [
+            {
+              "nodeId": "I4005:32751;1661:922",
+              "nodeName": "Line 5 (Stroke)",
+              "nodeType": "VECTOR",
+              "layerPath": "My Pricing / Frame 1261154190 / Frame 1261154192 / Frame 1261154425 / Toggle / Line 5 (Stroke)",
+              "usage": "vector",
+              "x": 0,
+              "y": 0.000003496911176625872,
+              "width": 40,
+              "height": 20
+            },
+            {
+              "nodeId": "I4005:32761;1661:922",
+              "nodeName": "Line 5 (Stroke)",
+              "nodeType": "VECTOR",
+              "layerPath": "My Pricing / Frame 1261154190 / Frame 1261154192 / Frame 1261154441 / Toggle / Line 5 (Stroke)",
+              "usage": "vector",
+              "x": 0,
+              "y": 0.000003496911176625872,
+              "width": 40,
+              "height": 20
+            },
+            {
+              "nodeId": "I4005:32766;1661:922",
+              "nodeName": "Line 5 (Stroke)",
+              "nodeType": "VECTOR",
+              "layerPath": "My Pricing / Frame 1261154190 / Frame 1261154192 / Frame 1261154439 / Toggle / Line 5 (Stroke)",
+              "usage": "vector",
+              "x": 0,
+              "y": 0.000003496911176625872,
+              "width": 40,
+              "height": 20
+            },
+            {
+              "nodeId": "I4005:32771;1661:922",
+              "nodeName": "Line 5 (Stroke)",
+              "nodeType": "VECTOR",
+              "layerPath": "My Pricing / Frame 1261154190 / Frame 1261154192 / Frame 1261154440 / Toggle / Line 5 (Stroke)",
+              "usage": "vector",
+              "x": 0,
+              "y": 0.000003496911176625872,
+              "width": 40,
+              "height": 20
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shared-8115300b95ba",
+      "hash": "8115300b95ba98f7",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "mime": "image/png",
+      "file": "shared/assets/png/Ellipse-816-8115300b.png",
+      "byteLength": 1450,
+      "screenCount": 2,
+      "usageCount": 8,
+      "screens": [
+        {
+          "index": 1,
+          "name": "My Pricing",
+          "folder": "screens/01_My-Pricing",
+          "json": "screens/01_My-Pricing/My-Pricing.json",
+          "uses": [
+            {
+              "nodeId": "I4005:32359;1661:923",
+              "nodeName": "Ellipse 816",
+              "nodeType": "ELLIPSE",
+              "layerPath": "My Pricing / Frame 1261154190 / Frame 1261154192 / Frame 1261154425 / Toggle / Ellipse 816",
+              "usage": "vector",
+              "x": 22,
+              "y": 18.000001907348633,
+              "width": 16,
+              "height": 16
+            },
+            {
+              "nodeId": "I4005:32715;1661:923",
+              "nodeName": "Ellipse 816",
+              "nodeType": "ELLIPSE",
+              "layerPath": "My Pricing / Frame 1261154190 / Frame 1261154192 / Frame 1261154441 / Toggle / Ellipse 816",
+              "usage": "vector",
+              "x": 22,
+              "y": 18.000001907348633,
+              "width": 16,
+              "height": 16
+            },
+            {
+              "nodeId": "I4005:32697;1661:923",
+              "nodeName": "Ellipse 816",
+              "nodeType": "ELLIPSE",
+              "layerPath": "My Pricing / Frame 1261154190 / Frame 1261154192 / Frame 1261154439 / Toggle / Ellipse 816",
+              "usage": "vector",
+              "x": 22,
+              "y": 18.000001907348633,
+              "width": 16,
+              "height": 16
+            },
+            {
+              "nodeId": "I4005:32706;1661:923",
+              "nodeName": "Ellipse 816",
+              "nodeType": "ELLIPSE",
+              "layerPath": "My Pricing / Frame 1261154190 / Frame 1261154192 / Frame 1261154440 / Toggle / Ellipse 816",
+              "usage": "vector",
+              "x": 22,
+              "y": 18.000001907348633,
+              "width": 16,
+              "height": 16
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "name": "My Pricing",
+          "folder": "screens/02_My-Pricing",
+          "json": "screens/02_My-Pricing/My-Pricing.json",
+          "uses": [
+            {
+              "nodeId": "I4005:32751;1661:923",
+              "nodeName": "Ellipse 816",
+              "nodeType": "ELLIPSE",
+              "layerPath": "My Pricing / Frame 1261154190 / Frame 1261154192 / Frame 1261154425 / Toggle / Ellipse 816",
+              "usage": "vector",
+              "x": 22,
+              "y": 18.000001907348633,
+              "width": 16,
+              "height": 16
+            },
+            {
+              "nodeId": "I4005:32761;1661:923",
+              "nodeName": "Ellipse 816",
+              "nodeType": "ELLIPSE",
+              "layerPath": "My Pricing / Frame 1261154190 / Frame 1261154192 / Frame 1261154441 / Toggle / Ellipse 816",
+              "usage": "vector",
+              "x": 22,
+              "y": 18.000001907348633,
+              "width": 16,
+              "height": 16
+            },
+            {
+              "nodeId": "I4005:32766;1661:923",
+              "nodeName": "Ellipse 816",
+              "nodeType": "ELLIPSE",
+              "layerPath": "My Pricing / Frame 1261154190 / Frame 1261154192 / Frame 1261154439 / Toggle / Ellipse 816",
+              "usage": "vector",
+              "x": 22,
+              "y": 18.000001907348633,
+              "width": 16,
+              "height": 16
+            },
+            {
+              "nodeId": "I4005:32771;1661:923",
+              "nodeName": "Ellipse 816",
+              "nodeType": "ELLIPSE",
+              "layerPath": "My Pricing / Frame 1261154190 / Frame 1261154192 / Frame 1261154440 / Toggle / Ellipse 816",
+              "usage": "vector",
+              "x": 22,
+              "y": 18.000001907348633,
+              "width": 16,
+              "height": 16
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shared-beef58cfaf7a",
+      "hash": "beef58cfaf7a79a3",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "mime": "image/png",
+      "file": "shared/assets/png/Line-5-Stroke-beef58cf.png",
+      "byteLength": 1147,
+      "screenCount": 2,
+      "usageCount": 2,
+      "screens": [
+        {
+          "index": 1,
+          "name": "My Pricing",
+          "folder": "screens/01_My-Pricing",
+          "json": "screens/01_My-Pricing/My-Pricing.json",
+          "uses": [
+            {
+              "nodeId": "I4005:32688;1661:919",
+              "nodeName": "Line 5 (Stroke)",
+              "nodeType": "VECTOR",
+              "layerPath": "My Pricing / Frame 1261154190 / Frame 1261154192 / Frame 1261154438 / Toggle / Line 5 (Stroke)",
+              "usage": "vector",
+              "x": 0,
+              "y": 0.000003496911176625872,
+              "width": 40,
+              "height": 20
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "name": "My Pricing",
+          "folder": "screens/02_My-Pricing",
+          "json": "screens/02_My-Pricing/My-Pricing.json",
+          "uses": [
+            {
+              "nodeId": "I4005:32756;1661:919",
+              "nodeName": "Line 5 (Stroke)",
+              "nodeType": "VECTOR",
+              "layerPath": "My Pricing / Frame 1261154190 / Frame 1261154192 / Frame 1261154438 / Toggle / Line 5 (Stroke)",
+              "usage": "vector",
+              "x": 0,
+              "y": 0.000003496911176625872,
+              "width": 40,
+              "height": 20
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shared-d8dbaa94e991",
+      "hash": "d8dbaa94e9919ae8",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "mime": "image/png",
+      "file": "shared/assets/png/Ellipse-816-d8dbaa94.png",
+      "byteLength": 1669,
+      "screenCount": 2,
+      "usageCount": 2,
+      "screens": [
+        {
+          "index": 1,
+          "name": "My Pricing",
+          "folder": "screens/01_My-Pricing",
+          "json": "screens/01_My-Pricing/My-Pricing.json",
+          "uses": [
+            {
+              "nodeId": "I4005:32688;1661:920",
+              "nodeName": "Ellipse 816",
+              "nodeType": "ELLIPSE",
+              "layerPath": "My Pricing / Frame 1261154190 / Frame 1261154192 / Frame 1261154438 / Toggle / Ellipse 816",
+              "usage": "vector",
+              "x": 2.0000009536743164,
+              "y": 18.000001907348633,
+              "width": 16,
+              "height": 16
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "name": "My Pricing",
+          "folder": "screens/02_My-Pricing",
+          "json": "screens/02_My-Pricing/My-Pricing.json",
+          "uses": [
+            {
+              "nodeId": "I4005:32756;1661:920",
+              "nodeName": "Ellipse 816",
+              "nodeType": "ELLIPSE",
+              "layerPath": "My Pricing / Frame 1261154190 / Frame 1261154192 / Frame 1261154438 / Toggle / Ellipse 816",
+              "usage": "vector",
+              "x": 2.0000009536743164,
+              "y": 18.000001907348633,
+              "width": 16,
+              "height": 16
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shared-310f004dc86a",
+      "hash": "310f004dc86ab0f1",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "mime": "image/png",
+      "file": "shared/assets/png/Vector-310f004d.png",
+      "byteLength": 694,
+      "screenCount": 5,
+      "usageCount": 5,
+      "screens": [
+        {
+          "index": 1,
+          "name": "My Pricing",
+          "folder": "screens/01_My-Pricing",
+          "json": "screens/01_My-Pricing/My-Pricing.json",
+          "uses": [
+            {
+              "nodeId": "4005:32429",
+              "nodeName": "Vector",
+              "nodeType": "VECTOR",
+              "layerPath": "My Pricing / Frame 1261154402 / Frame 1000003336 / Back / Vector",
+              "usage": "vector",
+              "x": 15,
+              "y": 12,
+              "width": 6,
+              "height": 12
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "name": "My Pricing",
+          "folder": "screens/02_My-Pricing",
+          "json": "screens/02_My-Pricing/My-Pricing.json",
+          "uses": [
+            {
+              "nodeId": "4005:32799",
+              "nodeName": "Vector",
+              "nodeType": "VECTOR",
+              "layerPath": "My Pricing / Frame 1261154402 / Frame 1000003336 / Back / Vector",
+              "usage": "vector",
+              "x": 15,
+              "y": 12,
+              "width": 6,
+              "height": 12
+            }
+          ]
+        },
+        {
+          "index": 3,
+          "name": "Cricket Match",
+          "folder": "screens/03_Cricket-Match",
+          "json": "screens/03_Cricket-Match/Cricket-Match.json",
+          "uses": [
+            {
+              "nodeId": "138:848",
+              "nodeName": "Vector",
+              "nodeType": "VECTOR",
+              "layerPath": "Cricket Match / Frame 1000003334 / Frame 1000003336 / Back / Vector",
+              "usage": "vector",
+              "x": 15,
+              "y": 12,
+              "width": 6,
+              "height": 12
+            }
+          ]
+        },
+        {
+          "index": 4,
+          "name": "Cricket Match",
+          "folder": "screens/04_Cricket-Match",
+          "json": "screens/04_Cricket-Match/Cricket-Match.json",
+          "uses": [
+            {
+              "nodeId": "144:538",
+              "nodeName": "Vector",
+              "nodeType": "VECTOR",
+              "layerPath": "Cricket Match / Frame 1000003334 / Frame 1000003336 / Back / Vector",
+              "usage": "vector",
+              "x": 15,
+              "y": 12,
+              "width": 6,
+              "height": 12
+            }
+          ]
+        },
+        {
+          "index": 5,
+          "name": "Cricket Match",
+          "folder": "screens/05_Cricket-Match",
+          "json": "screens/05_Cricket-Match/Cricket-Match.json",
+          "uses": [
+            {
+              "nodeId": "144:627",
+              "nodeName": "Vector",
+              "nodeType": "VECTOR",
+              "layerPath": "Cricket Match / Frame 1000003334 / Frame 1000003336 / Back / Vector",
+              "usage": "vector",
+              "x": 15,
+              "y": 12,
+              "width": 6,
+              "height": 12
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shared-a502e71972c1",
+      "hash": "a502e71972c1b12d",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "mime": "image/svg+xml",
+      "file": "shared/assets/svg/Vector-a502e719.svg",
+      "byteLength": 1711,
+      "screenCount": 3,
+      "usageCount": 12,
+      "screens": [
+        {
+          "index": 3,
+          "name": "Cricket Match",
+          "folder": "screens/03_Cricket-Match",
+          "json": "screens/03_Cricket-Match/Cricket-Match.json",
+          "uses": [
+            {
+              "nodeId": "138:857",
+              "nodeName": "Vector",
+              "nodeType": "VECTOR",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154324 / SIGNATURE: MATCH TICKET / Frame 1261154296 / Frame 1261154297 / Frame 1261154292 / Vector",
+              "usage": "vector",
+              "x": 3.0589842796325684,
+              "y": 2.4000000953674316,
+              "width": 9.882352828979492,
+              "height": 11.199999809265137
+            },
+            {
+              "nodeId": "144:464",
+              "nodeName": "Vector",
+              "nodeType": "VECTOR",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154324 / SIGNATURE: MATCH TICKET / Frame 1261154296 / Frame 1261154297 / Frame 1261154292 / Vector",
+              "usage": "vector",
+              "x": 3.0589842796325684,
+              "y": 2.4000000953674316,
+              "width": 9.882352828979492,
+              "height": 11.199999809265137
+            },
+            {
+              "nodeId": "138:857",
+              "nodeName": "Vector",
+              "nodeType": "VECTOR",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154324 / SIGNATURE: MATCH TICKET / Frame 1261154296 / Frame 1261154297 / Frame 1261154292 / Vector",
+              "usage": "vector",
+              "x": 3.0589842796325684,
+              "y": 2.4000000953674316,
+              "width": 9.882352828979492,
+              "height": 11.199999809265137
+            },
+            {
+              "nodeId": "144:464",
+              "nodeName": "Vector",
+              "nodeType": "VECTOR",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154324 / SIGNATURE: MATCH TICKET / Frame 1261154296 / Frame 1261154297 / Frame 1261154292 / Vector",
+              "usage": "vector",
+              "x": 3.0589842796325684,
+              "y": 2.4000000953674316,
+              "width": 9.882352828979492,
+              "height": 11.199999809265137
+            }
+          ]
+        },
+        {
+          "index": 4,
+          "name": "Cricket Match",
+          "folder": "screens/04_Cricket-Match",
+          "json": "screens/04_Cricket-Match/Cricket-Match.json",
+          "uses": [
+            {
+              "nodeId": "144:557",
+              "nodeName": "Vector",
+              "nodeType": "VECTOR",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154323 / SIGNATURE: MATCH TICKET / Frame 1261154296 / Frame 1261154297 / Frame 1261154292 / Vector",
+              "usage": "vector",
+              "x": 3.0589842796325684,
+              "y": 2.4000000953674316,
+              "width": 9.882352828979492,
+              "height": 11.199999809265137
+            },
+            {
+              "nodeId": "144:580",
+              "nodeName": "Vector",
+              "nodeType": "VECTOR",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154323 / SIGNATURE: MATCH TICKET / Frame 1261154296 / Frame 1261154297 / Frame 1261154292 / Vector",
+              "usage": "vector",
+              "x": 3.0589842796325684,
+              "y": 2.4000000953674316,
+              "width": 9.882352828979492,
+              "height": 11.199999809265137
+            },
+            {
+              "nodeId": "144:557",
+              "nodeName": "Vector",
+              "nodeType": "VECTOR",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154323 / SIGNATURE: MATCH TICKET / Frame 1261154296 / Frame 1261154297 / Frame 1261154292 / Vector",
+              "usage": "vector",
+              "x": 3.0589842796325684,
+              "y": 2.4000000953674316,
+              "width": 9.882352828979492,
+              "height": 11.199999809265137
+            },
+            {
+              "nodeId": "144:580",
+              "nodeName": "Vector",
+              "nodeType": "VECTOR",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154323 / SIGNATURE: MATCH TICKET / Frame 1261154296 / Frame 1261154297 / Frame 1261154292 / Vector",
+              "usage": "vector",
+              "x": 3.0589842796325684,
+              "y": 2.4000000953674316,
+              "width": 9.882352828979492,
+              "height": 11.199999809265137
+            }
+          ]
+        },
+        {
+          "index": 5,
+          "name": "Cricket Match",
+          "folder": "screens/05_Cricket-Match",
+          "json": "screens/05_Cricket-Match/Cricket-Match.json",
+          "uses": [
+            {
+              "nodeId": "144:646",
+              "nodeName": "Vector",
+              "nodeType": "VECTOR",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154321 / SIGNATURE: MATCH TICKET / Frame 1261154296 / Frame 1261154297 / Frame 1261154292 / Vector",
+              "usage": "vector",
+              "x": 3.0589842796325684,
+              "y": 2.4000000953674316,
+              "width": 9.882352828979492,
+              "height": 11.199999809265137
+            },
+            {
+              "nodeId": "144:669",
+              "nodeName": "Vector",
+              "nodeType": "VECTOR",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154321 / SIGNATURE: MATCH TICKET / Frame 1261154296 / Frame 1261154297 / Frame 1261154292 / Vector",
+              "usage": "vector",
+              "x": 3.0589842796325684,
+              "y": 2.4000000953674316,
+              "width": 9.882352828979492,
+              "height": 11.199999809265137
+            },
+            {
+              "nodeId": "144:646",
+              "nodeName": "Vector",
+              "nodeType": "VECTOR",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154321 / SIGNATURE: MATCH TICKET / Frame 1261154296 / Frame 1261154297 / Frame 1261154292 / Vector",
+              "usage": "vector",
+              "x": 3.0589842796325684,
+              "y": 2.4000000953674316,
+              "width": 9.882352828979492,
+              "height": 11.199999809265137
+            },
+            {
+              "nodeId": "144:669",
+              "nodeName": "Vector",
+              "nodeType": "VECTOR",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154321 / SIGNATURE: MATCH TICKET / Frame 1261154296 / Frame 1261154297 / Frame 1261154292 / Vector",
+              "usage": "vector",
+              "x": 3.0589842796325684,
+              "y": 2.4000000953674316,
+              "width": 9.882352828979492,
+              "height": 11.199999809265137
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shared-6c6c36770813",
+      "hash": "6c6c36770813c3e3",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "mime": "image/png",
+      "file": "shared/assets/png/Vector-6c6c3677.png",
+      "byteLength": 741,
+      "screenCount": 3,
+      "usageCount": 12,
+      "screens": [
+        {
+          "index": 3,
+          "name": "Cricket Match",
+          "folder": "screens/03_Cricket-Match",
+          "json": "screens/03_Cricket-Match/Cricket-Match.json",
+          "uses": [
+            {
+              "nodeId": "138:857",
+              "nodeName": "Vector",
+              "nodeType": "VECTOR",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154324 / SIGNATURE: MATCH TICKET / Frame 1261154296 / Frame 1261154297 / Frame 1261154292 / Vector",
+              "usage": "vector",
+              "x": 3.0589842796325684,
+              "y": 2.4000000953674316,
+              "width": 9.882352828979492,
+              "height": 11.199999809265137
+            },
+            {
+              "nodeId": "144:464",
+              "nodeName": "Vector",
+              "nodeType": "VECTOR",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154324 / SIGNATURE: MATCH TICKET / Frame 1261154296 / Frame 1261154297 / Frame 1261154292 / Vector",
+              "usage": "vector",
+              "x": 3.0589842796325684,
+              "y": 2.4000000953674316,
+              "width": 9.882352828979492,
+              "height": 11.199999809265137
+            },
+            {
+              "nodeId": "138:857",
+              "nodeName": "Vector",
+              "nodeType": "VECTOR",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154324 / SIGNATURE: MATCH TICKET / Frame 1261154296 / Frame 1261154297 / Frame 1261154292 / Vector",
+              "usage": "vector",
+              "x": 3.0589842796325684,
+              "y": 2.4000000953674316,
+              "width": 9.882352828979492,
+              "height": 11.199999809265137
+            },
+            {
+              "nodeId": "144:464",
+              "nodeName": "Vector",
+              "nodeType": "VECTOR",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154324 / SIGNATURE: MATCH TICKET / Frame 1261154296 / Frame 1261154297 / Frame 1261154292 / Vector",
+              "usage": "vector",
+              "x": 3.0589842796325684,
+              "y": 2.4000000953674316,
+              "width": 9.882352828979492,
+              "height": 11.199999809265137
+            }
+          ]
+        },
+        {
+          "index": 4,
+          "name": "Cricket Match",
+          "folder": "screens/04_Cricket-Match",
+          "json": "screens/04_Cricket-Match/Cricket-Match.json",
+          "uses": [
+            {
+              "nodeId": "144:557",
+              "nodeName": "Vector",
+              "nodeType": "VECTOR",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154323 / SIGNATURE: MATCH TICKET / Frame 1261154296 / Frame 1261154297 / Frame 1261154292 / Vector",
+              "usage": "vector",
+              "x": 3.0589842796325684,
+              "y": 2.4000000953674316,
+              "width": 9.882352828979492,
+              "height": 11.199999809265137
+            },
+            {
+              "nodeId": "144:580",
+              "nodeName": "Vector",
+              "nodeType": "VECTOR",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154323 / SIGNATURE: MATCH TICKET / Frame 1261154296 / Frame 1261154297 / Frame 1261154292 / Vector",
+              "usage": "vector",
+              "x": 3.0589842796325684,
+              "y": 2.4000000953674316,
+              "width": 9.882352828979492,
+              "height": 11.199999809265137
+            },
+            {
+              "nodeId": "144:557",
+              "nodeName": "Vector",
+              "nodeType": "VECTOR",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154323 / SIGNATURE: MATCH TICKET / Frame 1261154296 / Frame 1261154297 / Frame 1261154292 / Vector",
+              "usage": "vector",
+              "x": 3.0589842796325684,
+              "y": 2.4000000953674316,
+              "width": 9.882352828979492,
+              "height": 11.199999809265137
+            },
+            {
+              "nodeId": "144:580",
+              "nodeName": "Vector",
+              "nodeType": "VECTOR",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154323 / SIGNATURE: MATCH TICKET / Frame 1261154296 / Frame 1261154297 / Frame 1261154292 / Vector",
+              "usage": "vector",
+              "x": 3.0589842796325684,
+              "y": 2.4000000953674316,
+              "width": 9.882352828979492,
+              "height": 11.199999809265137
+            }
+          ]
+        },
+        {
+          "index": 5,
+          "name": "Cricket Match",
+          "folder": "screens/05_Cricket-Match",
+          "json": "screens/05_Cricket-Match/Cricket-Match.json",
+          "uses": [
+            {
+              "nodeId": "144:646",
+              "nodeName": "Vector",
+              "nodeType": "VECTOR",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154321 / SIGNATURE: MATCH TICKET / Frame 1261154296 / Frame 1261154297 / Frame 1261154292 / Vector",
+              "usage": "vector",
+              "x": 3.0589842796325684,
+              "y": 2.4000000953674316,
+              "width": 9.882352828979492,
+              "height": 11.199999809265137
+            },
+            {
+              "nodeId": "144:669",
+              "nodeName": "Vector",
+              "nodeType": "VECTOR",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154321 / SIGNATURE: MATCH TICKET / Frame 1261154296 / Frame 1261154297 / Frame 1261154292 / Vector",
+              "usage": "vector",
+              "x": 3.0589842796325684,
+              "y": 2.4000000953674316,
+              "width": 9.882352828979492,
+              "height": 11.199999809265137
+            },
+            {
+              "nodeId": "144:646",
+              "nodeName": "Vector",
+              "nodeType": "VECTOR",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154321 / SIGNATURE: MATCH TICKET / Frame 1261154296 / Frame 1261154297 / Frame 1261154292 / Vector",
+              "usage": "vector",
+              "x": 3.0589842796325684,
+              "y": 2.4000000953674316,
+              "width": 9.882352828979492,
+              "height": 11.199999809265137
+            },
+            {
+              "nodeId": "144:669",
+              "nodeName": "Vector",
+              "nodeType": "VECTOR",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154321 / SIGNATURE: MATCH TICKET / Frame 1261154296 / Frame 1261154297 / Frame 1261154292 / Vector",
+              "usage": "vector",
+              "x": 3.0589842796325684,
+              "y": 2.4000000953674316,
+              "width": 9.882352828979492,
+              "height": 11.199999809265137
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shared-5b0fe3926c3c",
+      "hash": "5b0fe3926c3c3036",
+      "kind": "svg",
+      "semanticRole": "vector",
+      "mime": "image/svg+xml",
+      "file": "shared/assets/svg/Line-7-5b0fe392.svg",
+      "byteLength": 1534,
+      "screenCount": 3,
+      "usageCount": 24,
+      "screens": [
+        {
+          "index": 3,
+          "name": "Cricket Match",
+          "folder": "screens/03_Cricket-Match",
+          "json": "screens/03_Cricket-Match/Cricket-Match.json",
+          "uses": [
+            {
+              "nodeId": "138:859",
+              "nodeName": "Line 7",
+              "nodeType": "LINE",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154324 / SIGNATURE: MATCH TICKET / Line 7",
+              "usage": "vector",
+              "x": 14,
+              "y": 61.00002670288086,
+              "width": 322,
+              "height": 0
+            },
+            {
+              "nodeId": "144:466",
+              "nodeName": "Line 7",
+              "nodeType": "LINE",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154324 / SIGNATURE: MATCH TICKET / Line 7",
+              "usage": "vector",
+              "x": 14,
+              "y": 61.00002670288086,
+              "width": 322,
+              "height": 0
+            },
+            {
+              "nodeId": "144:448",
+              "nodeName": "Line 8",
+              "nodeType": "LINE",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154324 / SIGNATURE: MATCH TICKET / Line 8",
+              "usage": "vector",
+              "x": 14,
+              "y": 111.00006103515625,
+              "width": 322,
+              "height": 0
+            },
+            {
+              "nodeId": "144:476",
+              "nodeName": "Line 8",
+              "nodeType": "LINE",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154324 / SIGNATURE: MATCH TICKET / Line 8",
+              "usage": "vector",
+              "x": 14,
+              "y": 111.00006103515625,
+              "width": 322,
+              "height": 0
+            },
+            {
+              "nodeId": "138:859",
+              "nodeName": "Line 7",
+              "nodeType": "LINE",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154324 / SIGNATURE: MATCH TICKET / Line 7",
+              "usage": "vector",
+              "x": 14,
+              "y": 61.00002670288086,
+              "width": 322,
+              "height": 0
+            },
+            {
+              "nodeId": "144:466",
+              "nodeName": "Line 7",
+              "nodeType": "LINE",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154324 / SIGNATURE: MATCH TICKET / Line 7",
+              "usage": "vector",
+              "x": 14,
+              "y": 61.00002670288086,
+              "width": 322,
+              "height": 0
+            },
+            {
+              "nodeId": "144:448",
+              "nodeName": "Line 8",
+              "nodeType": "LINE",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154324 / SIGNATURE: MATCH TICKET / Line 8",
+              "usage": "vector",
+              "x": 14,
+              "y": 111.00006103515625,
+              "width": 322,
+              "height": 0
+            },
+            {
+              "nodeId": "144:476",
+              "nodeName": "Line 8",
+              "nodeType": "LINE",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154324 / SIGNATURE: MATCH TICKET / Line 8",
+              "usage": "vector",
+              "x": 14,
+              "y": 111.00006103515625,
+              "width": 322,
+              "height": 0
+            }
+          ]
+        },
+        {
+          "index": 4,
+          "name": "Cricket Match",
+          "folder": "screens/04_Cricket-Match",
+          "json": "screens/04_Cricket-Match/Cricket-Match.json",
+          "uses": [
+            {
+              "nodeId": "144:559",
+              "nodeName": "Line 7",
+              "nodeType": "LINE",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154323 / SIGNATURE: MATCH TICKET / Line 7",
+              "usage": "vector",
+              "x": 14,
+              "y": 61.00002670288086,
+              "width": 322,
+              "height": 0
+            },
+            {
+              "nodeId": "144:582",
+              "nodeName": "Line 7",
+              "nodeType": "LINE",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154323 / SIGNATURE: MATCH TICKET / Line 7",
+              "usage": "vector",
+              "x": 14,
+              "y": 61.00002670288086,
+              "width": 322,
+              "height": 0
+            },
+            {
+              "nodeId": "144:569",
+              "nodeName": "Line 8",
+              "nodeType": "LINE",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154323 / SIGNATURE: MATCH TICKET / Line 8",
+              "usage": "vector",
+              "x": 14,
+              "y": 111.00006103515625,
+              "width": 322,
+              "height": 0
+            },
+            {
+              "nodeId": "144:592",
+              "nodeName": "Line 8",
+              "nodeType": "LINE",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154323 / SIGNATURE: MATCH TICKET / Line 8",
+              "usage": "vector",
+              "x": 14,
+              "y": 111.00006103515625,
+              "width": 322,
+              "height": 0
+            },
+            {
+              "nodeId": "144:559",
+              "nodeName": "Line 7",
+              "nodeType": "LINE",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154323 / SIGNATURE: MATCH TICKET / Line 7",
+              "usage": "vector",
+              "x": 14,
+              "y": 61.00002670288086,
+              "width": 322,
+              "height": 0
+            },
+            {
+              "nodeId": "144:582",
+              "nodeName": "Line 7",
+              "nodeType": "LINE",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154323 / SIGNATURE: MATCH TICKET / Line 7",
+              "usage": "vector",
+              "x": 14,
+              "y": 61.00002670288086,
+              "width": 322,
+              "height": 0
+            },
+            {
+              "nodeId": "144:569",
+              "nodeName": "Line 8",
+              "nodeType": "LINE",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154323 / SIGNATURE: MATCH TICKET / Line 8",
+              "usage": "vector",
+              "x": 14,
+              "y": 111.00006103515625,
+              "width": 322,
+              "height": 0
+            },
+            {
+              "nodeId": "144:592",
+              "nodeName": "Line 8",
+              "nodeType": "LINE",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154323 / SIGNATURE: MATCH TICKET / Line 8",
+              "usage": "vector",
+              "x": 14,
+              "y": 111.00006103515625,
+              "width": 322,
+              "height": 0
+            }
+          ]
+        },
+        {
+          "index": 5,
+          "name": "Cricket Match",
+          "folder": "screens/05_Cricket-Match",
+          "json": "screens/05_Cricket-Match/Cricket-Match.json",
+          "uses": [
+            {
+              "nodeId": "144:648",
+              "nodeName": "Line 7",
+              "nodeType": "LINE",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154321 / SIGNATURE: MATCH TICKET / Line 7",
+              "usage": "vector",
+              "x": 14,
+              "y": 61.00002670288086,
+              "width": 322,
+              "height": 0
+            },
+            {
+              "nodeId": "144:671",
+              "nodeName": "Line 7",
+              "nodeType": "LINE",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154321 / SIGNATURE: MATCH TICKET / Line 7",
+              "usage": "vector",
+              "x": 14,
+              "y": 61.00002670288086,
+              "width": 322,
+              "height": 0
+            },
+            {
+              "nodeId": "144:658",
+              "nodeName": "Line 8",
+              "nodeType": "LINE",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154321 / SIGNATURE: MATCH TICKET / Line 8",
+              "usage": "vector",
+              "x": 14,
+              "y": 111.00006103515625,
+              "width": 322,
+              "height": 0
+            },
+            {
+              "nodeId": "144:681",
+              "nodeName": "Line 8",
+              "nodeType": "LINE",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154321 / SIGNATURE: MATCH TICKET / Line 8",
+              "usage": "vector",
+              "x": 14,
+              "y": 111.00006103515625,
+              "width": 322,
+              "height": 0
+            },
+            {
+              "nodeId": "144:648",
+              "nodeName": "Line 7",
+              "nodeType": "LINE",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154321 / SIGNATURE: MATCH TICKET / Line 7",
+              "usage": "vector",
+              "x": 14,
+              "y": 61.00002670288086,
+              "width": 322,
+              "height": 0
+            },
+            {
+              "nodeId": "144:671",
+              "nodeName": "Line 7",
+              "nodeType": "LINE",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154321 / SIGNATURE: MATCH TICKET / Line 7",
+              "usage": "vector",
+              "x": 14,
+              "y": 61.00002670288086,
+              "width": 322,
+              "height": 0
+            },
+            {
+              "nodeId": "144:658",
+              "nodeName": "Line 8",
+              "nodeType": "LINE",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154321 / SIGNATURE: MATCH TICKET / Line 8",
+              "usage": "vector",
+              "x": 14,
+              "y": 111.00006103515625,
+              "width": 322,
+              "height": 0
+            },
+            {
+              "nodeId": "144:681",
+              "nodeName": "Line 8",
+              "nodeType": "LINE",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154321 / SIGNATURE: MATCH TICKET / Line 8",
+              "usage": "vector",
+              "x": 14,
+              "y": 111.00006103515625,
+              "width": 322,
+              "height": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shared-9585d97063fd",
+      "hash": "9585d97063fd9d34",
+      "kind": "svg",
+      "semanticRole": "vector",
+      "mime": "image/png",
+      "file": "shared/assets/png/Line-7-9585d970.png",
+      "byteLength": 535,
+      "screenCount": 3,
+      "usageCount": 24,
+      "screens": [
+        {
+          "index": 3,
+          "name": "Cricket Match",
+          "folder": "screens/03_Cricket-Match",
+          "json": "screens/03_Cricket-Match/Cricket-Match.json",
+          "uses": [
+            {
+              "nodeId": "138:859",
+              "nodeName": "Line 7",
+              "nodeType": "LINE",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154324 / SIGNATURE: MATCH TICKET / Line 7",
+              "usage": "vector",
+              "x": 14,
+              "y": 61.00002670288086,
+              "width": 322,
+              "height": 0
+            },
+            {
+              "nodeId": "144:466",
+              "nodeName": "Line 7",
+              "nodeType": "LINE",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154324 / SIGNATURE: MATCH TICKET / Line 7",
+              "usage": "vector",
+              "x": 14,
+              "y": 61.00002670288086,
+              "width": 322,
+              "height": 0
+            },
+            {
+              "nodeId": "144:448",
+              "nodeName": "Line 8",
+              "nodeType": "LINE",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154324 / SIGNATURE: MATCH TICKET / Line 8",
+              "usage": "vector",
+              "x": 14,
+              "y": 111.00006103515625,
+              "width": 322,
+              "height": 0
+            },
+            {
+              "nodeId": "144:476",
+              "nodeName": "Line 8",
+              "nodeType": "LINE",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154324 / SIGNATURE: MATCH TICKET / Line 8",
+              "usage": "vector",
+              "x": 14,
+              "y": 111.00006103515625,
+              "width": 322,
+              "height": 0
+            },
+            {
+              "nodeId": "138:859",
+              "nodeName": "Line 7",
+              "nodeType": "LINE",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154324 / SIGNATURE: MATCH TICKET / Line 7",
+              "usage": "vector",
+              "x": 14,
+              "y": 61.00002670288086,
+              "width": 322,
+              "height": 0
+            },
+            {
+              "nodeId": "144:466",
+              "nodeName": "Line 7",
+              "nodeType": "LINE",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154324 / SIGNATURE: MATCH TICKET / Line 7",
+              "usage": "vector",
+              "x": 14,
+              "y": 61.00002670288086,
+              "width": 322,
+              "height": 0
+            },
+            {
+              "nodeId": "144:448",
+              "nodeName": "Line 8",
+              "nodeType": "LINE",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154324 / SIGNATURE: MATCH TICKET / Line 8",
+              "usage": "vector",
+              "x": 14,
+              "y": 111.00006103515625,
+              "width": 322,
+              "height": 0
+            },
+            {
+              "nodeId": "144:476",
+              "nodeName": "Line 8",
+              "nodeType": "LINE",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154324 / SIGNATURE: MATCH TICKET / Line 8",
+              "usage": "vector",
+              "x": 14,
+              "y": 111.00006103515625,
+              "width": 322,
+              "height": 0
+            }
+          ]
+        },
+        {
+          "index": 4,
+          "name": "Cricket Match",
+          "folder": "screens/04_Cricket-Match",
+          "json": "screens/04_Cricket-Match/Cricket-Match.json",
+          "uses": [
+            {
+              "nodeId": "144:559",
+              "nodeName": "Line 7",
+              "nodeType": "LINE",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154323 / SIGNATURE: MATCH TICKET / Line 7",
+              "usage": "vector",
+              "x": 14,
+              "y": 61.00002670288086,
+              "width": 322,
+              "height": 0
+            },
+            {
+              "nodeId": "144:582",
+              "nodeName": "Line 7",
+              "nodeType": "LINE",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154323 / SIGNATURE: MATCH TICKET / Line 7",
+              "usage": "vector",
+              "x": 14,
+              "y": 61.00002670288086,
+              "width": 322,
+              "height": 0
+            },
+            {
+              "nodeId": "144:569",
+              "nodeName": "Line 8",
+              "nodeType": "LINE",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154323 / SIGNATURE: MATCH TICKET / Line 8",
+              "usage": "vector",
+              "x": 14,
+              "y": 111.00006103515625,
+              "width": 322,
+              "height": 0
+            },
+            {
+              "nodeId": "144:592",
+              "nodeName": "Line 8",
+              "nodeType": "LINE",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154323 / SIGNATURE: MATCH TICKET / Line 8",
+              "usage": "vector",
+              "x": 14,
+              "y": 111.00006103515625,
+              "width": 322,
+              "height": 0
+            },
+            {
+              "nodeId": "144:559",
+              "nodeName": "Line 7",
+              "nodeType": "LINE",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154323 / SIGNATURE: MATCH TICKET / Line 7",
+              "usage": "vector",
+              "x": 14,
+              "y": 61.00002670288086,
+              "width": 322,
+              "height": 0
+            },
+            {
+              "nodeId": "144:582",
+              "nodeName": "Line 7",
+              "nodeType": "LINE",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154323 / SIGNATURE: MATCH TICKET / Line 7",
+              "usage": "vector",
+              "x": 14,
+              "y": 61.00002670288086,
+              "width": 322,
+              "height": 0
+            },
+            {
+              "nodeId": "144:569",
+              "nodeName": "Line 8",
+              "nodeType": "LINE",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154323 / SIGNATURE: MATCH TICKET / Line 8",
+              "usage": "vector",
+              "x": 14,
+              "y": 111.00006103515625,
+              "width": 322,
+              "height": 0
+            },
+            {
+              "nodeId": "144:592",
+              "nodeName": "Line 8",
+              "nodeType": "LINE",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154323 / SIGNATURE: MATCH TICKET / Line 8",
+              "usage": "vector",
+              "x": 14,
+              "y": 111.00006103515625,
+              "width": 322,
+              "height": 0
+            }
+          ]
+        },
+        {
+          "index": 5,
+          "name": "Cricket Match",
+          "folder": "screens/05_Cricket-Match",
+          "json": "screens/05_Cricket-Match/Cricket-Match.json",
+          "uses": [
+            {
+              "nodeId": "144:648",
+              "nodeName": "Line 7",
+              "nodeType": "LINE",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154321 / SIGNATURE: MATCH TICKET / Line 7",
+              "usage": "vector",
+              "x": 14,
+              "y": 61.00002670288086,
+              "width": 322,
+              "height": 0
+            },
+            {
+              "nodeId": "144:671",
+              "nodeName": "Line 7",
+              "nodeType": "LINE",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154321 / SIGNATURE: MATCH TICKET / Line 7",
+              "usage": "vector",
+              "x": 14,
+              "y": 61.00002670288086,
+              "width": 322,
+              "height": 0
+            },
+            {
+              "nodeId": "144:658",
+              "nodeName": "Line 8",
+              "nodeType": "LINE",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154321 / SIGNATURE: MATCH TICKET / Line 8",
+              "usage": "vector",
+              "x": 14,
+              "y": 111.00006103515625,
+              "width": 322,
+              "height": 0
+            },
+            {
+              "nodeId": "144:681",
+              "nodeName": "Line 8",
+              "nodeType": "LINE",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154321 / SIGNATURE: MATCH TICKET / Line 8",
+              "usage": "vector",
+              "x": 14,
+              "y": 111.00006103515625,
+              "width": 322,
+              "height": 0
+            },
+            {
+              "nodeId": "144:648",
+              "nodeName": "Line 7",
+              "nodeType": "LINE",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154321 / SIGNATURE: MATCH TICKET / Line 7",
+              "usage": "vector",
+              "x": 14,
+              "y": 61.00002670288086,
+              "width": 322,
+              "height": 0
+            },
+            {
+              "nodeId": "144:671",
+              "nodeName": "Line 7",
+              "nodeType": "LINE",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154321 / SIGNATURE: MATCH TICKET / Line 7",
+              "usage": "vector",
+              "x": 14,
+              "y": 61.00002670288086,
+              "width": 322,
+              "height": 0
+            },
+            {
+              "nodeId": "144:658",
+              "nodeName": "Line 8",
+              "nodeType": "LINE",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154321 / SIGNATURE: MATCH TICKET / Line 8",
+              "usage": "vector",
+              "x": 14,
+              "y": 111.00006103515625,
+              "width": 322,
+              "height": 0
+            },
+            {
+              "nodeId": "144:681",
+              "nodeName": "Line 8",
+              "nodeType": "LINE",
+              "layerPath": "Cricket Match / Frame 1261154190 / Frame 1261154321 / SIGNATURE: MATCH TICKET / Line 8",
+              "usage": "vector",
+              "x": 14,
+              "y": 111.00006103515625,
+              "width": 322,
+              "height": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shared-0391af7b402b",
+      "hash": "0391af7b402b2907",
+      "kind": "svg",
+      "semanticRole": "vector",
+      "mime": "image/png",
+      "file": "shared/assets/png/Ellipse-17-0391af7b.png",
+      "byteLength": 754260,
+      "screenCount": 2,
+      "usageCount": 2,
+      "screens": [
+        {
+          "index": 4,
+          "name": "Cricket Match",
+          "folder": "screens/04_Cricket-Match",
+          "json": "screens/04_Cricket-Match/Cricket-Match.json",
+          "uses": [
+            {
+              "nodeId": "144:508",
+              "nodeName": "Ellipse 17",
+              "nodeType": "ELLIPSE",
+              "layerPath": "Cricket Match / Ellipse 17",
+              "usage": "vector",
+              "x": 177,
+              "y": 264,
+              "width": 376.8915100097656,
+              "height": 280
+            }
+          ]
+        },
+        {
+          "index": 5,
+          "name": "Cricket Match",
+          "folder": "screens/05_Cricket-Match",
+          "json": "screens/05_Cricket-Match/Cricket-Match.json",
+          "uses": [
+            {
+              "nodeId": "144:597",
+              "nodeName": "Ellipse 17",
+              "nodeType": "ELLIPSE",
+              "layerPath": "Cricket Match / Ellipse 17",
+              "usage": "vector",
+              "x": 177,
+              "y": 264,
+              "width": 376.8915100097656,
+              "height": 280
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shared-699c59dc9fa7",
+      "hash": "699c59dc9fa75a78",
+      "kind": "svg",
+      "semanticRole": "vector",
+      "mime": "image/png",
+      "file": "shared/assets/png/Ellipse-18-699c59dc.png",
+      "byteLength": 343337,
+      "screenCount": 2,
+      "usageCount": 2,
+      "screens": [
+        {
+          "index": 4,
+          "name": "Cricket Match",
+          "folder": "screens/04_Cricket-Match",
+          "json": "screens/04_Cricket-Match/Cricket-Match.json",
+          "uses": [
+            {
+              "nodeId": "144:509",
+              "nodeName": "Ellipse 18",
+              "nodeType": "ELLIPSE",
+              "layerPath": "Cricket Match / Ellipse 18",
+              "usage": "vector",
+              "x": -170,
+              "y": 727,
+              "width": 376.8915100097656,
+              "height": 280
+            }
+          ]
+        },
+        {
+          "index": 5,
+          "name": "Cricket Match",
+          "folder": "screens/05_Cricket-Match",
+          "json": "screens/05_Cricket-Match/Cricket-Match.json",
+          "uses": [
+            {
+              "nodeId": "144:598",
+              "nodeName": "Ellipse 18",
+              "nodeType": "ELLIPSE",
+              "layerPath": "Cricket Match / Ellipse 18",
+              "usage": "vector",
+              "x": -170,
+              "y": 727,
+              "width": 376.8915100097656,
+              "height": 280
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

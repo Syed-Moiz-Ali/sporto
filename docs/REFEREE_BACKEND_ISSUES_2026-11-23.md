@@ -1,5 +1,7 @@
 # Referee Backend Issues — 23 Nov 2026
 
+> **Update 25 Nov 2026:** schedule publication metadata, venue coordinate persistence and the dedicated referee location endpoint are implemented in backend PR #111. See `docs/BACKEND_PR111_RECHECK_2026-11-25.md` for live verification. This file remains as the original issue report.
+
 **Context:** tournament `434` / `M9CRNGVEDB`, matches `4210`–`4212`, referee `12447`  
 **Scope:** backend/API issues only. UX/UI issues are excluded and will be handled separately.
 

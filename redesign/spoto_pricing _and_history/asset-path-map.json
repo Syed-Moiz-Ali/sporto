@@ -1,0 +1,670 @@
+{
+  "schema": "dev-export-asset-path-map",
+  "schemaVersion": "1.1.0",
+  "generatedAt": "2026-11-25T05:44:00.057Z",
+  "note": "Original Figma layer/image names mapped to sanitized, content-addressed export filenames.",
+  "assets": [
+    {
+      "assetId": "1cee555dd58c",
+      "kind": "svg",
+      "originalName": "Line 5 (Stroke)",
+      "originalFileName": "Line 5 (Stroke).svg",
+      "fileName": "assets/svg/line_5_stroke-1cee555dd58c.svg",
+      "pngFileName": "assets/png/line_5_stroke-1cee555dd58c@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I4005_32359_1661_922"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "My Pricing"
+        }
+      ]
+    },
+    {
+      "assetId": "c80b5a62dc09",
+      "kind": "svg",
+      "originalName": "Ellipse 816",
+      "originalFileName": "Ellipse 816.svg",
+      "fileName": "assets/svg/ellipse_816-c80b5a62dc09.svg",
+      "pngFileName": "assets/png/ellipse_816-c80b5a62dc09@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I4005_32359_1661_923"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "My Pricing"
+        }
+      ]
+    },
+    {
+      "assetId": "90c2af6d9533",
+      "kind": "svg",
+      "originalName": "Line 5 (Stroke)",
+      "originalFileName": "Line 5 (Stroke).svg",
+      "fileName": "assets/svg/line_5_stroke-90c2af6d9533.svg",
+      "pngFileName": "assets/png/line_5_stroke-90c2af6d9533@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I4005_32688_1661_919"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "My Pricing"
+        }
+      ]
+    },
+    {
+      "assetId": "c52944262a14",
+      "kind": "svg",
+      "originalName": "Ellipse 816",
+      "originalFileName": "Ellipse 816.svg",
+      "fileName": "assets/svg/ellipse_816-c52944262a14.svg",
+      "pngFileName": "assets/png/ellipse_816-c52944262a14@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I4005_32688_1661_920"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "My Pricing"
+        }
+      ]
+    },
+    {
+      "assetId": "d6348e4b6f1b",
+      "kind": "svg",
+      "originalName": "Line 5 (Stroke)",
+      "originalFileName": "Line 5 (Stroke).svg",
+      "fileName": "assets/svg/line_5_stroke-d6348e4b6f1b.svg",
+      "pngFileName": "assets/png/line_5_stroke-d6348e4b6f1b@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I4005_32715_1661_922"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "My Pricing"
+        }
+      ]
+    },
+    {
+      "assetId": "565061e8247f",
+      "kind": "svg",
+      "originalName": "Ellipse 816",
+      "originalFileName": "Ellipse 816.svg",
+      "fileName": "assets/svg/ellipse_816-565061e8247f.svg",
+      "pngFileName": "assets/png/ellipse_816-565061e8247f@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I4005_32715_1661_923"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "My Pricing"
+        }
+      ]
+    },
+    {
+      "assetId": "d5a940088f84",
+      "kind": "svg",
+      "originalName": "Line 5 (Stroke)",
+      "originalFileName": "Line 5 (Stroke).svg",
+      "fileName": "assets/svg/line_5_stroke-d5a940088f84.svg",
+      "pngFileName": "assets/png/line_5_stroke-d5a940088f84@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I4005_32697_1661_922"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "My Pricing"
+        }
+      ]
+    },
+    {
+      "assetId": "792aa7ed8e4a",
+      "kind": "svg",
+      "originalName": "Ellipse 816",
+      "originalFileName": "Ellipse 816.svg",
+      "fileName": "assets/svg/ellipse_816-792aa7ed8e4a.svg",
+      "pngFileName": "assets/png/ellipse_816-792aa7ed8e4a@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I4005_32697_1661_923"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "My Pricing"
+        }
+      ]
+    },
+    {
+      "assetId": "6c06d3192915",
+      "kind": "svg",
+      "originalName": "Line 5 (Stroke)",
+      "originalFileName": "Line 5 (Stroke).svg",
+      "fileName": "assets/svg/line_5_stroke-6c06d3192915.svg",
+      "pngFileName": "assets/png/line_5_stroke-6c06d3192915@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I4005_32706_1661_922"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "My Pricing"
+        }
+      ]
+    },
+    {
+      "assetId": "596371b235ff",
+      "kind": "svg",
+      "originalName": "Ellipse 816",
+      "originalFileName": "Ellipse 816.svg",
+      "fileName": "assets/svg/ellipse_816-596371b235ff.svg",
+      "pngFileName": "assets/png/ellipse_816-596371b235ff@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I4005_32706_1661_923"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "My Pricing"
+        }
+      ]
+    },
+    {
+      "assetId": "677d099536f1",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-677d099536f1.svg",
+      "pngFileName": "assets/png/vector-677d099536f1@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-4005_32429"
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "My Pricing"
+        }
+      ]
+    },
+    {
+      "assetId": "b349b0bc16c2",
+      "kind": "svg",
+      "originalName": "Line 5 (Stroke)",
+      "originalFileName": "Line 5 (Stroke).svg",
+      "fileName": "assets/svg/line_5_stroke-b349b0bc16c2.svg",
+      "pngFileName": "assets/png/line_5_stroke-b349b0bc16c2@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I4005_32751_1661_922"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "My Pricing"
+        }
+      ]
+    },
+    {
+      "assetId": "40c4cc673621",
+      "kind": "svg",
+      "originalName": "Ellipse 816",
+      "originalFileName": "Ellipse 816.svg",
+      "fileName": "assets/svg/ellipse_816-40c4cc673621.svg",
+      "pngFileName": "assets/png/ellipse_816-40c4cc673621@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I4005_32751_1661_923"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "My Pricing"
+        }
+      ]
+    },
+    {
+      "assetId": "e728d824dce3",
+      "kind": "svg",
+      "originalName": "Line 5 (Stroke)",
+      "originalFileName": "Line 5 (Stroke).svg",
+      "fileName": "assets/svg/line_5_stroke-e728d824dce3.svg",
+      "pngFileName": "assets/png/line_5_stroke-e728d824dce3@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I4005_32756_1661_919"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "My Pricing"
+        }
+      ]
+    },
+    {
+      "assetId": "578b81f3a217",
+      "kind": "svg",
+      "originalName": "Ellipse 816",
+      "originalFileName": "Ellipse 816.svg",
+      "fileName": "assets/svg/ellipse_816-578b81f3a217.svg",
+      "pngFileName": "assets/png/ellipse_816-578b81f3a217@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I4005_32756_1661_920"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "My Pricing"
+        }
+      ]
+    },
+    {
+      "assetId": "70a717851393",
+      "kind": "svg",
+      "originalName": "Line 5 (Stroke)",
+      "originalFileName": "Line 5 (Stroke).svg",
+      "fileName": "assets/svg/line_5_stroke-70a717851393.svg",
+      "pngFileName": "assets/png/line_5_stroke-70a717851393@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I4005_32761_1661_922"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "My Pricing"
+        }
+      ]
+    },
+    {
+      "assetId": "62b6d2a4b434",
+      "kind": "svg",
+      "originalName": "Ellipse 816",
+      "originalFileName": "Ellipse 816.svg",
+      "fileName": "assets/svg/ellipse_816-62b6d2a4b434.svg",
+      "pngFileName": "assets/png/ellipse_816-62b6d2a4b434@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I4005_32761_1661_923"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "My Pricing"
+        }
+      ]
+    },
+    {
+      "assetId": "cecf5629e58d",
+      "kind": "svg",
+      "originalName": "Line 5 (Stroke)",
+      "originalFileName": "Line 5 (Stroke).svg",
+      "fileName": "assets/svg/line_5_stroke-cecf5629e58d.svg",
+      "pngFileName": "assets/png/line_5_stroke-cecf5629e58d@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I4005_32766_1661_922"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "My Pricing"
+        }
+      ]
+    },
+    {
+      "assetId": "b6b7b0d8670a",
+      "kind": "svg",
+      "originalName": "Ellipse 816",
+      "originalFileName": "Ellipse 816.svg",
+      "fileName": "assets/svg/ellipse_816-b6b7b0d8670a.svg",
+      "pngFileName": "assets/png/ellipse_816-b6b7b0d8670a@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I4005_32766_1661_923"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "My Pricing"
+        }
+      ]
+    },
+    {
+      "assetId": "ed3d3d746608",
+      "kind": "svg",
+      "originalName": "Line 5 (Stroke)",
+      "originalFileName": "Line 5 (Stroke).svg",
+      "fileName": "assets/svg/line_5_stroke-ed3d3d746608.svg",
+      "pngFileName": "assets/png/line_5_stroke-ed3d3d746608@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I4005_32771_1661_922"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "My Pricing"
+        }
+      ]
+    },
+    {
+      "assetId": "b4f5c5216d81",
+      "kind": "svg",
+      "originalName": "Ellipse 816",
+      "originalFileName": "Ellipse 816.svg",
+      "fileName": "assets/svg/ellipse_816-b4f5c5216d81.svg",
+      "pngFileName": "assets/png/ellipse_816-b4f5c5216d81@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-I4005_32771_1661_923"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "My Pricing"
+        }
+      ]
+    },
+    {
+      "assetId": "30a32463bdef",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-30a32463bdef.svg",
+      "pngFileName": "assets/png/vector-30a32463bdef@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-4005_32799"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "My Pricing"
+        }
+      ]
+    },
+    {
+      "assetId": "496ca9fb8164",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-496ca9fb8164.svg",
+      "pngFileName": "assets/png/vector-496ca9fb8164@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-4005_32820"
+      ],
+      "screens": [
+        {
+          "index": 2,
+          "name": "My Pricing"
+        }
+      ]
+    },
+    {
+      "assetId": "a4c6fbd45a3a",
+      "kind": "svg",
+      "originalName": "Ellipse 17",
+      "originalFileName": "Ellipse 17.svg",
+      "fileName": "assets/svg/ellipse_17-a4c6fbd45a3a.svg",
+      "pngFileName": "assets/png/ellipse_17-a4c6fbd45a3a@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-138_818"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "4c55e2219c2c",
+      "kind": "svg",
+      "originalName": "Ellipse 18",
+      "originalFileName": "Ellipse 18.svg",
+      "fileName": "assets/svg/ellipse_18-4c55e2219c2c.svg",
+      "pngFileName": "assets/png/ellipse_18-4c55e2219c2c@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-138_819"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "f95503fefa13",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-f95503fefa13.svg",
+      "pngFileName": "assets/png/vector-f95503fefa13@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-138_848"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "a502e71972c1",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-a502e71972c1.svg",
+      "pngFileName": "assets/png/vector-a502e71972c1@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-138_857",
+        "svg-144_464",
+        "svg-144_557",
+        "svg-144_580",
+        "svg-144_646",
+        "svg-144_669"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Cricket Match"
+        },
+        {
+          "index": 4,
+          "name": "Cricket Match"
+        },
+        {
+          "index": 5,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "5b0fe3926c3c",
+      "kind": "svg",
+      "originalName": "Line 7",
+      "originalFileName": "Line 7.svg",
+      "fileName": "assets/svg/line_7-5b0fe3926c3c.svg",
+      "pngFileName": "assets/png/line_7-5b0fe3926c3c@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-138_859",
+        "svg-144_448",
+        "svg-144_466",
+        "svg-144_476",
+        "svg-144_559",
+        "svg-144_569",
+        "svg-144_582",
+        "svg-144_592",
+        "svg-144_648",
+        "svg-144_658",
+        "svg-144_671",
+        "svg-144_681"
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Cricket Match"
+        },
+        {
+          "index": 4,
+          "name": "Cricket Match"
+        },
+        {
+          "index": 5,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "c5febc40c97c",
+      "kind": "svg",
+      "originalName": "Ellipse 17",
+      "originalFileName": "Ellipse 17.svg",
+      "fileName": "assets/svg/ellipse_17-c5febc40c97c.svg",
+      "pngFileName": "assets/png/ellipse_17-c5febc40c97c@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-144_508"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "f709cc1b1936",
+      "kind": "svg",
+      "originalName": "Ellipse 18",
+      "originalFileName": "Ellipse 18.svg",
+      "fileName": "assets/svg/ellipse_18-f709cc1b1936.svg",
+      "pngFileName": "assets/png/ellipse_18-f709cc1b1936@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-144_509"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "6d575e21573b",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-6d575e21573b.svg",
+      "pngFileName": "assets/png/vector-6d575e21573b@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-144_538"
+      ],
+      "screens": [
+        {
+          "index": 4,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "c787031ddade",
+      "kind": "svg",
+      "originalName": "Ellipse 17",
+      "originalFileName": "Ellipse 17.svg",
+      "fileName": "assets/svg/ellipse_17-c787031ddade.svg",
+      "pngFileName": "assets/png/ellipse_17-c787031ddade@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-144_597"
+      ],
+      "screens": [
+        {
+          "index": 5,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "d6e243933de4",
+      "kind": "svg",
+      "originalName": "Ellipse 18",
+      "originalFileName": "Ellipse 18.svg",
+      "fileName": "assets/svg/ellipse_18-d6e243933de4.svg",
+      "pngFileName": "assets/png/ellipse_18-d6e243933de4@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-144_598"
+      ],
+      "screens": [
+        {
+          "index": 5,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "8909be58bf90",
+      "kind": "svg",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-8909be58bf90.svg",
+      "pngFileName": "assets/png/vector-8909be58bf90@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-144_627"
+      ],
+      "screens": [
+        {
+          "index": 5,
+          "name": "Cricket Match"
+        }
+      ]
+    },
+    {
+      "assetId": "25690300ed39",
+      "kind": "svg",
+      "originalName": "Icon",
+      "originalFileName": "Icon.svg",
+      "fileName": "assets/svg/icon-25690300ed39.svg",
+      "pngFileName": "assets/png/icon-25690300ed39@2x.png",
+      "pngScale": 2,
+      "refs": [
+        "svg-144_762"
+      ],
+      "screens": [
+        {
+          "index": 5,
+          "name": "Cricket Match"
+        }
+      ]
+    }
+  ]
+}

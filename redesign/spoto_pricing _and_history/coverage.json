@@ -1,0 +1,302 @@
+{
+  "schema": "dev-export-coverage",
+  "schemaVersion": "1.1.0",
+  "generatedAt": "2026-11-25T05:44:00.057Z",
+  "summary": {
+    "CONSTRAINT_LAYOUT": 23,
+    "MULTIPLE_FILLS": 11,
+    "HIDDEN_LAYER_INCLUDED": 3,
+    "MISSING_FONT": 1,
+    "HEURISTIC_COMPONENTS": 1
+  },
+  "globalWarnings": [
+    {
+      "code": "MIXED_FONT_WEIGHT",
+      "family": "Quicksand",
+      "message": "Font Quicksand has mixed weights across text runs. Resolve weights from styledSegments when rendering."
+    },
+    {
+      "code": "HEURISTIC_COMPONENTS",
+      "message": "22 repeated structures were detected heuristically. Review their props and variants in central-ui.json."
+    }
+  ],
+  "screens": [
+    {
+      "index": 1,
+      "screen": "My Pricing",
+      "name": "My Pricing",
+      "folder": "screens/01_My-Pricing",
+      "json": "screens/01_My-Pricing/My-Pricing.json",
+      "warningCount": 11,
+      "truncated": false,
+      "warnings": [
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "I4005:32359;1661:922",
+          "path": "My Pricing / Frame 1261154190 / Frame 1261154192 / Frame 1261154425 / Toggle / Line 5 (Stroke)",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "I4005:32359;1661:923",
+          "path": "My Pricing / Frame 1261154190 / Frame 1261154192 / Frame 1261154425 / Toggle / Ellipse 816",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "I4005:32688;1661:919",
+          "path": "My Pricing / Frame 1261154190 / Frame 1261154192 / Frame 1261154438 / Toggle / Line 5 (Stroke)",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "I4005:32688;1661:920",
+          "path": "My Pricing / Frame 1261154190 / Frame 1261154192 / Frame 1261154438 / Toggle / Ellipse 816",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "I4005:32715;1661:922",
+          "path": "My Pricing / Frame 1261154190 / Frame 1261154192 / Frame 1261154441 / Toggle / Line 5 (Stroke)",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "I4005:32715;1661:923",
+          "path": "My Pricing / Frame 1261154190 / Frame 1261154192 / Frame 1261154441 / Toggle / Ellipse 816",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "I4005:32697;1661:922",
+          "path": "My Pricing / Frame 1261154190 / Frame 1261154192 / Frame 1261154439 / Toggle / Line 5 (Stroke)",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "I4005:32697;1661:923",
+          "path": "My Pricing / Frame 1261154190 / Frame 1261154192 / Frame 1261154439 / Toggle / Ellipse 816",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "I4005:32706;1661:922",
+          "path": "My Pricing / Frame 1261154190 / Frame 1261154192 / Frame 1261154440 / Toggle / Line 5 (Stroke)",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "I4005:32706;1661:923",
+          "path": "My Pricing / Frame 1261154190 / Frame 1261154192 / Frame 1261154440 / Toggle / Ellipse 816",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "MULTIPLE_FILLS",
+          "nodeId": "4005:32402",
+          "path": "My Pricing / Frame 1261154402",
+          "message": "Multiple fills are stacked; verify background layering."
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "screen": "My Pricing",
+      "name": "My Pricing",
+      "folder": "screens/02_My-Pricing",
+      "json": "screens/02_My-Pricing/My-Pricing.json",
+      "warningCount": 11,
+      "truncated": false,
+      "warnings": [
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "I4005:32751;1661:922",
+          "path": "My Pricing / Frame 1261154190 / Frame 1261154192 / Frame 1261154425 / Toggle / Line 5 (Stroke)",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "I4005:32751;1661:923",
+          "path": "My Pricing / Frame 1261154190 / Frame 1261154192 / Frame 1261154425 / Toggle / Ellipse 816",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "I4005:32756;1661:919",
+          "path": "My Pricing / Frame 1261154190 / Frame 1261154192 / Frame 1261154438 / Toggle / Line 5 (Stroke)",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "I4005:32756;1661:920",
+          "path": "My Pricing / Frame 1261154190 / Frame 1261154192 / Frame 1261154438 / Toggle / Ellipse 816",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "I4005:32761;1661:922",
+          "path": "My Pricing / Frame 1261154190 / Frame 1261154192 / Frame 1261154441 / Toggle / Line 5 (Stroke)",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "I4005:32761;1661:923",
+          "path": "My Pricing / Frame 1261154190 / Frame 1261154192 / Frame 1261154441 / Toggle / Ellipse 816",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "I4005:32766;1661:922",
+          "path": "My Pricing / Frame 1261154190 / Frame 1261154192 / Frame 1261154439 / Toggle / Line 5 (Stroke)",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "I4005:32766;1661:923",
+          "path": "My Pricing / Frame 1261154190 / Frame 1261154192 / Frame 1261154439 / Toggle / Ellipse 816",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "I4005:32771;1661:922",
+          "path": "My Pricing / Frame 1261154190 / Frame 1261154192 / Frame 1261154440 / Toggle / Line 5 (Stroke)",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "I4005:32771;1661:923",
+          "path": "My Pricing / Frame 1261154190 / Frame 1261154192 / Frame 1261154440 / Toggle / Ellipse 816",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "MULTIPLE_FILLS",
+          "nodeId": "4005:32772",
+          "path": "My Pricing / Frame 1261154402",
+          "message": "Multiple fills are stacked; verify background layering."
+        }
+      ]
+    },
+    {
+      "index": 3,
+      "screen": "Cricket Match",
+      "name": "Cricket Match",
+      "folder": "screens/03_Cricket-Match",
+      "json": "screens/03_Cricket-Match/Cricket-Match.json",
+      "warningCount": 5,
+      "truncated": false,
+      "warnings": [
+        {
+          "code": "HIDDEN_LAYER_INCLUDED",
+          "nodeId": "138:821",
+          "path": "Cricket Match / In The Spotlight",
+          "message": "Hidden layer is included. Keep it hidden in the frontend unless it is needed."
+        },
+        {
+          "code": "MULTIPLE_FILLS",
+          "nodeId": "144:480",
+          "path": "Cricket Match / Frame 1261154190 / Frame 1171275276",
+          "message": "Multiple fills are stacked; verify background layering."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "144:487",
+          "path": "Cricket Match / Frame 1261154190 / Frame 1171275276 / Frame 1171275266 / Group 1000003068 / Upto 3.5% Cashback",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "MULTIPLE_FILLS",
+          "nodeId": "138:852",
+          "path": "Cricket Match / Frame 1261154190 / Frame 1261154324 / SIGNATURE: MATCH TICKET",
+          "message": "Multiple fills are stacked; verify background layering."
+        },
+        {
+          "code": "MULTIPLE_FILLS",
+          "nodeId": "144:457",
+          "path": "Cricket Match / Frame 1261154190 / Frame 1261154324 / SIGNATURE: MATCH TICKET",
+          "message": "Multiple fills are stacked; verify background layering."
+        }
+      ]
+    },
+    {
+      "index": 4,
+      "screen": "Cricket Match",
+      "name": "Cricket Match",
+      "folder": "screens/04_Cricket-Match",
+      "json": "screens/04_Cricket-Match/Cricket-Match.json",
+      "warningCount": 5,
+      "truncated": false,
+      "warnings": [
+        {
+          "code": "HIDDEN_LAYER_INCLUDED",
+          "nodeId": "144:511",
+          "path": "Cricket Match / In The Spotlight",
+          "message": "Hidden layer is included. Keep it hidden in the frontend unless it is needed."
+        },
+        {
+          "code": "MULTIPLE_FILLS",
+          "nodeId": "144:542",
+          "path": "Cricket Match / Frame 1261154190 / Frame 1171275276",
+          "message": "Multiple fills are stacked; verify background layering."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "144:549",
+          "path": "Cricket Match / Frame 1261154190 / Frame 1171275276 / Frame 1171275266 / Group 1000003068 / Upto 3.5% Cashback",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "MULTIPLE_FILLS",
+          "nodeId": "144:550",
+          "path": "Cricket Match / Frame 1261154190 / Frame 1261154323 / SIGNATURE: MATCH TICKET",
+          "message": "Multiple fills are stacked; verify background layering."
+        },
+        {
+          "code": "MULTIPLE_FILLS",
+          "nodeId": "144:573",
+          "path": "Cricket Match / Frame 1261154190 / Frame 1261154323 / SIGNATURE: MATCH TICKET",
+          "message": "Multiple fills are stacked; verify background layering."
+        }
+      ]
+    },
+    {
+      "index": 5,
+      "screen": "Cricket Match",
+      "name": "Cricket Match",
+      "folder": "screens/05_Cricket-Match",
+      "json": "screens/05_Cricket-Match/Cricket-Match.json",
+      "warningCount": 5,
+      "truncated": false,
+      "warnings": [
+        {
+          "code": "HIDDEN_LAYER_INCLUDED",
+          "nodeId": "144:600",
+          "path": "Cricket Match / In The Spotlight",
+          "message": "Hidden layer is included. Keep it hidden in the frontend unless it is needed."
+        },
+        {
+          "code": "MULTIPLE_FILLS",
+          "nodeId": "144:631",
+          "path": "Cricket Match / Frame 1261154190 / Frame 1171275276",
+          "message": "Multiple fills are stacked; verify background layering."
+        },
+        {
+          "code": "CONSTRAINT_LAYOUT",
+          "nodeId": "144:638",
+          "path": "Cricket Match / Frame 1261154190 / Frame 1171275276 / Frame 1171275266 / Group 1000003068 / Upto 3.5% Cashback",
+          "message": "Stretch/scale constraints need responsive checks."
+        },
+        {
+          "code": "MULTIPLE_FILLS",
+          "nodeId": "144:639",
+          "path": "Cricket Match / Frame 1261154190 / Frame 1261154321 / SIGNATURE: MATCH TICKET",
+          "message": "Multiple fills are stacked; verify background layering."
+        },
+        {
+          "code": "MULTIPLE_FILLS",
+          "nodeId": "144:662",
+          "path": "Cricket Match / Frame 1261154190 / Frame 1261154321 / SIGNATURE: MATCH TICKET",
+          "message": "Multiple fills are stacked; verify background layering."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,431 @@
+{
+  "schema": "dev-export-assets",
+  "schemaVersion": "1.1.0",
+  "generatedAt": "2026-11-25T05:44:01.799Z",
+  "screen": {
+    "id": "4005:32350",
+    "name": "My Pricing"
+  },
+  "assets": [
+    {
+      "ref": "svg-I4005_32359_1661_922",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "assetId": "1cee555dd58c",
+      "originalName": "Line 5 (Stroke)",
+      "originalFileName": "Line 5 (Stroke).svg",
+      "fileName": "assets/svg/line_5_stroke-1cee555dd58c.svg",
+      "pngFileName": "assets/png/line_5_stroke-1cee555dd58c@2x.png",
+      "pngScale": 2,
+      "formats": {
+        "svg": "assets/svg/line_5_stroke-1cee555dd58c.svg",
+        "png": "assets/png/line_5_stroke-1cee555dd58c@2x.png"
+      },
+      "nodeId": "I4005:32359;1661:922",
+      "nodeName": "Line 5 (Stroke)",
+      "nodeType": "VECTOR",
+      "width": 40,
+      "height": 20,
+      "byteLength": 1185,
+      "pngByteLength": 1180
+    },
+    {
+      "ref": "svg-I4005_32359_1661_923",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "assetId": "c80b5a62dc09",
+      "originalName": "Ellipse 816",
+      "originalFileName": "Ellipse 816.svg",
+      "fileName": "assets/svg/ellipse_816-c80b5a62dc09.svg",
+      "pngFileName": "assets/png/ellipse_816-c80b5a62dc09@2x.png",
+      "pngScale": 2,
+      "formats": {
+        "svg": "assets/svg/ellipse_816-c80b5a62dc09.svg",
+        "png": "assets/png/ellipse_816-c80b5a62dc09@2x.png"
+      },
+      "nodeId": "I4005:32359;1661:923",
+      "nodeName": "Ellipse 816",
+      "nodeType": "ELLIPSE",
+      "width": 16,
+      "height": 16,
+      "byteLength": 917,
+      "pngByteLength": 1450
+    },
+    {
+      "ref": "svg-I4005_32688_1661_919",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "assetId": "90c2af6d9533",
+      "originalName": "Line 5 (Stroke)",
+      "originalFileName": "Line 5 (Stroke).svg",
+      "fileName": "assets/svg/line_5_stroke-90c2af6d9533.svg",
+      "pngFileName": "assets/png/line_5_stroke-90c2af6d9533@2x.png",
+      "pngScale": 2,
+      "formats": {
+        "svg": "assets/svg/line_5_stroke-90c2af6d9533.svg",
+        "png": "assets/png/line_5_stroke-90c2af6d9533@2x.png"
+      },
+      "nodeId": "I4005:32688;1661:919",
+      "nodeName": "Line 5 (Stroke)",
+      "nodeType": "VECTOR",
+      "width": 40,
+      "height": 20,
+      "byteLength": 1171,
+      "pngByteLength": 1147
+    },
+    {
+      "ref": "svg-I4005_32688_1661_920",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "assetId": "c52944262a14",
+      "originalName": "Ellipse 816",
+      "originalFileName": "Ellipse 816.svg",
+      "fileName": "assets/svg/ellipse_816-c52944262a14.svg",
+      "pngFileName": "assets/png/ellipse_816-c52944262a14@2x.png",
+      "pngScale": 2,
+      "formats": {
+        "svg": "assets/svg/ellipse_816-c52944262a14.svg",
+        "png": "assets/png/ellipse_816-c52944262a14@2x.png"
+      },
+      "nodeId": "I4005:32688;1661:920",
+      "nodeName": "Ellipse 816",
+      "nodeType": "ELLIPSE",
+      "width": 16,
+      "height": 16,
+      "byteLength": 919,
+      "pngByteLength": 1669
+    },
+    {
+      "ref": "svg-I4005_32715_1661_922",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "assetId": "d6348e4b6f1b",
+      "originalName": "Line 5 (Stroke)",
+      "originalFileName": "Line 5 (Stroke).svg",
+      "fileName": "assets/svg/line_5_stroke-d6348e4b6f1b.svg",
+      "pngFileName": "assets/png/line_5_stroke-d6348e4b6f1b@2x.png",
+      "pngScale": 2,
+      "formats": {
+        "svg": "assets/svg/line_5_stroke-d6348e4b6f1b.svg",
+        "png": "assets/png/line_5_stroke-d6348e4b6f1b@2x.png"
+      },
+      "nodeId": "I4005:32715;1661:922",
+      "nodeName": "Line 5 (Stroke)",
+      "nodeType": "VECTOR",
+      "width": 40,
+      "height": 20,
+      "byteLength": 1185,
+      "pngByteLength": 1180
+    },
+    {
+      "ref": "svg-I4005_32715_1661_923",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "assetId": "565061e8247f",
+      "originalName": "Ellipse 816",
+      "originalFileName": "Ellipse 816.svg",
+      "fileName": "assets/svg/ellipse_816-565061e8247f.svg",
+      "pngFileName": "assets/png/ellipse_816-565061e8247f@2x.png",
+      "pngScale": 2,
+      "formats": {
+        "svg": "assets/svg/ellipse_816-565061e8247f.svg",
+        "png": "assets/png/ellipse_816-565061e8247f@2x.png"
+      },
+      "nodeId": "I4005:32715;1661:923",
+      "nodeName": "Ellipse 816",
+      "nodeType": "ELLIPSE",
+      "width": 16,
+      "height": 16,
+      "byteLength": 917,
+      "pngByteLength": 1450
+    },
+    {
+      "ref": "svg-I4005_32697_1661_922",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "assetId": "d5a940088f84",
+      "originalName": "Line 5 (Stroke)",
+      "originalFileName": "Line 5 (Stroke).svg",
+      "fileName": "assets/svg/line_5_stroke-d5a940088f84.svg",
+      "pngFileName": "assets/png/line_5_stroke-d5a940088f84@2x.png",
+      "pngScale": 2,
+      "formats": {
+        "svg": "assets/svg/line_5_stroke-d5a940088f84.svg",
+        "png": "assets/png/line_5_stroke-d5a940088f84@2x.png"
+      },
+      "nodeId": "I4005:32697;1661:922",
+      "nodeName": "Line 5 (Stroke)",
+      "nodeType": "VECTOR",
+      "width": 40,
+      "height": 20,
+      "byteLength": 1185,
+      "pngByteLength": 1180
+    },
+    {
+      "ref": "svg-I4005_32697_1661_923",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "assetId": "792aa7ed8e4a",
+      "originalName": "Ellipse 816",
+      "originalFileName": "Ellipse 816.svg",
+      "fileName": "assets/svg/ellipse_816-792aa7ed8e4a.svg",
+      "pngFileName": "assets/png/ellipse_816-792aa7ed8e4a@2x.png",
+      "pngScale": 2,
+      "formats": {
+        "svg": "assets/svg/ellipse_816-792aa7ed8e4a.svg",
+        "png": "assets/png/ellipse_816-792aa7ed8e4a@2x.png"
+      },
+      "nodeId": "I4005:32697;1661:923",
+      "nodeName": "Ellipse 816",
+      "nodeType": "ELLIPSE",
+      "width": 16,
+      "height": 16,
+      "byteLength": 917,
+      "pngByteLength": 1450
+    },
+    {
+      "ref": "svg-I4005_32706_1661_922",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "assetId": "6c06d3192915",
+      "originalName": "Line 5 (Stroke)",
+      "originalFileName": "Line 5 (Stroke).svg",
+      "fileName": "assets/svg/line_5_stroke-6c06d3192915.svg",
+      "pngFileName": "assets/png/line_5_stroke-6c06d3192915@2x.png",
+      "pngScale": 2,
+      "formats": {
+        "svg": "assets/svg/line_5_stroke-6c06d3192915.svg",
+        "png": "assets/png/line_5_stroke-6c06d3192915@2x.png"
+      },
+      "nodeId": "I4005:32706;1661:922",
+      "nodeName": "Line 5 (Stroke)",
+      "nodeType": "VECTOR",
+      "width": 40,
+      "height": 20,
+      "byteLength": 1185,
+      "pngByteLength": 1180
+    },
+    {
+      "ref": "svg-I4005_32706_1661_923",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "assetId": "596371b235ff",
+      "originalName": "Ellipse 816",
+      "originalFileName": "Ellipse 816.svg",
+      "fileName": "assets/svg/ellipse_816-596371b235ff.svg",
+      "pngFileName": "assets/png/ellipse_816-596371b235ff@2x.png",
+      "pngScale": 2,
+      "formats": {
+        "svg": "assets/svg/ellipse_816-596371b235ff.svg",
+        "png": "assets/png/ellipse_816-596371b235ff@2x.png"
+      },
+      "nodeId": "I4005:32706;1661:923",
+      "nodeName": "Ellipse 816",
+      "nodeType": "ELLIPSE",
+      "width": 16,
+      "height": 16,
+      "byteLength": 917,
+      "pngByteLength": 1450
+    },
+    {
+      "ref": "svg-4005_32429",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "assetId": "677d099536f1",
+      "originalName": "Vector",
+      "originalFileName": "Vector.svg",
+      "fileName": "assets/svg/vector-677d099536f1.svg",
+      "pngFileName": "assets/png/vector-677d099536f1@2x.png",
+      "pngScale": 2,
+      "formats": {
+        "svg": "assets/svg/vector-677d099536f1.svg",
+        "png": "assets/png/vector-677d099536f1@2x.png"
+      },
+      "nodeId": "4005:32429",
+      "nodeName": "Vector",
+      "nodeType": "VECTOR",
+      "width": 6,
+      "height": 12,
+      "byteLength": 994,
+      "pngByteLength": 694
+    }
+  ],
+  "sharedAssets": [
+    {
+      "id": "shared-5dbf5224b377",
+      "file": "shared/assets/png/Line-5-Stroke-5dbf5224.png",
+      "relativeFromScreen": "../../shared/assets/png/Line-5-Stroke-5dbf5224.png",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "mime": "image/png",
+      "byteLength": 1180,
+      "usedAt": [
+        {
+          "nodeId": "I4005:32359;1661:922",
+          "nodeName": "Line 5 (Stroke)",
+          "nodeType": "VECTOR",
+          "layerPath": "My Pricing / Frame 1261154190 / Frame 1261154192 / Frame 1261154425 / Toggle / Line 5 (Stroke)",
+          "usage": "vector",
+          "x": 0,
+          "y": 0.000003496911176625872,
+          "width": 40,
+          "height": 20
+        },
+        {
+          "nodeId": "I4005:32715;1661:922",
+          "nodeName": "Line 5 (Stroke)",
+          "nodeType": "VECTOR",
+          "layerPath": "My Pricing / Frame 1261154190 / Frame 1261154192 / Frame 1261154441 / Toggle / Line 5 (Stroke)",
+          "usage": "vector",
+          "x": 0,
+          "y": 0.000003496911176625872,
+          "width": 40,
+          "height": 20
+        },
+        {
+          "nodeId": "I4005:32697;1661:922",
+          "nodeName": "Line 5 (Stroke)",
+          "nodeType": "VECTOR",
+          "layerPath": "My Pricing / Frame 1261154190 / Frame 1261154192 / Frame 1261154439 / Toggle / Line 5 (Stroke)",
+          "usage": "vector",
+          "x": 0,
+          "y": 0.000003496911176625872,
+          "width": 40,
+          "height": 20
+        },
+        {
+          "nodeId": "I4005:32706;1661:922",
+          "nodeName": "Line 5 (Stroke)",
+          "nodeType": "VECTOR",
+          "layerPath": "My Pricing / Frame 1261154190 / Frame 1261154192 / Frame 1261154440 / Toggle / Line 5 (Stroke)",
+          "usage": "vector",
+          "x": 0,
+          "y": 0.000003496911176625872,
+          "width": 40,
+          "height": 20
+        }
+      ]
+    },
+    {
+      "id": "shared-8115300b95ba",
+      "file": "shared/assets/png/Ellipse-816-8115300b.png",
+      "relativeFromScreen": "../../shared/assets/png/Ellipse-816-8115300b.png",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "mime": "image/png",
+      "byteLength": 1450,
+      "usedAt": [
+        {
+          "nodeId": "I4005:32359;1661:923",
+          "nodeName": "Ellipse 816",
+          "nodeType": "ELLIPSE",
+          "layerPath": "My Pricing / Frame 1261154190 / Frame 1261154192 / Frame 1261154425 / Toggle / Ellipse 816",
+          "usage": "vector",
+          "x": 22,
+          "y": 18.000001907348633,
+          "width": 16,
+          "height": 16
+        },
+        {
+          "nodeId": "I4005:32715;1661:923",
+          "nodeName": "Ellipse 816",
+          "nodeType": "ELLIPSE",
+          "layerPath": "My Pricing / Frame 1261154190 / Frame 1261154192 / Frame 1261154441 / Toggle / Ellipse 816",
+          "usage": "vector",
+          "x": 22,
+          "y": 18.000001907348633,
+          "width": 16,
+          "height": 16
+        },
+        {
+          "nodeId": "I4005:32697;1661:923",
+          "nodeName": "Ellipse 816",
+          "nodeType": "ELLIPSE",
+          "layerPath": "My Pricing / Frame 1261154190 / Frame 1261154192 / Frame 1261154439 / Toggle / Ellipse 816",
+          "usage": "vector",
+          "x": 22,
+          "y": 18.000001907348633,
+          "width": 16,
+          "height": 16
+        },
+        {
+          "nodeId": "I4005:32706;1661:923",
+          "nodeName": "Ellipse 816",
+          "nodeType": "ELLIPSE",
+          "layerPath": "My Pricing / Frame 1261154190 / Frame 1261154192 / Frame 1261154440 / Toggle / Ellipse 816",
+          "usage": "vector",
+          "x": 22,
+          "y": 18.000001907348633,
+          "width": 16,
+          "height": 16
+        }
+      ]
+    },
+    {
+      "id": "shared-beef58cfaf7a",
+      "file": "shared/assets/png/Line-5-Stroke-beef58cf.png",
+      "relativeFromScreen": "../../shared/assets/png/Line-5-Stroke-beef58cf.png",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "mime": "image/png",
+      "byteLength": 1147,
+      "usedAt": [
+        {
+          "nodeId": "I4005:32688;1661:919",
+          "nodeName": "Line 5 (Stroke)",
+          "nodeType": "VECTOR",
+          "layerPath": "My Pricing / Frame 1261154190 / Frame 1261154192 / Frame 1261154438 / Toggle / Line 5 (Stroke)",
+          "usage": "vector",
+          "x": 0,
+          "y": 0.000003496911176625872,
+          "width": 40,
+          "height": 20
+        }
+      ]
+    },
+    {
+      "id": "shared-d8dbaa94e991",
+      "file": "shared/assets/png/Ellipse-816-d8dbaa94.png",
+      "relativeFromScreen": "../../shared/assets/png/Ellipse-816-d8dbaa94.png",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "mime": "image/png",
+      "byteLength": 1669,
+      "usedAt": [
+        {
+          "nodeId": "I4005:32688;1661:920",
+          "nodeName": "Ellipse 816",
+          "nodeType": "ELLIPSE",
+          "layerPath": "My Pricing / Frame 1261154190 / Frame 1261154192 / Frame 1261154438 / Toggle / Ellipse 816",
+          "usage": "vector",
+          "x": 2.0000009536743164,
+          "y": 18.000001907348633,
+          "width": 16,
+          "height": 16
+        }
+      ]
+    },
+    {
+      "id": "shared-310f004dc86a",
+      "file": "shared/assets/png/Vector-310f004d.png",
+      "relativeFromScreen": "../../shared/assets/png/Vector-310f004d.png",
+      "kind": "svg",
+      "semanticRole": "icon",
+      "mime": "image/png",
+      "byteLength": 694,
+      "usedAt": [
+        {
+          "nodeId": "4005:32429",
+          "nodeName": "Vector",
+          "nodeType": "VECTOR",
+          "layerPath": "My Pricing / Frame 1261154402 / Frame 1000003336 / Back / Vector",
+          "usage": "vector",
+          "x": 15,
+          "y": 12,
+          "width": 6,
+          "height": 12
+        }
+      ]
+    }
+  ]
+}

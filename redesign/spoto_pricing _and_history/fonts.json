@@ -1,0 +1,260 @@
+{
+  "schema": "dev-export-fonts",
+  "schemaVersion": "1.1.0",
+  "generatedAt": "2026-11-25T05:44:00.057Z",
+  "familyCount": 2,
+  "fonts": [
+    {
+      "family": "Quicksand",
+      "source": "system",
+      "license": "system-font",
+      "fallbackStack": [
+        "Quicksand",
+        "Noto Sans",
+        "Noto Sans Arabic",
+        "Noto Color Emoji",
+        "Apple Color Emoji",
+        "Segoe UI Emoji",
+        "ui-sans-serif",
+        "system-ui",
+        "sans-serif"
+      ],
+      "substitute": "Inter",
+      "isIconFont": false,
+      "iconLigatures": false,
+      "mixed": true,
+      "weights": {
+        "500": "Medium",
+        "600": "SemiBold",
+        "700": "Bold"
+      },
+      "allWeights": [
+        500,
+        600,
+        700
+      ],
+      "usageCount": 95,
+      "styles": [
+        {
+          "style": "Medium",
+          "count": 44,
+          "weights": [
+            500
+          ],
+          "availableOnClient": true
+        },
+        {
+          "style": "SemiBold",
+          "count": 22,
+          "weights": [
+            600
+          ],
+          "availableOnClient": true
+        },
+        {
+          "style": "Bold",
+          "count": 29,
+          "weights": [
+            700
+          ],
+          "availableOnClient": true
+        }
+      ],
+      "sizes": [
+        {
+          "value": 14,
+          "count": 40
+        },
+        {
+          "value": 12,
+          "count": 30
+        },
+        {
+          "value": 16,
+          "count": 18
+        },
+        {
+          "value": 18,
+          "count": 5
+        },
+        {
+          "value": 20,
+          "count": 1
+        },
+        {
+          "value": 22,
+          "count": 1
+        }
+      ],
+      "screens": [
+        {
+          "index": 1,
+          "name": "My Pricing"
+        },
+        {
+          "index": 2,
+          "name": "My Pricing"
+        },
+        {
+          "index": 3,
+          "name": "Cricket Match"
+        },
+        {
+          "index": 4,
+          "name": "Cricket Match"
+        },
+        {
+          "index": 5,
+          "name": "Cricket Match"
+        }
+      ],
+      "samples": [
+        {
+          "screenIndex": 1,
+          "screenName": "My Pricing",
+          "nodeId": "4005:32355",
+          "path": "My Pricing / Frame 1261154190 / Frame 1261154192 / Frame 1261154425 / Frame 1261154611 / Cashback History",
+          "characters": "1 Hour Slot",
+          "fontSize": 16,
+          "fontWeight": 600
+        },
+        {
+          "screenIndex": 1,
+          "screenName": "My Pricing",
+          "nodeId": "4005:32358",
+          "path": "My Pricing / Frame 1261154190 / Frame 1261154192 / Frame 1261154425 / Frame 1261154611 / Frame 1261154612 / Cashback History",
+          "characters": "₹500",
+          "fontSize": 14,
+          "fontWeight": 500
+        },
+        {
+          "screenIndex": 1,
+          "screenName": "My Pricing",
+          "nodeId": "4005:32684",
+          "path": "My Pricing / Frame 1261154190 / Frame 1261154192 / Frame 1261154438 / Frame 1261154611 / Cashback History",
+          "characters": "4 Hour Slot",
+          "fontSize": 16,
+          "fontWeight": 600
+        },
+        {
+          "screenIndex": 1,
+          "screenName": "My Pricing",
+          "nodeId": "4005:32725",
+          "path": "My Pricing / Frame 1261154190 / Frame 1261154192 / Frame 1261154438 / Frame 1261154611 / Cashback History",
+          "characters": "₹500",
+          "fontSize": 14,
+          "fontWeight": 500
+        },
+        {
+          "screenIndex": 1,
+          "screenName": "My Pricing",
+          "nodeId": "4005:32711",
+          "path": "My Pricing / Frame 1261154190 / Frame 1261154192 / Frame 1261154441 / Frame 1261154611 / Cashback History",
+          "characters": "8 Hour Slot",
+          "fontSize": 16,
+          "fontWeight": 600
+        }
+      ],
+      "notes": "System font. Confirm redistribution/licensing before packaging binaries."
+    },
+    {
+      "family": "Inter",
+      "source": "google",
+      "downloadUrl": "https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap",
+      "weightUrls": {
+        "600": "https://fonts.googleapis.com/css2?family=Inter:wght@600&display=swap"
+      },
+      "license": "OFL-1.1",
+      "licenseUrl": "https://openfontlicense.org",
+      "fallbackStack": [
+        "Inter",
+        "Noto Sans",
+        "Noto Sans Arabic",
+        "Noto Color Emoji",
+        "Apple Color Emoji",
+        "Segoe UI Emoji",
+        "ui-sans-serif",
+        "system-ui",
+        "sans-serif"
+      ],
+      "substitute": "Inter",
+      "isIconFont": false,
+      "iconLigatures": false,
+      "mixed": false,
+      "weights": {
+        "600": "Semi Bold"
+      },
+      "allWeights": [
+        600
+      ],
+      "usageCount": 3,
+      "styles": [
+        {
+          "style": "Semi Bold",
+          "count": 3,
+          "weights": [
+            600
+          ],
+          "availableOnClient": true
+        }
+      ],
+      "sizes": [
+        {
+          "value": 18,
+          "count": 3
+        }
+      ],
+      "screens": [
+        {
+          "index": 3,
+          "name": "Cricket Match"
+        },
+        {
+          "index": 4,
+          "name": "Cricket Match"
+        },
+        {
+          "index": 5,
+          "name": "Cricket Match"
+        }
+      ],
+      "samples": [
+        {
+          "screenIndex": 3,
+          "screenName": "Cricket Match",
+          "nodeId": "138:821",
+          "path": "Cricket Match / In The Spotlight",
+          "characters": "In The Spotlight",
+          "fontSize": 18,
+          "fontWeight": 600
+        },
+        {
+          "screenIndex": 4,
+          "screenName": "Cricket Match",
+          "nodeId": "144:511",
+          "path": "Cricket Match / In The Spotlight",
+          "characters": "In The Spotlight",
+          "fontSize": 18,
+          "fontWeight": 600
+        },
+        {
+          "screenIndex": 5,
+          "screenName": "Cricket Match",
+          "nodeId": "144:600",
+          "path": "Cricket Match / In The Spotlight",
+          "characters": "In The Spotlight",
+          "fontSize": 18,
+          "fontWeight": 600
+        }
+      ],
+      "googleFontsUrl": "https://fonts.google.com/specimen/Inter"
+    }
+  ],
+  "warnings": [
+    {
+      "code": "MIXED_FONT_WEIGHT",
+      "family": "Quicksand",
+      "message": "Font Quicksand has mixed weights across text runs. Resolve weights from styledSegments when rendering."
+    }
+  ]
+}

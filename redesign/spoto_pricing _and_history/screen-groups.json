@@ -1,0 +1,91 @@
+{
+  "schema": "dev-export-screen-groups",
+  "schemaVersion": "1.1.0",
+  "generatedAt": "2026-11-25T05:44:00.057Z",
+  "note": "Groups are inferred from frame dimensions and screen names. Use them to plan breakpoints and variants.",
+  "suggestedBreakpoints": [
+    390
+  ],
+  "dimensions": [
+    {
+      "key": "390x844",
+      "width": 390,
+      "height": 844,
+      "device": "mobile",
+      "screens": [
+        {
+          "index": 1,
+          "name": "My Pricing",
+          "folder": "screens/01_My-Pricing",
+          "json": "screens/01_My-Pricing/My-Pricing.json"
+        },
+        {
+          "index": 2,
+          "name": "My Pricing",
+          "folder": "screens/02_My-Pricing",
+          "json": "screens/02_My-Pricing/My-Pricing.json"
+        },
+        {
+          "index": 3,
+          "name": "Cricket Match",
+          "folder": "screens/03_Cricket-Match",
+          "json": "screens/03_Cricket-Match/Cricket-Match.json"
+        },
+        {
+          "index": 4,
+          "name": "Cricket Match",
+          "folder": "screens/04_Cricket-Match",
+          "json": "screens/04_Cricket-Match/Cricket-Match.json"
+        },
+        {
+          "index": 5,
+          "name": "Cricket Match",
+          "folder": "screens/05_Cricket-Match",
+          "json": "screens/05_Cricket-Match/Cricket-Match.json"
+        }
+      ]
+    }
+  ],
+  "byName": [
+    {
+      "key": "my pricing",
+      "screens": [
+        {
+          "index": 1,
+          "name": "My Pricing",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "index": 2,
+          "name": "My Pricing",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    },
+    {
+      "key": "cricket match",
+      "screens": [
+        {
+          "index": 3,
+          "name": "Cricket Match",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "index": 4,
+          "name": "Cricket Match",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "index": 5,
+          "name": "Cricket Match",
+          "width": 390,
+          "height": 844
+        }
+      ]
+    }
+  ]
+}
